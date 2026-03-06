@@ -7,6 +7,7 @@ import { Views } from "./components/Views";
 import { LoginView } from "./components/LoginView";
 import { supabase } from "./lib/supabase";
 import type { Session } from "@supabase/supabase-js";
+import { Toaster } from 'sonner';
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -19,7 +20,9 @@ function App() {
 
   useEffect(() => {
     // Close sidebar on view change on mobile
-    setSidebarOpen(false);
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
   }, [activeView]);
 
   useEffect(() => {
@@ -53,7 +56,6 @@ function App() {
   // Show login screen if not authenticated
   if (!session) {
     return <LoginView onLogin={() => {
-      // Re-fetch session after login to update state immediately
       supabase.auth.getSession().then(({ data: { session } }) => {
         setSession(session);
       });
@@ -61,7 +63,14 @@ function App() {
   }
 
   return (
-    <div className="flex bg-slate-50 dark:bg-brand-950 min-h-screen font-sans transition-colors duration-300 overflow-x-hidden">
+    <div className="flex bg-[#faf9ff] dark:bg-[#0d0d17] min-h-screen font-sans transition-colors duration-500 overflow-x-hidden relative">
+      {/* Premium Ambient Background */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-violet-500/5 dark:bg-violet-600/10 rounded-full blur-[120px] animate-pulse-slow" />
+        <div className="absolute top-[20%] -right-[5%] w-[30%] h-[30%] bg-fuchsia-500/5 dark:bg-fuchsia-600/5 rounded-full blur-[100px] animate-float" />
+        <div className="absolute -bottom-[10%] left-[20%] w-[35%] h-[35%] bg-blue-500/5 dark:bg-blue-600/5 rounded-full blur-[130px] animate-pulse-slow" />
+      </div>
+
       <Sidebar
         activeView={activeView}
         setView={setActiveView}
@@ -72,12 +81,12 @@ function App() {
       />
 
       {/* Main Content Area */}
-      <div className={cn(
-        "flex-1 min-w-0 min-h-screen transition-all duration-300",
-        "lg:ml-64", // Fixed margin on desktop
-        sidebarOpen ? "ml-64 opacity-50 pointer-events-none lg:opacity-100 lg:pointer-events-auto" : "ml-0"
+      <main className={cn(
+        "flex-1 min-w-0 min-h-screen transition-all duration-300 relative z-10",
+        "lg:ml-64",
+        sidebarOpen ? "ml-64 opacity-50 blur-sm pointer-events-none lg:opacity-100 lg:blur-0 lg:pointer-events-auto" : "ml-0"
       )}>
-        <div key={activeView}>
+        <div key={activeView} className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           {activeView === "Dashboard" && (
             <Dashboard
               onLogout={handleLogout}
@@ -86,28 +95,20 @@ function App() {
               toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
             />
           )}
-          {activeView === "Vendas" && <Views.Vendas />}
+          {activeView === "Vendas" && <Views.Vendas user={session.user} />}
           {activeView === "Produtos" && <Views.Produtos />}
           {activeView === "Afiliados" && <Views.Afiliados />}
           {activeView === "Mercado" && <Views.Mercado />}
           {activeView === "Pagamentos" && <Views.Pagamentos />}
+          {activeView === "Saque" && <Views.Saque />}
           {activeView === "Premiações" && <Views.Premiações />}
-          {activeView === "Marketing" && <Views.Marketing />}
+          {activeView === "Marketing" && <Views.Ferramentas />}
           {activeView === "Analytics" && <Views.Analytics />}
           {activeView === "Configurações" && <Views.Configuracoes />}
         </div>
-      </div>
+      </main>
 
-      {/* Status pill */}
-      <div className="fixed bottom-6 right-8 z-50 flex items-center gap-2.5 rounded-2xl border border-violet-100 bg-white px-4 py-2.5 shadow-lg">
-        <div className="relative h-2 w-2">
-          <div className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-60" />
-          <div className="relative h-2 w-2 rounded-full bg-green-400" />
-        </div>
-        <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Sistemas OK</span>
-        <span className="text-[10px] text-slate-300 font-bold">|</span>
-        <span className="text-[10px] font-bold text-slate-400">v2.2.0</span>
-      </div>
+      <Toaster richColors position="top-right" expand={false} />
     </div>
   );
 }

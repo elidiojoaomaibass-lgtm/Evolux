@@ -12,7 +12,7 @@ export const PagamentosView = () => {
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
 
     return (
-        <div className="px-4 md:px-8 py-6 md:py-7 pb-28 space-y-6 md:space-y-8 max-w-7xl mx-auto">
+        <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 max-w-none mx-auto w-full">
             {/* Header */}
             <div>
                 <h2 className="text-2xl md:text-3xl font-black text-violet-950 dark:text-white tracking-tight leading-none mb-2">Pagamentos</h2>

@@ -16,7 +16,7 @@ const levels = [
         bgColor: 'bg-orange-50',
         darkBg: 'dark:bg-orange-900/10',
         benefits: ['Suporte prioritário', 'Badge exclusivo no perfil'],
-        isCurrent: true
+        isCurrent: false
     },
     {
         name: 'Prata',
@@ -56,7 +56,7 @@ const levels = [
         bgColor: 'bg-cyan-50',
         darkBg: 'dark:bg-cyan-900/10',
         benefits: ['Todos benefícios Platina', 'Taxa reduzida de 2%', 'Convites para eventos VIP'],
-        isCurrent: false
+        isCurrent: true
     }
 ];
 
@@ -65,7 +65,8 @@ const rewards = [
         type: 'band',
         target: '50K',
         label: 'FATURADOS',
-        remain: '50.000 MZN',
+        remain: 'DESBLOQUEADO',
+        unlocked: true,
         title: 'Pulseira Evolux',
         image: '/awards/50k.png'
     },
@@ -73,7 +74,8 @@ const rewards = [
         type: 'plaque',
         target: '100K',
         label: 'FATURADOS',
-        remain: '100.000 MZN',
+        remain: 'DESBLOQUEADO',
+        unlocked: true,
         title: 'Placa de Prata',
         image: '/awards/100k.jpg'
     },
@@ -81,81 +83,83 @@ const rewards = [
         type: 'plaque',
         target: '500K',
         label: 'FATURADOS',
-        remain: '500.000 MZN',
+        remain: 'DESBLOQUEADO',
+        unlocked: true,
         title: 'Placa de Ouro',
-        image: '/awards/500k.jpg'
+        image: '/awards/1m.jpg'
     },
     {
         type: 'plaque',
         target: '1M',
         label: 'FATURADOS',
-        remain: '1.000.000 MZN',
+        remain: '480.000 MZN',
+        unlocked: false,
         title: 'Placa de Diamante',
-        image: '/awards/1m.jpg'
+        image: '/awards/500k.jpg'
     },
 ];
 
 const achievements = [
-    { title: 'Primeira Venda', desc: 'Realize sua primeira venda na plataforma', icon: Zap, unlocked: false },
-    { title: '10 Vendas', desc: 'Alcance 10 vendas totais', icon: Target, unlocked: false },
-    { title: '50 Vendas', desc: 'Alcance 50 vendas totais', icon: Shield, unlocked: false },
-    { title: '100 Vendas', desc: 'Alcance 100 vendas totais', icon: Award, unlocked: false },
-    { title: '500 Vendas', desc: 'Alcance 500 vendas totais', icon: Crown, unlocked: false },
-    { title: 'Mestre das Vendas', desc: 'Alcance 1000 vendas totais', icon: Gem, unlocked: false },
+    { title: 'Primeira Venda', desc: 'Realize sua primeira venda na plataforma', icon: Zap, unlocked: true },
+    { title: '10 Vendas', desc: 'Alcance 10 vendas totais', icon: Target, unlocked: true },
+    { title: '50 Vendas', desc: 'Alcance 50 vendas totais', icon: Shield, unlocked: true },
+    { title: '100 Vendas', desc: 'Alcance 100 vendas totais', icon: Award, unlocked: true },
+    { title: '500 Vendas', desc: 'Alcance 500 vendas totais', icon: Crown, unlocked: true },
+    { title: 'Mestre das Vendas', desc: 'Alcance 1000 vendas totais', icon: Gem, unlocked: true },
 ];
 
 export const PremiacoesView = () => {
     return (
-        <div className="px-4 md:px-8 py-6 md:py-7 pb-28 space-y-8 md:space-y-12">
+        <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto">
             {/* Header */}
             <div>
-                <h2 className="text-2xl md:text-3xl font-black text-violet-950 dark:text-white tracking-tight leading-none mb-2">Premiações</h2>
-                <p className="text-xs md:text-sm text-slate-400 dark:text-brand-400 font-medium">Conquiste marcos e desbloqueie prêmios exclusivos pela Evolux.</p>
+                <h2 className="text-xl md:text-2xl font-black text-violet-950 dark:text-white tracking-tight leading-none mb-1.5">Premiações</h2>
+                <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium">Conquiste marcos e desbloqueie prêmios exclusivos pela Evolux.</p>
             </div>
 
             {/* Current Level Card */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="group relative overflow-hidden rounded-[2rem] md:rounded-[3rem] border border-violet-100 dark:border-brand-800 bg-white dark:bg-brand-900 p-6 md:p-10 shadow-sm transition-all hover:shadow-xl"
+                className="group relative overflow-hidden rounded-2xl md:rounded-3xl border border-violet-100 dark:border-brand-800 bg-white dark:bg-brand-900 p-4 md:p-6 shadow-sm transition-all hover:shadow-xl"
             >
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
                     <div className="flex-shrink-0 flex justify-center md:block">
-                        <div className="h-20 w-20 md:h-24 md:w-24 rounded-3xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-500 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                            <Trophy size={40} className="md:w-12 md:h-12" />
+                        <div className="h-16 w-16 md:h-20 md:w-20 rounded-2xl bg-cyan-50 dark:bg-cyan-900/20 flex items-center justify-center text-cyan-500 shadow-inner group-hover:scale-105 transition-transform duration-500">
+                            <Gem size={32} className="md:w-10 md:h-10" />
                         </div>
                     </div>
                     <div className="flex-1 text-center md:text-left">
-                        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 mb-2">
-                            <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white leading-tight">Nível Atual: Bronze</h3>
-                            <span className="rounded-full bg-violet-100 dark:bg-brand-800 px-3 py-1 text-[9px] md:text-[10px] font-black text-violet-600 dark:text-brand-300 uppercase tracking-widest">Iniciante</span>
+                        <div className="flex flex-col md:flex-row items-center gap-1.5 md:gap-2 mb-1.5">
+                            <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight">Nível Atual: Diamante</h3>
+                            <span className="rounded-full bg-cyan-100 dark:bg-brand-800 px-2.5 py-0.5 text-[8px] md:text-[9px] font-black text-cyan-600 dark:text-brand-300 uppercase tracking-widest">Elite</span>
                         </div>
-                        <p className="text-xs md:text-sm font-bold text-slate-400 dark:text-brand-400 flex items-center justify-center md:justify-start gap-2">
-                            <TrendingUp size={14} className="text-green-500 md:w-4 md:h-4" />
-                            Receita total: <span className="text-slate-900 dark:text-white">0 MZN</span>
+                        <p className="text-[10px] md:text-xs font-bold text-slate-400 dark:text-brand-400 flex items-center justify-center md:justify-start gap-1.5">
+                            <TrendingUp size={12} className="text-green-500" />
+                            Receita total: <span className="text-slate-900 dark:text-white">520.000 MZN</span>
                         </p>
 
-                        <div className="mt-6 md:mt-8 space-y-2 md:space-y-3">
-                            <div className="flex items-center justify-between text-[10px] md:text-[11px] font-black tracking-wider uppercase">
-                                <span className="text-violet-600 dark:text-brand-300">Meta: Prata</span>
-                                <span className="text-slate-400">Faltam 10 000 MZN</span>
+                        <div className="mt-4 md:mt-6 space-y-1.5 md:space-y-2">
+                            <div className="flex items-center justify-between text-[9px] md:text-[10px] font-black tracking-wider uppercase">
+                                <span className="text-cyan-600 dark:text-brand-300">Meta: Próximo Nível</span>
+                                <span className="text-slate-400">Faltam 480 000 MZN</span>
                             </div>
-                            <div className="h-3 md:h-4 w-full rounded-full bg-slate-50 dark:bg-brand-950 overflow-hidden border border-slate-100 dark:border-brand-800 p-0.5 md:p-1 shadow-inner">
+                            <div className="h-2.5 md:h-3 w-full rounded-full bg-slate-50 dark:bg-brand-950 overflow-hidden border border-slate-100 dark:border-brand-800 p-0.5 shadow-inner">
                                 <motion.div
                                     initial={{ width: 0 }}
-                                    animate={{ width: '0%' }}
-                                    className="h-full rounded-full bg-gradient-to-r from-orange-400 via-orange-500 to-orange-400 shadow-[0_0_15px_rgba(251,146,60,0.5)]"
+                                    animate={{ width: '52%' }}
+                                    className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.5)]"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <div className="md:w-64 pt-6 md:pt-0 md:pl-10 md:border-l border-slate-50 dark:border-brand-800 border-t md:border-t-0 border-slate-100 dark:border-brand-800">
-                        <p className="text-[9px] md:text-[10px] font-black text-slate-300 dark:text-brand-500 uppercase tracking-[0.2em] mb-3 md:mb-4 text-center md:text-left">Benefícios atuais:</p>
-                        <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
+                    <div className="md:w-56 pt-4 md:pt-0 md:pl-8 md:border-l border-slate-50 dark:border-brand-800 border-t md:border-t-0 border-slate-100 dark:border-brand-800">
+                        <p className="text-[8px] font-black text-slate-300 dark:text-brand-500 uppercase tracking-[0.2em] mb-2 md:mb-3 text-center md:text-left">Benefícios atuais:</p>
+                        <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
                             {['Suporte prioritário', 'Badge exclusivo'].map(b => (
-                                <div key={b} className="flex items-center justify-center md:justify-start gap-2 text-[11px] md:text-xs font-bold text-slate-600 dark:text-brand-200">
-                                    <CheckCircle2 size={14} className="text-orange-500 md:w-4 md:h-4" /> {b}
+                                <div key={b} className="flex items-center justify-center md:justify-start gap-1.5 text-[10px] md:text-[11px] font-bold text-slate-600 dark:text-brand-200">
+                                    <CheckCircle2 size={12} className="text-orange-500" /> {b}
                                 </div>
                             ))}
                         </div>
@@ -167,13 +171,13 @@ export const PremiacoesView = () => {
             </motion.div>
 
             {/* Main Rewards Grid */}
-            <section className="space-y-6 md:space-y-8">
+            <section className="space-y-4 md:space-y-6">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white tracking-tight">Kits de Premiação</h3>
-                    <div className="hidden sm:block h-1 flex-1 mx-6 bg-slate-50 dark:bg-brand-800/30 rounded-full" />
+                    <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white tracking-tight">Kits de Premiação</h3>
+                    <div className="hidden sm:block h-0.5 flex-1 mx-4 bg-slate-50 dark:bg-brand-800/30 rounded-full" />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 md:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 md:gap-8 pb-4">
                     {rewards.map((r, i) => (
                         <motion.div
                             key={r.target}
@@ -184,7 +188,7 @@ export const PremiacoesView = () => {
                         >
                             <div className="relative">
                                 {/* The Award Visual Container */}
-                                <div className="relative h-60 md:h-72 w-full rounded-[2rem] md:rounded-[2.5rem] bg-slate-950 border border-violet-900/30 shadow-xl overflow-hidden flex items-center justify-center hover:shadow-violet-500/20 hover:-translate-y-1 transition-all duration-500">
+                                <div className="relative aspect-[4/3] w-full rounded-2xl md:rounded-3xl bg-slate-950 border border-violet-900/30 shadow-xl overflow-hidden flex items-center justify-center hover:shadow-violet-500/20 hover:-translate-y-1 transition-all duration-500">
 
                                     <img
                                         src={r.image}
@@ -196,27 +200,36 @@ export const PremiacoesView = () => {
                                     />
 
                                     {/* Lock badge */}
-                                    <div className="absolute top-4 right-4 h-8 w-8 md:h-9 md:w-9 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/10">
-                                        <Lock size={14} className="text-slate-300 md:w-4 md:h-4" />
-                                    </div>
+                                    {(r.remain === 'DESBLOQUEADO' || r.unlocked) ? (
+                                        <div className="absolute top-3 right-3 h-7 w-7 md:h-8 md:w-8 rounded-full bg-emerald-500 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/20">
+                                            <CheckCircle2 size={14} className="text-white" />
+                                        </div>
+                                    ) : (
+                                        <div className="absolute top-3 right-3 h-7 w-7 md:h-8 md:w-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/10">
+                                            <Lock size={12} className="text-slate-300" />
+                                        </div>
+                                    )}
 
                                     {/* Target badge */}
-                                    <div className="absolute bottom-4 left-4 rounded-full bg-black/60 backdrop-blur-sm px-3 py-1.5 border border-white/10">
-                                        <span className="text-[9px] md:text-[10px] font-black text-violet-300 uppercase tracking-widest">{r.target} {r.label}</span>
+                                    <div className="absolute bottom-3 left-3 rounded-full bg-black/60 backdrop-blur-sm px-2.5 py-1 border border-white/10">
+                                        <span className="text-[8px] md:text-[9px] font-black text-violet-300 uppercase tracking-widest">{r.target} {r.label}</span>
                                     </div>
                                 </div>
 
                                 {/* Info below visual */}
-                                <div className="px-1 md:px-2 mt-4 flex items-center justify-between">
+                                <div className="px-1 md:px-1.5 mt-3 flex items-center justify-between">
                                     <div className="min-w-0">
-                                        <h4 className="text-sm md:text-base font-black text-slate-900 dark:text-white leading-tight truncate">{r.title}</h4>
-                                        <p className="text-[10px] md:text-[11px] font-bold text-slate-400 dark:text-brand-500 uppercase tracking-[0.12em] mt-1 flex items-center gap-1.5 opacity-80">
-                                            <Lock size={10} className="shrink-0" />
-                                            Faltam {r.remain}
+                                        <h4 className="text-xs md:text-sm font-black text-slate-900 dark:text-white leading-tight truncate">{r.title}</h4>
+                                        <p className={cn(
+                                            "text-[9px] md:text-[10px] font-bold uppercase tracking-tight mt-0.5 flex items-center gap-1",
+                                            (r.remain === 'DESBLOQUEADO' || r.unlocked) ? "text-emerald-500" : "text-slate-400 dark:text-brand-500 opacity-80"
+                                        )}>
+                                            {(r.remain === 'DESBLOQUEADO' || r.unlocked) ? <CheckCircle2 size={9} className="shrink-0" /> : <Lock size={9} className="shrink-0" />}
+                                            {r.remain === 'DESBLOQUEADO' ? 'Prêmio Desbloqueado' : `Faltam ${r.remain}`}
                                         </p>
                                     </div>
-                                    <div className="h-8 w-8 md:h-9 md:w-9 rounded-xl bg-violet-100 dark:bg-brand-800 flex items-center justify-center shrink-0">
-                                        <Trophy size={16} className="text-violet-500 md:w-[18px] md:h-[18px]" />
+                                    <div className="h-7 w-7 md:h-8 md:w-8 rounded-lg bg-violet-100 dark:bg-brand-800 flex items-center justify-center shrink-0">
+                                        <Trophy size={14} className="text-violet-500" />
                                     </div>
                                 </div>
                             </div>
@@ -226,10 +239,10 @@ export const PremiacoesView = () => {
             </section>
 
             {/* Achievement Levels List */}
-            <section className="space-y-6 md:space-y-8">
+            <section className="space-y-4 md:space-y-6">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white tracking-tight">Escada do Sucesso</h3>
-                    <div className="hidden sm:block h-1 flex-1 mx-6 bg-slate-50 dark:bg-brand-800/30 rounded-full" />
+                    <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white tracking-tight">Escada do Sucesso</h3>
+                    <div className="hidden sm:block h-0.5 flex-1 mx-4 bg-slate-50 dark:bg-brand-800/30 rounded-full" />
                 </div>
 
                 <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
@@ -237,33 +250,33 @@ export const PremiacoesView = () => {
                         <div
                             key={lvl.name}
                             className={cn(
-                                "relative flex flex-col items-center p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] border transition-all duration-300",
+                                "relative flex flex-col items-center p-4 md:p-6 rounded-2xl md:rounded-3xl border transition-all duration-300",
                                 lvl.isCurrent
-                                    ? "bg-white dark:bg-brand-900 border-violet-500 shadow-xl ring-2 ring-violet-500/20"
+                                    ? "bg-white dark:bg-brand-900 border-violet-500 shadow-xl ring-1 ring-violet-500/20"
                                     : "bg-white/50 dark:bg-brand-900/40 border-slate-100 dark:border-brand-800 hover:border-violet-200 dark:hover:border-brand-700"
                             )}
                         >
                             {lvl.isCurrent && (
-                                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-violet-600 px-3 py-1 md:px-4 md:py-1.5 text-[8px] md:text-[10px] font-black text-white uppercase tracking-[0.2em] shadow-lg whitespace-nowrap">
+                                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-violet-600 px-2.5 py-1 text-[7px] md:text-[8px] font-black text-white uppercase tracking-widest shadow-lg whitespace-nowrap">
                                     VOCÊ ESTÁ AQUI
                                 </span>
                             )}
                             <div className={cn(
-                                "h-12 w-12 md:h-16 md:w-16 rounded-2xl md:rounded-3xl mb-4 md:mb-6 flex items-center justify-center text-2xl md:text-3xl shadow-lg border-2 border-white dark:border-brand-800",
+                                "h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl mb-3 md:mb-4 flex items-center justify-center text-xl md:text-2xl shadow-lg border border-white dark:border-brand-800",
                                 lvl.bgColor, lvl.darkBg, lvl.color
                             )}>
-                                <lvl.icon size={24} className="md:w-8 md:h-8" />
+                                <lvl.icon size={18} className="md:w-6 md:h-6" />
                             </div>
-                            <h4 className="text-base md:text-lg font-black text-slate-900 dark:text-white mb-1">{lvl.name}</h4>
-                            <p className="text-[9px] md:text-[11px] font-black text-violet-500 uppercase tracking-tighter mb-4 md:mb-6">{lvl.range}</p>
+                            <h4 className="text-sm md:text-base font-black text-slate-900 dark:text-white mb-0.5">{lvl.name}</h4>
+                            <p className="text-[8px] md:text-[9px] font-black text-violet-500 uppercase tracking-tighter mb-4 md:mb-5">{lvl.range}</p>
 
-                            <div className="w-full space-y-2 md:space-y-3">
+                            <div className="w-full space-y-1.5 md:space-y-2">
                                 {lvl.benefits.map((b, i) => (
-                                    <div key={i} className="flex items-start gap-2">
-                                        <div className="h-3.5 w-3.5 md:h-4 md:w-4 rounded-full bg-violet-50 dark:bg-brand-800 flex items-center justify-center shrink-0 mt-0.5">
-                                            <Star size={8} className="text-violet-500 fill-violet-500 md:w-2.5 md:h-2.5" />
+                                    <div key={i} className="flex items-start gap-1.5">
+                                        <div className="h-3 w-3 rounded-full bg-violet-50 dark:bg-brand-800 flex items-center justify-center shrink-0 mt-0.5">
+                                            <Star size={7} className="text-violet-500 fill-violet-500" />
                                         </div>
-                                        <span className="text-[10px] md:text-xs font-bold text-slate-500 dark:text-brand-300 leading-tight">{b}</span>
+                                        <span className="text-[9px] md:text-[10px] font-bold text-slate-500 dark:text-brand-300 leading-tight">{b}</span>
                                     </div>
                                 ))}
                             </div>
@@ -273,30 +286,47 @@ export const PremiacoesView = () => {
             </section>
 
             {/* Bottom Badges */}
-            <section className="bg-slate-50 dark:bg-brand-950/50 rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 border border-slate-100 dark:border-brand-800/50 mt-8 md:mt-12">
-                <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
-                    <div className="h-10 w-10 rounded-xl bg-violet-600 flex items-center justify-center text-white shadow-lg shrink-0">
-                        <Award size={24} />
+            <section className="bg-slate-50 dark:bg-brand-950/50 rounded-2xl md:rounded-3xl p-5 md:p-8 border border-slate-100 dark:border-brand-800/50 mt-6 md:mt-10">
+                <div className="flex items-center gap-3 mb-5 md:mb-6">
+                    <div className="h-8 w-8 rounded-lg bg-violet-600 flex items-center justify-center text-white shadow-lg shrink-0">
+                        <Award size={18} />
                     </div>
                     <div>
-                        <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight">Performance</h3>
-                        <p className="text-[10px] md:text-xs font-bold text-slate-400">Marcos extras para acelerar seu crescimento</p>
+                        <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white leading-tight">Performance</h3>
+                        <p className="text-[9px] md:text-[10px] font-bold text-slate-400">Marcos extras para acelerar seu crescimento</p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                     {achievements.map((ach) => (
-                        <div key={ach.title} className="group relative flex items-center gap-4 md:gap-5 rounded-2xl bg-white dark:bg-brand-900 p-4 md:p-6 border border-slate-100 dark:border-brand-800 shadow-sm hover:shadow-md transition-all overflow-hidden">
-                            <div className="relative z-10 h-12 w-12 md:h-14 md:w-14 rounded-2xl bg-slate-50 dark:bg-brand-800 flex items-center justify-center text-slate-400 dark:text-brand-500 group-hover:bg-violet-600 group-hover:text-white group-hover:rotate-[15deg] transition-all duration-500 shrink-0">
-                                <ach.icon size={24} className="md:w-7 md:h-7" />
+                        <div key={ach.title} className={cn(
+                            "group relative flex items-center gap-3 md:gap-4 rounded-xl p-3 md:p-5 border transition-all overflow-hidden",
+                            ach.unlocked
+                                ? "bg-violet-600/5 dark:bg-violet-600/10 border-violet-200 dark:border-violet-500/30 shadow-md"
+                                : "bg-white dark:bg-brand-900 border-slate-100 dark:border-brand-800 shadow-sm"
+                        )}>
+                            <div className={cn(
+                                "relative z-10 h-10 w-10 md:h-12 md:w-12 rounded-xl flex items-center justify-center transition-all duration-500 shrink-0",
+                                ach.unlocked
+                                    ? "bg-violet-600 text-white shadow-lg rotate-0"
+                                    : "bg-slate-50 dark:bg-brand-800 text-slate-400 dark:text-brand-500 group-hover:rotate-[15deg]"
+                            )}>
+                                <ach.icon size={20} className="md:w-6 md:h-6" />
                             </div>
                             <div className="relative z-10 min-w-0">
-                                <h4 className="text-xs md:text-sm font-black text-slate-800 dark:text-white leading-tight mb-1 truncate">{ach.title}</h4>
-                                <p className="text-[10px] md:text-[11px] font-medium text-slate-400 dark:text-brand-500 leading-relaxed line-clamp-2">{ach.desc}</p>
+                                <h4 className={cn(
+                                    "text-[11px] md:text-xs font-black leading-tight mb-0.5 truncate",
+                                    ach.unlocked ? "text-violet-700 dark:text-violet-300" : "text-slate-800 dark:text-white"
+                                )}>{ach.title}</h4>
+                                <p className="text-[9px] md:text-[10px] font-medium text-slate-400 dark:text-brand-500 leading-tight line-clamp-2">{ach.desc}</p>
                             </div>
-                            {/* Locked Pattern */}
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
-                                <Lock size={32} className="md:w-10 md:h-10" />
+                            {/* Status Indicator */}
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                {ach.unlocked ? (
+                                    <CheckCircle2 size={18} className="text-violet-500 dark:text-violet-400 opacity-50" />
+                                ) : (
+                                    <Lock size={18} className="text-slate-200 dark:text-brand-800/50" />
+                                )}
                             </div>
                         </div>
                     ))}

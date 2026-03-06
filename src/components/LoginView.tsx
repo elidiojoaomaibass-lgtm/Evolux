@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Eye, EyeOff, ArrowRight, Zap, TrendingUp, Users, ShieldCheck, AlertCircle } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
@@ -92,10 +93,9 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                             />
                         </div>
                         <div>
-                            <p className="text-white font-black text-lg md:text-xl leading-none tracking-tight">
+                            <p className="text-white font-black text-xl md:text-2xl leading-none tracking-tight">
                                 Evolux <span className="text-violet-400">Prod</span>
                             </p>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Moçambique</p>
                         </div>
                     </div>
 
@@ -305,24 +305,42 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                         <s.icon size={12} className={s.color} />
                                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{s.label}</p>
                                     </div>
-                                    <p className="text-lg font-black text-white">{s.value}</p>
+                                    <motion.p
+                                        initial={{ opacity: 0, scale: 0.5 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.8 + (stats.indexOf(s) * 0.1) }}
+                                        className="text-lg font-black text-white"
+                                    >
+                                        {s.value}
+                                    </motion.p>
                                 </div>
                             ))}
                         </div>
 
                         {/* Fake chart bars */}
-                        <div className="flex items-end gap-2 h-16 px-1">
+                        <div className="flex items-end gap-2 h-20 px-1">
                             {[40, 65, 50, 80, 60, 90, 70, 85, 55, 95, 75, 88].map((h, i) => (
-                                <div
-                                    key={i}
-                                    className="flex-1 rounded-t-md"
-                                    style={{
-                                        height: `${h}%`,
-                                        background: i === 10
-                                            ? "linear-gradient(to top, #7c3aed, #a855f7)"
-                                            : "rgba(255,255,255,0.08)",
-                                    }}
-                                />
+                                <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                                    <motion.span
+                                        initial={{ opacity: 0, y: 5 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 1 + (i * 0.05) }}
+                                        className="text-[7px] font-black text-slate-500"
+                                    >
+                                        {h}%
+                                    </motion.span>
+                                    <motion.div
+                                        initial={{ height: 0 }}
+                                        animate={{ height: `${h * 0.7}%` }}
+                                        transition={{ delay: 0.5 + (i * 0.05), duration: 1, ease: "easeOut" }}
+                                        className="w-full rounded-t-md"
+                                        style={{
+                                            background: i === 10
+                                                ? "linear-gradient(to top, #7c3aed, #a855f7)"
+                                                : "rgba(255,255,255,0.08)",
+                                        }}
+                                    />
+                                </div>
                             ))}
                         </div>
                     </div>
