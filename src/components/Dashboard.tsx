@@ -4,7 +4,7 @@ import {
 } from 'recharts';
 import {
     DollarSign, CheckCircle2, XCircle, RefreshCcw, Bell,
-    Smartphone, Menu, LogOut, Calendar, X, BarChart3,
+    Menu, LogOut, Calendar, X, BarChart3,
     ArrowUpRight, ArrowDownRight, Gem
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -158,7 +158,6 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
     const eMolaAmount = recentSales
         .filter(s => s.method === 'e-Mola')
         .reduce((sum, s) => sum + parseFloat(s.amount.replace('.', '').replace(' MZN', '')), 0) * scale;
-    const totalAmount = mPesaAmount + eMolaAmount;
 
     const paymentMethods = [
         {

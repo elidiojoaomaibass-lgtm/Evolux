@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Plus, Search, MoreVertical, Edit2,
-    Trash2, Package, Globe, ShoppingBag,
+    Plus, Search, Edit2,
+    Trash2, Package, Globe,
     ChevronDown, Phone, Link2, Target,
     Upload, X, DollarSign, XCircle
 } from 'lucide-react';

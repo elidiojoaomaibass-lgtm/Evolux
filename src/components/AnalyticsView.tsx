@@ -188,7 +188,7 @@ export const AnalyticsView = () => {
                             <button
                                 key={p}
                                 onClick={() => {
-                                    setPeriod(p);
+                                    setPeriod(p as Period);
                                     setShowDatePicker(false);
                                 }}
                                 className={cn(
