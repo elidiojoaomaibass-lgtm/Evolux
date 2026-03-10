@@ -16,7 +16,7 @@ const levels = [
         bgColor: 'bg-orange-50',
         darkBg: 'dark:bg-orange-900/10',
         benefits: ['Suporte prioritário', 'Badge exclusivo no perfil'],
-        isCurrent: false
+        isCurrent: true
     },
     {
         name: 'Prata',
@@ -56,7 +56,7 @@ const levels = [
         bgColor: 'bg-cyan-50',
         darkBg: 'dark:bg-cyan-900/10',
         benefits: ['Todos benefícios Platina', 'Taxa reduzida de 2%', 'Convites para eventos VIP'],
-        isCurrent: true
+        isCurrent: false
     }
 ];
 
@@ -65,8 +65,8 @@ const rewards = [
         type: 'band',
         target: '50K',
         label: 'FATURADOS',
-        remain: 'DESBLOQUEADO',
-        unlocked: true,
+        remain: '50.000 MZN',
+        unlocked: false,
         title: 'Pulseira Evolux',
         image: '/awards/50k.png'
     },
@@ -74,8 +74,8 @@ const rewards = [
         type: 'plaque',
         target: '100K',
         label: 'FATURADOS',
-        remain: 'DESBLOQUEADO',
-        unlocked: true,
+        remain: '100.000 MZN',
+        unlocked: false,
         title: 'Placa de Prata',
         image: '/awards/100k.jpg'
     },
@@ -83,8 +83,8 @@ const rewards = [
         type: 'plaque',
         target: '500K',
         label: 'FATURADOS',
-        remain: 'DESBLOQUEADO',
-        unlocked: true,
+        remain: '500.000 MZN',
+        unlocked: false,
         title: 'Placa de Ouro',
         image: '/awards/1m.jpg'
     },
@@ -92,7 +92,7 @@ const rewards = [
         type: 'plaque',
         target: '1M',
         label: 'FATURADOS',
-        remain: '480.000 MZN',
+        remain: '1.000.000 MZN',
         unlocked: false,
         title: 'Placa de Diamante',
         image: '/awards/500k.jpg'
@@ -100,12 +100,12 @@ const rewards = [
 ];
 
 const achievements = [
-    { title: 'Primeira Venda', desc: 'Realize sua primeira venda na plataforma', icon: Zap, unlocked: true },
-    { title: '10 Vendas', desc: 'Alcance 10 vendas totais', icon: Target, unlocked: true },
-    { title: '50 Vendas', desc: 'Alcance 50 vendas totais', icon: Shield, unlocked: true },
-    { title: '100 Vendas', desc: 'Alcance 100 vendas totais', icon: Award, unlocked: true },
-    { title: '500 Vendas', desc: 'Alcance 500 vendas totais', icon: Crown, unlocked: true },
-    { title: 'Mestre das Vendas', desc: 'Alcance 1000 vendas totais', icon: Gem, unlocked: true },
+    { title: 'Primeira Venda', desc: 'Realize sua primeira venda na plataforma', icon: Zap, unlocked: false },
+    { title: '10 Vendas', desc: 'Alcance 10 vendas totais', icon: Target, unlocked: false },
+    { title: '50 Vendas', desc: 'Alcance 50 vendas totais', icon: Shield, unlocked: false },
+    { title: '100 Vendas', desc: 'Alcance 100 vendas totais', icon: Award, unlocked: false },
+    { title: '500 Vendas', desc: 'Alcance 500 vendas totais', icon: Crown, unlocked: false },
+    { title: 'Mestre das Vendas', desc: 'Alcance 1000 vendas totais', icon: Gem, unlocked: false },
 ];
 
 export const PremiacoesView = () => {
@@ -125,30 +125,30 @@ export const PremiacoesView = () => {
             >
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
                     <div className="flex-shrink-0 flex justify-center md:block">
-                        <div className="h-16 w-16 md:h-20 md:w-20 rounded-2xl bg-cyan-50 dark:bg-cyan-900/20 flex items-center justify-center text-cyan-500 shadow-inner group-hover:scale-105 transition-transform duration-500">
-                            <Gem size={32} className="md:w-10 md:h-10" />
+                        <div className="h-16 w-16 md:h-20 md:w-20 rounded-2xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-500 shadow-inner group-hover:scale-105 transition-transform duration-500">
+                            <Trophy size={32} className="md:w-10 md:h-10" />
                         </div>
                     </div>
                     <div className="flex-1 text-center md:text-left">
                         <div className="flex flex-col md:flex-row items-center gap-1.5 md:gap-2 mb-1.5">
-                            <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight">Nível Atual: Diamante</h3>
-                            <span className="rounded-full bg-cyan-100 dark:bg-brand-800 px-2.5 py-0.5 text-[8px] md:text-[9px] font-black text-cyan-600 dark:text-brand-300 uppercase tracking-widest">Elite</span>
+                            <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight">Nível Atual: Bronze</h3>
+                            <span className="rounded-full bg-orange-100 dark:bg-brand-800 px-2.5 py-0.5 text-[8px] md:text-[9px] font-black text-orange-600 dark:text-brand-300 uppercase tracking-widest">Iniciante</span>
                         </div>
                         <p className="text-[10px] md:text-xs font-bold text-slate-400 dark:text-brand-400 flex items-center justify-center md:justify-start gap-1.5">
-                            <TrendingUp size={12} className="text-green-500" />
-                            Receita total: <span className="text-slate-900 dark:text-white">520.000 MZN</span>
+                            <TrendingUp size={12} className="text-slate-400" />
+                            Receita total: <span className="text-slate-900 dark:text-white">0 MZN</span>
                         </p>
 
                         <div className="mt-4 md:mt-6 space-y-1.5 md:space-y-2">
                             <div className="flex items-center justify-between text-[9px] md:text-[10px] font-black tracking-wider uppercase">
-                                <span className="text-cyan-600 dark:text-brand-300">Meta: Próximo Nível</span>
-                                <span className="text-slate-400">Faltam 480 000 MZN</span>
+                                <span className="text-orange-600 dark:text-brand-300">Meta: Próximo Nível (Prata)</span>
+                                <span className="text-slate-400">Faltam 10.000 MZN</span>
                             </div>
                             <div className="h-2.5 md:h-3 w-full rounded-full bg-slate-50 dark:bg-brand-950 overflow-hidden border border-slate-100 dark:border-brand-800 p-0.5 shadow-inner">
                                 <motion.div
                                     initial={{ width: 0 }}
-                                    animate={{ width: '52%' }}
-                                    className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.5)]"
+                                    animate={{ width: '0%' }}
+                                    className="h-full rounded-full bg-gradient-to-r from-orange-400 via-orange-500 to-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.5)]"
                                 />
                             </div>
                         </div>
