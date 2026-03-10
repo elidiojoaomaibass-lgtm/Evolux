@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, ArrowRight, Zap, TrendingUp, Users, ShieldCheck, AlertCircle } from "lucide-react";
-import { supabase } from "../lib/supabase";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
+
 
 interface LoginViewProps {
     onLogin: () => void;
@@ -122,12 +123,27 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                     </div>
 
                     {/* Error Message */}
+                    {!isSupabaseConfigured && (
+                        <div className="mb-6 flex flex-col gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-xs font-bold text-amber-400">
+                            <div className="flex items-center gap-2.5">
+                                <AlertCircle size={16} />
+                                <span>Configuração Incompleta</span>
+                            </div>
+                            <p className="font-medium text-slate-400 mt-1">
+                                As variáveis de ambiente do Supabase não foram detectadas.
+                                <br /><br />
+                                Adicione <b>VITE_SUPABASE_URL</b> e <b>VITE_SUPABASE_ANON_KEY</b> nas configurações da Vercel.
+                            </p>
+                        </div>
+                    )}
+
                     {error && (
                         <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-xs font-bold text-red-400">
                             <AlertCircle size={16} />
                             <span>{error}</span>
                         </div>
                     )}
+
 
                     {/* Social Login */}
                     <div className="grid grid-cols-2 gap-3 mb-6">

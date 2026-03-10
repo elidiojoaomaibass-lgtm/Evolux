@@ -3,8 +3,7 @@ import {
     PieChart, Pie, Cell
 } from 'recharts';
 import {
-    DollarSign, CheckCircle2, XCircle, RefreshCcw, Bell,
-    Menu, LogOut, Calendar, X, BarChart3,
+    Bell, Menu, LogOut, Calendar, X, BarChart3,
     ArrowUpRight, ArrowDownRight, Gem
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -212,12 +211,36 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
         }
     };
 
-
+    // ─── Stats Cards (estilo da imagem: borda colorida à esquerda, sem ícones) ───
     const stats = [
-        { label: 'RECEITA TOTAL', value: `${totalPeriod.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN`, trend: '+12%', icon: DollarSign, color: 'bg-violet-500', light: 'text-violet-500', bg: 'bg-violet-50 dark:bg-violet-950/20' },
-        { label: 'VENDAS', value: Math.floor(245 * scale).toString(), trend: '+8%', icon: CheckCircle2, color: 'bg-green-500', light: 'text-green-500', bg: 'bg-green-50 dark:bg-green-950/20' },
-        { label: 'PENDENTES', value: Math.floor(42 * scale).toString(), trend: '+5%', icon: RefreshCcw, color: 'bg-amber-500', light: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/20' },
-        { label: 'CANCELADAS', value: Math.floor(12 * scale).toString(), trend: '-2%', icon: XCircle, color: 'bg-red-500', light: 'text-red-500', bg: 'bg-red-50 dark:bg-red-950/20' },
+        {
+            label: 'Receita Total',
+            value: `${totalPeriod.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN`,
+            borderColor: 'border-l-emerald-400',
+            textColor: 'text-emerald-500',
+            labelColor: 'text-emerald-400',
+        },
+        {
+            label: 'Aprovadas',
+            value: Math.floor(245 * scale).toString(),
+            borderColor: 'border-l-emerald-400',
+            textColor: 'text-emerald-500',
+            labelColor: 'text-emerald-400',
+        },
+        {
+            label: 'Pendentes',
+            value: Math.floor(42 * scale).toString(),
+            borderColor: 'border-l-amber-400',
+            textColor: 'text-amber-500',
+            labelColor: 'text-amber-400',
+        },
+        {
+            label: 'Canceladas',
+            value: Math.floor(12 * scale).toString(),
+            borderColor: 'border-l-red-400',
+            textColor: 'text-red-500',
+            labelColor: 'text-red-400',
+        },
     ];
 
     return (
@@ -547,41 +570,25 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    {/* ─── Stats Cards (estilo da imagem) ─── */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                         {stats.map((item, idx) => (
                             <motion.div
-                                initial={{ opacity: 0, y: 30 }}
+                                initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.1, type: "spring", stiffness: 100 }}
+                                transition={{ delay: idx * 0.08, type: 'spring', stiffness: 120 }}
                                 key={item.label}
-                                className="group relative glass dark:bg-brand-900/60 rounded-[1.5rem] md:rounded-[2.2rem] p-5 md:p-6 border border-white/20 dark:border-white/5 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden"
+                                className={cn(
+                                    "bg-white dark:bg-brand-900/60 rounded-2xl p-5 border border-slate-100 dark:border-white/5 shadow-sm border-l-4",
+                                    item.borderColor
+                                )}
                             >
-                                <div className="absolute -right-8 -bottom-8 h-32 w-32 bg-violet-600/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
-
-                                <div className="relative z-10 flex flex-col justify-between h-full space-y-6">
-                                    <div className="flex items-center justify-between">
-                                        <div className={cn(
-                                            "h-12 w-12 md:h-14 md:w-14 rounded-[1.25rem] md:rounded-[1.5rem] flex items-center justify-center transition-all group-hover:rotate-12 group-hover:scale-110 shadow-lg",
-                                            item.bg, item.light
-                                        )}>
-                                            <item.icon size={24} className="md:w-7 md:h-7" />
-                                        </div>
-                                        <div className="flex flex-col items-end">
-                                            <span className="text-[11px] font-black text-green-500 flex items-center gap-1">
-                                                <ArrowUpRight size={14} /> {item.trend}
-                                            </span>
-                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1">vs ontem</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-widest mb-1.5 flex items-center gap-2">
-                                            <div className="h-1 w-1 rounded-full bg-violet-500" /> {item.label}
-                                        </p>
-                                        <h3 className="text-3xl font-black text-slate-900 dark:text-white leading-none tracking-tighter">
-                                            {item.value}
-                                        </h3>
-                                    </div>
-                                </div>
+                                <p className={cn("text-xs font-semibold uppercase tracking-wide mb-2", item.labelColor)}>
+                                    {item.label}
+                                </p>
+                                <p className={cn("text-2xl font-black tracking-tight", item.textColor)}>
+                                    {item.value}
+                                </p>
                             </motion.div>
                         ))}
                     </div>
@@ -711,7 +718,7 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                                                 dataKey="count"
                                             >
                                                 {paymentMethods.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.name === 'M-Pesa' ? '#ef4444' : '#f97316'} className="transition-all duration-500 hover:opacity-80 outline-none" rounded-xl />
+                                                    <Cell key={`cell-${index}`} fill={entry.name === 'M-Pesa' ? '#ef4444' : '#f97316'} className="transition-all duration-500 hover:opacity-80 outline-none" />
                                                 ))}
                                             </Pie>
                                             <Tooltip
