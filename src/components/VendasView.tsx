@@ -13,77 +13,46 @@ type PeriodType = 'Hoje' | 'Ontem' | '7d' | '30d' | '90d' | 'Todo' | 'custom';
 
 const salesBreakdownData: Record<PeriodType, any[]> = {
     'Hoje': [
-        { status: 'Aprovado', count: 7, amount: 21500, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
-        { status: 'Pendente', count: 2, amount: 16200, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
-        { status: 'Cancelado', count: 1, amount: 1200, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
+        { status: 'Aprovado', count: 0, amount: 0, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
+        { status: 'Pendente', count: 0, amount: 0, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
+        { status: 'Cancelado', count: 0, amount: 0, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
     ],
     'Ontem': [
-        { status: 'Aprovado', count: 8, amount: 16500, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
-        { status: 'Pendente', count: 1, amount: 1200, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
-        { status: 'Cancelado', count: 1, amount: 1200, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
+        { status: 'Aprovado', count: 0, amount: 0, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
+        { status: 'Pendente', count: 0, amount: 0, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
+        { status: 'Cancelado', count: 0, amount: 0, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
     ],
     '7d': [
-        { status: 'Aprovado', count: 7, amount: 24500, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
-        { status: 'Pendente', count: 2, amount: 15750, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
-        { status: 'Cancelado', count: 1, amount: 1200, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
+        { status: 'Aprovado', count: 0, amount: 0, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
+        { status: 'Pendente', count: 0, amount: 0, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
+        { status: 'Cancelado', count: 0, amount: 0, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
     ],
     '30d': [
-        { status: 'Aprovado', count: 86, amount: 285000, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
-        { status: 'Pendente', count: 12, amount: 150000, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
-        { status: 'Cancelado', count: 8, amount: 12000, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
+        { status: 'Aprovado', count: 0, amount: 0, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
+        { status: 'Pendente', count: 0, amount: 0, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
+        { status: 'Cancelado', count: 0, amount: 0, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
     ],
     '90d': [
-        { status: 'Aprovado', count: 245, amount: 855000, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
-        { status: 'Pendente', count: 34, amount: 450000, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
-        { status: 'Cancelado', count: 22, amount: 36000, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
+        { status: 'Aprovado', count: 0, amount: 0, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
+        { status: 'Pendente', count: 0, amount: 0, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
+        { status: 'Cancelado', count: 0, amount: 0, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
     ],
     'Todo': [
-        { status: 'Aprovado', count: 489, amount: 1285000, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
-        { status: 'Pendente', count: 67, amount: 950000, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
-        { status: 'Cancelado', count: 42, amount: 72000, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
+        { status: 'Aprovado', count: 0, amount: 0, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
+        { status: 'Pendente', count: 0, amount: 0, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
+        { status: 'Cancelado', count: 0, amount: 0, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
     ],
     'custom': []
+    // Zeroing out mock data per user request so new accounts have 0 balances.
 };
 
 const transactionsData: Record<PeriodType, any[]> = {
-    'Hoje': [
-        { id: 'TRX-94821', product: 'Pack VIP Gold', customer: 'Ana Machava', phone: '841234567', email: 'ana.m@email.com', status: 'Aprovado', amount: 4500, date: 'Hoje, 14:20' },
-        { id: 'TRX-94822', product: 'Mentoria Express', customer: 'Carlos Mondlane', phone: '829876543', email: 'carlos.mon@email.com', status: 'Aprovado', amount: 750, date: 'Hoje, 13:45' },
-        { id: 'TRX-94823', product: 'Curso de Trading', customer: 'Fátima Cossa', phone: '845554321', email: 'fatima.c@email.com', status: 'Pendente', amount: 15000, date: 'Hoje, 12:10' },
-        { id: 'TRX-94824', product: 'Ebook Marketing', customer: 'Pedro Tembe', phone: '821112233', email: 'pedro.t@email.com', status: 'Cancelado', amount: 1200, date: 'Hoje, 11:30' },
-        { id: 'TRX-94825', product: 'Pack VIP Gold', customer: 'Marta Bila', phone: '843334455', email: 'marta.b@email.com', status: 'Aprovado', amount: 2850, date: 'Hoje, 10:05' },
-        { id: 'TRX-94826', product: 'Mentoria Express', customer: 'João Bila', phone: '824445566', email: 'joao.b@email.com', status: 'Aprovado', amount: 3200, date: 'Hoje, 09:15' },
-        { id: 'TRX-94827', product: 'Curso de Trading', customer: 'Sara Cumbe', phone: '857778899', email: 'sara.c@email.com', status: 'Pendente', amount: 1200, date: 'Hoje, 08:30' },
-        { id: 'TRX-94828', product: 'Pack VIP Gold', customer: 'Nelson Mabunda', phone: '840001122', email: 'nelson.m@email.com', status: 'Aprovado', amount: 4500, date: 'Hoje, 07:45' },
-        { id: 'TRX-94829', product: 'Mentoria Express', customer: 'Lúcia Ubisse', phone: '827778899', email: 'lucia.u@email.com', status: 'Aprovado', amount: 750, date: 'Hoje, 07:10' },
-        { id: 'TRX-94830', product: 'Pack VIP Gold', customer: 'Filipe Nyusi', phone: '845556677', email: 'filipe.n@email.com', status: 'Aprovado', amount: 1000, date: 'Hoje, 06:30' },
-    ],
-    'Ontem': [
-        { id: 'TRX-94811', product: 'Curso de Trading', customer: 'Roberto Chitsondzo', phone: '857778899', email: 'roberto.c@email.com', status: 'Pendente', amount: 1200, date: 'Ontem, 22:30' },
-        { id: 'TRX-94812', product: 'Pack VIP Gold', customer: 'José Maria', phone: '841112233', email: 'jose.m@email.com', status: 'Aprovado', amount: 4500, date: 'Ontem, 20:15' },
-        { id: 'TRX-94813', product: 'Mentoria Express', customer: 'Paula Lima', phone: '829988776', email: 'paula.l@email.com', status: 'Aprovado', amount: 750, date: 'Ontem, 18:40' },
-        { id: 'TRX-94814', product: 'Ebook Marketing', customer: 'Rui Santos', phone: '842223344', email: 'rui.s@email.com', status: 'Cancelado', amount: 1200, date: 'Ontem, 16:20' },
-        { id: 'TRX-94815', product: 'Pack VIP Gold', customer: 'Isabel Silva', phone: '843335566', email: 'isabel.s@email.com', status: 'Aprovado', amount: 4500, date: 'Ontem, 14:10' },
-        { id: 'TRX-94816', product: 'Mentoria Express', customer: 'Mário Jorge', phone: '824446677', email: 'mario.j@email.com', status: 'Aprovado', amount: 750, date: 'Ontem, 12:30' },
-        { id: 'TRX-94817', product: 'Curso de Trading', customer: 'Helena Matos', phone: '845557788', email: 'helena.m@email.com', status: 'Aprovado', amount: 1200, date: 'Ontem, 10:50' },
-        { id: 'TRX-94818', product: 'Pack VIP Gold', customer: 'António Costa', phone: '846668899', email: 'antonio.c@email.com', status: 'Aprovado', amount: 2500, date: 'Ontem, 09:15' },
-        { id: 'TRX-94819', product: 'Mentoria Express', customer: 'Sónia Tavares', phone: '827779900', email: 'sonia.t@email.com', status: 'Aprovado', amount: 1000, date: 'Ontem, 08:30' },
-        { id: 'TRX-94820', product: 'Ebook Marketing', customer: 'Pedro Alves', phone: '848880011', email: 'pedro.a@email.com', status: 'Aprovado', amount: 1300, date: 'Ontem, 07:20' },
-    ],
-    '7d': [
-        { id: 'TRX-94701', product: 'Pack VIP Gold', customer: 'Beatriz Langa', phone: '841234567', email: 'beatriz.l@email.com', status: 'Aprovado', amount: 4500, date: '21 Fev, 14:20' },
-        { id: 'TRX-94702', product: 'Mentoria Express', customer: 'Duarte Tembe', phone: '829876543', email: 'duarte.t@email.com', status: 'Aprovado', amount: 750, date: '21 Fev, 13:45' },
-    ],
-    '30d': [
-        { id: 'TRX-94601', product: 'Pack VIP Gold', customer: 'Zélia Machava', phone: '841234567', email: 'zelia.m@email.com', status: 'Aprovado', amount: 4500, date: '15 Fev, 14:20' },
-        { id: 'TRX-94602', product: 'Mentoria Express', customer: 'Xavier Cumbe', phone: '829876543', email: 'xavier.c@email.com', status: 'Aprovado', amount: 750, date: '14 Fev, 13:45' },
-    ],
-    '90d': [
-        { id: 'TRX-94001', product: 'Pack VIP Gold', customer: 'Zélia Machava', phone: '841234567', email: 'zelia.m@email.com', status: 'Aprovado', amount: 4500, date: '15 Jan, 14:20' },
-    ],
-    'Todo': [
-        { id: 'TRX-93001', product: 'Pack VIP Gold', customer: 'Zélia Machava', phone: '841234567', email: 'zelia.m@email.com', status: 'Aprovado', amount: 4500, date: '15 Nov, 14:20' },
-    ],
+    'Hoje': [],
+    'Ontem': [],
+    '7d': [],
+    '30d': [],
+    '90d': [],
+    'Todo': [],
     'custom': []
 };
 
@@ -658,7 +627,7 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                 {[1, 2, 3, 4].map(i => (
                                     <div key={i} className="h-10 w-10 rounded-2xl border-4 border-white dark:border-brand-900 bg-slate-200 dark:bg-brand-800" />
                                 ))}
-                                <div className="h-10 w-10 rounded-2xl border-4 border-white dark:border-brand-900 bg-violet-600 flex items-center justify-center text-[10px] font-black text-white">+82</div>
+                                <div className="h-10 w-10 rounded-2xl border-4 border-white dark:border-brand-900 bg-violet-600 flex items-center justify-center text-[10px] font-black text-white">0</div>
                             </div>
                             <p className="text-[11px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-widest">Rede de Clientes</p>
                         </div>

@@ -15,43 +15,24 @@ import type { User } from '@supabase/supabase-js';
 
 const salesData: Record<string, { name: string; valor: number; vendas: number }[]> = {
     hoje: [
-        { name: '08h', valor: 0, vendas: 0 }, { name: '10h', valor: 1200, vendas: 3 }, { name: '12h', valor: 3400, vendas: 12 },
-        { name: '14h', valor: 2800, vendas: 8 }, { name: '16h', valor: 7300, vendas: 18 }, { name: '18h', valor: 7800, vendas: 21 },
-        { name: '20h', valor: 6500, vendas: 15 }, { name: '22h', valor: 9100, vendas: 24 },
+        { name: '08h', valor: 0, vendas: 0 }, { name: '10h', valor: 0, vendas: 0 }, { name: '12h', valor: 0, vendas: 0 },
+        { name: '14h', valor: 0, vendas: 0 }, { name: '16h', valor: 0, vendas: 0 }, { name: '18h', valor: 0, vendas: 0 },
+        { name: '20h', valor: 0, vendas: 0 }, { name: '22h', valor: 0, vendas: 0 },
     ],
     ontem: [
-        { name: '08h', valor: 800, vendas: 2 }, { name: '10h', valor: 2200, vendas: 6 }, { name: '12h', valor: 4100, vendas: 14 },
-        { name: '14h', valor: 3600, vendas: 11 }, { name: '16h', valor: 6000, vendas: 17 }, { name: '18h', valor: 8300, vendas: 20 },
-        { name: '20h', valor: 7200, vendas: 16 }, { name: '22h', valor: 5900, vendas: 13 },
+        { name: '08h', valor: 0, vendas: 0 }, { name: '10h', valor: 0, vendas: 0 }, { name: '12h', valor: 0, vendas: 0 },
+        { name: '14h', valor: 0, vendas: 0 }, { name: '16h', valor: 0, vendas: 0 }, { name: '18h', valor: 0, vendas: 0 },
+        { name: '20h', valor: 0, vendas: 0 }, { name: '22h', valor: 0, vendas: 0 },
     ],
-    '7dias': [
-        { name: 'Seg', valor: 12000, vendas: 35 }, { name: 'Ter', valor: 18000, vendas: 42 }, { name: 'Qua', valor: 15000, vendas: 38 },
-        { name: 'Qui', valor: 24000, vendas: 55 }, { name: 'Sex', valor: 31000, vendas: 68 }, { name: 'Sáb', valor: 28000, vendas: 60 },
-        { name: 'Dom', valor: 22000, vendas: 48 },
-    ],
-    '30dias': [
-        { name: 'Sem 1', valor: 65000, vendas: 145 }, { name: 'Sem 2', valor: 95000, vendas: 198 }, { name: 'Sem 3', valor: 80000, vendas: 165 },
-        { name: 'Sem 4', valor: 100000, vendas: 210 },
-    ],
-    '90dias': [
-        { name: 'Mês 1', valor: 340000, vendas: 850 }, { name: 'Mês 2', valor: 420000, vendas: 920 }, { name: 'Mês 3', valor: 350000, vendas: 780 },
-    ],
-    'todo': [
-        { name: 'Jan', valor: 120000, vendas: 320 }, { name: 'Fev', valor: 150000, vendas: 380 }, { name: 'Mar', valor: 180000, vendas: 450 },
-        { name: 'Abr', valor: 210000, vendas: 520 }, { name: 'Mai', valor: 250000, vendas: 580 }, { name: 'Jun', valor: 280000, vendas: 620 },
-        { name: 'Jul', valor: 310000, vendas: 680 }, { name: 'Ago', valor: 340000, vendas: 740 }, { name: 'Set', valor: 350000, vendas: 770 },
-    ],
+    '7dias': [],
+    '30dias': [],
+    '90dias': [],
+    'todo': [],
 };
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-const recentSales = [
-    { customer: 'Ana Machava', status: 'Aprovado', method: 'M-Pesa', amount: '4.500 MZN' },
-    { customer: 'Carlos Mondlane', status: 'Aprovado', method: 'e-Mola', amount: '750 MZN' },
-    { customer: 'Fátima Cossa', status: 'Pendente', method: 'M-Pesa', amount: '15.000 MZN' },
-    { customer: 'Pedro Tembe', status: 'Cancelado', method: 'e-Mola', amount: '1.200 MZN' },
-    { customer: 'Marta Bila', status: 'Aprovado', method: 'M-Pesa', amount: '2.850 MZN' },
-];
+const recentSales: any[] = [];
 
 type Period = 'Hoje' | 'Ontem' | '7d' | '30d' | '90d' | 'Todo' | 'custom';
 const periodOptions: { key: Period; label: string }[] = [
@@ -222,21 +203,21 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
         },
         {
             label: 'Aprovadas',
-            value: Math.floor(245 * scale).toString(),
+            value: '0',
             borderColor: 'border-l-emerald-400',
             textColor: 'text-emerald-500',
             labelColor: 'text-emerald-400',
         },
         {
             label: 'Pendentes',
-            value: Math.floor(42 * scale).toString(),
+            value: '0',
             borderColor: 'border-l-amber-400',
             textColor: 'text-amber-500',
             labelColor: 'text-amber-400',
         },
         {
             label: 'Canceladas',
-            value: Math.floor(12 * scale).toString(),
+            value: '0',
             borderColor: 'border-l-red-400',
             textColor: 'text-red-500',
             labelColor: 'text-red-400',
@@ -261,14 +242,14 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Gem size={14} className="text-cyan-400" />
-                                    <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Progresso Diamante</span>
+                                    <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Progresso Bronze</span>
                                 </div>
-                                <span className="text-[10px] font-black text-cyan-600 dark:text-brand-400">520K / 1M MZN</span>
+                                <span className="text-[10px] font-black text-cyan-600 dark:text-brand-400">0 / 10K MZN</span>
                             </div>
                             <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-white/5 overflow-hidden border border-white/50 dark:border-white/5 p-0.5">
                                 <motion.div
                                     initial={{ width: 0 }}
-                                    animate={{ width: '52%' }}
+                                    animate={{ width: '0%' }}
                                     className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 shadow-[0_0_15px_rgba(34,211,238,0.4)]"
                                 />
                             </div>

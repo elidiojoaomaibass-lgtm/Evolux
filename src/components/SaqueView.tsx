@@ -26,8 +26,8 @@ export const SaqueView = () => {
 
     // Mock balances separated by wallet with "Total Coletado"
     const [balances] = useState({
-        'M-Pesa': { available: 85240.50, pending: 15000.00, collected: 145240.50 },
-        'e-Mola': { available: 39260.00, pending: 5000.00, collected: 56260.00 }
+        'M-Pesa': { available: 0.00, pending: 0.00, collected: 0.00 },
+        'e-Mola': { available: 0.00, pending: 0.00, collected: 0.00 }
     });
 
     // Tracking pending withdrawals per wallet to enforce the "1 per wallet" rule
