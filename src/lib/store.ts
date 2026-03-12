@@ -26,67 +26,7 @@ export interface Product {
 }
 
 // Initial Mock Data
-const initialProducts: Product[] = [
-    {
-        id: 'PRD-001',
-        name: 'Pack VIP Gold - Mentoria',
-        type: 'Digital',
-        category: 'Mentoria',
-        price: 4500,
-        sales: 124,
-        revenue: 558000,
-        status: 'Ativo',
-        isMarketplaceEnabled: true,
-        commission: 60,
-        affiliationType: 'Automatica',
-        createdAt: '2024-02-10',
-        image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=100&h=100&fit=crop'
-    },
-    {
-        id: 'PRD-002',
-        name: 'Curso de Trading Pro',
-        type: 'Digital',
-        category: 'Curso',
-        price: 15000,
-        sales: 42,
-        revenue: 630000,
-        status: 'Ativo',
-        isMarketplaceEnabled: true,
-        commission: 40,
-        affiliationType: 'Manual',
-        createdAt: '2024-02-15',
-        image: 'https://images.unsplash.com/photo-1611974717424-c6843d1cc600?w=100&h=100&fit=crop'
-    },
-    {
-        id: 'PRD-003',
-        name: 'Ebook: Marketing Digital 2024',
-        type: 'Digital',
-        category: 'Ebook',
-        price: 1200,
-        sales: 856,
-        revenue: 1027200,
-        status: 'Ativo',
-        isMarketplaceEnabled: true,
-        commission: 50,
-        affiliationType: 'Automatica',
-        createdAt: '2024-01-20',
-        image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=100&h=100&fit=crop'
-    },
-    {
-        id: 'PRD-004',
-        name: 'Workshop Presencial Maputo',
-        type: 'Serviço',
-        category: 'Workshop',
-        price: 3500,
-        sales: 25,
-        revenue: 87500,
-        status: 'Rascunho',
-        isMarketplaceEnabled: false,
-        commission: 30,
-        affiliationType: 'Manual',
-        createdAt: '2024-02-25',
-    }
-];
+const initialProducts: Product[] = [];
 
 // Simple Event Emitter with LocalStorage persistence
 const STORAGE_KEY = 'evolux_prod_products';
@@ -153,18 +93,7 @@ export interface AffiliateRequest {
 
 const AFFILIATES_STORAGE_KEY = 'evolux_prod_affiliate_requests';
 
-const initialRequests: AffiliateRequest[] = [
-    {
-        id: 'REQ-001',
-        productId: 'PRD-002',
-        productName: 'Curso de Trading Pro',
-        userName: 'Elidio Maibasse',
-        userEmail: 'elidio@gmail.com',
-        status: 'Pendente',
-        requestedAt: '2024-02-26',
-        commission: 40
-    }
-];
+const initialRequests: AffiliateRequest[] = [];
 
 const getInitialRequests = (): AffiliateRequest[] => {
     const stored = localStorage.getItem(AFFILIATES_STORAGE_KEY);
@@ -244,15 +173,9 @@ export interface MarketingCampaign {
 const COUPONS_STORAGE_KEY = 'evolux_prod_coupons';
 const CAMPAIGNS_STORAGE_KEY = 'evolux_prod_campaigns';
 
-const initialCoupons: Coupon[] = [
-    { id: 'CPN-001', code: 'BEMVINDO10', discount: 10, type: 'Percentage', productId: 'all', status: 'Ativo', uses: 42 },
-    { id: 'CPN-002', code: 'EXTRAPRO20', discount: 200, type: 'Fixed', productId: 'PRD-002', status: 'Ativo', uses: 15 }
-];
+const initialCoupons: Coupon[] = [];
 
-const initialCampaigns: MarketingCampaign[] = [
-    { id: 'CMP-001', name: 'Lançamento Ebook', type: 'Email', status: 'Ativo', leads: 450, conversions: 24, spend: 0 },
-    { id: 'CMP-002', name: 'Tráfego Pago FB', type: 'Ads', status: 'Ativo', leads: 1200, conversions: 56, spend: 2500 }
-];
+const initialCampaigns: MarketingCampaign[] = [];
 
 export const useMarketingStore = () => {
     const [coupons, setCoupons] = useState<Coupon[]>(() => {

@@ -2,9 +2,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Receipt, CheckCircle2, XCircle, Clock,
+    CheckCircle2, XCircle, Clock,
     ArrowUpRight, ArrowDownRight, Search, Download, Calendar, X, BarChart3,
-    Check, Loader2, TrendingUp, TrendingDown
+    Check, Loader2
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { User } from '@supabase/supabase-js';
@@ -142,8 +142,6 @@ export const VendasView = ({ user }: VendasViewProps) => {
     const rawTransactions = transactionsData[period] || transactionsData['Hoje'];
 
     const totalAmount = currentBreakdown.reduce((acc: number, curr: any) => acc + curr.amount, 0);
-    const totalCount = currentBreakdown.reduce((acc: number, curr: any) => acc + curr.count, 0);
-
     const filteredTransactions = rawTransactions.filter(trx => {
         const matchesSearch =
             trx.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -421,78 +419,55 @@ export const VendasView = ({ user }: VendasViewProps) => {
             </AnimatePresence>
 
             {/* Sales Summary Plates (Cards) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                {currentBreakdown.map((item, idx) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+                {[
+                    {
+                        label: 'Receita Total',
+                        value: `${totalAmount.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN`,
+                        borderColor: 'border-l-emerald-400',
+                        textColor: 'text-emerald-500',
+                        labelColor: 'text-emerald-400',
+                    },
+                    {
+                        label: 'Aprovadas',
+                        value: currentBreakdown.find(i => i.status === 'Aprovado')?.count.toString() || '0',
+                        borderColor: 'border-l-emerald-400',
+                        textColor: 'text-emerald-500',
+                        labelColor: 'text-emerald-400',
+                    },
+                    {
+                        label: 'Pendentes',
+                        value: currentBreakdown.find(i => i.status === 'Pendente')?.count.toString() || '0',
+                        borderColor: 'border-l-amber-400',
+                        textColor: 'text-amber-500',
+                        labelColor: 'text-amber-400',
+                    },
+                    {
+                        label: 'Canceladas',
+                        value: currentBreakdown.find(i => i.status === 'Cancelado')?.count.toString() || '0',
+                        borderColor: 'border-l-red-400',
+                        textColor: 'text-red-500',
+                        labelColor: 'text-red-400',
+                    },
+                ].map((item, idx) => (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.1 }}
-                        key={item.status}
-                        className="glass dark:bg-brand-900/60 p-8 rounded-[2.5rem] border border-white/20 dark:border-white/5 shadow-xl relative overflow-hidden group hover:-translate-y-2 transition-all duration-500"
+                        transition={{ delay: idx * 0.08, type: 'spring', stiffness: 120 }}
+                        key={item.label}
+                        className={cn(
+                            "bg-white dark:bg-brand-900/60 rounded-2xl p-5 border border-slate-100 dark:border-white/5 shadow-sm border-l-4",
+                            item.borderColor
+                        )}
                     >
-                        <div className={cn("absolute -top-4 -right-4 h-24 w-24 rounded-full blur-3xl opacity-10 group-hover:opacity-20 transition-opacity bg-",
-                            item.status === 'Aprovado' ? 'emerald-500' : item.status === 'Pendente' ? 'amber-500' : 'rose-500')} />
-
-                        <div className="relative z-10 space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12 group-hover:scale-110",
-                                    item.status === 'Aprovado' ? 'bg-emerald-600/10 text-emerald-600' :
-                                        item.status === 'Pendente' ? 'bg-amber-600/10 text-amber-600' :
-                                            'bg-rose-600/10 text-rose-600')}>
-                                    <item.icon size={22} />
-                                </div>
-                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/50 dark:bg-black/20 text-[10px] font-black uppercase tracking-wider text-slate-500">
-                                    {item.status === 'Aprovado' ? <TrendingUp size={12} className="text-emerald-500" /> : <TrendingDown size={12} className="text-rose-500" />}
-                                    {item.status === 'Aprovado' ? '+12%' : idx === 1 ? '+5%' : '-2%'}
-                                </div>
-                            </div>
-                            <div>
-                                <h4 className="text-[10px] font-black text-slate-500 dark:text-brand-500 uppercase tracking-widest mb-1.5">{item.status}</h4>
-                                <div className="flex items-baseline gap-2">
-                                    <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter tabular-nums">{item.count}</span>
-                                    <span className="text-[10px] font-black text-slate-400 dark:text-brand-600 uppercase">Unitários</span>
-                                </div>
-                                <div className="mt-6 pt-6 border-t border-slate-100 dark:border-white/5 flex items-center justify-between">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Volume Total</span>
-                                    <span className={cn("text-base font-black tabular-nums", item.color)}>
-                                        {item.amount.toLocaleString()} MZN
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                        <p className={cn("text-xs font-semibold uppercase tracking-wide mb-2", item.labelColor)}>
+                            {item.label}
+                        </p>
+                        <p className={cn("text-2xl font-black tracking-tight", item.textColor)}>
+                            {item.value}
+                        </p>
                     </motion.div>
                 ))}
-
-                {/* Total Combined Plate */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="p-8 bg-gradient-to-br from-violet-600 to-indigo-700 text-white rounded-[3rem] shadow-2xl shadow-violet-500/30 relative group overflow-hidden hover:scale-[1.02] transition-transform duration-500"
-                >
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none" />
-                    <div className="relative z-10 flex flex-col justify-between h-full">
-                        <div>
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
-                                    <Receipt size={24} />
-                                </div>
-                                <span className="text-[10px] font-black uppercase tracking-[0.3em] bg-white/20 px-4 py-1.5 rounded-full border border-white/10">Lista Completa</span>
-                            </div>
-                            <h4 className="text-[10px] font-black text-violet-200 uppercase tracking-widest mb-2 opacity-80">Total Acumulado</h4>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-4xl font-black tracking-tighter tabular-nums">{totalCount}</span>
-                                <span className="text-[10px] font-black text-violet-200 uppercase tracking-widest opacity-60 italic">Entradas Confirmadas</span>
-                            </div>
-                        </div>
-                        <div className="mt-8 pt-8 border-t border-white/10 flex items-center justify-between">
-                            <span className="text-[10px] font-black text-violet-100 uppercase tracking-widest opacity-80">Valor Bruto</span>
-                            <span className="text-xl font-black tabular-nums tracking-tighter">
-                                {totalAmount.toLocaleString()} <span className="text-[10px] opacity-60">MZN</span>
-                            </span>
-                        </div>
-                    </div>
-                </motion.div>
             </div>
 
             {/* Search and Table Area */}
@@ -531,18 +506,18 @@ export const VendasView = ({ user }: VendasViewProps) => {
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 opacity-30" />
 
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full text-left border-collapse min-w-[1000px]">
                             <thead>
-                                <tr className="border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-brand-950/40">
-                                    <th className="px-8 py-3 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">ID</th>
-                                    <th className="px-8 py-3 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Produto</th>
-                                    <th className="px-8 py-3 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Cliente</th>
-                                    <th className="px-8 py-3 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-right">Valor</th>
-                                    <th className="px-8 py-3 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Estado</th>
-                                    <th className="px-8 py-3 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Data/Hora</th>
+                                <tr className="bg-slate-50/50 dark:bg-white/5">
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">ID</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Produto</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Cliente</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-right">Valor</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Estado</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Data/Hora</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                            <tbody className="divide-y divide-white/5">
                                 <AnimatePresence mode="popLayout">
                                     {filteredTransactions.length > 0 ? filteredTransactions.map((trx) => (
                                         <motion.tr
@@ -553,16 +528,16 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                             key={trx.id}
                                             className="group/row hover:bg-violet-600/[0.03] dark:hover:bg-white/[0.02] transition-all"
                                         >
-                                            <td className="px-8 py-3 font-mono text-[11px] font-black text-slate-400 dark:text-brand-600 group-hover/row:text-violet-600 transition-colors">
+                                            <td className="px-10 py-2.5 font-mono text-[11px] font-black text-slate-400 dark:text-brand-600 group-hover/row:text-violet-600 transition-colors">
                                                 #{trx.id}
                                             </td>
-                                            <td className="px-8 py-3">
+                                            <td className="px-10 py-2.5">
                                                 <div className="flex flex-col">
                                                     <span className="text-[14px] font-black text-slate-800 dark:text-white tracking-tight">{trx.product}</span>
                                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Produto Digital</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-3">
+                                            <td className="px-10 py-2.5">
                                                 <div className="flex items-center gap-4">
                                                     <div className="h-10 w-10 rounded-2xl bg-slate-100 dark:bg-brand-800 flex items-center justify-center text-[12px] font-black text-slate-500 dark:text-brand-300 group-hover/row:scale-110 transition-transform">
                                                         {trx.customer[0]}
@@ -573,13 +548,13 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-3 text-right">
+                                            <td className="px-10 py-2.5 text-right">
                                                 <div className="flex flex-col items-end">
                                                     <span className="text-[15px] font-black text-slate-900 dark:text-white tabular-nums tracking-tighter">{trx.amount.toLocaleString()} <span className="text-[10px] opacity-60">MZN</span></span>
                                                     <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5">Valor Verificado</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-3">
+                                            <td className="px-10 py-2.5">
                                                 <div className="flex justify-center">
                                                     <span className={cn(
                                                         "px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] border whitespace-nowrap",
@@ -587,13 +562,11 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                                             trx.status === 'Pendente' ? "bg-amber-500/5 border-amber-500/20 text-amber-500" :
                                                                 "bg-red-500/5 border-red-500/20 text-red-500"
                                                     )}>
-                                                        <div className={cn("h-1.5 w-1.5 rounded-full shadow-lg",
-                                                            trx.status === 'Aprovado' ? "bg-green-500" : trx.status === 'Pendente' ? "bg-amber-500" : "bg-red-500")} />
                                                         {trx.status}
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-3 text-center">
+                                            <td className="px-10 py-2.5 text-center">
                                                 <div className="flex flex-col items-center">
                                                     <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Hoje</span>
                                                     <span className="text-[10px] font-bold text-slate-400 dark:text-brand-500 mt-0.5">{trx.date}</span>
