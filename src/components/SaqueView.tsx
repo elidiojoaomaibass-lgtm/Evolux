@@ -11,10 +11,7 @@ import { toast } from 'sonner';
 
 // ─── Constants & Mock Data ──────────────────────────────────────────────────
 
-const withdrawalsData = [
-    { id: 'WDL-001', amount: 15000, method: 'M-Pesa', status: 'Concluído', date: '2024-03-01 14:30', recipient: '841234567' },
-    { id: 'WDL-002', amount: 5000, method: 'e-Mola', status: 'Processando', date: '2024-03-03 09:15', recipient: '871234567' },
-];
+const withdrawalsData: any[] = [];
 
 // ─── SaqueView ──────────────────────────────────────────────────────────────
 
@@ -33,7 +30,7 @@ export const SaqueView = () => {
     // Tracking pending withdrawals per wallet to enforce the "1 per wallet" rule
     const [pendingByWallet, setPendingByWallet] = useState({
         'M-Pesa': false,
-        'e-Mola': true
+        'e-Mola': false
     });
 
     const handleWithdraw = async (e: React.FormEvent) => {

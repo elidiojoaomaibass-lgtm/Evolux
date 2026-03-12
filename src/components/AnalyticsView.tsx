@@ -19,14 +19,12 @@ const generateDailyData = (days: number) => {
         date.setDate(date.getDate() - (days - 1 - i));
         const dayStr = date.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' });
 
-        // Varying values based on day index to make it look real
-        const baseMul = 1 + (Math.sin(i * 0.5) * 0.3);
         return {
             name: dayStr,
-            leads: Math.floor(400 * baseMul),
-            vendas: Math.floor(200 * baseMul),
-            receita: Math.floor(15000 * baseMul),
-            perdido: Math.floor(3000 * baseMul)
+            leads: 0,
+            vendas: 0,
+            receita: 0,
+            perdido: 0
         };
     });
 };
@@ -35,10 +33,10 @@ const generateHourlyData = (isToday: boolean) => {
     const hours = isToday ? new Date().getHours() + 1 : 24;
     return Array.from({ length: hours }, (_, i) => ({
         name: `${i.toString().padStart(2, '0')}h`,
-        leads: Math.floor(Math.random() * 50) + 10,
-        vendas: Math.floor(Math.random() * 20) + 5,
-        receita: Math.floor(Math.random() * 5000) + 500,
-        perdido: Math.floor(Math.random() * 1000)
+        leads: 0,
+        vendas: 0,
+        receita: 0,
+        perdido: 0
     }));
 };
 
@@ -141,23 +139,14 @@ export const AnalyticsView = () => {
 
     // Calculate dynamic stats based on filtered data
     const stats = useMemo(() => {
-        // Mocking values for "Hoje" to match the photo exactly
-        const isHoje = period === 'Hoje';
-        const totalRev = isHoje ? 87500 : filteredData.reduce((acc, d) => acc + d.receita, 0);
-        const totalSales = isHoje ? 25 : filteredData.reduce((acc, d) => acc + d.vendas, 0);
-        const lostRev = isHoje ? 13125 : filteredData.reduce((acc, d) => acc + d.perdido, 0);
-        const netRev = totalRev - lostRev;
-        const failed = isHoje ? 3 : Math.floor(totalSales * 0.12);
-        const pending = isHoje ? 2 : Math.floor(totalSales * 0.08);
-
         return {
-            totalRevenue: totalRev,
-            totalSales: totalSales,
-            lostRevenue: lostRev,
-            netRevenue: netRev,
-            failedTransactions: failed,
-            pendingTransactions: pending,
-            totalTransactions: isHoje ? 30 : (totalSales + failed + pending)
+            totalRevenue: 0,
+            totalSales: 0,
+            lostRevenue: 0,
+            netRevenue: 0,
+            failedTransactions: 0,
+            pendingTransactions: 0,
+            totalTransactions: 0
         };
     }, [filteredData, period]);
 
