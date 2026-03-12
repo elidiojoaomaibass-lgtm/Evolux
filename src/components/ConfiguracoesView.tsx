@@ -22,7 +22,7 @@ export const ConfiguracoesView = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     useEffect(() => {
-        supabase.auth.getUser().then(({ data: { user } }) => {
+        supabase.auth.getUser().then(({ data: { user } }: any) => {
             setUser(user);
             if (user?.user_metadata) {
                 if (user.user_metadata.full_name) setFullName(user.user_metadata.full_name);
