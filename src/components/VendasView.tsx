@@ -44,7 +44,7 @@ interface VendasViewProps {
     user: User;
 }
 
-export const VendasView = ({ user }: VendasViewProps) => {
+export const VendasView = ({ user: _user }: VendasViewProps) => {
     const [period, setPeriod] = useState<PeriodType>('Hoje');
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
