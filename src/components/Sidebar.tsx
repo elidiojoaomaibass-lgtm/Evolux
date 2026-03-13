@@ -2,7 +2,7 @@ import {
     LayoutDashboard, ShoppingBag, BarChart2, Users,
     Settings,
     Gift, Layers, ShoppingCart, Wallet,
-    Wrench, Star, Moon, Sun, Banknote, Gem
+    Wrench, Moon, Sun, Banknote, Trophy
 } from "lucide-react";
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
@@ -158,29 +158,29 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
                 <div className="px-3 pb-4">
                     <div className="relative group overflow-hidden bg-gradient-to-br from-violet-600 to-purple-800 rounded-2xl p-4 shadow-xl">
                         <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:scale-125 transition-transform duration-1000">
-                            <Star size={60} className="text-white fill-white" />
+                            <Trophy size={60} className="text-white fill-white" />
                         </div>
 
                         <div className="relative z-10">
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="h-10 w-10 rounded-xl bg-white/10 backdrop-blur-xl flex items-center justify-center text-white border border-white/20 shadow-inner">
-                                    <Gem size={20} className="text-cyan-400 animate-pulse" />
+                                    <Trophy size={20} className="text-orange-400 animate-pulse" />
                                 </div>
                                 <div>
                                     <p className="text-[8px] font-black text-violet-200 uppercase tracking-widest leading-none mb-1">Rank Atual</p>
-                                    <h4 className="text-sm font-black text-white uppercase tracking-tighter">Diamante Elite</h4>
+                                    <h4 className="text-sm font-black text-white uppercase tracking-tighter">Bronze</h4>
                                 </div>
                             </div>
 
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between text-[9px] font-black text-white/50 uppercase tracking-widest">
                                     <span>Faturamento</span>
-                                    <span className="text-white">520.000 MZN</span>
+                                    <span className="text-white">0 MZN</span>
                                 </div>
                                 <div className="h-1.5 w-full bg-black/30 rounded-full overflow-hidden p-0.5 border border-white/5">
                                     <motion.div
                                         initial={{ width: 0 }}
-                                        animate={{ width: `100%` }}
+                                        animate={{ width: `0%` }}
                                         transition={{ duration: 2, ease: "circOut" }}
                                         className="h-full rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.6)]"
                                     />

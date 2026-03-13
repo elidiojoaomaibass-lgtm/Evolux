@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -31,13 +31,15 @@ const generateDailyData = (days: number) => {
 
 const generateHourlyData = (isToday: boolean) => {
     const hours = isToday ? new Date().getHours() + 1 : 24;
-    return Array.from({ length: hours }, (_, i) => ({
-        name: `${i.toString().padStart(2, '0')}h`,
-        leads: 0,
-        vendas: 0,
-        receita: 0,
-        perdido: 0
-    }));
+    return Array.from({ length: hours }, (_, i) => {
+        return {
+            name: `${i.toString().padStart(2, '0')}h`,
+            leads: 0,
+            vendas: 0,
+            receita: 0,
+            perdido: 0
+        };
+    });
 };
 
 type Period = 'Hoje' | 'Ontem' | '7d' | '30d' | '90d' | 'Todo' | 'custom';
@@ -59,6 +61,8 @@ export const AnalyticsView = () => {
     const endMRef = useRef<HTMLInputElement>(null);
     const endYRef = useRef<HTMLInputElement>(null);
     const datePickerRef = useRef<HTMLDivElement>(null);
+    const startInputRef = useRef<HTMLInputElement>(null);
+    const endInputRef = useRef<HTMLInputElement>(null);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -139,14 +143,18 @@ export const AnalyticsView = () => {
 
     // Calculate dynamic stats based on filtered data
     const stats = useMemo(() => {
+        const totalRevenue = filteredData.reduce((acc, curr) => acc + curr.receita, 0);
+        const totalSales = filteredData.reduce((acc, curr) => acc + curr.vendas, 0);
+        const lostRevenue = filteredData.reduce((acc, curr) => acc + curr.perdido, 0);
+
         return {
-            totalRevenue: 0,
-            totalSales: 0,
-            lostRevenue: 0,
-            netRevenue: 0,
-            failedTransactions: 0,
-            pendingTransactions: 0,
-            totalTransactions: 0
+            totalRevenue,
+            totalSales,
+            lostRevenue,
+            netRevenue: totalRevenue - lostRevenue,
+            failedTransactions: Math.floor(totalSales * 0.1),
+            pendingTransactions: Math.floor(totalSales * 0.15),
+            totalTransactions: totalSales + Math.floor(totalSales * 0.25)
         };
     }, [filteredData, period]);
 
@@ -169,7 +177,7 @@ export const AnalyticsView = () => {
                     <p className="text-[11px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight">Visão detalhada sobre volumes financeiros e status de processamento.</p>
                 </motion.div>
 
-                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 bg-white/50 dark:bg-brand-900/40 p-1.5 rounded-3xl border border-white/20 dark:border-white/5 shadow-xl backdrop-blur-3xl overflow-hidden relative" ref={datePickerRef}>
+                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 bg-white dark:bg-brand-900 border border-slate-100 dark:border-white/5 p-1.5 rounded-3xl shadow-xl relative" ref={datePickerRef}>
                     <div className="absolute inset-0 bg-gradient-to-r from-violet-600/5 to-transparent pointer-events-none" />
 
                     <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1">
@@ -195,7 +203,13 @@ export const AnalyticsView = () => {
                     <div className="hidden md:block w-px bg-slate-200 dark:bg-white/10 h-6 mx-1 shrink-0" />
 
                     <button
-                        onClick={() => setShowDatePicker(!showDatePicker)}
+                        onClick={() => {
+                            const newState = !showDatePicker;
+                            setShowDatePicker(newState);
+                            if (newState) {
+                                setTimeout(() => startDRef.current?.focus(), 100);
+                            }
+                        }}
                         className={cn(
                             "h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shrink-0 ring-1 ring-inset",
                             showDatePicker || period === 'custom'
@@ -204,7 +218,7 @@ export const AnalyticsView = () => {
                         )}
                     >
                         <Calendar size={14} />
-                        <span className="hidden sm:inline">Personalizar</span>
+                        <span className="hidden sm:inline">{period === 'custom' && startDate ? startDate.split('-').reverse().join('/') : 'Personalizar'}</span>
                         {(showDatePicker || period === 'custom') && (
                             <div className="h-1.5 w-1.5 bg-violet-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(139,92,246,1)]" />
                         )}
@@ -218,7 +232,7 @@ export const AnalyticsView = () => {
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
                                     onClick={() => setShowDatePicker(false)}
-                                    className="fixed inset-0 bg-slate-900/10 dark:bg-black/40 backdrop-blur-[4px] z-[50]"
+                                    className="fixed inset-0 bg-slate-900/10 dark:bg-black/40 z-[50]"
                                 />
 
                                 <motion.div
@@ -226,39 +240,56 @@ export const AnalyticsView = () => {
                                     animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
                                     exit={{ opacity: 0, y: 20, scale: 0.95, rotateX: -10 }}
                                     transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                                    className="absolute right-0 top-full mt-6 w-[340px] md:w-[720px] bg-white dark:bg-brand-950 backdrop-blur-3xl border border-white/20 dark:border-white/5 rounded-[3rem] shadow-[0_40px_120px_-20px_rgba(0,0,0,0.5)] z-[100] p-8 md:p-12 space-y-10 overflow-hidden"
+                                                                        className="absolute right-0 top-full mt-10 w-[340px] md:w-[380px] bg-white dark:bg-brand-950 border border-white/20 dark:border-white/5 rounded-[2rem] shadow-[0_40px_120px_-20px_rgba(0,0,0,0.5)] z-[100] p-5 md:p-6 space-y-4"
                                 >
                                     <div className="absolute -top-32 -right-32 h-96 w-96 bg-violet-600/10 rounded-full blur-[100px]" />
                                     <div className="absolute -bottom-32 -left-32 h-96 w-96 bg-fuchsia-600/10 rounded-full blur-[100px]" />
 
-                                    <div className="relative z-10 space-y-10">
-                                        <div className="flex items-center justify-between">
+                                    <div className="relative z-10 space-y-4">
+                                        <div className="flex items-center justify-between border-b border-white/5 pb-4">
                                             <div>
-                                                <h4 className="text-lg font-black uppercase text-slate-900 dark:text-white tracking-widest flex items-center gap-3">
-                                                    <div className="h-2 w-2 rounded-full bg-violet-600" /> Selecionar Período
+                                                <h4 className="text-sm font-black uppercase text-white tracking-[0.2em] flex items-center gap-3">
+                                                    <Calendar size={20} className="text-violet-500" /> Filtro de Datas
                                                 </h4>
-                                                <p className="text-[10px] text-slate-400 dark:text-brand-500 font-bold uppercase tracking-[0.2em] mt-2">Configuração de intervalo analítico</p>
+                                                <p className="text-[9px] text-brand-500 font-black uppercase tracking-widest mt-0.5 ml-8">Sistema de filtragem avançado</p>
                                             </div>
                                             <button
                                                 onClick={() => setShowDatePicker(false)}
-                                                className="h-12 w-12 flex items-center justify-center rounded-2xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all text-slate-500 hover:rotate-90 transition-transform duration-500"
+                                                className="h-10 w-10 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all hover:rotate-90 transition-transform duration-500"
                                             >
                                                 <X size={20} />
                                             </button>
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative">
-                                            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-100 dark:bg-white/5 hidden md:block" />
+                                        <div className="grid grid-cols-1 gap-6 relative">
 
                                             {/* Data De */}
                                             <div className="space-y-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-2xl bg-violet-600/10 flex items-center justify-center">
-                                                        <ArrowUpRight size={20} className="text-violet-600" />
+                                                    <div className="h-10 w-10 rounded-full bg-violet-600/20 flex items-center justify-center text-violet-400">
+                                                        <ArrowUpRight size={20} />
                                                     </div>
-                                                    <span className="text-[11px] font-black uppercase text-slate-500 dark:text-brand-400 tracking-widest">Data de Início</span>
+                                                    <span className="text-xs font-black uppercase text-white tracking-widest">Data de Início</span>
+                                                    <div className="ml-auto flex gap-2">
+                                                        <button 
+                                                            onClick={() => setStartDate(new Date().toISOString().split('T')[0])}
+                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-violet-500 hover:text-white transition-all"
+                                                        >
+                                                            Hoje
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => {
+                                                                const d = new Date();
+                                                                d.setDate(d.getDate() - 1);
+                                                                setStartDate(d.toISOString().split('T')[0]);
+                                                            }}
+                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-violet-500 hover:text-white transition-all"
+                                                        >
+                                                            Ontem
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <div className="flex gap-4 items-center bg-slate-100/50 dark:bg-black/40 p-6 rounded-[2rem] border border-white/10 shadow-inner group focus-within:ring-2 focus-within:ring-violet-600 transition-all">
+                                                <div className="flex gap-2 items-center bg-brand-950/50 p-3 rounded-2xl border border-white/5 focus-within:ring-2 focus-within:ring-violet-500/20 transition-all shadow-inner">
                                                     <input
                                                         ref={startDRef}
                                                         type="text"
@@ -266,9 +297,9 @@ export const AnalyticsView = () => {
                                                         maxLength={2}
                                                         value={startParts.d}
                                                         onChange={(e) => updateFromParts('start', 'd', e.target.value)}
-                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none dark:text-white placeholder:text-slate-300 text-center"
+                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                     />
-                                                    <span className="text-slate-300 dark:text-white/10 text-xl">/</span>
+                                                    <span className="text-white/10 text-2xl font-light">/</span>
                                                     <input
                                                         ref={startMRef}
                                                         type="text"
@@ -276,9 +307,9 @@ export const AnalyticsView = () => {
                                                         maxLength={2}
                                                         value={startParts.m}
                                                         onChange={(e) => updateFromParts('start', 'm', e.target.value)}
-                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none dark:text-white placeholder:text-slate-300 text-center"
+                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                     />
-                                                    <span className="text-slate-300 dark:text-white/10 text-xl">/</span>
+                                                    <span className="text-white/10 text-2xl font-light">/</span>
                                                     <input
                                                         ref={startYRef}
                                                         type="text"
@@ -286,11 +317,21 @@ export const AnalyticsView = () => {
                                                         maxLength={4}
                                                         value={startParts.y}
                                                         onChange={(e) => updateFromParts('start', 'y', e.target.value)}
-                                                        className="w-20 bg-transparent text-lg font-black focus:outline-none dark:text-white placeholder:text-slate-300 text-center"
+                                                        className="w-20 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                     />
-                                                    <div className="ml-auto relative cursor-pointer hover:scale-110 transition-transform">
-                                                        <Calendar size={22} className="text-violet-600" />
+                                                    <div 
+                                                        onClick={() => {
+                                                            try {
+                                                                (startInputRef.current as any)?.showPicker();
+                                                            } catch (e) {
+                                                                startInputRef.current?.focus();
+                                                            }
+                                                        }}
+                                                        className="ml-auto relative group-hover:scale-125 transition-transform cursor-pointer"
+                                                    >
+                                                        <Calendar size={20} className="text-violet-500" />
                                                         <input
+                                                            ref={startInputRef}
                                                             type="date"
                                                             value={startDate}
                                                             onChange={(e) => setStartDate(e.target.value)}
@@ -303,12 +344,31 @@ export const AnalyticsView = () => {
                                             {/* Data Até */}
                                             <div className="space-y-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-2xl bg-fuchsia-600/10 flex items-center justify-center">
-                                                        <ArrowDownRight size={20} className="text-fuchsia-600" />
+                                                    <div className="h-10 w-10 rounded-full bg-fuchsia-600/20 flex items-center justify-center text-fuchsia-400">
+                                                        <ArrowDownRight size={20} />
                                                     </div>
-                                                    <span className="text-[11px] font-black uppercase text-slate-500 dark:text-brand-400 tracking-widest">Data de Fim</span>
+                                                    <span className="text-xs font-black uppercase text-white tracking-widest">Data de Fim</span>
+                                                    <div className="ml-auto flex gap-2">
+                                                        <button 
+                                                            onClick={() => setEndDate(new Date().toISOString().split('T')[0])}
+                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-fuchsia-500 hover:text-white transition-all"
+                                                        >
+                                                            Hoje
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => {
+                                                                const d = new Date();
+                                                                const startOfYear = new Date(d.getFullYear(), 0, 1);
+                                                                setStartDate(startOfYear.toISOString().split('T')[0]);
+                                                                setEndDate(d.toISOString().split('T')[0]);
+                                                            }}
+                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-fuchsia-500 hover:text-white transition-all"
+                                                        >
+                                                            Ano
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <div className="flex gap-4 items-center bg-slate-100/50 dark:bg-black/40 p-6 rounded-[2rem] border border-white/10 shadow-inner group focus-within:ring-2 focus-within:ring-fuchsia-600 transition-all">
+                                                <div className="flex gap-2 items-center bg-brand-950/50 p-3 rounded-2xl border border-white/5 focus-within:ring-2 focus-within:ring-fuchsia-500/20 transition-all shadow-inner">
                                                     <input
                                                         ref={endDRef}
                                                         type="text"
@@ -316,9 +376,9 @@ export const AnalyticsView = () => {
                                                         maxLength={2}
                                                         value={endParts.d}
                                                         onChange={(e) => updateFromParts('end', 'd', e.target.value)}
-                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none dark:text-white placeholder:text-slate-300 text-center"
+                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                     />
-                                                    <span className="text-slate-300 dark:text-white/10 text-xl">/</span>
+                                                    <span className="text-white/10 text-2xl font-light">/</span>
                                                     <input
                                                         ref={endMRef}
                                                         type="text"
@@ -326,9 +386,9 @@ export const AnalyticsView = () => {
                                                         maxLength={2}
                                                         value={endParts.m}
                                                         onChange={(e) => updateFromParts('end', 'm', e.target.value)}
-                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none dark:text-white placeholder:text-slate-300 text-center"
+                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                     />
-                                                    <span className="text-slate-300 dark:text-white/10 text-xl">/</span>
+                                                    <span className="text-white/10 text-2xl font-light">/</span>
                                                     <input
                                                         ref={endYRef}
                                                         type="text"
@@ -336,11 +396,21 @@ export const AnalyticsView = () => {
                                                         maxLength={4}
                                                         value={endParts.y}
                                                         onChange={(e) => updateFromParts('end', 'y', e.target.value)}
-                                                        className="w-20 bg-transparent text-lg font-black focus:outline-none dark:text-white placeholder:text-slate-300 text-center"
+                                                        className="w-20 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                     />
-                                                    <div className="ml-auto relative cursor-pointer hover:scale-110 transition-transform">
-                                                        <Calendar size={22} className="text-fuchsia-600" />
+                                                    <div 
+                                                        onClick={() => {
+                                                            try {
+                                                                (endInputRef.current as any)?.showPicker();
+                                                            } catch (e) {
+                                                                endInputRef.current?.focus();
+                                                            }
+                                                        }}
+                                                        className="ml-auto relative group-hover:scale-125 transition-transform cursor-pointer"
+                                                    >
+                                                        <Calendar size={20} className="text-fuchsia-500" />
                                                         <input
+                                                            ref={endInputRef}
                                                             type="date"
                                                             value={endDate}
                                                             onChange={(e) => setEndDate(e.target.value)}
@@ -358,9 +428,9 @@ export const AnalyticsView = () => {
                                                     setShowDatePicker(false);
                                                 }
                                             }}
-                                            className="w-full h-20 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-[2rem] text-[14px] font-black uppercase tracking-[0.3em] shadow-[0_20px_60px_-10px_rgba(139,92,246,0.5)] active:scale-[0.98] transition-all hover:brightness-110 flex items-center justify-center gap-6 group"
+                                            className="w-full h-14 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-[0_20px_60px_-10px_rgba(139,92,246,0.5)] active:scale-[0.98] transition-all hover:brightness-110 flex items-center justify-center gap-6 group"
                                         >
-                                            <BarChart3 size={24} className="group-hover:rotate-12 transition-transform" />
+                                            <BarChart3 size={18} className="group-hover:rotate-12 transition-transform" />
                                             Iniciar Análise
                                         </button>
                                     </div>
