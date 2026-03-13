@@ -1,49 +1,33 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     CheckCircle2, XCircle, Clock,
-    ArrowUpRight, ArrowDownRight, Search, Download, Calendar, X, BarChart3,
-    Check, Loader2
+    ArrowUpRight, ArrowDownRight, Search, Calendar, X, BarChart3
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { User } from '@supabase/supabase-js';
 
 type PeriodType = 'Hoje' | 'Ontem' | '7d' | '30d' | '90d' | 'Todo' | 'custom';
 
-const salesBreakdownData: Record<PeriodType, any[]> = {
-    'Hoje': [
-        { status: 'Aprovado', count: 0, amount: 0, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
-        { status: 'Pendente', count: 0, amount: 0, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
-        { status: 'Cancelado', count: 0, amount: 0, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
-    ],
-    'Ontem': [
-        { status: 'Aprovado', count: 0, amount: 0, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
-        { status: 'Pendente', count: 0, amount: 0, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
-        { status: 'Cancelado', count: 0, amount: 0, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
-    ],
-    '7d': [
-        { status: 'Aprovado', count: 0, amount: 0, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
-        { status: 'Pendente', count: 0, amount: 0, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
-        { status: 'Cancelado', count: 0, amount: 0, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
-    ],
-    '30d': [
-        { status: 'Aprovado', count: 0, amount: 0, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
-        { status: 'Pendente', count: 0, amount: 0, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
-        { status: 'Cancelado', count: 0, amount: 0, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
-    ],
-    '90d': [
-        { status: 'Aprovado', count: 0, amount: 0, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
-        { status: 'Pendente', count: 0, amount: 0, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
-        { status: 'Cancelado', count: 0, amount: 0, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
-    ],
-    'Todo': [
-        { status: 'Aprovado', count: 0, amount: 0, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20', icon: CheckCircle2, border: 'border-green-100 dark:border-green-800/20' },
-        { status: 'Pendente', count: 0, amount: 0, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', icon: Clock, border: 'border-amber-100 dark:border-amber-800/20' },
-        { status: 'Cancelado', count: 0, amount: 0, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20', icon: XCircle, border: 'border-red-100 dark:border-red-800/20' },
-    ],
-    'custom': []
-    // Zeroing out mock data per user request so new accounts have 0 balances.
+const generateMockTransactions = (count: number) => {
+    const customers = ['Elídio João', 'Maria Silva', 'José Cuamba', 'Ana Matsinhe', 'Carlos Mondlane', 'Beatriz Langa', 'Fernando Sitoe', 'Isabel Muianga'];
+    const products = ['Pack VIP Elite', 'Evolux Basic', 'Curso Digital Pro', 'Acesso Gold Vitalício'];
+    
+    return Array.from({ length: count }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - Math.floor(Math.random() * 90));
+        return {
+            id: `TRX-${10000 + i}`,
+            product: products[Math.floor(Math.random() * products.length)],
+            customer: customers[Math.floor(Math.random() * customers.length)],
+            email: `cliente${i}@exemplo.com`,
+            amount: Math.floor(Math.random() * 5000) + 500,
+            status: Math.random() > 0.3 ? 'Aprovado' : Math.random() > 0.5 ? 'Pendente' : 'Cancelado',
+            date: date.toISOString().split('T')[0],
+            time: '14:2' + (i % 10)
+        };
+    });
 };
 
 const transactionsData: Record<PeriodType, any[]> = {
@@ -65,8 +49,7 @@ export const VendasView = ({ user }: VendasViewProps) => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('Todas');
-    const [exporting, setExporting] = useState(false);
-    const [exportSuccess, setExportSuccess] = useState(false);
+
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [startParts, setStartParts] = useState({ d: '', m: '', y: '' });
@@ -80,6 +63,8 @@ export const VendasView = ({ user }: VendasViewProps) => {
     const endMRef = useRef<HTMLInputElement>(null);
     const endYRef = useRef<HTMLInputElement>(null);
     const datePickerRef = useRef<HTMLDivElement>(null);
+    const startInputRef = useRef<HTMLInputElement>(null);
+    const endInputRef = useRef<HTMLInputElement>(null);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -138,30 +123,41 @@ export const VendasView = ({ user }: VendasViewProps) => {
         }
     };
 
-    const currentBreakdown = salesBreakdownData[period] || salesBreakdownData['Hoje'];
-    const rawTransactions = transactionsData[period] || transactionsData['Hoje'];
+    const rawTransactions = period === 'custom' ? transactionsData['Todo'] : (transactionsData[period] || transactionsData['Hoje']);
 
-    const totalAmount = currentBreakdown.reduce((acc: number, curr: any) => acc + curr.amount, 0);
-    const filteredTransactions = rawTransactions.filter(trx => {
-        const matchesSearch =
-            trx.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            trx.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            trx.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const filteredTransactions = useMemo(() => {
+        return rawTransactions.filter(trx => {
+            const matchesSearch =
+                trx.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                trx.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                trx.id.toLowerCase().includes(searchTerm.toLowerCase());
 
-        const matchesStatus = statusFilter === 'Todas' || trx.status === statusFilter;
+            const matchesStatus = statusFilter === 'Todas' || trx.status === statusFilter;
 
-        return matchesSearch && matchesStatus;
-    });
+            // Date range filtering for 'custom' period
+            let matchesDate = true;
+            if (period === 'custom' && startDate && endDate) {
+                matchesDate = trx.date >= startDate && trx.date <= endDate;
+            }
 
-    const handleExport = () => {
-        setExporting(true);
-        setTimeout(() => {
-            setExporting(false);
-            setExportSuccess(true);
-            setTimeout(() => setExportSuccess(false), 3000);
-            console.log(`Relatório enviado para o email do criador: ${user.email}`);
-        }, 2000);
-    };
+            return matchesSearch && matchesStatus && matchesDate;
+        });
+    }, [rawTransactions, searchTerm, statusFilter, period, startDate, endDate]);
+
+    const stats = useMemo(() => {
+        const approved = filteredTransactions.filter(t => t.status === 'Aprovado');
+        const pending = filteredTransactions.filter(t => t.status === 'Pendente');
+        const cancelled = filteredTransactions.filter(t => t.status === 'Cancelado');
+
+        return {
+            total: filteredTransactions.reduce((acc: number, t: any) => acc + t.amount, 0),
+            approvedCount: approved.length,
+            pendingCount: pending.length,
+            cancelledCount: cancelled.length
+        };
+    }, [filteredTransactions]);
+
+
 
     return (
         <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700">
@@ -172,36 +168,16 @@ export const VendasView = ({ user }: VendasViewProps) => {
                     animate={{ opacity: 1, x: 0 }}
                     className="space-y-3"
                 >
-                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
+                    <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
                         Protocolo de <span className="text-gradient">Vendas</span> 🧾
                     </h2>
                     <p className="text-sm md:text-base text-slate-400 dark:text-brand-400 font-medium tracking-tight">Registro imutável e auditoria em tempo real de todas as transações da rede.</p>
                 </motion.div>
 
-                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 bg-white/50 dark:bg-brand-900/40 p-2 md:p-3 rounded-[2.5rem] border border-white/20 dark:border-white/5 shadow-2xl backdrop-blur-3xl overflow-hidden relative" ref={datePickerRef}>
-                    <button
-                        onClick={handleExport}
-                        disabled={exporting}
-                        className={cn(
-                            "h-12 px-6 rounded-2xl transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 shrink-0 ring-1 ring-inset",
-                            exportSuccess
-                                ? "bg-emerald-500 text-white ring-emerald-400"
-                                : "bg-slate-900 dark:bg-white text-white dark:text-slate-900 ring-white/20"
-                        )}
-                    >
-                        {exporting ? (
-                            <Loader2 size={16} className="animate-spin" />
-                        ) : exportSuccess ? (
-                            <Check size={16} />
-                        ) : (
-                            <Download size={16} />
-                        )}
-                        {exporting ? "Iniciando Protocolo..." : exportSuccess ? "Exportação Concluída" : "Exportar Auditoria"}
-                    </button>
+                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 bg-white dark:bg-brand-900 border border-slate-100 dark:border-white/5 p-1.5 rounded-3xl shadow-xl relative" ref={datePickerRef}>
 
-                    <div className="hidden md:block w-px bg-slate-200 dark:bg-white/10 h-8 mx-2 shrink-0" />
 
-                    <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide flex-1">
+                    <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1">
                         {(['Hoje', 'Ontem', '7d', '30d', '90d', 'Todo'] as PeriodType[]).map((p) => (
                             <button
                                 key={p}
@@ -210,9 +186,9 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                     setShowDatePicker(false);
                                 }}
                                 className={cn(
-                                    "px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
+                                    "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                                     period === p && !showDatePicker
-                                        ? "bg-violet-600 text-white shadow-xl shadow-violet-500/30 ring-2 ring-white/20"
+                                        ? "bg-violet-600 text-white shadow-lg shadow-violet-500/20"
                                         : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"
                                 )}
                             >
@@ -222,17 +198,24 @@ export const VendasView = ({ user }: VendasViewProps) => {
                     </div>
 
                     <button
-                        onClick={() => setShowDatePicker(!showDatePicker)}
+                        onClick={() => {
+                            const newState = !showDatePicker;
+                            setShowDatePicker(newState);
+                            if (newState) {
+                                setTimeout(() => startDRef.current?.focus(), 100);
+                            }
+                        }}
                         className={cn(
-                            "h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-3 shrink-0 ring-1 ring-inset",
+                            "h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shrink-0 ring-1 ring-inset",
                             showDatePicker || period === 'custom'
                                 ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 ring-white/20"
                                 : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white ring-transparent"
                         )}
                     >
-                        <Calendar size={18} />
+                        <Calendar size={14} />
+                        <span className="hidden sm:inline">{period === 'custom' && startDate ? startDate.split('-').reverse().join('/') : 'Personalizar'}</span>
                         {(showDatePicker || period === 'custom') && (
-                            <div className="h-2 w-2 bg-violet-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(139,92,246,1)]" />
+                            <div className="h-1.5 w-1.5 bg-violet-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(139,92,246,1)]" />
                         )}
                     </button>
 
@@ -244,7 +227,7 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
                                     onClick={() => setShowDatePicker(false)}
-                                    className="fixed inset-0 bg-slate-900/10 dark:bg-black/40 backdrop-blur-[4px] z-[50]"
+                                    className="fixed inset-0 bg-slate-900/10 dark:bg-black/40 z-[50]"
                                 />
 
                                 <motion.div
@@ -252,39 +235,56 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                     animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
                                     exit={{ opacity: 0, y: 20, scale: 0.95, rotateX: -10 }}
                                     transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                                    className="absolute right-0 top-full mt-6 w-[340px] md:w-[720px] bg-white dark:bg-brand-950 backdrop-blur-3xl border border-white/20 dark:border-white/5 rounded-[3rem] shadow-[0_40px_120px_-20px_rgba(0,0,0,0.5)] z-[100] p-8 md:p-12 space-y-10 overflow-hidden"
+                                    className="absolute right-0 top-full mt-10 w-[340px] md:w-[380px] bg-white dark:bg-brand-950 border border-white/20 dark:border-white/5 rounded-[2rem] shadow-[0_40px_120px_-20px_rgba(0,0,0,0.5)] z-[100] p-5 md:p-6 space-y-4"
                                 >
                                     <div className="absolute -top-32 -right-32 h-96 w-96 bg-violet-600/10 rounded-full blur-[100px]" />
                                     <div className="absolute -bottom-32 -left-32 h-96 w-96 bg-fuchsia-600/10 rounded-full blur-[100px]" />
 
-                                    <div className="relative z-10 space-y-10">
-                                        <div className="flex items-center justify-between">
+                                    <div className="relative z-10 space-y-4">
+                                        <div className="flex items-center justify-between border-b border-white/5 pb-4">
                                             <div>
-                                                <h4 className="text-lg font-black uppercase text-slate-900 dark:text-white tracking-widest flex items-center gap-3">
-                                                    <div className="h-2 w-2 rounded-full bg-violet-600" /> Selecionar Período
+                                                <h4 className="text-sm font-black uppercase text-white tracking-[0.2em] flex items-center gap-3">
+                                                    <Calendar size={20} className="text-violet-500" /> Filtro de Datas
                                                 </h4>
-                                                <p className="text-[10px] text-slate-400 dark:text-brand-500 font-bold uppercase tracking-[0.2em] mt-2">Configuração de intervalo analítico</p>
+                                                <p className="text-[9px] text-brand-500 font-black uppercase tracking-widest mt-0.5 ml-8">Sistema de filtragem avançado</p>
                                             </div>
                                             <button
                                                 onClick={() => setShowDatePicker(false)}
-                                                className="h-12 w-12 flex items-center justify-center rounded-2xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all text-slate-500 hover:rotate-90 transition-transform duration-500"
+                                                className="h-10 w-10 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all hover:rotate-90 transition-transform duration-500"
                                             >
                                                 <X size={20} />
                                             </button>
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative">
-                                            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-100 dark:bg-white/5 hidden md:block" />
+                                        <div className="grid grid-cols-1 gap-6 relative">
 
                                             {/* Data De */}
                                             <div className="space-y-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-2xl bg-violet-600/10 flex items-center justify-center">
-                                                        <ArrowUpRight size={20} className="text-violet-600" />
+                                                    <div className="h-10 w-10 rounded-full bg-violet-600/20 flex items-center justify-center text-violet-400">
+                                                        <ArrowUpRight size={20} />
                                                     </div>
-                                                    <span className="text-[11px] font-black uppercase text-slate-500 dark:text-brand-400 tracking-widest">Data de Início</span>
+                                                    <span className="text-xs font-black uppercase text-white tracking-widest">Data de Início</span>
+                                                    <div className="ml-auto flex gap-2">
+                                                        <button 
+                                                            onClick={() => setStartDate(new Date().toISOString().split('T')[0])}
+                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-violet-500 hover:text-white transition-all"
+                                                        >
+                                                            Hoje
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => {
+                                                                const d = new Date();
+                                                                d.setDate(d.getDate() - 1);
+                                                                setStartDate(d.toISOString().split('T')[0]);
+                                                            }}
+                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-violet-500 hover:text-white transition-all"
+                                                        >
+                                                            Ontem
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <div className="flex gap-4 items-center bg-slate-100/50 dark:bg-black/40 p-6 rounded-[2rem] border border-white/10 shadow-inner group focus-within:ring-2 focus-within:ring-violet-600 transition-all">
+                                                <div className="flex gap-2 items-center bg-brand-950/50 p-3 rounded-2xl border border-white/5 focus-within:ring-2 focus-within:ring-violet-500/20 transition-all shadow-inner">
                                                     <input
                                                         ref={startDRef}
                                                         type="text"
@@ -292,9 +292,9 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                                         maxLength={2}
                                                         value={startParts.d}
                                                         onChange={(e) => updateFromParts('start', 'd', e.target.value)}
-                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none dark:text-white placeholder:text-slate-300 text-center"
+                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                     />
-                                                    <span className="text-slate-300 dark:text-white/10 text-xl">/</span>
+                                                    <span className="text-white/10 text-2xl font-light">/</span>
                                                     <input
                                                         ref={startMRef}
                                                         type="text"
@@ -302,9 +302,9 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                                         maxLength={2}
                                                         value={startParts.m}
                                                         onChange={(e) => updateFromParts('start', 'm', e.target.value)}
-                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none dark:text-white placeholder:text-slate-300 text-center"
+                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                     />
-                                                    <span className="text-slate-300 dark:text-white/10 text-xl">/</span>
+                                                    <span className="text-white/10 text-2xl font-light">/</span>
                                                     <input
                                                         ref={startYRef}
                                                         type="text"
@@ -312,11 +312,21 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                                         maxLength={4}
                                                         value={startParts.y}
                                                         onChange={(e) => updateFromParts('start', 'y', e.target.value)}
-                                                        className="w-20 bg-transparent text-lg font-black focus:outline-none dark:text-white placeholder:text-slate-300 text-center"
+                                                        className="w-20 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                     />
-                                                    <div className="ml-auto relative cursor-pointer hover:scale-110 transition-transform">
-                                                        <Calendar size={22} className="text-violet-600" />
+                                                    <div 
+                                                        onClick={() => {
+                                                            try {
+                                                                (startInputRef.current as any)?.showPicker();
+                                                            } catch (e) {
+                                                                startInputRef.current?.focus();
+                                                            }
+                                                        }}
+                                                        className="ml-auto relative group-hover:scale-125 transition-transform cursor-pointer"
+                                                    >
+                                                        <Calendar size={20} className="text-violet-500" />
                                                         <input
+                                                            ref={startInputRef}
                                                             type="date"
                                                             value={startDate}
                                                             onChange={(e) => setStartDate(e.target.value)}
@@ -329,12 +339,31 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                             {/* Data Até */}
                                             <div className="space-y-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-2xl bg-fuchsia-600/10 flex items-center justify-center">
-                                                        <ArrowDownRight size={20} className="text-fuchsia-600" />
+                                                    <div className="h-10 w-10 rounded-full bg-fuchsia-600/20 flex items-center justify-center text-fuchsia-400">
+                                                        <ArrowDownRight size={20} />
                                                     </div>
-                                                    <span className="text-[11px] font-black uppercase text-slate-500 dark:text-brand-400 tracking-widest">Data de Fim</span>
+                                                    <span className="text-xs font-black uppercase text-white tracking-widest">Data de Fim</span>
+                                                    <div className="ml-auto flex gap-2">
+                                                        <button 
+                                                            onClick={() => setEndDate(new Date().toISOString().split('T')[0])}
+                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-fuchsia-500 hover:text-white transition-all"
+                                                        >
+                                                            Hoje
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => {
+                                                                const d = new Date();
+                                                                const startOfYear = new Date(d.getFullYear(), 0, 1);
+                                                                setStartDate(startOfYear.toISOString().split('T')[0]);
+                                                                setEndDate(d.toISOString().split('T')[0]);
+                                                            }}
+                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-fuchsia-500 hover:text-white transition-all"
+                                                        >
+                                                            Ano
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <div className="flex gap-4 items-center bg-slate-100/50 dark:bg-black/40 p-6 rounded-[2rem] border border-white/10 shadow-inner group focus-within:ring-2 focus-within:ring-fuchsia-600 transition-all">
+                                                <div className="flex gap-2 items-center bg-brand-950/50 p-3 rounded-2xl border border-white/5 focus-within:ring-2 focus-within:ring-fuchsia-500/20 transition-all shadow-inner">
                                                     <input
                                                         ref={endDRef}
                                                         type="text"
@@ -342,9 +371,9 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                                         maxLength={2}
                                                         value={endParts.d}
                                                         onChange={(e) => updateFromParts('end', 'd', e.target.value)}
-                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none dark:text-white placeholder:text-slate-300 text-center"
+                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                     />
-                                                    <span className="text-slate-300 dark:text-white/10 text-xl">/</span>
+                                                    <span className="text-white/10 text-2xl font-light">/</span>
                                                     <input
                                                         ref={endMRef}
                                                         type="text"
@@ -352,9 +381,9 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                                         maxLength={2}
                                                         value={endParts.m}
                                                         onChange={(e) => updateFromParts('end', 'm', e.target.value)}
-                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none dark:text-white placeholder:text-slate-300 text-center"
+                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                     />
-                                                    <span className="text-slate-300 dark:text-white/10 text-xl">/</span>
+                                                    <span className="text-white/10 text-2xl font-light">/</span>
                                                     <input
                                                         ref={endYRef}
                                                         type="text"
@@ -362,11 +391,21 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                                         maxLength={4}
                                                         value={endParts.y}
                                                         onChange={(e) => updateFromParts('end', 'y', e.target.value)}
-                                                        className="w-20 bg-transparent text-lg font-black focus:outline-none dark:text-white placeholder:text-slate-300 text-center"
+                                                        className="w-20 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                     />
-                                                    <div className="ml-auto relative cursor-pointer hover:scale-110 transition-transform">
-                                                        <Calendar size={22} className="text-fuchsia-600" />
+                                                    <div 
+                                                        onClick={() => {
+                                                            try {
+                                                                (endInputRef.current as any)?.showPicker();
+                                                            } catch (e) {
+                                                                endInputRef.current?.focus();
+                                                            }
+                                                        }}
+                                                        className="ml-auto relative group-hover:scale-125 transition-transform cursor-pointer"
+                                                    >
+                                                        <Calendar size={20} className="text-fuchsia-500" />
                                                         <input
+                                                            ref={endInputRef}
                                                             type="date"
                                                             value={endDate}
                                                             onChange={(e) => setEndDate(e.target.value)}
@@ -384,9 +423,9 @@ export const VendasView = ({ user }: VendasViewProps) => {
                                                     setShowDatePicker(false);
                                                 }
                                             }}
-                                            className="w-full h-20 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-[2rem] text-[14px] font-black uppercase tracking-[0.3em] shadow-[0_20px_60px_-10px_rgba(139,92,246,0.5)] active:scale-[0.98] transition-all hover:brightness-110 flex items-center justify-center gap-6 group"
+                                            className="w-full h-14 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-[0_20px_60px_-10px_rgba(139,92,246,0.5)] active:scale-[0.98] transition-all hover:brightness-110 flex items-center justify-center gap-6 group"
                                         >
-                                            <BarChart3 size={24} className="group-hover:rotate-12 transition-transform" />
+                                            <BarChart3 size={18} className="group-hover:rotate-12 transition-transform" />
                                             Aplicar Filtro
                                         </button>
                                     </div>
@@ -398,53 +437,35 @@ export const VendasView = ({ user }: VendasViewProps) => {
             </div>
 
             {/* Notification Portal */}
-            <AnimatePresence>
-                {exportSuccess && (
-                    <motion.div
-                        initial={{ opacity: 0, x: 20, scale: 0.9 }}
-                        animate={{ opacity: 1, x: 0, scale: 1 }}
-                        exit={{ opacity: 0, x: 20, scale: 0.9 }}
-                        className="fixed top-24 right-8 z-[200] glass p-6 rounded-[2rem] border border-emerald-500/20 shadow-[0_25px_50px_rgba(16,185,129,0.2)] flex items-center gap-6 max-w-sm overflow-hidden"
-                    >
-                        <div className="absolute inset-0 bg-emerald-500/5 animate-pulse" />
-                        <div className="relative h-12 w-12 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-emerald-500/40">
-                            <Check size={24} strokeWidth={3} />
-                        </div>
-                        <div className="relative">
-                            <p className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">Protocolo Concluído</p>
-                            <p className="text-[11px] font-bold text-slate-500 dark:text-brand-500 mt-1">Relatório enviado para <b>{user.email}</b></p>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+
 
             {/* Sales Summary Plates (Cards) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                 {[
                     {
                         label: 'Receita Total',
-                        value: `${totalAmount.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN`,
+                        value: `${stats.total.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN`,
                         borderColor: 'border-l-emerald-400',
                         textColor: 'text-emerald-500',
                         labelColor: 'text-emerald-400',
                     },
                     {
                         label: 'Aprovadas',
-                        value: currentBreakdown.find(i => i.status === 'Aprovado')?.count.toString() || '0',
+                        value: stats.approvedCount.toString(),
                         borderColor: 'border-l-emerald-400',
                         textColor: 'text-emerald-500',
                         labelColor: 'text-emerald-400',
                     },
                     {
                         label: 'Pendentes',
-                        value: currentBreakdown.find(i => i.status === 'Pendente')?.count.toString() || '0',
+                        value: stats.pendingCount.toString(),
                         borderColor: 'border-l-amber-400',
                         textColor: 'text-amber-500',
                         labelColor: 'text-amber-400',
                     },
                     {
                         label: 'Canceladas',
-                        value: currentBreakdown.find(i => i.status === 'Cancelado')?.count.toString() || '0',
+                        value: stats.cancelledCount.toString(),
                         borderColor: 'border-l-red-400',
                         textColor: 'text-red-500',
                         labelColor: 'text-red-400',
@@ -480,16 +501,16 @@ export const VendasView = ({ user }: VendasViewProps) => {
                             placeholder="Pesquisar por cliente, produto ou ID de protocolo..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full h-16 pl-16 pr-6 rounded-[2rem] border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-[15px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all placeholder:text-slate-400 shadow-inner"
+                            className="w-full h-12 pl-12 pr-6 rounded-xl border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all placeholder:text-slate-400 shadow-inner"
                         />
                     </div>
-                    <div className="flex items-center gap-2 p-2 bg-slate-100/50 dark:bg-brand-900/60 rounded-[2.5rem] border border-white/10 backdrop-blur-3xl overflow-x-auto w-full lg:w-auto scrollbar-hide">
+                    <div className="flex items-center gap-2 p-1.5 bg-slate-100/50 dark:bg-brand-900/60 rounded-3xl border border-white/10 backdrop-blur-3xl overflow-x-auto w-full lg:w-auto scrollbar-hide">
                         {['Todas', 'Aprovado', 'Pendente', 'Cancelado'].map((filter) => (
                             <button
                                 key={filter}
                                 onClick={() => setStatusFilter(filter)}
                                 className={cn(
-                                    "px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
+                                    "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                                     statusFilter === filter
                                         ? "bg-white dark:bg-white text-slate-900 dark:text-slate-900 shadow-xl"
                                         : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"

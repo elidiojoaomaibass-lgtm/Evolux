@@ -4,8 +4,10 @@ import {
     Zap, Target, Shield, Crown,
     Lock, TrendingUp, CheckCircle2
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
+import { useState, useRef, useEffect } from 'react';
+import { Calendar, X, BarChart3, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 const levels = [
     {
@@ -109,42 +111,121 @@ const achievements = [
 ];
 
 export const PremiacoesView = () => {
+    const [period, setPeriod] = useState<'Hoje' | '7d' | '30d' | 'Todo' | 'custom'>('Todo');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [startParts, setStartParts] = useState({ d: '', m: '', y: '' });
+    const [endParts, setEndParts] = useState({ d: '', m: '', y: '' });
+
+    // Refs for auto-focus
+    const startDRef = useRef<HTMLInputElement>(null);
+    const startMRef = useRef<HTMLInputElement>(null);
+    const startYRef = useRef<HTMLInputElement>(null);
+    const endDRef = useRef<HTMLInputElement>(null);
+    const endMRef = useRef<HTMLInputElement>(null);
+    const endYRef = useRef<HTMLInputElement>(null);
+    const datePickerRef = useRef<HTMLDivElement>(null);
+    const startInputRef = useRef<HTMLInputElement>(null);
+    const endInputRef = useRef<HTMLInputElement>(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (datePickerRef.current && !datePickerRef.current.contains(e.target as Node)) {
+                setShowDatePicker(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    // Sync parts when startDate changes
+    useEffect(() => {
+        if (startDate) {
+            const [y, m, d] = startDate.split('-');
+            setStartParts({ d, m, y });
+        }
+    }, [startDate]);
+
+    // Sync parts when endDate changes
+    useEffect(() => {
+        if (endDate) {
+            const [y, m, d] = endDate.split('-');
+            setEndParts({ d, m, y });
+        }
+    }, [endDate]);
+
+    // Helper to update date from parts with auto-focus
+    const updateFromParts = (type: 'start' | 'end', key: 'd' | 'm' | 'y', val: string) => {
+        const numericVal = val.replace(/\D/g, '');
+
+        if (type === 'start') {
+            const newParts = { ...startParts, [key]: numericVal };
+            setStartParts(newParts);
+
+            // Auto-focus logic
+            if (key === 'd' && numericVal.length === 2) startMRef.current?.focus();
+            if (key === 'm' && numericVal.length === 2) startYRef.current?.focus();
+            if (key === 'y' && numericVal.length === 4) endDRef.current?.focus();
+
+            if (newParts.d.length === 2 && newParts.m.length === 2 && newParts.y.length === 4) {
+                setStartDate(`${newParts.y}-${newParts.m}-${newParts.d}`);
+            }
+        } else {
+            const newParts = { ...endParts, [key]: numericVal };
+            setEndParts(newParts);
+
+            // Auto-focus logic
+            if (key === 'd' && numericVal.length === 2) endMRef.current?.focus();
+            if (key === 'm' && numericVal.length === 2) endYRef.current?.focus();
+
+            if (newParts.d.length === 2 && newParts.m.length === 2 && newParts.y.length === 4) {
+                setEndDate(`${newParts.y}-${newParts.m}-${newParts.d}`);
+            }
+        }
+    };
+
     return (
         <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto">
             {/* Header */}
-            <div>
-                <h2 className="text-xl md:text-2xl font-black text-violet-950 dark:text-white tracking-tight leading-none mb-1.5">Premiações</h2>
-                <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium">Conquiste marcos e desbloqueie prêmios exclusivos pela Evolux.</p>
+            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-8">
+                <div>
+                    <h2 className="text-lg md:text-xl font-black text-violet-950 dark:text-white tracking-tight leading-none mb-1">Premiações</h2>
+                    <p className="text-[9px] md:text-[10px] text-slate-400 dark:text-brand-400 font-medium">Conquiste marcos e desbloqueie prêmios exclusivos pela Evolux.</p>
+                </div>
+
+
             </div>
 
             {/* Current Level Card */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="group relative overflow-hidden rounded-2xl md:rounded-3xl border border-violet-100 dark:border-brand-800 bg-white dark:bg-brand-900 p-4 md:p-6 shadow-sm transition-all hover:shadow-xl"
+                className="group relative overflow-hidden rounded-xl md:rounded-2xl border border-violet-100 dark:border-brand-800 bg-white dark:bg-brand-900 p-3 md:p-4 shadow-sm transition-all hover:shadow-xl"
             >
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
                     <div className="flex-shrink-0 flex justify-center md:block">
-                        <div className="h-16 w-16 md:h-20 md:w-20 rounded-2xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-500 shadow-inner group-hover:scale-105 transition-transform duration-500">
-                            <Trophy size={32} className="md:w-10 md:h-10" />
+                        <div className="h-12 w-12 md:h-14 md:w-14 rounded-xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-500 shadow-inner group-hover:scale-105 transition-transform duration-500">
+                            <Trophy size={24} className="md:w-8 md:h-8" />
                         </div>
                     </div>
                     <div className="flex-1 text-center md:text-left">
-                        <div className="flex flex-col md:flex-row items-center gap-1.5 md:gap-2 mb-1.5">
-                            <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight">Nível Atual: Bronze</h3>
-                            <span className="rounded-full bg-orange-100 dark:bg-brand-800 px-2.5 py-0.5 text-[8px] md:text-[9px] font-black text-orange-600 dark:text-brand-300 uppercase tracking-widest">Iniciante</span>
+                        <div className="flex flex-col md:flex-row items-center gap-1 md:gap-1.5 mb-1">
+                            <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white leading-tight">Nível Atual: Bronze</h3>
+                            <span className="rounded-full bg-orange-100 dark:bg-brand-800 px-2 py-0.5 text-[7px] md:text-[8px] font-black text-orange-600 dark:text-brand-300 uppercase tracking-widest">Iniciante</span>
                         </div>
-                        <p className="text-[10px] md:text-xs font-bold text-slate-400 dark:text-brand-400 flex items-center justify-center md:justify-start gap-1.5">
-                            <TrendingUp size={12} className="text-slate-400" />
+                        <p className="text-[9px] md:text-[10px] font-bold text-slate-400 dark:text-brand-400 flex items-center justify-center md:justify-start gap-1">
+                            <TrendingUp size={10} className="text-slate-400" />
                             Receita total: <span className="text-slate-900 dark:text-white">0 MZN</span>
                         </p>
 
-                        <div className="mt-4 md:mt-6 space-y-1.5 md:space-y-2">
-                            <div className="flex items-center justify-between text-[9px] md:text-[10px] font-black tracking-wider uppercase">
+                        <div className="mt-3 md:mt-4 space-y-1 md:space-y-1.5">
+                            <div className="flex items-center justify-between text-[8px] md:text-[9px] font-black tracking-wider uppercase">
                                 <span className="text-orange-600 dark:text-brand-300">Meta: Próximo Nível (Prata)</span>
                                 <span className="text-slate-400">Faltam 10.000 MZN</span>
                             </div>
-                            <div className="h-2.5 md:h-3 w-full rounded-full bg-slate-50 dark:bg-brand-950 overflow-hidden border border-slate-100 dark:border-brand-800 p-0.5 shadow-inner">
+                            <div className="h-2 md:h-2.5 w-full rounded-full bg-slate-50 dark:bg-brand-950 overflow-hidden border border-slate-100 dark:border-brand-800 p-0.5 shadow-inner">
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: '0%' }}
@@ -154,12 +235,12 @@ export const PremiacoesView = () => {
                         </div>
                     </div>
 
-                    <div className="md:w-56 pt-4 md:pt-0 md:pl-8 md:border-l border-slate-50 dark:border-brand-800 border-t md:border-t-0 border-slate-100 dark:border-brand-800">
-                        <p className="text-[8px] font-black text-slate-300 dark:text-brand-500 uppercase tracking-[0.2em] mb-2 md:mb-3 text-center md:text-left">Benefícios atuais:</p>
-                        <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
+                    <div className="md:w-48 pt-3 md:pt-0 md:pl-6 md:border-l border-slate-50 dark:border-brand-800 border-t md:border-t-0 border-slate-100 dark:border-brand-800">
+                        <p className="text-[7px] font-black text-slate-300 dark:text-brand-500 uppercase tracking-[0.2em] mb-1.5 md:mb-2 text-center md:text-left">Benefícios:</p>
+                        <div className="grid grid-cols-2 md:grid-cols-1 gap-1">
                             {['Suporte prioritário', 'Badge exclusivo'].map(b => (
-                                <div key={b} className="flex items-center justify-center md:justify-start gap-1.5 text-[10px] md:text-[11px] font-bold text-slate-600 dark:text-brand-200">
-                                    <CheckCircle2 size={12} className="text-orange-500" /> {b}
+                                <div key={b} className="flex items-center justify-center md:justify-start gap-1 text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-brand-200">
+                                    <CheckCircle2 size={10} className="text-orange-500" /> {b}
                                 </div>
                             ))}
                         </div>
@@ -173,7 +254,7 @@ export const PremiacoesView = () => {
             {/* Main Rewards Grid */}
             <section className="space-y-4 md:space-y-6">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white tracking-tight">Kits de Premiação</h3>
+                    <h3 className="text-sm md:text-base font-black text-slate-900 dark:text-white tracking-tight">Kits de Premiação</h3>
                     <div className="hidden sm:block h-0.5 flex-1 mx-4 bg-slate-50 dark:bg-brand-800/30 rounded-full" />
                 </div>
 
@@ -217,19 +298,19 @@ export const PremiacoesView = () => {
                                 </div>
 
                                 {/* Info below visual */}
-                                <div className="px-1 md:px-1.5 mt-3 flex items-center justify-between">
+                                <div className="px-1 md:px-1.5 mt-2.5 flex items-center justify-between">
                                     <div className="min-w-0">
-                                        <h4 className="text-xs md:text-sm font-black text-slate-900 dark:text-white leading-tight truncate">{r.title}</h4>
+                                        <h4 className="text-[11px] md:text-xs font-black text-slate-900 dark:text-white leading-tight truncate">{r.title}</h4>
                                         <p className={cn(
-                                            "text-[9px] md:text-[10px] font-bold uppercase tracking-tight mt-0.5 flex items-center gap-1",
+                                            "text-[8px] md:text-[9px] font-bold uppercase tracking-tight mt-0.5 flex items-center gap-1",
                                             (r.remain === 'DESBLOQUEADO' || r.unlocked) ? "text-emerald-500" : "text-slate-400 dark:text-brand-500 opacity-80"
                                         )}>
-                                            {(r.remain === 'DESBLOQUEADO' || r.unlocked) ? <CheckCircle2 size={9} className="shrink-0" /> : <Lock size={9} className="shrink-0" />}
+                                            {(r.remain === 'DESBLOQUEADO' || r.unlocked) ? <CheckCircle2 size={8} className="shrink-0" /> : <Lock size={8} className="shrink-0" />}
                                             {r.remain === 'DESBLOQUEADO' ? 'Prêmio Desbloqueado' : `Faltam ${r.remain}`}
                                         </p>
                                     </div>
-                                    <div className="h-7 w-7 md:h-8 md:w-8 rounded-lg bg-violet-100 dark:bg-brand-800 flex items-center justify-center shrink-0">
-                                        <Trophy size={14} className="text-violet-500" />
+                                    <div className="h-6 w-6 md:h-7 md:w-7 rounded-lg bg-violet-100 dark:bg-brand-800 flex items-center justify-center shrink-0">
+                                        <Trophy size={12} className="text-violet-500" />
                                     </div>
                                 </div>
                             </div>
@@ -241,7 +322,7 @@ export const PremiacoesView = () => {
             {/* Achievement Levels List */}
             <section className="space-y-4 md:space-y-6">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white tracking-tight">Escada do Sucesso</h3>
+                    <h3 className="text-sm md:text-base font-black text-slate-900 dark:text-white tracking-tight">Escada do Sucesso</h3>
                     <div className="hidden sm:block h-0.5 flex-1 mx-4 bg-slate-50 dark:bg-brand-800/30 rounded-full" />
                 </div>
 
@@ -257,18 +338,18 @@ export const PremiacoesView = () => {
                             )}
                         >
                             {lvl.isCurrent && (
-                                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-violet-600 px-2.5 py-1 text-[7px] md:text-[8px] font-black text-white uppercase tracking-widest shadow-lg whitespace-nowrap">
+                                <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-violet-600 px-2 py-0.5 text-[6px] md:text-[7px] font-black text-white uppercase tracking-widest shadow-lg whitespace-nowrap">
                                     VOCÊ ESTÁ AQUI
                                 </span>
                             )}
                             <div className={cn(
-                                "h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl mb-3 md:mb-4 flex items-center justify-center text-xl md:text-2xl shadow-lg border border-white dark:border-brand-800",
+                                "h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl mb-2 md:mb-3 flex items-center justify-center text-lg md:text-xl shadow-lg border border-white dark:border-brand-800",
                                 lvl.bgColor, lvl.darkBg, lvl.color
                             )}>
-                                <lvl.icon size={18} className="md:w-6 md:h-6" />
+                                <lvl.icon size={16} className="md:w-5 md:h-5" />
                             </div>
-                            <h4 className="text-sm md:text-base font-black text-slate-900 dark:text-white mb-0.5">{lvl.name}</h4>
-                            <p className="text-[8px] md:text-[9px] font-black text-violet-500 uppercase tracking-tighter mb-4 md:mb-5">{lvl.range}</p>
+                            <h4 className="text-xs md:text-sm font-black text-slate-900 dark:text-white mb-0.5">{lvl.name}</h4>
+                            <p className="text-[7px] md:text-[8px] font-black text-violet-500 uppercase tracking-tighter mb-3 md:mb-4">{lvl.range}</p>
 
                             <div className="w-full space-y-1.5 md:space-y-2">
                                 {lvl.benefits.map((b, i) => (
@@ -286,32 +367,32 @@ export const PremiacoesView = () => {
             </section>
 
             {/* Bottom Badges */}
-            <section className="bg-slate-50 dark:bg-brand-950/50 rounded-2xl md:rounded-3xl p-5 md:p-8 border border-slate-100 dark:border-brand-800/50 mt-6 md:mt-10">
-                <div className="flex items-center gap-3 mb-5 md:mb-6">
-                    <div className="h-8 w-8 rounded-lg bg-violet-600 flex items-center justify-center text-white shadow-lg shrink-0">
-                        <Award size={18} />
+            <section className="bg-slate-50 dark:bg-brand-950/50 rounded-xl md:rounded-2xl p-4 md:p-6 border border-slate-100 dark:border-brand-800/50 mt-4 md:mt-8">
+                <div className="flex items-center gap-2 mb-4 md:mb-5">
+                    <div className="h-7 w-7 rounded-lg bg-violet-600 flex items-center justify-center text-white shadow-lg shrink-0">
+                        <Award size={16} />
                     </div>
                     <div>
-                        <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white leading-tight">Performance</h3>
-                        <p className="text-[9px] md:text-[10px] font-bold text-slate-400">Marcos extras para acelerar seu crescimento</p>
+                        <h3 className="text-sm md:text-base font-black text-slate-900 dark:text-white leading-tight">Performance</h3>
+                        <p className="text-[8px] md:text-[9px] font-bold text-slate-400">Marcos extras para acelerar seu crescimento</p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 md:gap-3">
                     {achievements.map((ach) => (
                         <div key={ach.title} className={cn(
-                            "group relative flex items-center gap-3 md:gap-4 rounded-xl p-3 md:p-5 border transition-all overflow-hidden",
+                            "group relative flex items-center gap-2.5 md:gap-3 rounded-xl p-2.5 md:p-4 border transition-all overflow-hidden",
                             ach.unlocked
                                 ? "bg-violet-600/5 dark:bg-violet-600/10 border-violet-200 dark:border-violet-500/30 shadow-md"
                                 : "bg-white dark:bg-brand-900 border-slate-100 dark:border-brand-800 shadow-sm"
                         )}>
                             <div className={cn(
-                                "relative z-10 h-10 w-10 md:h-12 md:w-12 rounded-xl flex items-center justify-center transition-all duration-500 shrink-0",
+                                "relative z-10 h-8 w-8 md:h-10 md:w-10 rounded-lg flex items-center justify-center transition-all duration-500 shrink-0",
                                 ach.unlocked
                                     ? "bg-violet-600 text-white shadow-lg rotate-0"
                                     : "bg-slate-50 dark:bg-brand-800 text-slate-400 dark:text-brand-500 group-hover:rotate-[15deg]"
                             )}>
-                                <ach.icon size={20} className="md:w-6 md:h-6" />
+                                <ach.icon size={16} className="md:w-5 md:h-5" />
                             </div>
                             <div className="relative z-10 min-w-0">
                                 <h4 className={cn(

@@ -13,17 +13,22 @@ import type { User } from '@supabase/supabase-js';
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
+const generateMockSales = (days: number) => {
+    return Array.from({ length: days }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (days - i));
+        return {
+            name: date.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' }),
+            valor: Math.floor(Math.random() * 5000) + 1000,
+            vendas: Math.floor(Math.random() * 20) + 5,
+            dateISO: date.toISOString().split('T')[0]
+        };
+    });
+};
+
 const salesData: Record<string, { name: string; valor: number; vendas: number }[]> = {
-    hoje: [
-        { name: '08h', valor: 0, vendas: 0 }, { name: '10h', valor: 0, vendas: 0 }, { name: '12h', valor: 0, vendas: 0 },
-        { name: '14h', valor: 0, vendas: 0 }, { name: '16h', valor: 0, vendas: 0 }, { name: '18h', valor: 0, vendas: 0 },
-        { name: '20h', valor: 0, vendas: 0 }, { name: '22h', valor: 0, vendas: 0 },
-    ],
-    ontem: [
-        { name: '08h', valor: 0, vendas: 0 }, { name: '10h', valor: 0, vendas: 0 }, { name: '12h', valor: 0, vendas: 0 },
-        { name: '14h', valor: 0, vendas: 0 }, { name: '16h', valor: 0, vendas: 0 }, { name: '18h', valor: 0, vendas: 0 },
-        { name: '20h', valor: 0, vendas: 0 }, { name: '22h', valor: 0, vendas: 0 },
-    ],
+    hoje: [],
+    ontem: [],
     '7dias': [],
     '30dias': [],
     '90dias': [],
@@ -80,15 +85,21 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
     const endDRef = useRef<HTMLInputElement>(null);
     const endMRef = useRef<HTMLInputElement>(null);
     const endYRef = useRef<HTMLInputElement>(null);
+    const startInputRef = useRef<HTMLInputElement>(null);
+    const endInputRef = useRef<HTMLInputElement>(null);
 
     // Mock filtering logic for demonstration
-    const data = (period === 'Todo') ? salesData['todo']
+    const rawData = (period === 'Todo') ? salesData['todo']
         : (period === '90d') ? salesData['90dias']
             : (period === '30d') ? salesData['30dias']
                 : (period === '7d') ? salesData['7dias']
                     : (period === 'Ontem') ? salesData['ontem']
-                        : (period === 'custom') ? salesData['30dias'] // Show 30d for custom mock
+                    : (period === 'custom') ? salesData['todo']
                             : (salesData['hoje'] || []);
+
+    const data = (period === 'custom' && startDate && endDate) 
+        ? (rawData as any[]).filter(item => item.dateISO >= startDate && item.dateISO <= endDate)
+        : rawData;
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -258,7 +269,7 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
 
                     <div className="flex items-center gap-3 md:gap-5">
                         <div className="relative" ref={datePickerRef}>
-                            <div className="hidden md:flex items-center gap-1 p-1 bg-white dark:bg-brand-800/40 border border-white/20 dark:border-white/5 rounded-[1.25rem] shadow-sm">
+                            <div className="hidden md:flex items-center gap-1 p-1 bg-white dark:bg-brand-800/40 border border-white/20 dark:border-white/5 rounded-2xl shadow-sm">
                                 {periodOptions.map((p) => (
                                     <button
                                         key={p.key}
@@ -267,10 +278,10 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                                             setShowDatePicker(false);
                                         }}
                                         className={cn(
-                                            "px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] transition-all duration-300",
+                                            "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
                                             period === p.key && !showDatePicker
-                                                ? "bg-violet-600 text-white shadow-lg shadow-violet-500/30 scale-[1.05]"
-                                                : "text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5"
+                                                ? "bg-violet-600 text-white shadow-lg shadow-violet-500/20"
+                                                : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"
                                         )}
                                     >
                                         {p.key}
@@ -280,13 +291,14 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                                 <button
                                     onClick={() => setShowDatePicker(!showDatePicker)}
                                     className={cn(
-                                        "p-2.5 rounded-xl text-[10px] font-black transition-all flex items-center justify-center relative",
+                                        "h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 relative",
                                         showDatePicker || period === 'custom'
-                                            ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 rotate-12"
-                                            : "text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                                            ? "bg-violet-600 text-white shadow-lg"
+                                            : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"
                                     )}
                                 >
-                                    <Calendar size={18} />
+                                    <Calendar size={14} />
+                                    <span className="hidden sm:inline">Personalizar</span>
                                     {(showDatePicker || period === 'custom') && (
                                         <div className="absolute -top-1 -right-1 h-3 w-3 bg-violet-500 rounded-full border-2 border-white dark:border-brand-900 animate-pulse" />
                                     )}
@@ -296,13 +308,13 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                             <button
                                 onClick={() => setShowDatePicker(!showDatePicker)}
                                 className={cn(
-                                    "md:hidden flex items-center gap-2 px-5 py-3 rounded-2xl border transition-all active:scale-95 font-black uppercase text-[10px] tracking-widest",
+                                    "md:hidden flex items-center gap-2 px-4 py-2 rounded-xl border transition-all active:scale-95 font-black uppercase text-[9px] tracking-widest",
                                     period === 'custom' || showDatePicker
                                         ? "bg-violet-600 text-white shadow-xl shadow-violet-500/30 border-transparent"
                                         : "bg-white dark:bg-brand-900 border-violet-100 dark:border-white/5 text-slate-600 dark:text-brand-200"
                                 )}
                             >
-                                <Calendar size={18} />
+                                <Calendar size={14} />
                                 {period === 'custom' && startDate ? startDate.split('-').reverse().join('/') : 'Filtrar'}
                             </button>
 
@@ -314,31 +326,29 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                                             animate={{ opacity: 1 }}
                                             exit={{ opacity: 0 }}
                                             onClick={() => setShowDatePicker(false)}
-                                            className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md z-[50]"
+                                            className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 z-[50]"
                                         />
 
                                         <motion.div
                                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                                             animate={{ opacity: 1, scale: 1, y: 0 }}
                                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                            className="absolute right-0 top-full mt-6 w-[320px] md:w-[680px] glass-dark rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] z-[100] p-8 md:p-12 border border-white/10"
+                                            className="absolute right-0 top-full mt-6 w-[320px] md:w-[380px] bg-white dark:bg-brand-950 rounded-[2rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] z-[100] p-5 md:p-6 border border-white/20 dark:border-white/5"
                                         >
-                                            <div className="relative z-10 space-y-10">
-                                                <div className="flex items-center justify-between border-b border-white/5 pb-8">
+                                            <div className="relative z-10 space-y-4">
+                                                <div className="flex items-center justify-between border-b border-white/5 pb-4">
                                                     <div>
                                                         <h4 className="text-sm font-black uppercase text-white tracking-[0.2em] flex items-center gap-3">
                                                             <Calendar size={20} className="text-violet-500" /> Filtro de Datas
                                                         </h4>
-                                                        <p className="text-[10px] text-brand-500 font-black uppercase tracking-widest mt-1 ml-8">Sistema de filtragem avançado</p>
+                                                        <p className="text-[9px] text-brand-500 font-black uppercase tracking-widest mt-0.5 ml-8">Sistema de filtragem avançado</p>
                                                     </div>
                                                     <button onClick={() => setShowDatePicker(false)} className="h-10 w-10 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all">
                                                         <X size={20} />
                                                     </button>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative">
-                                                    <div className="absolute left-1/2 top-4 bottom-4 w-px bg-white/5 hidden md:block" />
-
+                                                <div className="grid grid-cols-1 gap-6 relative">
                                                     {/* Data De */}
                                                     <div className="space-y-6">
                                                         <div className="flex items-center gap-3">
@@ -346,8 +356,26 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                                                                 <ArrowUpRight size={20} />
                                                             </div>
                                                             <span className="text-xs font-black uppercase text-white tracking-widest">Data de Início</span>
+                                                            <div className="ml-auto flex gap-2">
+                                                                <button 
+                                                                    onClick={() => setStartDate(new Date().toISOString().split('T')[0])}
+                                                                    className="px-2 py-1 rounded-md bg-white/5 text-[8px] text-white/50 font-black uppercase hover:bg-violet-500 hover:text-white transition-all"
+                                                                >
+                                                                    Hoje
+                                                                </button>
+                                                                <button 
+                                                                    onClick={() => {
+                                                                        const d = new Date();
+                                                                        d.setDate(d.getDate() - 1);
+                                                                        setStartDate(d.toISOString().split('T')[0]);
+                                                                    }}
+                                                                    className="px-2 py-1 rounded-md bg-white/5 text-[8px] text-white/50 font-black uppercase hover:bg-violet-500 hover:text-white transition-all"
+                                                                >
+                                                                    Ontem
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                        <div className="flex gap-2 items-center bg-brand-950/50 p-6 rounded-[2rem] border border-white/5 focus-within:ring-4 focus-within:ring-violet-500/20 transition-all shadow-inner">
+                                                        <div className="flex gap-2 items-center bg-brand-950/50 p-3 rounded-2xl border border-white/5 focus-within:ring-2 focus-within:ring-violet-500/20 transition-all shadow-inner">
                                                             <input
                                                                 ref={startDRef}
                                                                 type="text"
@@ -377,9 +405,19 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                                                                 onChange={(e) => updateFromParts('start', 'y', e.target.value)}
                                                                 className="w-20 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                             />
-                                                            <div className="ml-auto relative group-hover:scale-125 transition-transform cursor-pointer">
+                                                            <div 
+                                                                onClick={() => {
+                                                                    try {
+                                                                        (startInputRef.current as any)?.showPicker();
+                                                                    } catch (e) {
+                                                                        startInputRef.current?.focus();
+                                                                    }
+                                                                }}
+                                                                className="ml-auto relative group-hover:scale-125 transition-transform cursor-pointer"
+                                                            >
                                                                 <Calendar size={20} className="text-violet-500" />
                                                                 <input
+                                                                    ref={startInputRef}
                                                                     type="date"
                                                                     value={startDate}
                                                                     onChange={(e) => setStartDate(e.target.value)}
@@ -396,8 +434,25 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                                                                 <ArrowDownRight size={20} />
                                                             </div>
                                                             <span className="text-xs font-black uppercase text-white tracking-widest">Data de Fim</span>
+                                                            <div className="ml-auto flex gap-2">
+                                                                <button 
+                                                                    onClick={() => setEndDate(new Date().toISOString().split('T')[0])}
+                                                                    className="px-2 py-1 rounded-md bg-white/5 text-[8px] text-white/50 font-black uppercase hover:bg-fuchsia-500 hover:text-white transition-all"
+                                                                >
+                                                                    Hoje
+                                                                </button>
+                                                                <button 
+                                                                    onClick={() => {
+                                                                        const d = new Date();
+                                                                        setEndDate(d.toISOString().split('T')[0]);
+                                                                    }}
+                                                                    className="px-2 py-1 rounded-md bg-white/5 text-[8px] text-white/50 font-black uppercase hover:bg-fuchsia-500 hover:text-white transition-all"
+                                                                >
+                                                                    Ano
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                        <div className="flex gap-2 items-center bg-brand-950/50 p-6 rounded-[2rem] border border-white/5 focus-within:ring-4 focus-within:ring-fuchsia-500/20 transition-all shadow-inner">
+                                                        <div className="flex gap-2 items-center bg-brand-950/50 p-3 rounded-2xl border border-white/5 focus-within:ring-2 focus-within:ring-fuchsia-500/20 transition-all shadow-inner">
                                                             <input
                                                                 ref={endDRef}
                                                                 type="text"
@@ -427,9 +482,19 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                                                                 onChange={(e) => updateFromParts('end', 'y', e.target.value)}
                                                                 className="w-20 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
                                                             />
-                                                            <div className="ml-auto relative group-hover:scale-125 transition-transform cursor-pointer">
+                                                            <div 
+                                                                onClick={() => {
+                                                                    try {
+                                                                        (endInputRef.current as any)?.showPicker();
+                                                                    } catch (e) {
+                                                                        endInputRef.current?.focus();
+                                                                    }
+                                                                }}
+                                                                className="ml-auto relative group-hover:scale-125 transition-transform cursor-pointer"
+                                                            >
                                                                 <Calendar size={20} className="text-fuchsia-500" />
                                                                 <input
+                                                                    ref={endInputRef}
                                                                     type="date"
                                                                     value={endDate}
                                                                     onChange={(e) => setEndDate(e.target.value)}
@@ -447,9 +512,9 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                                                             setShowDatePicker(false);
                                                         }
                                                     }}
-                                                    className="w-full py-6 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-[2rem] text-sm font-black uppercase tracking-[0.3em] shadow-[0_20px_60px_-10px_rgba(124,58,237,0.5)] active:scale-[0.98] transition-all hover:brightness-110 flex items-center justify-center gap-4 group"
+                                                    className="w-full py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-[0_20px_60px_-10px_rgba(124,58,237,0.5)] active:scale-[0.98] transition-all hover:brightness-110 flex items-center justify-center gap-4 group"
                                                 >
-                                                    <BarChart3 size={24} className="group-hover:animate-bounce" /> Aplicar Filtro
+                                                    <BarChart3 size={18} className="group-hover:animate-bounce" /> Aplicar Filtro
                                                 </button>
                                             </div>
                                         </motion.div>

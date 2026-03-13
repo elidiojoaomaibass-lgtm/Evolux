@@ -3,17 +3,92 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, ShoppingCart, Info,
-    Star, ArrowUpRight
+    Star, ArrowUpRight, Calendar, X, BarChart3, ArrowDownRight
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { useProductsStore, useAffiliatesStore } from '../lib/store';
+import { useProductsStore, useAffiliatesStore, type Product } from '../lib/store';
 import { toast } from 'sonner';
+import { useRef, useEffect } from 'react';
 
 export const MercadoView = () => {
     const { products } = useProductsStore();
     const { addRequest } = useAffiliatesStore();
     const [searchTerm, setSearchTerm] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('Todas');
+    const [period, setPeriod] = useState<'Hoje' | '7d' | '30d' | 'Todo' | 'custom'>('Todo');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [startParts, setStartParts] = useState({ d: '', m: '', y: '' });
+    const [endParts, setEndParts] = useState({ d: '', m: '', y: '' });
+
+    // Refs for auto-focus
+    const startDRef = useRef<HTMLInputElement>(null);
+    const startMRef = useRef<HTMLInputElement>(null);
+    const startYRef = useRef<HTMLInputElement>(null);
+    const endDRef = useRef<HTMLInputElement>(null);
+    const endMRef = useRef<HTMLInputElement>(null);
+    const endYRef = useRef<HTMLInputElement>(null);
+    const datePickerRef = useRef<HTMLDivElement>(null);
+    const startInputRef = useRef<HTMLInputElement>(null);
+    const endInputRef = useRef<HTMLInputElement>(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (datePickerRef.current && !datePickerRef.current.contains(e.target as Node)) {
+                setShowDatePicker(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    // Sync parts when startDate changes
+    useEffect(() => {
+        if (startDate) {
+            const [y, m, d] = startDate.split('-');
+            setStartParts({ d, m, y });
+        }
+    }, [startDate]);
+
+    // Sync parts when endDate changes
+    useEffect(() => {
+        if (endDate) {
+            const [y, m, d] = endDate.split('-');
+            setEndParts({ d, m, y });
+        }
+    }, [endDate]);
+
+    // Helper to update date from parts with auto-focus
+    const updateFromParts = (type: 'start' | 'end', key: 'd' | 'm' | 'y', val: string) => {
+        const numericVal = val.replace(/\D/g, '');
+
+        if (type === 'start') {
+            const newParts = { ...startParts, [key]: numericVal };
+            setStartParts(newParts);
+
+            // Auto-focus logic
+            if (key === 'd' && numericVal.length === 2) startMRef.current?.focus();
+            if (key === 'm' && numericVal.length === 2) startYRef.current?.focus();
+            if (key === 'y' && numericVal.length === 4) endDRef.current?.focus();
+
+            if (newParts.d.length === 2 && newParts.m.length === 2 && newParts.y.length === 4) {
+                setStartDate(`${newParts.y}-${newParts.m}-${newParts.d}`);
+            }
+        } else {
+            const newParts = { ...endParts, [key]: numericVal };
+            setEndParts(newParts);
+
+            // Auto-focus logic
+            if (key === 'd' && numericVal.length === 2) endMRef.current?.focus();
+            if (key === 'm' && numericVal.length === 2) endYRef.current?.focus();
+
+            if (newParts.d.length === 2 && newParts.m.length === 2 && newParts.y.length === 4) {
+                setEndDate(`${newParts.y}-${newParts.m}-${newParts.d}`);
+            }
+        }
+    };
 
     const marketplaceProducts = products.filter(p => p.isMarketplaceEnabled);
 
@@ -23,7 +98,7 @@ export const MercadoView = () => {
         return matchesSearch && matchesCategory;
     });
 
-    const handleAffiliate = (product: any) => {
+    const handleAffiliate = (product: Product) => {
         if (product.affiliationType === 'Automatica') {
             toast.success(`Afiliação aprovada!`, {
                 description: `Podes começar a vender o produto ${product.name} agora mesmo.`,
@@ -51,13 +126,15 @@ export const MercadoView = () => {
                     animate={{ opacity: 1, x: 0 }}
                     className="space-y-2"
                 >
-                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
+                    <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
                         Mercado <span className="text-gradient">Hub</span> 🌐
                     </h2>
                     <p className="text-xs md:text-sm text-slate-400 dark:text-brand-400 font-medium tracking-tight max-w-2xl">
                         Descubra ativos de alta performance e escale seus dividendos através da nossa rede global.
                     </p>
                 </motion.div>
+
+
                 <div className="flex items-center gap-4">
                     <div className="px-5 py-2.5 bg-amber-500/10 dark:bg-amber-500/5 border border-amber-500/20 rounded-xl flex items-center gap-3 shadow-lg backdrop-blur-md">
                         <div className="h-8 w-8 rounded-lg bg-amber-500 flex items-center justify-center shadow-md shadow-amber-500/30">
@@ -80,17 +157,17 @@ export const MercadoView = () => {
                         placeholder="Pesquisar ativos..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full h-12 md:h-14 pl-14 pr-6 rounded-2xl border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/5 outline-none transition-all placeholder:text-slate-400 shadow-inner"
+                        className="w-full h-12 pl-12 pr-6 rounded-xl border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/5 outline-none transition-all placeholder:text-slate-400 shadow-inner"
                     />
                 </div>
 
-                <div className="flex items-center gap-2 p-1.5 bg-slate-100/50 dark:bg-brand-900/60 rounded-2xl border border-white/10 backdrop-blur-3xl overflow-x-auto w-full lg:w-auto scrollbar-hide">
+                <div className="flex items-center gap-2 p-1.5 bg-slate-100/50 dark:bg-brand-900/60 rounded-3xl border border-white/10 backdrop-blur-3xl overflow-x-auto w-full lg:w-auto scrollbar-hide">
                     {['Todas', 'Ebook', 'Curso', 'Mentoria', 'Workshop'].map((cat) => (
                         <button
                             key={cat}
                             onClick={() => setCategoryFilter(cat)}
                             className={cn(
-                                "px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.1em] transition-all whitespace-nowrap",
+                                "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                                 categoryFilter === cat
                                     ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg"
                                     : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"
