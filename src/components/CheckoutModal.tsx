@@ -261,8 +261,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                             )}>
                                                 {method === 'mpesa' && <div className="h-2 w-2 rounded-full bg-red-500" />}
                                             </div>
-                                            <div className="h-8 w-8 p-1 bg-white rounded-lg border border-slate-100 flex items-center justify-center">
-                                                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/M-pesa_logo.png" alt="M-Pesa" className="h-full object-contain" />
+                                            <div className="h-8 w-8 p-0.5 bg-white rounded-lg border border-slate-100 flex items-center justify-center overflow-hidden">
+                                                <img src="/mpesa_logo.png" alt="M-Pesa" className="w-full h-full object-cover" />
                                             </div>
                                             <span className="text-xs font-black text-slate-900 uppercase tracking-tight">M-Pesa</span>
                                         </div>
@@ -302,8 +302,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                             )}>
                                                 {method === 'emola' && <div className="h-2 w-2 rounded-full bg-orange-500" />}
                                             </div>
-                                            <div className="h-8 w-8 p-1 bg-white rounded-lg border border-slate-100 flex items-center justify-center">
-                                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/E-mola_logo.png/640px-E-mola_logo.png" alt="e-Mola" className="h-full object-contain" />
+                                            <div className="h-8 w-8 p-0.5 bg-white rounded-lg border border-slate-100 flex items-center justify-center overflow-hidden">
+                                                <img src="/emola_logo.png" alt="e-Mola" className="w-full h-full object-cover" />
                                             </div>
                                             <span className="text-xs font-black text-slate-900 uppercase tracking-tight">e-Mola</span>
                                         </div>
