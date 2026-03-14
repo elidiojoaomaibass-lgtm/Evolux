@@ -3,93 +3,17 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, ShoppingCart, Info,
-    Star, ArrowUpRight, Calendar, X, BarChart3, ArrowDownRight
+    Star, ArrowUpRight
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useProductsStore, useAffiliatesStore, type Product } from '../lib/store';
 import { toast } from 'sonner';
-import { useRef, useEffect } from 'react';
 
 export const MercadoView = () => {
     const { products } = useProductsStore();
     const { addRequest } = useAffiliatesStore();
     const [searchTerm, setSearchTerm] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('Todas');
-    const [period, setPeriod] = useState<'Hoje' | '7d' | '30d' | 'Todo' | 'custom'>('Todo');
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [startParts, setStartParts] = useState({ d: '', m: '', y: '' });
-    const [endParts, setEndParts] = useState({ d: '', m: '', y: '' });
-
-    // Refs for auto-focus
-    const startDRef = useRef<HTMLInputElement>(null);
-    const startMRef = useRef<HTMLInputElement>(null);
-    const startYRef = useRef<HTMLInputElement>(null);
-    const endDRef = useRef<HTMLInputElement>(null);
-    const endMRef = useRef<HTMLInputElement>(null);
-    const endYRef = useRef<HTMLInputElement>(null);
-    const datePickerRef = useRef<HTMLDivElement>(null);
-    const startInputRef = useRef<HTMLInputElement>(null);
-    const endInputRef = useRef<HTMLInputElement>(null);
-
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handler = (e: MouseEvent) => {
-            if (datePickerRef.current && !datePickerRef.current.contains(e.target as Node)) {
-                setShowDatePicker(false);
-            }
-        };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
-    }, []);
-
-    // Sync parts when startDate changes
-    useEffect(() => {
-        if (startDate) {
-            const [y, m, d] = startDate.split('-');
-            setStartParts({ d, m, y });
-        }
-    }, [startDate]);
-
-    // Sync parts when endDate changes
-    useEffect(() => {
-        if (endDate) {
-            const [y, m, d] = endDate.split('-');
-            setEndParts({ d, m, y });
-        }
-    }, [endDate]);
-
-    // Helper to update date from parts with auto-focus
-    const updateFromParts = (type: 'start' | 'end', key: 'd' | 'm' | 'y', val: string) => {
-        const numericVal = val.replace(/\D/g, '');
-
-        if (type === 'start') {
-            const newParts = { ...startParts, [key]: numericVal };
-            setStartParts(newParts);
-
-            // Auto-focus logic
-            if (key === 'd' && numericVal.length === 2) startMRef.current?.focus();
-            if (key === 'm' && numericVal.length === 2) startYRef.current?.focus();
-            if (key === 'y' && numericVal.length === 4) endDRef.current?.focus();
-
-            if (newParts.d.length === 2 && newParts.m.length === 2 && newParts.y.length === 4) {
-                setStartDate(`${newParts.y}-${newParts.m}-${newParts.d}`);
-            }
-        } else {
-            const newParts = { ...endParts, [key]: numericVal };
-            setEndParts(newParts);
-
-            // Auto-focus logic
-            if (key === 'd' && numericVal.length === 2) endMRef.current?.focus();
-            if (key === 'm' && numericVal.length === 2) endYRef.current?.focus();
-
-            if (newParts.d.length === 2 && newParts.m.length === 2 && newParts.y.length === 4) {
-                setEndDate(`${newParts.y}-${newParts.m}-${newParts.d}`);
-            }
-        }
-    };
-
     const marketplaceProducts = products.filter(p => p.isMarketplaceEnabled);
 
     const filteredMarketplace = marketplaceProducts.filter(p => {

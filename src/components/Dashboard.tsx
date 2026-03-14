@@ -13,18 +13,6 @@ import type { User } from '@supabase/supabase-js';
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-const generateMockSales = (days: number) => {
-    return Array.from({ length: days }, (_, i) => {
-        const date = new Date();
-        date.setDate(date.getDate() - (days - i));
-        return {
-            name: date.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' }),
-            valor: Math.floor(Math.random() * 5000) + 1000,
-            vendas: Math.floor(Math.random() * 20) + 5,
-            dateISO: date.toISOString().split('T')[0]
-        };
-    });
-};
 
 const salesData: Record<string, { name: string; valor: number; vendas: number }[]> = {
     hoje: [],

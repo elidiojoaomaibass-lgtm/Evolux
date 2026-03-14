@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    CheckCircle2, XCircle, Clock,
     ArrowUpRight, ArrowDownRight, Search, Calendar, X, BarChart3
 } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -10,25 +9,8 @@ import type { User } from '@supabase/supabase-js';
 
 type PeriodType = 'Hoje' | 'Ontem' | '7d' | '30d' | '90d' | 'Todo' | 'custom';
 
-const generateMockTransactions = (count: number) => {
-    const customers = ['Elídio João', 'Maria Silva', 'José Cuamba', 'Ana Matsinhe', 'Carlos Mondlane', 'Beatriz Langa', 'Fernando Sitoe', 'Isabel Muianga'];
-    const products = ['Pack VIP Elite', 'Evolux Basic', 'Curso Digital Pro', 'Acesso Gold Vitalício'];
-    
-    return Array.from({ length: count }, (_, i) => {
-        const date = new Date();
-        date.setDate(date.getDate() - Math.floor(Math.random() * 90));
-        return {
-            id: `TRX-${10000 + i}`,
-            product: products[Math.floor(Math.random() * products.length)],
-            customer: customers[Math.floor(Math.random() * customers.length)],
-            email: `cliente${i}@exemplo.com`,
-            amount: Math.floor(Math.random() * 5000) + 500,
-            status: Math.random() > 0.3 ? 'Aprovado' : Math.random() > 0.5 ? 'Pendente' : 'Cancelado',
-            date: date.toISOString().split('T')[0],
-            time: '14:2' + (i % 10)
-        };
-    });
-};
+
+
 
 const transactionsData: Record<PeriodType, any[]> = {
     'Hoje': [],

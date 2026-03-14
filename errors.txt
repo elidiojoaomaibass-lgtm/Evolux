@@ -1,9 +1,0 @@
-
-> evolux-prod@0.0.0 build
-> tsc -b && vite build
-
-src/App.tsx(30,48): error TS7031: Binding element 'session' implicitly has an 'any' type.
-src/App.tsx(35,73): error TS7006: Parameter '_event' implicitly has an 'any' type.
-src/App.tsx(35,81): error TS7006: Parameter 'session' implicitly has an 'any' type.
-src/App.tsx(59,50): error TS7031: Binding element 'session' implicitly has an 'any' type.
-src/components/ConfiguracoesView.tsx(25,49): error TS7031: Binding element 'user' implicitly has an 'any' type.

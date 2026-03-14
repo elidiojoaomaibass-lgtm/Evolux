@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Users, Search,
-    Clock, Mail, Package,
+    Search,
     UserCheck, UserMinus
 } from 'lucide-react';
 import { cn } from '../lib/utils';

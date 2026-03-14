@@ -10,7 +10,6 @@ import {
 import { cn } from '../lib/utils';
 import { useProductsStore, type Product, type Category } from '../lib/store';
 import { ConfirmationModal } from './ConfirmationModal';
-import { useEffect } from 'react';
 
 // --- Data Types & Mocks Removed (moved to store.ts) ---
 
@@ -180,7 +179,8 @@ export const ProdutosView = () => {
 
 
 
-            {/* Filters Row            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between px-1">
+            {/* Filters Row */}
+            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between px-1">
                 <div className="relative w-full lg:max-w-xs">
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                     <input
@@ -207,7 +207,7 @@ export const ProdutosView = () => {
                         </button>
                     ))}
                 </div>
-            </div></div>
+            </div>
 
             {/* Product Cards Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">

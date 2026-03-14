@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -47,6 +47,73 @@ type Period = 'Hoje' | 'Ontem' | '7d' | '30d' | '90d' | 'Todo' | 'custom';
 export const AnalyticsView = () => {
     const { products } = useProductsStore();
     const [period, setPeriod] = useState<Period>('Hoje');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [startParts, setStartParts] = useState({ d: '', m: '', y: '' });
+    const [endParts, setEndParts] = useState({ d: '', m: '', y: '' });
+
+    // Refs for auto-focus
+    const startDRef = useRef<HTMLInputElement>(null);
+    const startMRef = useRef<HTMLInputElement>(null);
+    const startYRef = useRef<HTMLInputElement>(null);
+    const endDRef = useRef<HTMLInputElement>(null);
+    const endMRef = useRef<HTMLInputElement>(null);
+    const endYRef = useRef<HTMLInputElement>(null);
+    const datePickerRef = useRef<HTMLDivElement>(null);
+    const startInputRef = useRef<HTMLInputElement>(null);
+    const endInputRef = useRef<HTMLInputElement>(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (datePickerRef.current && !datePickerRef.current.contains(e.target as Node)) {
+                setShowDatePicker(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    // Sync parts when startDate changes
+    useEffect(() => {
+        if (startDate) {
+            const [y, m, d] = startDate.split('-');
+            setStartParts({ d, m, y });
+        }
+    }, [startDate]);
+
+    // Sync parts when endDate changes
+    useEffect(() => {
+        if (endDate) {
+            const [y, m, d] = endDate.split('-');
+            setEndParts({ d, m, y });
+        }
+    }, [endDate]);
+
+    // Helper to update date from parts with auto-focus
+    const updateFromParts = (type: 'start' | 'end', key: 'd' | 'm' | 'y', val: string) => {
+        const numericVal = val.replace(/\D/g, '');
+
+        if (type === 'start') {
+            const newParts = { ...startParts, [key]: numericVal };
+            setStartParts(newParts);
+            if (key === 'd' && numericVal.length === 2) startMRef.current?.focus();
+            if (key === 'm' && numericVal.length === 2) startYRef.current?.focus();
+            if (key === 'y' && numericVal.length === 4) endDRef.current?.focus();
+            if (newParts.d.length === 2 && newParts.m.length === 2 && newParts.y.length === 4) {
+                setStartDate(`${newParts.y}-${newParts.m}-${newParts.d}`);
+            }
+        } else {
+            const newParts = { ...endParts, [key]: numericVal };
+            setEndParts(newParts);
+            if (key === 'd' && numericVal.length === 2) endMRef.current?.focus();
+            if (key === 'm' && numericVal.length === 2) endYRef.current?.focus();
+            if (newParts.d.length === 2 && newParts.m.length === 2 && newParts.y.length === 4) {
+                setEndDate(`${newParts.y}-${newParts.m}-${newParts.d}`);
+            }
+        }
+    };
 
     // Filtering logic that generates UI-optimized data per period
     const filteredData = useMemo(() => {
