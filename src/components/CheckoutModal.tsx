@@ -62,50 +62,61 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 30 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className="relative w-full max-w-[1000px] aspect-video md:aspect-auto md:h-[600px] bg-white dark:bg-[#0a0a0f] rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)] overflow-hidden border border-white/20 dark:border-white/5 flex flex-col md:flex-row"
+                        className="relative w-full max-w-[1000px] md:h-[650px] bg-white dark:bg-[#0a0a0f] rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)] overflow-hidden border border-white/20 dark:border-white/5 flex flex-col md:flex-row"
                     >
+                        {/* Ambient Glows Inside Modal */}
+                        <div className="absolute -top-24 -left-24 h-64 w-64 rounded-full bg-violet-600/20 blur-[80px] pointer-events-none" />
+                        <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-fuchsia-600/10 blur-[80px] pointer-events-none" />
+
                         {/* Left Side: Product Info (Desktop) */}
-                        <div className="hidden md:flex flex-col w-[38%] bg-slate-50 dark:bg-brand-950/50 p-10 border-r border-slate-100 dark:border-white/5">
-                            <div className="flex items-center gap-2 mb-8">
-                                <div className="h-8 w-8 rounded-lg bg-violet-600 flex items-center justify-center text-white">
-                                    <ShoppingCart size={18} />
+                        <div className="hidden md:flex flex-col w-[42%] bg-slate-50/50 dark:bg-white/[0.02] p-10 border-r border-slate-100 dark:border-white/5 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-violet-600/5 to-transparent pointer-events-none" />
+                            
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-8">
+                                    <div className="h-8 w-8 rounded-lg bg-violet-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/20">
+                                        <ShoppingCart size={18} />
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-brand-400">Checkout Seguro</span>
                                 </div>
-                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-brand-400">Checkout Seguro</span>
-                            </div>
 
-                            <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl mb-8 group">
-                                <img 
-                                    src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&fit=crop"} 
-                                    alt={product.name} 
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                            </div>
-
-                            <div className="space-y-4">
-                                <div>
-                                    <span className="text-[9px] font-black text-violet-500 uppercase tracking-widest leading-none">{product.category}</span>
-                                    <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter mt-1">{product.name}</h2>
+                                <div className="relative aspect-square rounded-[2rem] overflow-hidden shadow-2xl mb-8 group ring-1 ring-white/10">
+                                    <img 
+                                        src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&fit=crop"} 
+                                        alt={product.name} 
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                                 </div>
-                                
-                                <p className="text-xs text-slate-500 dark:text-brand-500 font-medium leading-relaxed line-clamp-3">
-                                    {product.description || "Acesse agora este conteúdo exclusivo e transforme seus resultados com nossa metodologia testada."}
-                                </p>
 
-                                <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-white/5">
-                                    <span className="text-sm font-bold text-slate-400">Valor Total</span>
-                                    <div className="text-right">
-                                        <p className="text-3xl font-black text-violet-600 dark:text-white tabular-nums tracking-tighter">
-                                            {product.price.toLocaleString()} <span className="text-sm opacity-60">MZN</span>
-                                        </p>
+                                <div className="space-y-4">
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="h-1 w-1 rounded-full bg-violet-500" />
+                                            <span className="text-[9px] font-black text-violet-500 uppercase tracking-widest leading-none">{product.category}</span>
+                                        </div>
+                                        <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter mt-2">{product.name}</h2>
+                                    </div>
+                                    
+                                    <p className="text-xs text-slate-500 dark:text-brand-500 font-medium leading-relaxed line-clamp-3">
+                                        {product.description || "Acesse agora este conteúdo exclusivo e transforme seus resultados com nossa metodologia testada."}
+                                    </p>
+
+                                    <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-white/5">
+                                        <span className="text-sm font-bold text-slate-400">Total a pagar</span>
+                                        <div className="text-right">
+                                            <p className="text-3xl font-black text-violet-600 dark:text-white tabular-nums tracking-tighter">
+                                                {product.price.toLocaleString()} <span className="text-sm font-bold opacity-60">MZN</span>
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="mt-auto flex items-center gap-3 p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
+                            <div className="mt-auto relative z-10 flex items-center gap-3 p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 backdrop-blur-sm">
                                 <ShieldCheck className="text-emerald-500" size={20} />
                                 <div className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest leading-tight">
-                                    Compra Protegida &<br />Ambiente Criptografado
+                                    Pagamento 100% Seguro<br />Garantia de Satisfação
                                 </div>
                             </div>
                         </div>
