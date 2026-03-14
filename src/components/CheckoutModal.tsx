@@ -147,18 +147,28 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: 'auto', opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
-                                    className="bg-white border-b border-slate-100 overflow-hidden"
+                                    className="bg-slate-50 border-b border-slate-100 overflow-hidden"
                                 >
-                                    <div className="p-4 space-y-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-12 w-12 rounded-lg overflow-hidden bg-slate-100 border border-slate-100 shrink-0">
+                                    <div className="p-6 space-y-4">
+                                        <div className="flex gap-4">
+                                            <div className="h-20 w-20 rounded-xl overflow-hidden bg-white border border-slate-200 shrink-0 shadow-sm">
                                                 <img src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&fit=crop"} alt="" className="w-full h-full object-cover" />
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-xs font-bold text-slate-900 truncate">{product.name}</p>
-                                                <p className="text-[10px] text-slate-400 font-medium">{product.category}</p>
+                                            <div className="flex-1 min-w-0 space-y-1">
+                                                <div className="flex justify-between items-start gap-2">
+                                                    <p className="text-sm font-bold text-slate-900 leading-tight">{product.name}</p>
+                                                    <span className="text-sm font-black text-slate-900 shrink-0">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="px-2 py-0.5 bg-slate-200 text-slate-600 rounded text-[10px] font-bold uppercase tracking-wider">{product.type}</span>
+                                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{product.category}</span>
+                                                </div>
+                                                {product.description && (
+                                                    <p className="text-xs text-slate-500 line-clamp-2 md:line-clamp-3 leading-relaxed pt-1 italic">
+                                                        "{product.description}"
+                                                    </p>
+                                                )}
                                             </div>
-                                            <span className="text-xs font-black text-slate-900">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
                                         </div>
                                     </div>
                                 </motion.div>
