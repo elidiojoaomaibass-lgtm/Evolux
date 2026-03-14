@@ -7,6 +7,7 @@ import {
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import type { Product } from '../lib/store';
+import { Logo } from './Logo';
 
 interface CheckoutModalProps {
     product: Product | null;
@@ -105,8 +106,29 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                         exit={{ opacity: 0, y: 100 }}
                         className="relative w-full max-w-[600px] bg-[#f8f9fa] md:rounded-3xl shadow-2xl overflow-hidden min-h-screen md:min-h-0 flex flex-col"
                     >
+                        {/* Branding Header */}
+                        <div className="bg-white px-6 py-4 flex items-center justify-between z-30">
+                            <Logo size={24} showText={true} textColor="text-slate-900" />
+                            <button 
+                                onClick={onClose}
+                                className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        {/* Order Progress (Optional) */}
+                        <div className="w-full h-1 bg-slate-100 overflow-hidden">
+                            <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: '100%' }}
+                                transition={{ duration: 0.8 }}
+                                className="h-full bg-red-600"
+                            />
+                        </div>
+
                         {/* Header Summary (Sticky-ish) */}
-                        <div className="bg-white border-b border-slate-100 p-4 flex items-center justify-between z-20">
+                        <div className="bg-[#fcfcfc] border-y border-slate-100 p-4 flex items-center justify-between z-20">
                             <button 
                                 onClick={() => setShowSummary(!showSummary)}
                                 className="flex items-center gap-2 text-slate-600 text-sm font-medium hover:text-slate-900 transition-colors"
