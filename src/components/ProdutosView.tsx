@@ -10,6 +10,7 @@ import {
 import { cn } from '../lib/utils';
 import { useProductsStore, type Product, type Category } from '../lib/store';
 import { ConfirmationModal } from './ConfirmationModal';
+import { CheckoutModal } from './CheckoutModal';
 
 // --- Data Types & Mocks Removed (moved to store.ts) ---
 
@@ -20,6 +21,7 @@ export const ProdutosView = () => {
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [filterStatus, setFilterStatus] = useState<'Todos' | 'Ativo' | 'Rascunho'>('Todos');
     const [productToDelete, setProductToDelete] = useState<string | null>(null);
+    const [checkoutProduct, setCheckoutProduct] = useState<Product | null>(null);
 
     // Create Form States
     const [newName, setNewName] = useState('');
@@ -274,7 +276,10 @@ export const ProdutosView = () => {
                                         <Edit2 size={12} />
                                         Editar
                                     </button>
-                                    <button className="h-8 w-8 flex items-center justify-center rounded-[10px] bg-white dark:bg-brand-800 border border-slate-100 dark:border-white/5 text-slate-400 hover:text-violet-600 transition-all shadow-sm">
+                                    <button 
+                                        onClick={() => setCheckoutProduct(product)}
+                                        className="h-8 w-8 flex items-center justify-center rounded-[10px] bg-white dark:bg-brand-800 border border-slate-100 dark:border-white/5 text-slate-400 hover:text-violet-600 transition-all shadow-sm"
+                                    >
                                         <Globe size={14} />
                                     </button>
                                     <button
@@ -582,6 +587,12 @@ export const ProdutosView = () => {
                 confirmText="Apagar Agora"
                 cancelText="Manter Produto"
                 variant="danger"
+            />
+
+            <CheckoutModal 
+                product={checkoutProduct}
+                isOpen={!!checkoutProduct}
+                onClose={() => setCheckoutProduct(null)}
             />
         </div >
     );
