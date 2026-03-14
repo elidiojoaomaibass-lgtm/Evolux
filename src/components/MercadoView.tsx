@@ -105,7 +105,7 @@ export const MercadoView = () => {
 
             {/* Grid */}
             {filteredMarketplace.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 md:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6 md:gap-10">
                     <AnimatePresence mode="popLayout">
                         {filteredMarketplace.map((product) => (
                             <motion.div
@@ -113,27 +113,32 @@ export const MercadoView = () => {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 key={product.id}
-                                className="glass dark:bg-brand-900/60 aspect-square rounded-2xl border border-white/20 dark:border-white/5 p-3.5 md:p-4 flex flex-col justify-between shadow-xl hover:shadow-violet-600/20 transition-all duration-700 group hover:-translate-y-1.5"
+                                className="glass dark:bg-brand-900/60 rounded-[2.5rem] border border-white/20 dark:border-white/5 p-6 md:p-8 flex flex-col justify-between shadow-2xl hover:shadow-violet-600/20 transition-all duration-700 group hover:-translate-y-2"
                             >
                                 {/* Top: Photo & Basic Info side by side */}
-                                <div className="flex gap-3 md:gap-4 items-start">
-                                    <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-2xl overflow-hidden bg-slate-100 dark:bg-brand-950 shrink-0 shadow-inner">
+                                <div className="flex flex-col gap-6 items-center text-center">
+                                    <div className="relative h-40 w-40 md:h-56 md:w-56 rounded-2xl overflow-hidden bg-slate-100 dark:bg-brand-950 shrink-0 shadow-xl border-4 border-white dark:border-white/5">
                                         <img
                                             src={product.image || "https://images.unsplash.com/photo-1512314889357-e157c22f938d?w=200&h=200&fit=crop"}
                                             alt={product.name}
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                         />
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <Info size={16} className="text-white" />
+                                            <Info size={24} className="text-white" />
                                         </div>
                                     </div>
-                                    <div className="flex-1 min-w-0 space-y-1 pt-0.5">
-                                        <span className="text-[7px] font-black text-violet-600 dark:text-brand-500 uppercase tracking-widest block truncate">
+                                    <div className="space-y-2">
+                                        <span className="text-[10px] font-black text-violet-600 dark:text-brand-500 uppercase tracking-widest block">
                                             {product.category}
                                         </span>
-                                        <h3 className="text-xs md:text-sm font-black text-slate-900 dark:text-white leading-tight tracking-tight line-clamp-2 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                                        <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
                                             {product.name}
                                         </h3>
+                                        {product.description && (
+                                            <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-500 font-medium line-clamp-2 max-w-[200px] mx-auto">
+                                                {product.description}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 

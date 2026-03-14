@@ -515,6 +515,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">ID</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Produto</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Cliente</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Método</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-right">Valor</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Estado</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Data/Hora</th>
@@ -548,6 +549,17 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                                     <div className="flex flex-col">
                                                         <span className="text-[14px] font-black text-slate-700 dark:text-white tracking-tight">{trx.customer}</span>
                                                         <span className="text-[10px] font-bold text-slate-400 dark:text-brand-500 italic mt-0.5">{trx.email}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-10 py-2.5">
+                                                <div className="flex justify-center">
+                                                    <div className="h-7 w-7 rounded-lg bg-white border border-slate-100 p-0.5 overflow-hidden shadow-sm">
+                                                        <img 
+                                                            src={trx.method === 'e-Mola' ? '/emola_logo.png' : '/mpesa_logo.png'} 
+                                                            alt={trx.method || 'M-Pesa'} 
+                                                            className="w-full h-full object-cover" 
+                                                        />
                                                     </div>
                                                 </div>
                                             </td>

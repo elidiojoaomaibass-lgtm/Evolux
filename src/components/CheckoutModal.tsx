@@ -1,8 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     X, ChevronDown, Check,
-    Smartphone, ShieldCheck, 
-    Lock, Loader2
+    ShieldCheck, 
+    Loader2
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';

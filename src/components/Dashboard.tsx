@@ -146,7 +146,8 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
             count: mPesaCount,
             bg: 'bg-red-50 dark:bg-red-950/30',
             color: 'text-red-500',
-            barColor: 'bg-red-500'
+            barColor: 'bg-red-500',
+            logo: '/mpesa_logo.png'
         },
         {
             name: 'e-Mola',
@@ -155,7 +156,8 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
             count: eMolaCount,
             bg: 'bg-orange-50 dark:bg-orange-950/30',
             color: 'text-orange-500',
-            barColor: 'bg-orange-500'
+            barColor: 'bg-orange-500',
+            logo: '/emola_logo.png'
         },
     ];
 
@@ -776,7 +778,9 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                                     {paymentMethods.map((pm) => (
                                         <div key={pm.name} className="flex flex-col items-center p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-white/5">
                                             <div className="flex items-center gap-2 mb-1">
-                                                <div className={cn("h-2 w-2 rounded-full", pm.name === 'M-Pesa' ? 'bg-red-500' : 'bg-orange-500')} />
+                                                <div className="h-4 w-4 rounded-md bg-white border border-slate-100 p-0.5 overflow-hidden">
+                                                    <img src={pm.logo} alt={pm.name} className="w-full h-full object-cover" />
+                                                </div>
                                                 <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase">{pm.name}</span>
                                             </div>
                                             <span className="text-xs font-black text-violet-600 dark:text-brand-400">{pm.percentage}%</span>
@@ -816,6 +820,7 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                                             <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">ID</th>
                                             <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Produto</th>
                                             <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Cliente</th>
+                                            <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Método</th>
                                             <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-right">Valor</th>
                                             <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Estado</th>
                                             <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Data/Hora</th>
@@ -843,6 +848,17 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                                                         <div className="flex flex-col">
                                                             <span className="text-xs font-black text-slate-800 dark:text-white tracking-tight">{sale.customer}</span>
                                                             <span className="text-[10px] font-bold text-slate-400 dark:text-brand-500 mt-0.5 lowercase tracking-tight">84000{i}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-10 py-2.5">
+                                                    <div className="flex justify-center">
+                                                        <div className="h-7 w-7 rounded-lg bg-white border border-slate-100 p-0.5 overflow-hidden shadow-sm">
+                                                            <img 
+                                                                src={sale.method === 'e-Mola' ? '/emola_logo.png' : '/mpesa_logo.png'} 
+                                                                alt={sale.method} 
+                                                                className="w-full h-full object-cover" 
+                                                            />
                                                         </div>
                                                     </div>
                                                 </td>

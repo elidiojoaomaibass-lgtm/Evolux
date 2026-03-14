@@ -212,7 +212,7 @@ export const ProdutosView = () => {
             </div>
 
             {/* Product Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6 md:gap-10">
                 <AnimatePresence mode="popLayout">
                     {filteredProducts.map((product) => (
                         <motion.div
@@ -221,11 +221,11 @@ export const ProdutosView = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.9 }}
                             key={product.id}
-                            className="glass dark:bg-brand-900/60 rounded-2xl border border-white/20 dark:border-white/5 p-3 md:p-4 flex flex-col justify-between shadow-xl hover:shadow-violet-600/20 transition-all duration-700 group hover:-translate-y-1.5"
+                            className="glass dark:bg-brand-900/60 rounded-[2.5rem] border border-white/20 dark:border-white/5 p-6 md:p-8 flex flex-col justify-between shadow-2xl hover:shadow-violet-600/20 transition-all duration-700 group hover:-translate-y-2"
                         >
                             {/* Top: Photo & Basic Info side by side */}
-                            <div className="flex gap-3 md:gap-4 items-start mb-4">
-                                <div className="relative h-20 w-20 md:h-24 md:w-24 rounded-lg overflow-hidden bg-slate-100 dark:bg-brand-950 shrink-0 shadow-md">
+                            <div className="flex flex-col gap-6 items-center text-center mb-6">
+                                <div className="relative h-40 w-40 md:h-56 md:w-56 rounded-2xl overflow-hidden bg-slate-100 dark:bg-brand-950 shrink-0 shadow-xl border-4 border-white dark:border-white/5">
                                     <img
                                         src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop"}
                                         alt={product.name}
@@ -237,17 +237,22 @@ export const ProdutosView = () => {
                                         </div>
                                     )}
                                 </div>
-                                <div className="flex-1 min-w-0 space-y-1 pt-0.5">
-                                    <div className="flex items-center gap-1">
-                                        <div className={cn("h-1 w-1 rounded-full", product.status === 'Ativo' ? "bg-emerald-500 animate-pulse" : "bg-slate-400")} />
-                                        <span className="text-[7px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-widest truncate">
-                                            {product.category}
-                                        </span>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <div className={cn("h-1.5 w-1.5 rounded-full", product.status === 'Ativo' ? "bg-emerald-500 animate-pulse" : "bg-slate-400")} />
+                                            <span className="text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-widest">
+                                                {product.category}
+                                            </span>
+                                        </div>
+                                        <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                                            {product.name}
+                                        </h3>
+                                        {product.description && (
+                                            <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-500 font-medium line-clamp-2 max-w-[200px] mx-auto">
+                                                {product.description}
+                                            </p>
+                                        )}
                                     </div>
-                                    <h3 className="text-xs md:text-sm font-black text-slate-900 dark:text-white leading-tight tracking-tighter line-clamp-2 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
-                                        {product.name}
-                                    </h3>
-                                </div>
                             </div>
 
                             {/* Bottom Info Table (Compact) */}
