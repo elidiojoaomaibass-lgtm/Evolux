@@ -122,8 +122,8 @@ export const PagamentosView = () => {
                                         {method === 'mpesa' && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
                                     </div>
                                     <div className="flex items-center gap-1.5">
-                                        <div className="h-6 w-6 rounded-lg bg-red-100 flex items-center justify-center text-red-500">
-                                            <Smartphone size={12} />
+                                        <div className="h-6 w-6 rounded-lg bg-white border border-slate-100 flex items-center justify-center overflow-hidden">
+                                            <img src="/mpesa_logo.png" alt="M-Pesa" className="w-full h-full object-cover" />
                                         </div>
                                         <span className="text-[11px] font-black text-slate-700 dark:text-brand-100">M-Pesa</span>
                                     </div>
@@ -140,8 +140,8 @@ export const PagamentosView = () => {
                                         {method === 'emola' && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
                                     </div>
                                     <div className="flex items-center gap-1.5">
-                                        <div className="h-6 w-6 rounded-lg bg-orange-100 flex items-center justify-center text-orange-500">
-                                            <Smartphone size={12} />
+                                        <div className="h-6 w-6 rounded-lg bg-white border border-slate-100 flex items-center justify-center overflow-hidden">
+                                            <img src="/emola_logo.png" alt="e-Mola" className="w-full h-full object-cover" />
                                         </div>
                                         <span className="text-[11px] font-black text-slate-700 dark:text-brand-100">e-Mola</span>
                                     </div>

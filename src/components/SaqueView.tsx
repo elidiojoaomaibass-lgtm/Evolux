@@ -118,8 +118,12 @@ export const SaqueView = () => {
                                 <tr key={wallet.id} className="group hover:bg-slate-50/50 dark:hover:bg-brand-800/10 transition-colors">
                                     <td className="px-6 py-3">
                                         <div className="flex items-center gap-3">
-                                            <div className={cn("h-8 w-8 rounded-xl flex items-center justify-center text-white shadow-md", wallet.color)}>
-                                                <Smartphone size={16} />
+                                            <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center bg-white border border-slate-100 shadow-sm overflow-hidden p-1")}>
+                                                <img 
+                                                    src={wallet.id === 'M-Pesa' ? '/mpesa_logo.png' : '/emola_logo.png'} 
+                                                    alt={wallet.id} 
+                                                    className="w-full h-full object-cover"
+                                                />
                                             </div>
                                             <div>
                                                 <p className="text-xs font-black text-slate-900 dark:text-white">{wallet.id}</p>
@@ -205,7 +209,13 @@ export const SaqueView = () => {
                                                     : "border-slate-50 dark:border-brand-800 text-slate-400 opacity-60 grayscale"
                                             )}
                                         >
-                                            <Smartphone size={20} className={cn(method === m.id && "animate-bounce")} />
+                                            <div className="h-8 w-8 rounded-lg bg-white border border-slate-100 p-1 overflow-hidden">
+                                                <img 
+                                                    src={m.id === 'M-Pesa' ? '/mpesa_logo.png' : '/emola_logo.png'} 
+                                                    alt={m.id} 
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
                                             <span className="text-[9px] font-black uppercase tracking-widest">{m.id}</span>
                                         </button>
                                     ))}
