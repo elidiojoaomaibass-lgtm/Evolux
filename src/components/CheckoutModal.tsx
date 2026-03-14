@@ -107,13 +107,13 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                         className="relative w-full max-w-[600px] bg-[#f8f9fa] md:rounded-3xl shadow-2xl overflow-hidden min-h-screen md:min-h-0 flex flex-col"
                     >
                         {/* Branding Header */}
-                        <div className="bg-white px-6 py-4 flex items-center justify-between z-30">
-                            <Logo size={24} showText={true} textColor="text-slate-900" />
+                        <div className="bg-white px-8 py-8 md:py-10 flex items-center justify-between z-30 shadow-sm">
+                            <Logo size={32} showText={true} textColor="text-slate-900" />
                             <button 
                                 onClick={onClose}
-                                className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors"
+                                className="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-all border border-slate-100 shadow-sm"
                             >
-                                <X size={18} />
+                                <X size={20} />
                             </button>
                         </div>
 
