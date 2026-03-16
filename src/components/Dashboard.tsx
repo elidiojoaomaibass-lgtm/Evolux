@@ -231,12 +231,7 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
             <header className="sticky top-0 z-30 glass transition-all duration-300">
                 <div className="flex h-16 items-center justify-between px-4 md:px-8 max-w-none mx-auto w-full">
                     <div className="flex items-center gap-4 lg:gap-8">
-                        <button
-                            onClick={toggleSidebar}
-                            className="lg:hidden h-12 w-12 flex items-center justify-center rounded-2xl border border-violet-100 dark:border-white/5 bg-white dark:bg-brand-900 text-slate-600 dark:text-brand-100 shadow-sm"
-                        >
-                            <Menu size={24} />
-                        </button>
+                        <div className="lg:hidden w-12" /> {/* Spacer for global menu button */}
 
                         {/* Level Progress - Desktop Only */}
                         <div className="hidden lg:flex flex-col gap-1.5 min-w-[300px]">
