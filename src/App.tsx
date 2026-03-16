@@ -1,12 +1,12 @@
 // Update: 18:25 - Limpeza e ajuste de design
 import { useState, useEffect } from "react";
 import { cn } from "./lib/utils";
-import { Sidebar } from "./components/Sidebar";
-import type { ViewType } from "./components/Sidebar";
+import { Sidebar, type ViewType } from "./components/Sidebar";
 import { Dashboard } from "./components/Dashboard";
 import { Views } from "./components/Views";
 import { LoginView } from "./components/LoginView";
 import { supabase } from "./lib/supabase";
+import { Menu } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { Toaster } from 'sonner';
 
@@ -80,6 +80,16 @@ function App() {
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
+
+      {/* Global Mobile Menu Trigger - Fixed for all views */}
+      {!sidebarOpen && (
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="lg:hidden fixed top-4 left-4 z-[60] h-12 w-12 flex items-center justify-center rounded-2xl bg-white dark:bg-brand-900 border border-violet-100 dark:border-white/5 text-slate-600 dark:text-brand-100 shadow-xl active:scale-95 transition-all"
+        >
+          <Menu size={24} />
+        </button>
+      )}
 
       {/* Main Content Area */}
       <main className={cn(
