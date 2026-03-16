@@ -105,7 +105,7 @@ export const MercadoView = () => {
 
             {/* Grid */}
             {filteredMarketplace.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6 md:gap-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
                     <AnimatePresence mode="popLayout">
                         {filteredMarketplace.map((product) => (
                             <motion.div
@@ -113,11 +113,11 @@ export const MercadoView = () => {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 key={product.id}
-                                className="glass dark:bg-brand-900/60 rounded-[2.5rem] border border-white/20 dark:border-white/5 p-6 md:p-8 flex flex-col justify-between shadow-2xl hover:shadow-violet-600/20 transition-all duration-700 group hover:-translate-y-2"
+                                className="glass dark:bg-brand-900/60 rounded-[2rem] border border-white/20 dark:border-white/5 p-5 md:p-6 flex flex-col justify-between shadow-xl hover:shadow-violet-600/20 transition-all duration-700 group hover:-translate-y-2"
                             >
                                 {/* Top: Photo & Basic Info side by side */}
-                                <div className="flex flex-col gap-6 items-center text-center">
-                                    <div className="relative h-40 w-40 md:h-56 md:w-56 rounded-2xl overflow-hidden bg-slate-100 dark:bg-brand-950 shrink-0 shadow-xl border-4 border-white dark:border-white/5">
+                                <div className="flex flex-col gap-4 items-center text-center">
+                                    <div className="relative h-32 w-32 md:h-40 md:w-40 rounded-xl overflow-hidden bg-slate-100 dark:bg-brand-950 shrink-0 shadow-lg border-2 border-white dark:border-white/5">
                                         <img
                                             src={product.image || "https://images.unsplash.com/photo-1512314889357-e157c22f938d?w=200&h=200&fit=crop"}
                                             alt={product.name}
