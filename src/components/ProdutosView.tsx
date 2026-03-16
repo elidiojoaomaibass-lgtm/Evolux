@@ -212,7 +212,7 @@ export const ProdutosView = () => {
             </div>
 
             {/* Product Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-4">
                 <AnimatePresence mode="popLayout">
                     {filteredProducts.map((product) => (
                         <motion.div
@@ -221,11 +221,11 @@ export const ProdutosView = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.9 }}
                             key={product.id}
-                            className="glass dark:bg-brand-900/60 rounded-[2rem] border border-white/20 dark:border-white/5 p-5 md:p-6 flex flex-col justify-between shadow-xl hover:shadow-violet-600/20 transition-all duration-700 group hover:-translate-y-2"
+                            className="glass dark:bg-brand-900/60 rounded-2xl border border-white/20 dark:border-white/5 p-3 md:p-4 flex flex-col justify-between shadow-lg hover:shadow-violet-600/20 transition-all duration-700 group hover:-translate-y-1"
                         >
                             {/* Top: Photo & Basic Info side by side */}
-                            <div className="flex flex-col gap-4 items-center text-center mb-4">
-                                <div className="relative h-32 w-32 md:h-40 md:w-40 rounded-xl overflow-hidden bg-slate-100 dark:bg-brand-950 shrink-0 shadow-lg border-2 border-white dark:border-white/5">
+                            <div className="flex flex-col gap-3 items-center text-center mb-3">
+                                <div className="relative h-24 w-24 md:h-32 md:w-32 rounded-lg overflow-hidden bg-slate-100 dark:bg-brand-950 shrink-0 shadow-md border border-white dark:border-white/5">
                                     <img
                                         src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop"}
                                         alt={product.name}
@@ -244,7 +244,7 @@ export const ProdutosView = () => {
                                                 {product.category}
                                             </span>
                                         </div>
-                                        <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                                        <h3 className="text-sm md:text-base font-black text-slate-900 dark:text-white leading-tight tracking-tighter group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
                                             {product.name}
                                         </h3>
                                         {product.description && (
