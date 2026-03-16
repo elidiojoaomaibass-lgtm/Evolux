@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Wallet, Clock, CheckCircle2,
-    Smartphone, History, Loader2,
+    History, Loader2,
     ArrowDownLeft, ShieldAlert, BadgeDollarSign
 } from 'lucide-react';
 import { cn } from '../lib/utils';
