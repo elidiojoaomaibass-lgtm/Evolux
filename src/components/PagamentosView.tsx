@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import {
-    Wallet, CreditCard, Smartphone,
-    Plus, Send, History,
+    Wallet, CreditCard,
+    Plus, Send, Clock,
     ArrowRight
 } from 'lucide-react';
 import { useState } from 'react';
@@ -168,7 +168,7 @@ export const PagamentosView = () => {
             >
                 <div className="flex items-center gap-3 md:gap-4">
                     <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-brand-800 flex items-center justify-center text-slate-400 group-hover:text-violet-600 transition-colors">
-                        <History size={20} />
+                        <Clock size={20} />
                     </div>
                     <div>
                         <h4 className="text-xs md:text-sm font-black text-slate-800 dark:text-white leading-tight">Histórico de Pagamentos</h4>
