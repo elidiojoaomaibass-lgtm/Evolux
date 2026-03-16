@@ -26,7 +26,56 @@ export interface Product {
 }
 
 // Initial Mock Data
-const initialProducts: Product[] = [];
+const initialProducts: Product[] = [
+    {
+        id: 'PRD-001',
+        name: 'Curso de Marketing Digital Elite',
+        type: 'Digital',
+        category: 'Curso',
+        price: 2500,
+        sales: 142,
+        revenue: 355000,
+        status: 'Ativo',
+        description: 'Domine as estratégias mais avançadas de tráfego pago e funis de vendas.',
+        isMarketplaceEnabled: true,
+        commission: 60,
+        affiliationType: 'Automatica',
+        image: 'https://images.unsplash.com/photo-1557838923-2985c318be48?auto=format&fit=crop&w=400&q=80',
+        createdAt: '2026-01-15'
+    },
+    {
+        id: 'PRD-002',
+        name: 'Ebook: O Poder do Networking',
+        type: 'Digital',
+        category: 'Ebook',
+        price: 850,
+        sales: 89,
+        revenue: 75650,
+        status: 'Ativo',
+        description: 'Aprenda a construir conexões que valem ouro no mercado moçambicano.',
+        isMarketplaceEnabled: true,
+        commission: 50,
+        affiliationType: 'Automatica',
+        image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80',
+        createdAt: '2026-02-01'
+    },
+    {
+        id: 'PRD-003',
+        name: 'Mentoria Exclusiva Business Pro',
+        type: 'Digital',
+        category: 'Mentoria',
+        price: 15000,
+        sales: 12,
+        revenue: 180000,
+        status: 'Ativo',
+        description: 'Acompanhamento individual para escalar seu negócio digital do zero aos 6 dígitos.',
+        isMarketplaceEnabled: true,
+        commission: 20,
+        affiliationType: 'Manual',
+        image: 'https://images.unsplash.com/photo-1517245385169-d238b0f16271?auto=format&fit=crop&w=400&q=80',
+        createdAt: '2026-02-10'
+    }
+];
 
 // Simple Event Emitter with LocalStorage persistence
 const STORAGE_KEY = 'evolux_prod_products';
