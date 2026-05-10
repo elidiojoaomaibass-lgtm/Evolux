@@ -185,7 +185,8 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {isSignUp && (
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">No                                    <input
+                                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Nome Completo</label>
+                                <input
                                     type="text"
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
