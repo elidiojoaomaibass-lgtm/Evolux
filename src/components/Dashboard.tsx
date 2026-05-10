@@ -195,120 +195,134 @@ export const Dashboard = ({ onLogout, setView, user }: DashboardProps) => {
     // ─── Stats Cards (estilo da imagem: borda colorida à esquerda, sem ícones) ───
     const stats = [
         {
-            label: 'Receita Total',
-            value: `${totalPeriod.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN`,
-            borderColor: 'border-l-emerald-400',
-            textColor: 'text-emerald-500',
-            labelColor: 'text-emerald-400',
+            label: 'VENDAS HOJE',
+            value: '1.543',
+            icon: TrendingUp,
+            iconColor: 'text-violet-500',
+            iconBg: 'bg-violet-500/10',
         },
         {
-            label: 'Aprovadas',
-            value: '0',
-            borderColor: 'border-l-emerald-400',
-            textColor: 'text-emerald-500',
-            labelColor: 'text-emerald-400',
+            label: 'CLIENTES ATIVOS',
+            value: '321',
+            icon: Users,
+            iconColor: 'text-slate-700',
+            iconBg: 'bg-slate-700/10',
         },
         {
-            label: 'Pendentes',
-            value: '0',
-            borderColor: 'border-l-amber-400',
-            textColor: 'text-amber-500',
-            labelColor: 'text-amber-400',
-        },
-        {
-            label: 'Canceladas',
-            value: '0',
-            borderColor: 'border-l-red-400',
-            textColor: 'text-red-500',
-            labelColor: 'text-red-400',
+            label: 'CONVERSÃO',
+            value: '20,8%',
+            icon: Zap,
+            iconColor: 'text-orange-500',
+            iconBg: 'bg-orange-500/10',
         },
     ];
 
     return (
-        <div className="min-h-screen bg-transparent">
-            {/* Top Bar - High End Glassmorphism */}
-            <header className="sticky top-0 z-30 glass transition-all duration-300">
-                <div className="flex h-16 items-center justify-between px-4 md:px-8 max-w-none mx-auto w-full">
-                    <div className="flex items-center gap-4 lg:gap-8">
-                        <div className="lg:hidden w-12" /> {/* Spacer for global menu button */}
+        <div className="min-h-screen bg-[#fafbff] dark:bg-[#0f0525] p-4 md:p-8">
+            <div className="max-w-7xl mx-auto space-y-8">
+                {/* Section Header */}
+                <div className="flex items-center justify-between">
+                    <div className="flex gap-1.5">
+                        <div className="h-3 w-3 rounded-full bg-red-400" />
+                        <div className="h-3 w-3 rounded-full bg-amber-400" />
+                        <div className="h-3 w-3 rounded-full bg-emerald-400" />
+                    </div>
+                    <button className="px-6 py-2 rounded-full border border-slate-200 dark:border-white/10 bg-white dark:bg-brand-900 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-brand-400 hover:bg-slate-50 transition-all shadow-sm">
+                        Dashboard Mensal
+                    </button>
+                </div>
 
-                        {/* Level Progress - Desktop Only */}
-                        <div className="hidden lg:flex flex-col gap-1.5 min-w-[300px]">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <Gem size={14} className="text-cyan-400" />
-                                    <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Progresso Bronze</span>
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {stats.map((item, idx) => (
+                        <motion.div
+                            key={item.label}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            className="bg-white dark:bg-brand-900/40 p-8 rounded-[2rem] border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all group"
+                        >
+                            <div className="space-y-6">
+                                <item.icon className={cn("h-6 w-6", item.iconColor)} />
+                                <div className="space-y-2">
+                                    <h3 className="text-[11px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.1em]">{item.label}</h3>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{item.value}</span>
+                                        {item.label === 'CONVERSÃO' && (
+                                            <div className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+                                        )}
+                                    </div>
                                 </div>
-                                <span className="text-[10px] font-black text-cyan-600 dark:text-brand-400">0 / 10K MZN</span>
                             </div>
-                            <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-white/5 overflow-hidden border border-white/50 dark:border-white/5 p-0.5">
-                                <motion.div
-                                    initial={{ width: 0 }}
-                                    animate={{ width: '0%' }}
-                                    className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 shadow-[0_0_15px_rgba(34,211,238,0.4)]"
-                                />
+                        </motion.div>
+                    ))}
+                </div>
+
+                {/* Sub-Header: Filters & Progress */}
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-4">
+                    {/* Level Progress */}
+                    <div className="flex flex-col gap-2 w-full lg:w-72">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Gem size={14} className="text-cyan-500" />
+                                <span className="text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-widest">Nível Bronze</span>
                             </div>
+                            <span className="text-[10px] font-black text-slate-900 dark:text-white">0 / 10K</span>
+                        </div>
+                        <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-white/5 overflow-hidden">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: '0%' }}
+                                className="h-full bg-cyan-500"
+                            />
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3 md:gap-5">
-                        <div className="relative" ref={datePickerRef}>
-                            <div className="hidden md:flex items-center gap-1 p-1 bg-violet-50 dark:bg-brand-800/40 border border-violet-100 dark:border-white/5 rounded-2xl shadow-inner">
-                                {periodOptions.map((p) => (
-                                    <button
-                                        key={p.key}
-                                        onClick={() => {
-                                            setPeriod(p.key);
-                                            setShowDatePicker(false);
-                                        }}
-                                        className={cn(
-                                            "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
-                                            period === p.key && !showDatePicker
-                                                ? "bg-violet-600 text-white shadow-lg shadow-violet-500/30"
-                                                : "text-violet-400 hover:text-violet-600 dark:text-brand-400 dark:hover:text-white"
-                                        )}
-                                    >
-                                        {p.key}
-                                    </button>
-                                ))}
-                                <div className="mx-1 w-px bg-violet-100 dark:bg-white/5 h-4 shrink-0" />
-                                <button
-                                    onClick={() => setShowDatePicker(!showDatePicker)}
-                                    className={cn(
-                                        "h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 relative",
-                                        showDatePicker || period === 'custom'
-                                            ? "bg-violet-600 text-white shadow-lg"
-                                            : "text-violet-400 hover:text-violet-600 dark:text-brand-400 dark:hover:text-white"
-                                    )}
-                                >
-                                    <Calendar size={14} />
-                                    <span className="hidden sm:inline">Personalizar</span>
-                                </button>
-                            </div>
-
+                    {/* Filter Pills */}
+                    <div className="flex items-center gap-1.5 p-1.5 bg-white dark:bg-brand-900/40 border border-slate-100 dark:border-white/5 rounded-2xl shadow-sm overflow-x-auto scrollbar-hide">
+                        {periodOptions.map((p) => (
                             <button
-                                onClick={() => setShowDatePicker(!showDatePicker)}
+                                key={p.key}
+                                onClick={() => {
+                                    setPeriod(p.key);
+                                    setShowDatePicker(false);
+                                }}
                                 className={cn(
-                                    "md:hidden flex items-center gap-2 px-4 py-2 rounded-xl border transition-all active:scale-95 font-black uppercase text-[9px] tracking-widest",
-                                    period === 'custom' || showDatePicker
-                                        ? "bg-violet-600 text-white shadow-xl shadow-violet-500/30 border-transparent"
-                                        : "bg-white dark:bg-brand-900 border-violet-100 dark:border-white/5 text-slate-600 dark:text-brand-200"
+                                    "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
+                                    period === p.key && !showDatePicker
+                                        ? "bg-slate-900 text-white shadow-lg shadow-slate-200"
+                                        : "text-slate-400 hover:text-slate-600 dark:text-brand-400 dark:hover:text-white"
                                 )}
                             >
-                                <Calendar size={14} />
-                                {period === 'custom' && startDate ? startDate.split('-').reverse().join('/') : 'Filtrar'}
+                                {p.key}
                             </button>
+                        ))}
+                        <div className="mx-1 w-px bg-slate-100 dark:bg-white/10 h-4" />
+                        <button
+                            onClick={() => setShowDatePicker(!showDatePicker)}
+                            className={cn(
+                                "h-8 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2",
+                                showDatePicker || period === 'custom'
+                                    ? "bg-slate-900 text-white shadow-lg"
+                                    : "text-slate-400 hover:text-slate-600 dark:text-brand-400 dark:hover:text-white"
+                            )}
+                        >
+                            <Calendar size={14} />
+                            <span>Personalizar</span>
+                        </button>
+                    </div>
+                </div>
 
-                            <AnimatePresence>
-                                {showDatePicker && (
-                                    <>
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            onClick={() => setShowDatePicker(false)}
-                                            className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 z-[50]"
-                                        />
+                <AnimatePresence>
+                    {showDatePicker && (
+                        <>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setShowDatePicker(false)}
+                                className="fixed inset-0 bg-slate-900/10 dark:bg-black/60 z-[50] backdrop-blur-sm"
+                            />
 
                                         <motion.div
                                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
