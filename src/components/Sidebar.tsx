@@ -11,7 +11,7 @@ import { Logo } from "./Logo";
 export type ViewType =
     | "Dashboard" | "Vendas" | "Produtos" | "Afiliados"
     | "Mercado" | "Pagamentos" | "Saque" | "Premiações" | "Marketing"
-    | "Analytics" | "Configurações";
+    | "Análise" | "Configurações";
 
 interface SidebarProps {
     activeView: ViewType;
@@ -44,7 +44,7 @@ const menuGroups = [
     {
         label: "Finanças",
         items: [
-            { icon: BarChart2, label: "Analytics" as ViewType },
+            { icon: BarChart2, label: "Análise" as ViewType },
             { icon: Banknote, label: "Saque" as ViewType },
         ],
     },

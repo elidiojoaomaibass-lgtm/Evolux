@@ -19,6 +19,6 @@ export const Views = {
     Saque: () => <SaqueView />,
     Premiações: () => <PremiacoesView />,
     Ferramentas: () => <FerramentasView />,
-    Analytics: () => <AnalyticsView />,
+    Análise: () => <AnalyticsView />,
     Configuracoes: () => <ConfiguracoesView />,
 };

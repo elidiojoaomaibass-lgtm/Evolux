@@ -179,7 +179,12 @@ export const FerramentasView = () => {
                                                 : "bg-white dark:bg-brand-900 border-slate-100 dark:border-brand-800 text-slate-400"
                                         )}
                                     >
-                                        {event.replace('_', ' ')}
+                                        {({
+                                            sale_approved: 'Venda Aprovada',
+                                            sale_pending: 'Venda Pendente',
+                                            sale_refunded: 'Venda Reembolsada',
+                                            affiliate_request: 'Afiliação'
+                                        } as Record<string, string>)[event] || event}
                                         {active && <ShieldCheck size={12} />}
                                     </button>
                                 ))}

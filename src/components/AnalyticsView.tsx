@@ -168,7 +168,7 @@ export const AnalyticsView = () => {
                     <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
                         Relatório de <span className="text-gradient">Transações</span>
                     </h2>
-                    <p className="text-[11px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight">Visão detalhada sobre volumes financeiros e status de processamento.</p>
+                    <p className="text-[11px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight">Visão detalhada sobre volumes financeiros e estado de processamento.</p>
                 </motion.div>
 
                 <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 bg-white dark:bg-brand-900 border border-slate-100 dark:border-white/5 p-1.5 rounded-3xl shadow-xl relative" ref={datePickerRef}>

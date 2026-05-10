@@ -32,7 +32,7 @@ export const MercadoView = () => {
                 productId: product.id,
                 productName: product.name,
                 userName: 'Usuário Teste', // In a real app this would be the logged user
-                userEmail: 'teste@evoluxprod.com',
+                userEmail: 'kingleakds@gmail.com',
                 commission: product.commission
             });
             toast.info(`Solicitação enviada!`, {

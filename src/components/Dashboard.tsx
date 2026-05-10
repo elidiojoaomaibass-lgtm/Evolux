@@ -638,7 +638,7 @@ export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardP
                                         <div className="h-1.5 w-1.5 rounded-full bg-violet-600 animate-pulse" /> Gráfico de Vendas
                                     </h3>
                                     <p className="text-[10px] md:text-xs text-slate-500 dark:text-brand-400 font-medium">
-                                        Volume total period: <span className="text-violet-600 dark:text-brand-300 font-black tracking-tighter ml-1">{totalPeriod.toLocaleString()} MT</span>
+                                        Volume total do período: <span className="text-violet-600 dark:text-brand-300 font-black tracking-tighter ml-1">{totalPeriod.toLocaleString()} MT</span>
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-4">

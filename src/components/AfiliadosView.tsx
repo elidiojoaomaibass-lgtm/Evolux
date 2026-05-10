@@ -56,7 +56,7 @@ export const AfiliadosView = () => {
     };
 
     return (
-        <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700">
+        <div className="px-4 md:px-8 pt-16 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700">
             {/* Header */}
             <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-8">
                 <motion.div
