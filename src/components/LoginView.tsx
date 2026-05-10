@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, ArrowRight, Zap, TrendingUp, Users, ShieldCheck, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Zap, TrendingUp, Users, AlertCircle } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 
@@ -79,10 +79,10 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
     };
 
     return (
-        <div className="min-h-screen w-full flex font-sans">
+        <div className="min-h-screen w-full flex font-sans overflow-hidden">
 
             {/* ── LEFT PANEL: Form ── */}
-            <div className="relative flex flex-col justify-center items-center w-full lg:w-[46%] bg-[#0d0d17] px-6 md:px-12 py-10 md:py-16 overflow-hidden">
+            <div className="relative flex flex-col justify-center items-center w-full lg:w-[46%] bg-[#0d0d17] px-6 md:px-12 py-10 md:py-16 overflow-hidden shrink-0">
 
                 {/* Ambient glow blobs */}
                 <div className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-violet-600/20 blur-[100px]" />
@@ -275,115 +275,168 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
             </div>
 
             {/* ── RIGHT PANEL: Visual ── */}
-            <div className="hidden lg:flex flex-col justify-between w-[54%] relative overflow-hidden bg-gradient-to-br from-violet-900 via-purple-900 to-[#0d0d17] p-14">
+            <div className="hidden lg:flex flex-col justify-between w-[54%] relative overflow-hidden bg-[#0a0a14] p-16">
 
-                {/* Background decorations */}
-                <div className="pointer-events-none absolute top-0 right-0 h-[500px] w-[500px] rounded-full bg-violet-500/10 blur-[120px]" />
-                <div className="pointer-events-none absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-pink-500/10 blur-[100px]" />
-
-                {/* Grid pattern */}
-                <div
-                    className="pointer-events-none absolute inset-0 opacity-[0.04]"
-                    style={{
-                        backgroundImage: `linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)`,
-                        backgroundSize: "40px 40px",
-                    }}
+                {/* Background animations / decorations */}
+                <div className="absolute top-0 right-0 h-[800px] w-[800px] rounded-full bg-violet-600/10 blur-[140px] animate-pulse" />
+                <div className="absolute bottom-0 left-0 h-[600px] w-[600px] rounded-full bg-pink-600/10 blur-[140px]" />
+                
+                {/* Modern Grid Pattern */}
+                <div 
+                    className="absolute inset-0 opacity-[0.03]" 
+                    style={{ 
+                        backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+                        backgroundSize: '40px 40px' 
+                    }} 
                 />
 
-                {/* Top badge */}
-                <div className="relative z-10 flex items-center gap-2">
-                    <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2">
-                        <ShieldCheck size={14} className="text-green-400" />
-                        <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">Plataforma segura</span>
+                {/* Top Header */}
+                <div className="relative z-10 flex items-center justify-between">
+                    <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md px-5 py-2.5">
+                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]" />
+                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Sistema Operacional • Estável</span>
                     </div>
                 </div>
 
-                {/* Center content */}
-                <div className="relative z-10 flex flex-col gap-8">
-                    <div>
-                        <h2 className="text-5xl font-black text-white leading-[1.1] mb-4">
-                            Venda Mais,<br />
-                            <span className="bg-gradient-to-r from-violet-300 to-pink-300 bg-clip-text text-transparent">
-                                Gerencie Melhor.
+                {/* Center Content: Hero Text & Mockup */}
+                <div className="relative z-10 space-y-12">
+                    <div className="max-w-xl">
+                        <motion.h2 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-6xl font-black text-white leading-[1.05] tracking-tight mb-6"
+                        >
+                            Escalabilidade<br />
+                            <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
+                                Sem Fronteiras.
                             </span>
-                        </h2>
-                        <p className="text-base text-slate-400 font-medium leading-relaxed max-w-md">
-                            Gerencie suas vendas, produtos e clientes num só lugar.
-                            Tenha o controlo total do seu negócio com a Evolux Prod.
-                        </p>
+                        </motion.h2>
+                        <motion.p 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="text-lg text-slate-400 font-medium leading-relaxed"
+                        >
+                            A Evolux Prod é a infraestrutura definitiva para criadores moçambicanos que buscam o próximo nível em vendas digitais.
+                        </motion.p>
                     </div>
 
-                    {/* Dashboard preview card */}
-                    <div className="rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-sm p-6 shadow-2xl">
-                        {/* Fake titlebar */}
-                        <div className="flex items-center gap-2 mb-5">
-                            <div className="h-3 w-3 rounded-full bg-red-500/80" />
-                            <div className="h-3 w-3 rounded-full bg-amber-500/80" />
-                            <div className="h-3 w-3 rounded-full bg-green-500/80" />
-                            <div className="flex-1 mx-3 h-5 rounded-md bg-white/5" />
-                        </div>
+                    {/* Premium Dashboard Mockup */}
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95, rotateX: 5 }}
+                        animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+                        transition={{ duration: 1, ease: "easeOut" }}
+                        className="relative group"
+                    >
+                        {/* Glow effect under card */}
+                        <div className="absolute -inset-4 bg-gradient-to-r from-violet-600/20 to-pink-600/20 blur-3xl rounded-[3rem] group-hover:opacity-100 opacity-50 transition-opacity duration-700" />
+                        
+                        <div className="relative rounded-[2.5rem] border border-white/20 bg-black/40 backdrop-blur-3xl p-8 shadow-2xl overflow-hidden">
+                            {/* Inner border glow */}
+                            <div className="absolute inset-0 rounded-[2.5rem] border border-white/5 pointer-events-none" />
 
-                        {/* Stats row */}
-                        <div className="grid grid-cols-3 gap-4 mb-5">
-                            {stats.map((s) => (
-                                <div key={s.label} className="rounded-xl bg-white/5 border border-white/5 p-3">
-                                    <div className="flex items-center gap-1.5 mb-2">
-                                        <s.icon size={12} className={s.color} />
-                                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{s.label}</p>
-                                    </div>
-                                    <motion.p
-                                        initial={{ opacity: 0, scale: 0.5 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: 0.8 + (stats.indexOf(s) * 0.1) }}
-                                        className="text-lg font-black text-white"
-                                    >
-                                        {s.value}
-                                    </motion.p>
+                            <div className="flex items-center justify-between mb-8">
+                                <div className="flex gap-2">
+                                    <div className="h-3 w-3 rounded-full bg-rose-500/50" />
+                                    <div className="h-3 w-3 rounded-full bg-amber-500/50" />
+                                    <div className="h-3 w-3 rounded-full bg-emerald-500/50" />
                                 </div>
-                            ))}
-                        </div>
+                                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10">
+                                    <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Dashboard Mensal</span>
+                                </div>
+                            </div>
 
-                        {/* Fake chart bars */}
-                        <div className="flex items-end gap-2 h-20 px-1">
-                            {[40, 65, 50, 80, 60, 90, 70, 85, 55, 95, 75, 88].map((h, i) => (
-                                <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                                    <motion.span
-                                        initial={{ opacity: 0, y: 5 }}
+                            <div className="grid grid-cols-3 gap-6 mb-10">
+                                {stats.map((s, i) => (
+                                    <motion.div 
+                                        key={s.label}
+                                        initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 1 + (i * 0.05) }}
-                                        className="text-[7px] font-black text-slate-500"
+                                        transition={{ delay: 0.5 + (i * 0.1) }}
+                                        className="relative p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors"
                                     >
-                                        {h}%
-                                    </motion.span>
-                                    <motion.div
-                                        initial={{ height: 0 }}
-                                        animate={{ height: `${h * 0.7}%` }}
-                                        transition={{ delay: 0.5 + (i * 0.05), duration: 1, ease: "easeOut" }}
-                                        className="w-full rounded-t-md"
-                                        style={{
-                                            background: i === 10
-                                                ? "linear-gradient(to top, #7c3aed, #a855f7)"
-                                                : "rgba(255,255,255,0.08)",
-                                        }}
+                                        <s.icon size={16} className={`${s.color} mb-3`} />
+                                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">{s.label}</p>
+                                        <p className="text-2xl font-black text-white tabular-nums tracking-tighter">{s.value}</p>
+                                    </motion.div>
+                                ))}
+                            </div>
+
+                            {/* MODERN AREA CHART MOCKUP */}
+                            <div className="relative h-48 w-full mt-4">
+                                <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40">
+                                    <defs>
+                                        <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.4" />
+                                            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
+                                        </linearGradient>
+                                    </defs>
+                                    {/* Grid Lines */}
+                                    <line x1="0" y1="0" x2="100" y2="0" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
+                                    <line x1="0" y1="10" x2="100" y2="10" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
+                                    <line x1="0" y1="20" x2="100" y2="20" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
+                                    <line x1="0" y1="30" x2="100" y2="30" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
+
+                                    {/* Area Path */}
+                                    <motion.path 
+                                        initial={{ d: "M 0 40 Q 25 40 50 40 Q 75 40 100 40 V 40 H 0 Z" }}
+                                        animate={{ d: "M 0 35 Q 10 32 20 28 Q 30 35 40 22 Q 50 15 60 25 Q 70 8 80 18 Q 90 20 100 5 V 40 H 0 Z" }}
+                                        transition={{ duration: 2, delay: 1, ease: "circOut" }}
+                                        fill="url(#areaGrad)"
                                     />
+
+                                    {/* Line Path */}
+                                    <motion.path 
+                                        initial={{ pathLength: 0 }}
+                                        animate={{ pathLength: 1 }}
+                                        transition={{ duration: 2.5, delay: 1, ease: "easeInOut" }}
+                                        d="M 0 35 Q 10 32 20 28 Q 30 35 40 22 Q 50 15 60 25 Q 70 8 80 18 Q 90 20 100 5"
+                                        fill="none"
+                                        stroke="#a855f7"
+                                        strokeWidth="0.8"
+                                        strokeLinecap="round"
+                                    />
+
+                                    {/* Pulse point at the end */}
+                                    <motion.circle 
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 3 }}
+                                        cx="100" cy="5" r="1.2" fill="#d946ef" 
+                                    />
+                                    <motion.circle 
+                                        initial={{ opacity: 0, scale: 1 }}
+                                        animate={{ opacity: [0.5, 0], scale: [1, 4] }}
+                                        transition={{ delay: 3, repeat: Infinity, duration: 2 }}
+                                        cx="100" cy="5" r="1.2" fill="#d946ef" 
+                                    />
+                                </svg>
+
+                                {/* Labels for the chart */}
+                                <div className="absolute bottom-0 left-0 w-full flex justify-between pt-4">
+                                    {['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN'].map((m) => (
+                                        <span key={m} className="text-[8px] font-black text-slate-600 tracking-widest">{m}</span>
+                                    ))}
                                 </div>
-                            ))}
+                            </div>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
 
-                {/* Bottom trust badges */}
-                <div className="relative z-10 flex items-center gap-6">
-                    {[
-                        { label: "+2.500 criadores", emoji: "🚀" },
-                        { label: "M-Pesa integrado", emoji: "💳" },
-                        { label: "e-Mola suportado", emoji: "✅" },
-                    ].map((b) => (
-                        <div key={b.label} className="flex items-center gap-2 text-sm font-bold text-slate-400">
-                            <span>{b.emoji}</span>
-                            <span>{b.label}</span>
-                        </div>
-                    ))}
+                {/* Bottom Trust Section */}
+                <div className="relative z-10 flex items-center justify-between">
+                    <div className="flex items-center gap-8">
+                        {[
+                            { label: "M-Pesa Integrado", color: "text-emerald-400" },
+                            { label: "e-Mola Disponível", color: "text-orange-400" }
+                        ].map((b) => (
+                            <div key={b.label} className="flex items-center gap-2">
+                                <div className={`h-1.5 w-1.5 rounded-full ${b.color.replace('text', 'bg')}`} />
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{b.label}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Mozambique Tech © 2026</p>
                 </div>
             </div>
         </div>
