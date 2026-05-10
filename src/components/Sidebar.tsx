@@ -71,11 +71,11 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
             )}
 
             <aside className={cn(
-                "fixed left-0 top-0 z-50 h-screen w-72 lg:w-64 bg-white dark:bg-[#0f0525] border-r border-slate-100 dark:border-white/5 flex flex-col overflow-hidden transition-all duration-500 ease-in-out transform shadow-xl lg:shadow-none",
+                "fixed left-0 top-0 z-50 h-screen w-72 lg:w-64 bg-[#1e0a45] dark:bg-[#0f0525] flex flex-col overflow-hidden transition-all duration-500 ease-in-out transform shadow-[10px_0_30px_rgba(30,10,69,0.2)]",
                 isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
             )}>
-                <div className="px-5 py-6 border-b border-slate-100 dark:border-white/10 flex flex-col gap-1 items-start">
-                    <Logo showText size={32} textColor="text-slate-900 dark:text-white" />
+                <div className="px-5 py-6 border-b border-white/10 flex flex-col gap-1 items-start">
+                    <Logo showText size={32} textColor="text-white" />
                 </div>
 
                 {/* Navigation Section */}
@@ -83,7 +83,7 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
                     {
                         menuGroups.map((group) => (
                             <div key={group.label} className="space-y-1.5">
-                                <h3 className="px-3 text-[10px] font-black text-slate-400 dark:text-white/40 uppercase tracking-widest">{group.label}</h3>
+                                <h3 className="px-3 text-[10px] font-black text-white/40 uppercase tracking-widest">{group.label}</h3>
                                 <div className="space-y-1">
                                     {group.items.map((item) => {
                                         const isActive = activeView === item.label;
@@ -94,21 +94,21 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
                                                 className={cn(
                                                     "group relative flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold transition-all duration-200",
                                                     isActive
-                                                        ? "bg-violet-600 text-white shadow-lg shadow-violet-200 dark:shadow-none scale-[1.02]"
-                                                        : "text-slate-600 dark:text-white/60 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-violet-600 dark:hover:text-white"
+                                                        ? "bg-white/15 text-white shadow-lg scale-[1.02]"
+                                                        : "text-white/60 hover:bg-white/5 hover:text-white"
                                                 )}
                                             >
                                                 {isActive && (
                                                     <motion.div
                                                         layoutId="activeBar"
-                                                        className="absolute -left-3 w-1.5 h-7 bg-violet-600 rounded-r-full"
+                                                        className="absolute -left-3 w-1.5 h-7 bg-white rounded-r-full shadow-[0_0_15px_rgba(255,255,255,0.5)]"
                                                     />
                                                 )}
                                                 <item.icon
                                                     size={20}
                                                     className={cn(
                                                         "shrink-0 transition-transform group-hover:scale-110",
-                                                        isActive ? "text-white" : "text-slate-400 dark:text-white/40 group-hover:text-violet-600 dark:group-hover:text-white"
+                                                        isActive ? "text-white" : "text-white/40 group-hover:text-white"
                                                     )}
                                                 />
                                                 <span className="flex-1 text-left tracking-tight">{item.label}</span>
@@ -117,6 +117,7 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
                                                         {item.badge}
                                                     </span>
                                                 )}
+                                                {isActive && <div className="h-1.5 w-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_#a78bfa]" />}
                                             </button>
                                         );
                                     })}
@@ -127,22 +128,22 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
                 </nav>
 
                 {/* Quick Access / Dark Mode */}
-                <div className="px-5 py-4 border-t border-slate-100 dark:border-white/10">
+                <div className="px-5 py-4 border-t border-white/10">
                     <button
                         onClick={toggleDarkMode}
-                        className="flex w-full items-center justify-between rounded-2xl bg-slate-50 dark:bg-white/5 p-2.5 transition-all hover:bg-slate-100 dark:hover:bg-white/10"
+                        className="flex w-full items-center justify-between rounded-2xl bg-white/5 p-2.5 transition-all hover:bg-white/10"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-xl bg-white dark:bg-white/10 flex items-center justify-center shadow-sm text-slate-600 dark:text-white">
+                            <div className="h-8 w-8 rounded-xl bg-white/10 flex items-center justify-center shadow-sm text-white">
                                 {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
                             </div>
-                            <span className="text-[10px] font-black text-slate-500 dark:text-white/80 uppercase tracking-tighter">
+                            <span className="text-[10px] font-black text-white/80 uppercase tracking-tighter">
                                 {isDarkMode ? 'Modo Claro' : 'Modo Escuro'}
                             </span>
                         </div>
                         <div className={cn(
                             "h-5 w-10 rounded-full p-1 transition-colors duration-300",
-                            isDarkMode ? "bg-violet-600" : "bg-slate-200 dark:bg-brand-800"
+                            isDarkMode ? "bg-violet-600" : "bg-white/20"
                         )}>
                             <div className={cn(
                                 "h-3 w-3 rounded-full bg-white transition-transform duration-300 shadow-sm",

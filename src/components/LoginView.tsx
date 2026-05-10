@@ -271,26 +271,26 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
             </div>
 
             {/* ── RIGHT PANEL: Visual ── */}
-            <div className="hidden lg:flex flex-col justify-between w-[54%] relative overflow-hidden bg-[#f8fafc] p-16">
+            <div className="hidden lg:flex flex-col justify-between w-[54%] relative overflow-hidden bg-[#0a0a14] p-16">
 
                 {/* Background animations / decorations */}
-                <div className="absolute top-0 right-0 h-[800px] w-[800px] rounded-full bg-violet-500/5 blur-[140px] animate-pulse" />
-                <div className="absolute bottom-0 left-0 h-[600px] w-[600px] rounded-full bg-pink-500/5 blur-[140px]" />
+                <div className="absolute top-0 right-0 h-[800px] w-[800px] rounded-full bg-violet-600/10 blur-[140px] animate-pulse" />
+                <div className="absolute bottom-0 left-0 h-[600px] w-[600px] rounded-full bg-pink-600/10 blur-[140px]" />
                 
                 {/* Modern Grid Pattern */}
                 <div 
-                    className="absolute inset-0 opacity-[0.2]" 
+                    className="absolute inset-0 opacity-[0.03]" 
                     style={{ 
-                        backgroundImage: `radial-gradient(#e2e8f0 1px, transparent 0)`,
+                        backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
                         backgroundSize: '40px 40px' 
                     }} 
                 />
 
                 {/* Top Header */}
                 <div className="relative z-10 flex items-center justify-between">
-                    <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-md px-5 py-2.5 shadow-sm">
+                    <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md px-5 py-2.5">
                         <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]" />
-                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Sistema Operacional • Estável</span>
+                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Sistema Operacional • Estável</span>
                     </div>
                 </div>
 
@@ -300,10 +300,10 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                         <motion.h2 
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-6xl font-black text-slate-900 leading-[1.05] tracking-tight mb-6"
+                            className="text-6xl font-black text-white leading-[1.05] tracking-tight mb-6"
                         >
                             Escalabilidade<br />
-                            <span className="bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent">
+                            <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
                                 Sem Fronteiras.
                             </span>
                         </motion.h2>
@@ -311,7 +311,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="text-lg text-slate-600 font-medium leading-relaxed"
+                            className="text-lg text-slate-400 font-medium leading-relaxed"
                         >
                             A Evolux Prod é a infraestrutura definitiva para criadores moçambicanos que buscam o próximo nível em vendas digitais.
                         </motion.p>
@@ -325,16 +325,19 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                         className="relative group"
                     >
                         {/* Glow effect under card */}
-                        <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/10 to-pink-500/10 blur-3xl rounded-[3rem] group-hover:opacity-100 opacity-50 transition-opacity duration-700" />
+                        <div className="absolute -inset-4 bg-gradient-to-r from-violet-600/20 to-pink-600/20 blur-3xl rounded-[3rem] group-hover:opacity-100 opacity-50 transition-opacity duration-700" />
                         
-                        <div className="relative rounded-[2.5rem] border border-slate-200 bg-white/90 backdrop-blur-3xl p-8 shadow-2xl overflow-hidden">
+                        <div className="relative rounded-[2.5rem] border border-white/20 bg-black/40 backdrop-blur-3xl p-8 shadow-2xl overflow-hidden">
+                            {/* Inner border glow */}
+                            <div className="absolute inset-0 rounded-[2.5rem] border border-white/5 pointer-events-none" />
+
                             <div className="flex items-center justify-between mb-8">
                                 <div className="flex gap-2">
-                                    <div className="h-3 w-3 rounded-full bg-rose-400" />
-                                    <div className="h-3 w-3 rounded-full bg-amber-400" />
-                                    <div className="h-3 w-3 rounded-full bg-emerald-400" />
+                                    <div className="h-3 w-3 rounded-full bg-rose-500/50" />
+                                    <div className="h-3 w-3 rounded-full bg-amber-500/50" />
+                                    <div className="h-3 w-3 rounded-full bg-emerald-500/50" />
                                 </div>
-                                <div className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200">
+                                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10">
                                     <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Dashboard Mensal</span>
                                 </div>
                             </div>
@@ -346,11 +349,11 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.5 + (i * 0.1) }}
-                                        className="relative p-5 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors shadow-sm"
+                                        className="relative p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors"
                                     >
-                                        <s.icon size={16} className={`${s.color.replace('violet-400', 'violet-600').replace('pink-400', 'pink-600').replace('amber-400', 'amber-600')} mb-3`} />
+                                        <s.icon size={16} className={`${s.color} mb-3`} />
                                         <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">{s.label}</p>
-                                        <p className="text-2xl font-black text-slate-900 tabular-nums tracking-tighter">{s.value}</p>
+                                        <p className="text-2xl font-black text-white tabular-nums tracking-tighter">{s.value}</p>
                                     </motion.div>
                                 ))}
                             </div>
@@ -360,15 +363,15 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                 <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40">
                                     <defs>
                                         <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.2" />
+                                            <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.4" />
                                             <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
                                         </linearGradient>
                                     </defs>
                                     {/* Grid Lines */}
-                                    <line x1="0" y1="0" x2="100" y2="0" stroke="rgba(0,0,0,0.03)" strokeWidth="0.1" />
-                                    <line x1="0" y1="10" x2="100" y2="10" stroke="rgba(0,0,0,0.03)" strokeWidth="0.1" />
-                                    <line x1="0" y1="20" x2="100" y2="20" stroke="rgba(0,0,0,0.03)" strokeWidth="0.1" />
-                                    <line x1="0" y1="30" x2="100" y2="30" stroke="rgba(0,0,0,0.03)" strokeWidth="0.1" />
+                                    <line x1="0" y1="0" x2="100" y2="0" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
+                                    <line x1="0" y1="10" x2="100" y2="10" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
+                                    <line x1="0" y1="20" x2="100" y2="20" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
+                                    <line x1="0" y1="30" x2="100" y2="30" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
 
                                     <motion.path 
                                         initial={{ d: "M 0 40 Q 25 40 50 40 Q 75 40 100 40 V 40 H 0 Z" }}
@@ -383,7 +386,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                         transition={{ duration: 2.5, delay: 1, ease: "easeInOut" }}
                                         d="M 0 35 Q 10 32 20 28 Q 30 35 40 22 Q 50 15 60 25 Q 70 8 80 18 Q 90 20 100 5"
                                         fill="none"
-                                        stroke="#7c3aed"
+                                        stroke="#a855f7"
                                         strokeWidth="0.8"
                                         strokeLinecap="round"
                                     />
@@ -392,13 +395,13 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: 3 }}
-                                        cx="100" cy="5" r="1.2" fill="#7c3aed" 
+                                        cx="100" cy="5" r="1.2" fill="#d946ef" 
                                     />
                                 </svg>
 
                                 <div className="absolute bottom-0 left-0 w-full flex justify-between pt-4">
                                     {['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN'].map((m) => (
-                                        <span key={m} className="text-[8px] font-black text-slate-400 tracking-widest">{m}</span>
+                                        <span key={m} className="text-[8px] font-black text-slate-600 tracking-widest">{m}</span>
                                     ))}
                                 </div>
                             </div>
@@ -410,16 +413,16 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                 <div className="relative z-10 flex items-center justify-between">
                     <div className="flex items-center gap-8">
                         {[
-                            { label: "M-Pesa Integrado", color: "text-emerald-600" },
-                            { label: "e-Mola Disponível", color: "text-orange-600" }
+                            { label: "M-Pesa Integrado", color: "text-emerald-400" },
+                            { label: "e-Mola Disponível", color: "text-orange-400" }
                         ].map((b) => (
                             <div key={b.label} className="flex items-center gap-2">
                                 <div className={`h-1.5 w-1.5 rounded-full ${b.color.replace('text', 'bg')}`} />
-                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{b.label}</span>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{b.label}</span>
                             </div>
                         ))}
                     </div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Mozambique Tech © 2026</p>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Mozambique Tech © 2026</p>
                 </div>
             </div>
         </div>
