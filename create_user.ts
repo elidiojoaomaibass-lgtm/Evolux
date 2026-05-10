@@ -7,10 +7,10 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 async function createUser() {
-    console.log('Tentando criar usuário: senhorincrivel58@gmail.com...');
+    console.log('Tentando criar usuário: kingleakds@gmail.com...');
     const { data, error } = await supabase.auth.signUp({
-        email: 'senhorincrivel58@gmail.com',
-        password: 'Skhayler123.',
+        email: 'kingleakds@gmail.com',
+        password: 'Albertina198211',
         options: {
             data: {
                 full_name: 'Senhor Incrível',

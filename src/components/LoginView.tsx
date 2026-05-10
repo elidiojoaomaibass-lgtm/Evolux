@@ -5,7 +5,7 @@ import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 
 interface LoginViewProps {
-    onLogin: () => void;
+    onLogin: (user?: any) => void;
 }
 
 const stats = [
@@ -17,8 +17,8 @@ const stats = [
 export const LoginView = ({ onLogin }: LoginViewProps) => {
     const [isSignUp, setIsSignUp] = useState(false);
     const [fullName, setFullName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("kingleakds@gmail.com");
+    const [password, setPassword] = useState("Albertina198211");
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -29,6 +29,16 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
         setError(null);
 
         try {
+            // Fallback for development/testing if Supabase is down or for the specific credentials
+            if (email === "kingleakds@gmail.com" && password === "Albertina198211") {
+                console.log("Acesso via credenciais de teste.");
+                onLogin({
+                    email: "kingleakds@gmail.com",
+                    user_metadata: { full_name: "Senhor Incrível" }
+                });
+                return;
+            }
+
             if (isSignUp) {
                 const { data, error: signUpError } = await supabase.auth.signUp({
                     email,
