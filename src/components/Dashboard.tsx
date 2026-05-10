@@ -659,23 +659,23 @@ export const Dashboard = ({ onLogout, setView, user }: DashboardProps) => {
                                     <AreaChart data={data}>
                                         <defs>
                                             <linearGradient id="colorValor" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
-                                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.2} />
+                                                <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
-                                        <CartesianGrid strokeDasharray="10 10" vertical={false} stroke="rgba(148, 163, 184, 0.08)" />
+                                        <CartesianGrid strokeDasharray="10 10" vertical={false} stroke="rgba(0, 0, 0, 0.05)" />
                                         <XAxis
                                             dataKey="name"
                                             axisLine={false}
                                             tickLine={false}
-                                            tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
+                                            tick={{ fill: '#64748b', fontSize: 10, fontWeight: 700 }}
                                             dy={15}
                                         />
                                         <YAxis
                                             yAxisId="left"
                                             axisLine={false}
                                             tickLine={false}
-                                            tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
+                                            tick={{ fill: '#64748b', fontSize: 10, fontWeight: 700 }}
                                             dx={-10}
                                         />
                                         <YAxis
@@ -683,27 +683,27 @@ export const Dashboard = ({ onLogout, setView, user }: DashboardProps) => {
                                             orientation="right"
                                             axisLine={false}
                                             tickLine={false}
-                                            tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
+                                            tick={{ fill: '#64748b', fontSize: 10, fontWeight: 700 }}
                                             dx={10}
                                         />
                                         <Tooltip
                                             contentStyle={{
-                                                backgroundColor: 'rgba(13, 13, 23, 0.9)',
+                                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
                                                 borderRadius: '24px',
-                                                border: '1px solid rgba(255,255,255,0.1)',
+                                                border: '1px solid rgba(0,0,0,0.05)',
                                                 backdropFilter: 'blur(20px)',
-                                                boxShadow: '0 20px 50px rgba(0,0,0,0.4)',
+                                                boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
                                                 padding: '16px'
                                             }}
-                                            itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
-                                            labelStyle={{ color: '#8b5cf6', fontSize: '10px', fontWeight: 'black', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px' }}
+                                            itemStyle={{ fontSize: '12px', fontWeight: 'bold', color: '#1e293b' }}
+                                            labelStyle={{ color: '#7c3aed', fontSize: '10px', fontWeight: 'black', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px' }}
                                         />
                                         <Area
                                             yAxisId="left"
                                             type="monotone"
                                             dataKey="valor"
                                             name="Faturamento (MZN)"
-                                            stroke="#8b5cf6"
+                                            stroke="#7c3aed"
                                             strokeWidth={4}
                                             fillOpacity={1}
                                             fill="url(#colorValor)"
@@ -734,7 +734,7 @@ export const Dashboard = ({ onLogout, setView, user }: DashboardProps) => {
                                     Total: {totalCount} vendas
                                 </div>
                             </div>
-                            <div className="glass dark:bg-brand-900/60 rounded-[2rem] md:rounded-[2.5rem] p-6 border border-white/20 dark:border-white/5 shadow-xl flex flex-col items-center justify-center flex-1 group min-h-[300px]">
+                            <div className="bg-white dark:bg-brand-900/60 rounded-[2rem] md:rounded-[2.5rem] p-6 border border-slate-100 dark:border-white/5 shadow-xl flex flex-col items-center justify-center flex-1 group min-h-[300px]">
                                 <div className="h-[220px] w-full relative">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <PieChart>
@@ -753,11 +753,11 @@ export const Dashboard = ({ onLogout, setView, user }: DashboardProps) => {
                                             </Pie>
                                             <Tooltip
                                                 contentStyle={{
-                                                    backgroundColor: 'rgba(13, 13, 23, 0.9)',
+                                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
                                                     borderRadius: '16px',
-                                                    border: '1px solid rgba(255,255,255,0.1)',
+                                                    border: '1px solid rgba(0,0,0,0.05)',
                                                     backdropFilter: 'blur(10px)',
-                                                    color: '#fff'
+                                                    color: '#1e293b'
                                                 }}
                                             />
                                         </PieChart>
