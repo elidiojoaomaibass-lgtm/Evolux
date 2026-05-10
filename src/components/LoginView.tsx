@@ -79,7 +79,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
     };
 
     return (
-        <div className="min-h-screen w-full flex font-sans overflow-hidden bg-white">
+        <div className="min-h-screen w-full flex font-sans overflow-hidden bg-[#faf9ff]">
 
             {/* ── LEFT PANEL: Form ── */}
             <div className="relative flex flex-col justify-center items-center w-full lg:w-[46%] bg-white px-6 md:px-12 py-10 md:py-16 overflow-hidden shrink-0 border-r border-slate-100">

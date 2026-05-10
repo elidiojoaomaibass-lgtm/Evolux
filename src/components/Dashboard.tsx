@@ -253,7 +253,7 @@ export const Dashboard = ({ onLogout, setView, user }: DashboardProps) => {
 
                     <div className="flex items-center gap-3 md:gap-5">
                         <div className="relative" ref={datePickerRef}>
-                            <div className="hidden md:flex items-center gap-1 p-1 bg-white dark:bg-brand-800/40 border border-white/20 dark:border-white/5 rounded-2xl shadow-sm">
+                            <div className="hidden md:flex items-center gap-1 p-1 bg-violet-50 dark:bg-brand-800/40 border border-violet-100 dark:border-white/5 rounded-2xl shadow-inner">
                                 {periodOptions.map((p) => (
                                     <button
                                         key={p.key}
@@ -264,28 +264,25 @@ export const Dashboard = ({ onLogout, setView, user }: DashboardProps) => {
                                         className={cn(
                                             "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
                                             period === p.key && !showDatePicker
-                                                ? "bg-violet-600 text-white shadow-lg shadow-violet-500/20"
-                                                : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"
+                                                ? "bg-violet-600 text-white shadow-lg shadow-violet-500/30"
+                                                : "text-violet-400 hover:text-violet-600 dark:text-brand-400 dark:hover:text-white"
                                         )}
                                     >
                                         {p.key}
                                     </button>
                                 ))}
-                                <div className="mx-1 w-px bg-slate-100 dark:bg-white/5 h-4 shrink-0" />
+                                <div className="mx-1 w-px bg-violet-100 dark:bg-white/5 h-4 shrink-0" />
                                 <button
                                     onClick={() => setShowDatePicker(!showDatePicker)}
                                     className={cn(
                                         "h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 relative",
                                         showDatePicker || period === 'custom'
                                             ? "bg-violet-600 text-white shadow-lg"
-                                            : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"
+                                            : "text-violet-400 hover:text-violet-600 dark:text-brand-400 dark:hover:text-white"
                                     )}
                                 >
                                     <Calendar size={14} />
                                     <span className="hidden sm:inline">Personalizar</span>
-                                    {(showDatePicker || period === 'custom') && (
-                                        <div className="absolute -top-1 -right-1 h-3 w-3 bg-violet-500 rounded-full border-2 border-white dark:border-brand-900 animate-pulse" />
-                                    )}
                                 </button>
                             </div>
 
