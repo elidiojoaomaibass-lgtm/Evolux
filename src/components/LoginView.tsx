@@ -79,14 +79,14 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
     };
 
     return (
-        <div className="min-h-screen w-full flex font-sans overflow-hidden bg-[#faf9ff]">
+        <div className="min-h-screen w-full flex font-sans overflow-hidden bg-white">
 
             {/* ── LEFT PANEL: Form ── */}
-            <div className="relative flex flex-col justify-center items-center w-full lg:w-[46%] bg-white px-6 md:px-12 py-10 md:py-16 overflow-hidden shrink-0 border-r border-slate-100">
+            <div className="relative flex flex-col justify-center items-center w-full lg:w-[46%] bg-[#1e0a45] px-6 md:px-12 py-10 md:py-16 overflow-hidden shrink-0 border-r border-white/10">
 
                 {/* Ambient glow blobs */}
-                <div className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-violet-500/5 blur-[100px]" />
-                <div className="pointer-events-none absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-pink-500/5 blur-[120px]" />
+                <div className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-violet-400/20 blur-[100px]" />
+                <div className="pointer-events-none absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-pink-400/15 blur-[120px]" />
 
                 <div className="relative z-10 w-full max-w-sm">
 
@@ -104,28 +104,28 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                             />
                         </div>
                         <div>
-                            <p className="text-slate-900 font-black text-xl md:text-2xl leading-none tracking-tight">
-                                Evolux <span className="text-violet-600">Prod</span>
+                            <p className="text-white font-black text-xl md:text-2xl leading-none tracking-tight">
+                                Evolux <span className="text-violet-400">Prod</span>
                             </p>
                         </div>
                     </div>
 
                     {/* Heading */}
                     <div className="mb-8">
-                        <h1 className="text-2xl md:text-4xl font-black text-slate-900 leading-tight mb-2 md:mb-3">
+                        <h1 className="text-2xl md:text-4xl font-black text-white leading-tight mb-2 md:mb-3">
                             {isSignUp ? "Criar minha" : "Entrar na"}<br />
-                            <span className="bg-gradient-to-r from-violet-600 to-pink-600 bg-clip-text text-transparent">
+                            <span className="bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
                                 {isSignUp ? "conta gratuita" : "minha conta"}
                             </span>
                         </h1>
-                        <p className="text-xs md:text-sm text-slate-500 font-medium tracking-tight">
+                        <p className="text-xs md:text-sm text-slate-400 font-medium tracking-tight">
                             {isSignUp ? "Já tem uma conta?" : "Não tem uma conta?"}{" "}
                             <button
                                 onClick={() => {
                                     setIsSignUp(!isSignUp);
                                     setError(null);
                                 }}
-                                className="text-violet-600 font-bold hover:text-violet-500 transition-colors"
+                                className="text-violet-400 font-bold hover:text-violet-300 transition-colors"
                             >
                                 {isSignUp ? "Fazer Login" : "Registar-se"}
                             </button>
@@ -134,19 +134,19 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
 
                     {/* Error Message */}
                     {!isSupabaseConfigured && (
-                        <div className="mb-6 flex flex-col gap-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs font-bold text-amber-700">
+                        <div className="mb-6 flex flex-col gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-xs font-bold text-amber-400">
                             <div className="flex items-center gap-2.5">
                                 <AlertCircle size={16} />
                                 <span>Configuração Incompleta</span>
                             </div>
-                            <p className="font-medium text-slate-600 mt-1">
+                            <p className="font-medium text-slate-400 mt-1">
                                 As variáveis de ambiente do Supabase não foram detectadas.
                             </p>
                         </div>
                     )}
 
                     {error && (
-                        <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-bold text-red-600">
+                        <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-xs font-bold text-red-400">
                             <AlertCircle size={16} />
                             <span>{error}</span>
                         </div>
@@ -155,7 +155,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
 
                     {/* Social Login */}
                     <div className="grid grid-cols-2 gap-3 mb-6">
-                        <button className="flex items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all duration-200 group">
+                        <button className="flex items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200 group">
                             {/* Google SVG */}
                             <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
                                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -165,9 +165,9 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                             </svg>
                             Google
                         </button>
-                        <button className="flex items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all duration-200">
+                        <button className="flex items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200">
                             {/* Apple SVG */}
-                            <svg className="h-4 w-4 shrink-0 fill-slate-900" viewBox="0 0 24 24">
+                            <svg className="h-4 w-4 shrink-0 fill-white" viewBox="0 0 24 24">
                                 <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
                             </svg>
                             Apple
@@ -176,44 +176,43 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
 
                     {/* Divider */}
                     <div className="relative flex items-center gap-3 mb-6">
-                        <div className="flex-1 h-px bg-slate-100" />
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">ou</span>
-                        <div className="flex-1 h-px bg-slate-100" />
+                        <div className="flex-1 h-px bg-white/10" />
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">ou</span>
+                        <div className="flex-1 h-px bg-white/10" />
                     </div>
 
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {isSignUp && (
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Nome Completo</label>
-                                <input
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">No                                    <input
                                     type="text"
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
                                     placeholder="João Pedro"
-                                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/5 transition-all duration-200"
+                                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-violet-500 focus:bg-white/8 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
                                     required
                                 />
                             </div>
                         )}
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Email</label>
+                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Email</label>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="seu@email.com"
-                                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/5 transition-all duration-200"
+                                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-violet-500 focus:bg-white/8 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
                                 required
                             />
                         </div>
 
                         <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Senha</label>
+                                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Senha</label>
                                 {!isSignUp && (
-                                    <a href="#" className="text-xs font-bold text-violet-600 hover:text-violet-500 transition-colors">
+                                    <a href="#" className="text-xs font-bold text-violet-400 hover:text-violet-300 transition-colors">
                                         Esqueceu a senha?
                                     </a>
                                 )}
@@ -224,14 +223,14 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 pr-12 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/5 transition-all duration-200"
+                                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 pr-12 text-sm text-white placeholder-slate-600 outline-none focus:border-violet-500 focus:bg-white/8 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
                                     required
                                     minLength={6}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
                                 >
                                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
@@ -241,7 +240,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="relative w-full mt-2 flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-4 text-sm font-black text-white shadow-xl shadow-violet-500/20 hover:shadow-violet-500/30 hover:bg-violet-700 active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden"
+                            className="relative w-full mt-2 flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-4 text-sm font-black text-white shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:bg-violet-700 active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden"
                         >
                             {isLoading ? (
                                 <>
@@ -257,13 +256,13 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                         </button>
                     </form>
 
-                    <p className="mt-6 text-center text-xs text-slate-400 font-medium">
+                    <p className="mt-6 text-center text-xs text-slate-500 font-medium">
                         Ao entrar, você concorda com os{" "}
-                        <a href="#" className="text-slate-600 underline hover:text-slate-900 transition-colors">
+                        <a href="#" className="text-slate-400 underline hover:text-white transition-colors">
                             Termos de Uso
                         </a>{" "}
                         e{" "}
-                        <a href="#" className="text-slate-600 underline hover:text-slate-900 transition-colors">
+                        <a href="#" className="text-slate-400 underline hover:text-white transition-colors">
                             Política de Privacidade
                         </a>
                     </p>
@@ -271,26 +270,26 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
             </div>
 
             {/* ── RIGHT PANEL: Visual ── */}
-            <div className="hidden lg:flex flex-col justify-between w-[54%] relative overflow-hidden bg-[#0a0a14] p-16">
+            <div className="hidden lg:flex flex-col justify-between w-[54%] relative overflow-hidden bg-white p-16">
 
                 {/* Background animations / decorations */}
-                <div className="absolute top-0 right-0 h-[800px] w-[800px] rounded-full bg-violet-600/10 blur-[140px] animate-pulse" />
-                <div className="absolute bottom-0 left-0 h-[600px] w-[600px] rounded-full bg-pink-600/10 blur-[140px]" />
+                <div className="absolute top-0 right-0 h-[800px] w-[800px] rounded-full bg-violet-500/5 blur-[140px] animate-pulse" />
+                <div className="absolute bottom-0 left-0 h-[600px] w-[600px] rounded-full bg-pink-500/5 blur-[140px]" />
                 
                 {/* Modern Grid Pattern */}
                 <div 
-                    className="absolute inset-0 opacity-[0.03]" 
+                    className="absolute inset-0 opacity-[0.2]" 
                     style={{ 
-                        backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+                        backgroundImage: `radial-gradient(#e2e8f0 1px, transparent 0)`,
                         backgroundSize: '40px 40px' 
                     }} 
                 />
 
                 {/* Top Header */}
                 <div className="relative z-10 flex items-center justify-between">
-                    <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md px-5 py-2.5">
+                    <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-md px-5 py-2.5 shadow-sm">
                         <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]" />
-                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Sistema Operacional • Estável</span>
+                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Sistema Operacional • Estável</span>
                     </div>
                 </div>
 
@@ -300,10 +299,10 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                         <motion.h2 
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-6xl font-black text-white leading-[1.05] tracking-tight mb-6"
+                            className="text-6xl font-black text-slate-900 leading-[1.05] tracking-tight mb-6"
                         >
                             Escalabilidade<br />
-                            <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
+                            <span className="bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent">
                                 Sem Fronteiras.
                             </span>
                         </motion.h2>
@@ -311,7 +310,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="text-lg text-slate-400 font-medium leading-relaxed"
+                            className="text-lg text-slate-600 font-medium leading-relaxed"
                         >
                             A Evolux Prod é a infraestrutura definitiva para criadores moçambicanos que buscam o próximo nível em vendas digitais.
                         </motion.p>
@@ -325,19 +324,16 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                         className="relative group"
                     >
                         {/* Glow effect under card */}
-                        <div className="absolute -inset-4 bg-gradient-to-r from-violet-600/20 to-pink-600/20 blur-3xl rounded-[3rem] group-hover:opacity-100 opacity-50 transition-opacity duration-700" />
+                        <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/10 to-pink-500/10 blur-3xl rounded-[3rem] group-hover:opacity-100 opacity-50 transition-opacity duration-700" />
                         
-                        <div className="relative rounded-[2.5rem] border border-white/20 bg-black/40 backdrop-blur-3xl p-8 shadow-2xl overflow-hidden">
-                            {/* Inner border glow */}
-                            <div className="absolute inset-0 rounded-[2.5rem] border border-white/5 pointer-events-none" />
-
+                        <div className="relative rounded-[2.5rem] border border-slate-200 bg-white/90 backdrop-blur-3xl p-8 shadow-2xl overflow-hidden">
                             <div className="flex items-center justify-between mb-8">
                                 <div className="flex gap-2">
-                                    <div className="h-3 w-3 rounded-full bg-rose-500/50" />
-                                    <div className="h-3 w-3 rounded-full bg-amber-500/50" />
-                                    <div className="h-3 w-3 rounded-full bg-emerald-500/50" />
+                                    <div className="h-3 w-3 rounded-full bg-rose-400" />
+                                    <div className="h-3 w-3 rounded-full bg-amber-400" />
+                                    <div className="h-3 w-3 rounded-full bg-emerald-400" />
                                 </div>
-                                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10">
+                                <div className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200">
                                     <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Dashboard Mensal</span>
                                 </div>
                             </div>
@@ -349,11 +345,11 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.5 + (i * 0.1) }}
-                                        className="relative p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors"
+                                        className="relative p-5 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors shadow-sm"
                                     >
-                                        <s.icon size={16} className={`${s.color} mb-3`} />
+                                        <s.icon size={16} className={`${s.color.replace('violet-400', 'violet-600').replace('pink-400', 'pink-600').replace('amber-400', 'amber-600')} mb-3`} />
                                         <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">{s.label}</p>
-                                        <p className="text-2xl font-black text-white tabular-nums tracking-tighter">{s.value}</p>
+                                        <p className="text-2xl font-black text-slate-900 tabular-nums tracking-tighter">{s.value}</p>
                                     </motion.div>
                                 ))}
                             </div>
@@ -363,15 +359,15 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                 <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40">
                                     <defs>
                                         <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.4" />
+                                            <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.2" />
                                             <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
                                         </linearGradient>
                                     </defs>
                                     {/* Grid Lines */}
-                                    <line x1="0" y1="0" x2="100" y2="0" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
-                                    <line x1="0" y1="10" x2="100" y2="10" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
-                                    <line x1="0" y1="20" x2="100" y2="20" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
-                                    <line x1="0" y1="30" x2="100" y2="30" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
+                                    <line x1="0" y1="0" x2="100" y2="0" stroke="rgba(0,0,0,0.03)" strokeWidth="0.1" />
+                                    <line x1="0" y1="10" x2="100" y2="10" stroke="rgba(0,0,0,0.03)" strokeWidth="0.1" />
+                                    <line x1="0" y1="20" x2="100" y2="20" stroke="rgba(0,0,0,0.03)" strokeWidth="0.1" />
+                                    <line x1="0" y1="30" x2="100" y2="30" stroke="rgba(0,0,0,0.03)" strokeWidth="0.1" />
 
                                     <motion.path 
                                         initial={{ d: "M 0 40 Q 25 40 50 40 Q 75 40 100 40 V 40 H 0 Z" }}
@@ -386,7 +382,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                         transition={{ duration: 2.5, delay: 1, ease: "easeInOut" }}
                                         d="M 0 35 Q 10 32 20 28 Q 30 35 40 22 Q 50 15 60 25 Q 70 8 80 18 Q 90 20 100 5"
                                         fill="none"
-                                        stroke="#a855f7"
+                                        stroke="#7c3aed"
                                         strokeWidth="0.8"
                                         strokeLinecap="round"
                                     />
@@ -395,13 +391,13 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: 3 }}
-                                        cx="100" cy="5" r="1.2" fill="#d946ef" 
+                                        cx="100" cy="5" r="1.2" fill="#7c3aed" 
                                     />
                                 </svg>
 
                                 <div className="absolute bottom-0 left-0 w-full flex justify-between pt-4">
                                     {['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN'].map((m) => (
-                                        <span key={m} className="text-[8px] font-black text-slate-600 tracking-widest">{m}</span>
+                                        <span key={m} className="text-[8px] font-black text-slate-400 tracking-widest">{m}</span>
                                     ))}
                                 </div>
                             </div>
@@ -413,18 +409,19 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                 <div className="relative z-10 flex items-center justify-between">
                     <div className="flex items-center gap-8">
                         {[
-                            { label: "M-Pesa Integrado", color: "text-emerald-400" },
-                            { label: "e-Mola Disponível", color: "text-orange-400" }
+                            { label: "M-Pesa Integrado", color: "text-emerald-600" },
+                            { label: "e-Mola Disponível", color: "text-orange-600" }
                         ].map((b) => (
                             <div key={b.label} className="flex items-center gap-2">
                                 <div className={`h-1.5 w-1.5 rounded-full ${b.color.replace('text', 'bg')}`} />
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{b.label}</span>
+                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{b.label}</span>
                             </div>
                         ))}
                     </div>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Mozambique Tech © 2026</p>
                 </div>
             </div>
         </div>
     );
 };
+
+export default LoginView;
