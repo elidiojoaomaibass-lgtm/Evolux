@@ -119,7 +119,6 @@ function App() {
               onLogout={handleLogout}
               setView={setActiveView}
               user={session.user}
-              toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
             />
           )}
           {activeView === "Vendas" && <Views.Vendas user={session.user} />}

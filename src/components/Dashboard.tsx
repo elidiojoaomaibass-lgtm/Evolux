@@ -3,7 +3,7 @@ import {
     PieChart, Pie, Cell
 } from 'recharts';
 import {
-    Bell, Menu, LogOut, Calendar, X, BarChart3,
+    Bell, LogOut, Calendar, X, BarChart3,
     ArrowUpRight, ArrowDownRight, Gem
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -52,10 +52,9 @@ interface DashboardProps {
     onLogout?: () => void;
     setView: (view: any) => void;
     user: User;
-    toggleSidebar: () => void;
 }
 
-export const Dashboard = ({ onLogout, setView, user, toggleSidebar }: DashboardProps) => {
+export const Dashboard = ({ onLogout, setView, user }: DashboardProps) => {
     const [period, setPeriod] = useState<Period>('Hoje');
     const [profileOpen, setProfileOpen] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
