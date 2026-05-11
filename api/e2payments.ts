@@ -37,7 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 1. Obter Token
     let authResponse;
     try {
-      authResponse = await fetch('https://api.e2payments.co.mz/oauth/token', {
+      authResponse = await fetch('https://e2payments.explicador.co.mz/oauth/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
@@ -70,7 +70,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 2. Criar Pedido de Pagamento (C2B)
     let paymentResponse;
     try {
-      paymentResponse = await fetch('https://api.e2payments.co.mz/v1/c2b/payment', {
+      paymentResponse = await fetch('https://e2payments.explicador.co.mz/v1/c2b/payment', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
