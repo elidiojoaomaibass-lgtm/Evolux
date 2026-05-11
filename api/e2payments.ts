@@ -1,34 +1,47 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Garantir que temos o body (Vercel às vezes precisa disto em TS/ESM)
-  const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método não permitido.' });
   }
 
   try {
-    const { phone, amount, reference, client_id, client_secret, wallet_mpesa, wallet_emola } = body;
+    // Garantir que temos o body
+    const body = req.body || {};
+    const parsedBody = typeof body === 'string' ? JSON.parse(body) : body;
 
-    // Lógica para selecionar a carteira correta baseada no prefixo do número do cliente
-    let wallet_number = wallet_mpesa || process.env.E2_WALLET_MPESA; // Default M-Pesa
+    const { phone, amount, reference, client_id, client_secret, wallet_mpesa, wallet_emola } = parsedBody;
+
+    if (!phone || !amount) {
+      return res.status(400).json({ error: 'Telefone e valor são obrigatórios.' });
+    }
+
+    const final_client_id = client_id || process.env.E2_CLIENT_ID;
+    const final_client_secret = client_secret || process.env.E2_CLIENT_SECRET;
+
+    if (!final_client_id || !final_client_secret) {
+      return res.status(400).json({ error: 'Credenciais E2Payments (Client ID/Secret) não configuradas.' });
+    }
+
+    // Lógica para selecionar a carteira correta baseada no prefixo
+    let wallet_number = wallet_mpesa || process.env.E2_WALLET_MPESA;
     
     if (phone.startsWith('86') || phone.startsWith('87') || phone.startsWith('+25886') || phone.startsWith('+25887')) {
       wallet_number = wallet_emola || process.env.E2_WALLET_EMOLA;
     }
 
-    // 1. Obter Token da E2Payments
+    if (!wallet_number) {
+       return res.status(400).json({ error: 'Número da carteira de receção não configurado.' });
+    }
+
+    // 1. Obter Token
     const authResponse = await fetch('https://api.e2payments.co.mz/oauth/token', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
         grant_type: 'client_credentials',
-        client_id: client_id || process.env.E2_CLIENT_ID,
-        client_secret: client_secret || process.env.E2_CLIENT_SECRET
+        client_id: final_client_id,
+        client_secret: final_client_secret
       })
     });
 
