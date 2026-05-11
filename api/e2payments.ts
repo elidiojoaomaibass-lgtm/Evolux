@@ -37,9 +37,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 1. Obter Token
     let authResponse;
     try {
+      const basicAuth = Buffer.from(`${final_client_id}:${final_client_secret}`).toString('base64');
+      
       authResponse = await fetch('https://e2payments.explicador.co.mz/oauth/token', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Accept': 'application/json',
+          'Authorization': `Basic ${basicAuth}`
+        },
         body: JSON.stringify({
           grant_type: 'client_credentials',
           client_id: final_client_id,
