@@ -39,18 +39,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
       const basicAuth = Buffer.from(`${final_client_id}:${final_client_secret}`).toString('base64');
       
+      // Criar o corpo no formato x-www-form-urlencoded
+      const params = new URLSearchParams();
+      params.append('grant_type', 'client_credentials');
+      params.append('client_id', final_client_id);
+      params.append('client_secret', final_client_secret);
+
       authResponse = await fetch('https://e2payments.explicador.co.mz/oauth/token', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json', 
+          'Content-Type': 'application/x-www-form-urlencoded', 
           'Accept': 'application/json',
           'Authorization': `Basic ${basicAuth}`
         },
-        body: JSON.stringify({
-          grant_type: 'client_credentials',
-          client_id: final_client_id,
-          client_secret: final_client_secret
-        })
+        body: params.toString()
       });
     } catch (fError: any) {
       return res.status(500).json({ error: 'Erro de rede ao contactar E2Payments (Token).', message: fError.message });
