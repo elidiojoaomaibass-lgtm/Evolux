@@ -39,13 +39,70 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
     if (!product) return null;
 
-    const handlePurchase = (e: React.FormEvent) => {
+    const handlePurchase = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!paymentPhone) {
+            alert('Por favor, introduza o número de telefone para pagamento.');
+            return;
+        }
+
         setStatus('processing');
-        // Simulate payment wait
-        setTimeout(() => {
+
+        try {
+            // Pegar credenciais guardadas no localStorage
+            const clientId = localStorage.getItem('evolux_e2_client_id');
+            const clientSecret = localStorage.getItem('evolux_e2_client_secret');
+            const walletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
+            const walletEmola = localStorage.getItem('evolux_e2_wallet_emola');
+
+            if (!clientId || !clientSecret) {
+                throw new Error('Configuração de pagamento incompleta. Vá às Definições > Pagamentos.');
+            }
+
+            const response = await fetch('/api/e2payments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phone: paymentPhone,
+                    amount: product.price,
+                    reference: `ORD-${Date.now()}`,
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    wallet_mpesa: walletMpesa,
+                    wallet_emola: walletEmola
+                })
+            });
+
+            // Verificar se a resposta é JSON antes de ler
+            const contentType = response.headers.get("content-type");
+            if (!response.ok) {
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro na API de Pagamento.');
+                } else {
+                    const textError = await response.text();
+                    console.error("Erro não-JSON recebido:", textError);
+                    throw new Error('O servidor de API não está a responder corretamente. Se estiveres em Localhost, usa "vercel dev".');
+                }
+            }
+
+            const data = await response.json();
             setStatus('success');
-        }, 3000);
+            
+            // Aqui podes disparar o Pixel de Meta Ads (Purchase)
+            if ((window as any).fbq) {
+                (window as any).fbq('track', 'Purchase', {
+                    value: product.price,
+                    currency: 'MZN',
+                    content_name: product.name
+                });
+            }
+
+        } catch (err: any) {
+            alert(err.message);
+            setStatus('idle');
+        }
     };
 
     if (status === 'success') {

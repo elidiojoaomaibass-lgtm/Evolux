@@ -11,11 +11,20 @@ import type { Session } from "@supabase/supabase-js";
 import { Toaster } from 'sonner';
 
 function App() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [activeView, setActiveView] = useState<ViewType>("Dashboard");
+  const [session, setSession] = useState<Session | null>(() => {
+    const saved = localStorage.getItem('evolux_prod_fake_session');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [activeView, setActiveView] = useState<ViewType>(() => {
+    return (localStorage.getItem('evolux_prod_active_view') as ViewType) || "Dashboard";
+  });
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return document.documentElement.classList.contains('dark');
   });
+
+  useEffect(() => {
+    localStorage.setItem('evolux_prod_active_view', activeView);
+  }, [activeView]);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -29,16 +38,54 @@ function App() {
   useEffect(() => {
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }: any) => {
-      setSession(session);
+      if (session) {
+        setSession(session);
+      } else {
+        const fake = localStorage.getItem('evolux_prod_fake_session');
+        if (!fake) {
+          setSession(null);
+        }
+      }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
-      setSession(session);
+      if (session) {
+        setSession(session);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    // Listen for profile updates from ConfiguracoesView
+    const handleProfileUpdate = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setSession((prev: any) => {
+        if (!prev) return prev;
+        const updated = {
+          ...prev,
+          user: {
+            ...prev.user,
+            user_metadata: {
+              ...prev.user?.user_metadata,
+              ...detail,
+            }
+          }
+        };
+        // Update fake session in localStorage if present
+        const fake = localStorage.getItem('evolux_prod_fake_session');
+        if (fake) {
+          localStorage.setItem('evolux_prod_fake_session', JSON.stringify(updated));
+        }
+        return updated;
+      });
+    };
+    window.addEventListener('user-profile-updated', handleProfileUpdate);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('user-profile-updated', handleProfileUpdate);
+    };
   }, []);
+
 
   useEffect(() => {
     if (isDarkMode) {
@@ -50,8 +97,36 @@ function App() {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
+  // Meta Ads Pixel Injection
+  useEffect(() => {
+    const pixelId = localStorage.getItem('evolux_prod_facebook_pixel_id');
+    if (!pixelId) return;
+
+    // Facebook Pixel Base Code
+    !(function (f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function () {
+        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+      };
+      if (!f._fbq) f._fbq = n;
+      n.push = n;
+      n.loaded = !0;
+      n.version = '2.0';
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = !0;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+
+    (window as any).fbq('init', pixelId);
+    (window as any).fbq('track', 'PageView');
+  }, []);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    localStorage.removeItem('evolux_prod_fake_session');
     setSession(null);
   };
 
@@ -59,7 +134,9 @@ function App() {
   if (!session) {
     return <LoginView onLogin={(fallbackUser?: any) => {
       if (fallbackUser) {
-        setSession({ user: fallbackUser } as any);
+        const fakeSession = { user: fallbackUser };
+        localStorage.setItem('evolux_prod_fake_session', JSON.stringify(fakeSession));
+        setSession(fakeSession as any);
         return;
       }
       
@@ -68,12 +145,14 @@ function App() {
           setSession(session);
         } else {
           // Final fallback
-          setSession({ 
+          const fakeSession = { 
             user: { 
               email: 'kingleakds@gmail.com',
               user_metadata: { full_name: 'Senhor Incrível' }
             } 
-          } as any);
+          };
+          localStorage.setItem('evolux_prod_fake_session', JSON.stringify(fakeSession));
+          setSession(fakeSession as any);
         }
       });
     }} />;
@@ -119,6 +198,7 @@ function App() {
               onLogout={handleLogout}
               setView={setActiveView}
               user={session.user}
+              toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
             />
           )}
           {activeView === "Vendas" && <Views.Vendas user={session.user} />}
@@ -130,7 +210,7 @@ function App() {
           {activeView === "Premiações" && <Views.Premiações />}
           {activeView === "Marketing" && <Views.Ferramentas />}
           {activeView === "Análise" && <Views.Análise />}
-          {activeView === "Configurações" && <Views.Configuracoes />}
+          {activeView === "Configurações" && <Views.Configuracoes onLogout={handleLogout} />}
         </div>
       </main>
 

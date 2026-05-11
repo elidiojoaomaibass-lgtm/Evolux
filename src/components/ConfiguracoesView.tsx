@@ -1,52 +1,145 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Lock, Bell, Shield, Save, Loader2, Camera, Eye, EyeOff } from 'lucide-react';
+import { User, Lock, Bell, Shield, Save, Loader2, Camera, Eye, EyeOff, LogOut, Wallet } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
-export const ConfiguracoesView = () => {
+export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
     const [user, setUser] = useState<SupabaseUser | null>(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-    const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications'>('profile');
+    const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications' | 'payments'>('profile');
+
+    // E2Payments settings states
+    const [e2ClientId, setE2ClientId] = useState('');
+    const [e2ClientSecret, setE2ClientSecret] = useState('');
+    const [e2WalletMpesa, setE2WalletMpesa] = useState('');
+    const [e2WalletEmola, setE2WalletEmola] = useState('');
 
     // Form states
     const [fullName, setFullName] = useState('');
     const [nickname, setNickname] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [photoUrl, setPhotoUrl] = useState<string | null>(null);
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        supabase.auth.getUser().then(({ data: { user } }: any) => {
-            setUser(user);
-            if (user?.user_metadata) {
-                if (user.user_metadata.full_name) setFullName(user.user_metadata.full_name);
-                if (user.user_metadata.nickname) setNickname(user.user_metadata.nickname);
-                if (user.user_metadata.phone_number) setPhoneNumber(user.user_metadata.phone_number);
+        // Try real Supabase session first, fallback to fake localStorage session
+        const loadUser = async () => {
+            const { data: { user: realUser } } = await supabase.auth.getUser() as any;
+            if (realUser) {
+                setUser(realUser);
+                const m = realUser.user_metadata || {};
+                if (m.full_name) setFullName(m.full_name);
+                if (m.nickname) setNickname(m.nickname);
+                if (m.phone_number) setPhoneNumber(m.phone_number);
+                if (m.photo_url) setPhotoUrl(m.photo_url);
+            } else {
+                // Fake session fallback
+                const fake = localStorage.getItem('evolux_prod_fake_session');
+                if (fake) {
+                    const fakeUser = JSON.parse(fake).user;
+                    setUser(fakeUser);
+                    const m = fakeUser?.user_metadata || {};
+                    if (m.full_name) setFullName(m.full_name);
+                    if (m.nickname) setNickname(m.nickname);
+                    if (m.phone_number) setPhoneNumber(m.phone_number);
+                    if (m.photo_url) setPhotoUrl(m.photo_url);
+                }
             }
-        });
+        };
+        loadUser();
+
+        // Load E2Payments settings from localStorage
+        const savedClientId = localStorage.getItem('evolux_e2_client_id');
+        const savedClientSecret = localStorage.getItem('evolux_e2_client_secret');
+        const savedWalletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
+        const savedWalletEmola = localStorage.getItem('evolux_e2_wallet_emola');
+
+        if (savedClientId) setE2ClientId(savedClientId);
+        if (savedClientSecret) setE2ClientSecret(savedClientSecret);
+        if (savedWalletMpesa) setE2WalletMpesa(savedWalletMpesa);
+        if (savedWalletEmola) setE2WalletEmola(savedWalletEmola);
     }, []);
+
+    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const url = ev.target?.result as string;
+            setPhotoUrl(url);
+            // Save photo locally and propagate
+            const detail = { full_name: fullName, nickname, phone_number: phoneNumber, photo_url: url };
+            const fake = localStorage.getItem('evolux_prod_fake_session');
+            if (fake) {
+                const parsed = JSON.parse(fake);
+                parsed.user = { ...parsed.user, user_metadata: { ...parsed.user?.user_metadata, ...detail } };
+                localStorage.setItem('evolux_prod_fake_session', JSON.stringify(parsed));
+            }
+            window.dispatchEvent(new CustomEvent('user-profile-updated', { detail }));
+        };
+        reader.readAsDataURL(file);
+    };
 
     const handleUpdateProfile = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setMessage(null);
 
-        try {
-            const { error } = await supabase.auth.updateUser({
-                data: {
-                    full_name: fullName,
-                    nickname: nickname,
-                    phone_number: phoneNumber
-                }
-            });
+        // Payment save logic (E2Payments)
+        if (activeTab === 'payments') {
+            localStorage.setItem('evolux_e2_client_id', e2ClientId);
+            localStorage.setItem('evolux_e2_client_secret', e2ClientSecret);
+            localStorage.setItem('evolux_e2_wallet_mpesa', e2WalletMpesa);
+            localStorage.setItem('evolux_e2_wallet_emola', e2WalletEmola);
+            
+            setMessage({ type: 'success', text: 'Credenciais E2Payments salvas com sucesso!' });
+            setLoading(false);
+            return;
+        }
 
+        const metadata = { full_name: fullName, nickname, phone_number: phoneNumber, photo_url: photoUrl };
+
+        // Check if we are using a fake session
+        const fake = localStorage.getItem('evolux_prod_fake_session');
+        
+        if (fake) {
+            // Update fake session in localStorage
+            try {
+                const parsed = JSON.parse(fake);
+                parsed.user = { 
+                    ...parsed.user, 
+                    user_metadata: { 
+                        ...parsed.user?.user_metadata, 
+                        ...metadata 
+                    } 
+                };
+                localStorage.setItem('evolux_prod_fake_session', JSON.stringify(parsed));
+                
+                // Dispatch event and show success
+                window.dispatchEvent(new CustomEvent('user-profile-updated', { detail: metadata }));
+                setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
+            } catch (err) {
+                setMessage({ type: 'error', text: 'Erro ao processar sessão local.' });
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
+
+        // Real Supabase update
+        try {
+            const { error } = await supabase.auth.updateUser({ data: metadata });
             if (error) throw error;
+            
+            window.dispatchEvent(new CustomEvent('user-profile-updated', { detail: metadata }));
             setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
         } catch (err: any) {
             setMessage({ type: 'error', text: err.message || 'Erro ao atualizar perfil.' });
@@ -54,6 +147,7 @@ export const ConfiguracoesView = () => {
             setLoading(false);
         }
     };
+
 
     const handleUpdatePassword = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -117,6 +211,7 @@ export const ConfiguracoesView = () => {
                 <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-hide">
                     {[
                         { id: 'profile', label: 'Perfil', icon: User },
+                        { id: 'payments', label: 'Pagamentos', icon: Wallet },
                         { id: 'security', label: 'Segurança', icon: Lock },
                         { id: 'notifications', label: 'Avisos', icon: Bell },
                     ].map((item) => (
@@ -132,6 +227,25 @@ export const ConfiguracoesView = () => {
                             {item.label}
                         </button>
                     ))}
+
+                    {/* Logout Button in Settings */}
+                    <div className="mt-auto pt-2 border-t border-slate-100 dark:border-white/5 hidden md:block">
+                        <button
+                            onClick={onLogout}
+                            className="flex items-center gap-2 px-3 py-2.5 rounded-lg font-bold text-[11px] md:text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all w-full text-left uppercase tracking-widest"
+                        >
+                            <LogOut size={14} />
+                            Encerrar Sessão
+                        </button>
+                    </div>
+
+                    {/* Mobile Logout Button */}
+                    <button
+                        onClick={onLogout}
+                        className="flex md:hidden items-center gap-2 px-3 py-2 rounded-lg font-bold text-[11px] text-red-500 hover:bg-red-50 whitespace-nowrap shrink-0"
+                    >
+                        <LogOut size={14} />
+                    </button>
                 </div>
 
                 {/* Forms Area */}
@@ -147,23 +261,36 @@ export const ConfiguracoesView = () => {
                             >
                                 <div className="flex items-center gap-4 mb-5">
                                     <div className="relative group shrink-0">
-                                        <div className="h-14 w-14 md:h-18 md:w-18 rounded-2xl overflow-hidden ring-4 ring-violet-50 dark:ring-brand-800">
-                                            <img
-                                                src="/logo.png"
-                                                alt="Avatar"
-                                                className="w-full h-full object-cover"
-                                                onError={(e) => {
-                                                    (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=E&background=7c3aed&color=fff&bold=true&size=128';
-                                                }}
-                                            />
+                                        <div className="h-14 w-14 rounded-2xl overflow-hidden ring-4 ring-violet-50 dark:ring-brand-800">
+                                            {photoUrl ? (
+                                                <img src={photoUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center text-white font-black text-2xl">
+                                                    {(fullName || user?.email || 'U').charAt(0).toUpperCase()}
+                                                </div>
+                                            )}
                                         </div>
-                                        <button className="absolute -bottom-1 -right-1 h-6 w-6 rounded-lg bg-violet-600 border-2 border-white dark:border-brand-900 text-white flex items-center justify-center shadow-md hover:scale-110 transition-all">
+                                        <button
+                                            type="button"
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="absolute -bottom-1 -right-1 h-6 w-6 rounded-lg bg-violet-600 border-2 border-white dark:border-brand-900 text-white flex items-center justify-center shadow-md hover:scale-110 transition-all"
+                                        >
                                             <Camera size={12} />
                                         </button>
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={handlePhotoChange}
+                                        />
                                     </div>
                                     <div className="min-w-0">
-                                        <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white truncate">Foto de Perfil</h3>
-                                        <p className="text-[10px] md:text-xs text-slate-400 font-medium truncate">PNG ou JPG até 5MB.</p>
+                                        <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white truncate">
+                                            {fullName || user?.email?.split('@')[0] || 'Utilizador'}
+                                        </h3>
+                                        <p className="text-[10px] md:text-xs text-slate-400 font-medium truncate">{user?.email}</p>
+                                        <p className="text-[9px] text-violet-400 font-medium mt-0.5">Clique na câmara para trocar a foto</p>
                                     </div>
                                 </div>
 
@@ -203,7 +330,7 @@ export const ConfiguracoesView = () => {
                                         />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
+                                        <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email da Conta</label>
                                         <input
                                             type="email"
                                             value={user?.email || ''}
@@ -309,6 +436,94 @@ export const ConfiguracoesView = () => {
                                         Atualizar Senha
                                     </button>
                                 </form>
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'payments' && (
+                            <motion.div
+                                key="payments"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="bg-white dark:bg-brand-900 rounded-2xl border border-violet-100 dark:border-brand-800 p-4 md:p-6 shadow-sm space-y-8"
+                            >
+                                {/* E2Payments Section */}
+                                <section className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                            <Shield className="text-emerald-500" size={20} />
+                                            Integração E2Payments
+                                        </h3>
+                                        <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-[9px] font-black uppercase tracking-widest">Ativo</span>
+                                    </div>
+                                    
+                                    <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
+                                        Configure as suas credenciais da E2Payments para aceitar pagamentos via M-Pesa e e-Mola de forma automática.
+                                    </p>
+
+                                    <div className="grid gap-4">
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Client ID</label>
+                                            <input
+                                                type="text"
+                                                value={e2ClientId}
+                                                onChange={(e) => setE2ClientId(e.target.value)}
+                                                placeholder="Introduza o Client ID"
+                                                className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Client Secret</label>
+                                            <input
+                                                type="password"
+                                                value={e2ClientSecret}
+                                                onChange={(e) => setE2ClientSecret(e.target.value)}
+                                                placeholder="••••••••••••••••"
+                                                className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
+                                            />
+                                        </div>
+
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Carteira M-Pesa (Vodacom)</label>
+                                            <input
+                                                type="text"
+                                                value={e2WalletMpesa}
+                                                onChange={(e) => setE2WalletMpesa(e.target.value)}
+                                                placeholder="84XXXXXXX"
+                                                className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Carteira e-Mola (Movitel)</label>
+                                            <input
+                                                type="text"
+                                                value={e2WalletEmola}
+                                                onChange={(e) => setE2WalletEmola(e.target.value)}
+                                                placeholder="86XXXXXXX"
+                                                className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
+                                            />
+                                        </div>
+                                    </div>
+                                    </div>
+
+                                    <div className="p-3 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/20">
+                                        <p className="text-[10px] font-bold text-blue-700 dark:text-blue-300 leading-relaxed">
+                                            <b>Nota:</b> Certifique-se de que a sua carteira está ativa e aprovada na plataforma E2Payments para evitar erros no checkout.
+                                        </p>
+                                    </div>
+                                </section>
+
+                                <button
+                                    onClick={handleUpdateProfile}
+                                    disabled={loading}
+                                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-black text-[11px] md:text-xs hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+                                >
+                                    {loading ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
+                                    Salvar Credenciais E2Payments
+                                </button>
                             </motion.div>
                         )}
 
