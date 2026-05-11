@@ -20,5 +20,5 @@ export const Views = {
     Premiações: () => <PremiacoesView />,
     Ferramentas: () => <FerramentasView />,
     Análise: () => <AnalyticsView />,
-    Configuracoes: () => <ConfiguracoesView />,
+    Configuracoes: ({ onLogout }: { onLogout: () => void }) => <ConfiguracoesView onLogout={onLogout} />,
 };
