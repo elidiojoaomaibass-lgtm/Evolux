@@ -35,40 +35,65 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // 1. Obter Token
-    const authResponse = await fetch('https://api.e2payments.co.mz/oauth/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({
-        grant_type: 'client_credentials',
-        client_id: final_client_id,
-        client_secret: final_client_secret
-      })
-    });
+    let authResponse;
+    try {
+      authResponse = await fetch('https://api.e2payments.co.mz/oauth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          grant_type: 'client_credentials',
+          client_id: final_client_id,
+          client_secret: final_client_secret
+        })
+      });
+    } catch (fError: any) {
+      return res.status(500).json({ error: 'Erro de rede ao contactar E2Payments (Token).', message: fError.message });
+    }
+
+    const authContentType = authResponse.headers.get("content-type");
+    if (!authContentType || !authContentType.includes("application/json")) {
+      const rawAuth = await authResponse.text();
+      return res.status(500).json({ error: 'E2Payments respondeu com formato inválido no Token.', details: rawAuth });
+    }
 
     const authData = await authResponse.json();
 
     if (!authResponse.ok || !authData.access_token) {
-      return res.status(401).json({ error: 'Falha na autenticação com E2Payments.' });
+      return res.status(401).json({ 
+        error: 'Falha na autenticação com E2Payments. Verifique Client ID e Secret.',
+        details: authData 
+      });
     }
 
     const token = authData.access_token;
 
     // 2. Criar Pedido de Pagamento (C2B)
-    const paymentResponse = await fetch('https://api.e2payments.co.mz/v1/c2b/payment', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        client_id: client_id || process.env.E2_CLIENT_ID,
-        amount: amount,
-        phone_number: phone,
-        wallet_number: wallet_number,
-        reference: reference || `EV-${Date.now()}`
-      })
-    });
+    let paymentResponse;
+    try {
+      paymentResponse = await fetch('https://api.e2payments.co.mz/v1/c2b/payment', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          client_id: final_client_id,
+          amount: amount,
+          phone_number: phone,
+          wallet_number: wallet_number,
+          reference: reference || `EV-${Date.now()}`
+        })
+      });
+    } catch (pError: any) {
+      return res.status(500).json({ error: 'Erro de rede ao processar pagamento na E2Payments.', message: pError.message });
+    }
+
+    const payContentType = paymentResponse.headers.get("content-type");
+    if (!payContentType || !payContentType.includes("application/json")) {
+      const rawPay = await paymentResponse.text();
+      return res.status(500).json({ error: 'E2Payments respondeu com formato inválido no Pagamento.', details: rawPay });
+    }
 
     const paymentData = await paymentResponse.json();
 
@@ -86,10 +111,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
   } catch (error: any) {
-    console.error("Erro E2Payments:", error);
+    console.error("Erro Fatal E2Payments:", error);
     return res.status(500).json({ 
-      error: 'Erro interno no servidor de pagamento.',
-      message: error.message 
+      error: 'Erro fatal no servidor de pagamento.',
+      message: error.message,
+      stack: error.stack
     });
   }
 }
