@@ -39,13 +39,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
       const basicAuth = Buffer.from(`${final_client_id}:${final_client_secret}`).toString('base64');
       
-      // Criar o corpo no formato x-www-form-urlencoded
       const params = new URLSearchParams();
       params.append('grant_type', 'client_credentials');
       params.append('client_id', final_client_id);
       params.append('client_secret', final_client_secret);
 
-      authResponse = await fetch('https://e2payments.explicador.co.mz/oauth/token', {
+      authResponse = await fetch('https://api.e2payments.co.mz/oauth/token', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/x-www-form-urlencoded', 
@@ -78,7 +77,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 2. Criar Pedido de Pagamento (C2B)
     let paymentResponse;
     try {
-      paymentResponse = await fetch('https://e2payments.explicador.co.mz/v1/c2b/payment', {
+      paymentResponse = await fetch('https://api.e2payments.co.mz/v1/c2b/payment', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
