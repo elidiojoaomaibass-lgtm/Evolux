@@ -87,6 +87,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 }
             }
 
+            // @ts-ignore
             const data = await response.json();
             setStatus('success');
             

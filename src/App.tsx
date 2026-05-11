@@ -102,26 +102,26 @@ function App() {
     const pixelId = localStorage.getItem('evolux_prod_facebook_pixel_id');
     if (!pixelId) return;
 
-    // Facebook Pixel Base Code
-    !(function (f, b, e, v, n, t, s) {
-      if (f.fbq) return;
-      n = f.fbq = function () {
-        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-      };
-      if (!f._fbq) f._fbq = n;
-      n.push = n;
-      n.loaded = !0;
-      n.version = '2.0';
-      n.queue = [];
-      t = b.createElement(e);
-      t.async = !0;
-      t.src = v;
-      s = b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t, s);
-    })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+    const w = window as any;
+    if (w.fbq) return;
 
-    (window as any).fbq('init', pixelId);
-    (window as any).fbq('track', 'PageView');
+    w.fbq = function() {
+      w.fbq.callMethod ? w.fbq.callMethod.apply(w.fbq, arguments) : w.fbq.queue.push(arguments);
+    };
+    if (!w._fbq) w._fbq = w.fbq;
+    w.fbq.push = w.fbq;
+    w.fbq.loaded = true;
+    w.fbq.version = '2.0';
+    w.fbq.queue = [];
+
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://connect.facebook.net/en_US/fbevents.js';
+    const firstScript = document.getElementsByTagName('script')[0];
+    firstScript?.parentNode?.insertBefore(script, firstScript);
+
+    w.fbq('init', pixelId);
+    w.fbq('track', 'PageView');
   }, []);
 
   const handleLogout = async () => {
@@ -196,7 +196,7 @@ function App() {
           {activeView === "Dashboard" && (
             <Dashboard
               onLogout={handleLogout}
-              setView={setActiveView}
+              setView={(v) => setActiveView(v as ViewType)}
               user={session.user}
               toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
             />
