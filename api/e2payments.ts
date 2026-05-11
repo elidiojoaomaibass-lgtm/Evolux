@@ -1,12 +1,15 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Garantir que temos o body (Vercel às vezes precisa disto em TS/ESM)
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método não permitido.' });
   }
 
   try {
-    const { phone, amount, reference, client_id, client_secret, wallet_mpesa, wallet_emola } = req.body;
+    const { phone, amount, reference, client_id, client_secret, wallet_mpesa, wallet_emola } = body;
 
     // Lógica para selecionar a carteira correta baseada no prefixo do número do cliente
     let wallet_number = wallet_mpesa || process.env.E2_WALLET_MPESA; // Default M-Pesa
