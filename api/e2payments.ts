@@ -37,21 +37,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 1. Obter Token
     let authResponse;
     try {
-      const basicAuth = Buffer.from(`${final_client_id}:${final_client_secret}`).toString('base64');
-      
-      const params = new URLSearchParams();
-      params.append('grant_type', 'client_credentials');
-      params.append('client_id', final_client_id);
-      params.append('client_secret', final_client_secret);
-
-      authResponse = await fetch('https://api.e2payments.co.mz/oauth/token', {
+      authResponse = await fetch('https://e2payments.explicador.co.mz/oauth/token', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/x-www-form-urlencoded', 
-          'Accept': 'application/json',
-          'Authorization': `Basic ${basicAuth}`
+          'Content-Type': 'application/json', 
+          'Accept': 'application/json'
         },
-        body: params.toString()
+        body: JSON.stringify({
+          grant_type: 'client_credentials',
+          client_id: final_client_id,
+          client_secret: final_client_secret
+        })
       });
     } catch (fError: any) {
       return res.status(500).json({ error: 'Erro de rede ao contactar E2Payments (Token).', message: fError.message });
@@ -77,7 +73,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 2. Criar Pedido de Pagamento (C2B)
     let paymentResponse;
     try {
-      paymentResponse = await fetch('https://api.e2payments.co.mz/v1/c2b/payment', {
+      paymentResponse = await fetch('https://e2payments.explicador.co.mz/v1/c2b/payment', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
