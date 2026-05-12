@@ -1,11 +1,9 @@
-import { motion } from 'framer-motion';
 import { 
-    BookOpen, Code, Terminal, Webhook, 
+    Terminal, 
     Copy, Check, ExternalLink, Shield, 
     Smartphone, Zap, Server, Key
 } from 'lucide-react';
 import { useState } from 'react';
-import { cn } from '../lib/utils';
 
 export const DocumentacaoView = () => {
     const [copiedId, setCopiedId] = useState<string | null>(null);
