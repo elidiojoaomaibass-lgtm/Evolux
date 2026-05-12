@@ -211,6 +211,7 @@ function App() {
           {activeView === "Marketing" && <Views.Ferramentas />}
           {activeView === "Análise" && <Views.Análise />}
           {activeView === "Configurações" && <Views.Configuracoes onLogout={handleLogout} />}
+          {activeView === "Documentação" && <Views.Documentacao />}
         </div>
       </main>
 

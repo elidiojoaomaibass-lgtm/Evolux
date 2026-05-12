@@ -2,7 +2,8 @@ import {
     LayoutDashboard, ShoppingBag, BarChart2, Users,
     Settings,
     Gift, Layers, ShoppingCart, Wallet,
-    Wrench, Moon, Sun, Banknote, Trophy
+    Wrench, Moon, Sun, Banknote, Trophy,
+    BookOpen
 } from "lucide-react";
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
@@ -11,7 +12,7 @@ import { Logo } from "./Logo";
 export type ViewType =
     | "Dashboard" | "Vendas" | "Produtos" | "Afiliados"
     | "Mercado" | "Pagamentos" | "Saque" | "Premiações" | "Marketing"
-    | "Análise" | "Configurações";
+    | "Análise" | "Configurações" | "Documentação";
 
 interface SidebarProps {
     activeView: ViewType;
@@ -51,6 +52,7 @@ const menuGroups = [
     {
         label: "Sistema",
         items: [
+            { icon: BookOpen, label: "Documentação" as ViewType },
             { icon: Settings, label: "Configurações" as ViewType },
         ],
     },
