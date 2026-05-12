@@ -2,13 +2,63 @@ import { motion } from 'framer-motion';
 import {
     Wallet, CreditCard,
     Plus, Send, Clock,
-    ArrowRight
+    ArrowRight, Loader2
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../lib/utils';
+import { toast } from 'sonner';
 
 export const PagamentosView = () => {
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
+    const [amount, setAmount] = useState('');
+    const [phone, setPhone] = useState('');
+    const [description, setDescription] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleSendRequest = async () => {
+        if (!amount || !phone) {
+            toast.error('Por favor, preencha o valor e o número do cliente.');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            // Pegar credenciais guardadas no localStorage (conforme ConfiguracoesView)
+            const clientId = localStorage.getItem('evolux_e2_client_id');
+            const clientSecret = localStorage.getItem('evolux_e2_client_secret');
+            const walletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
+            const walletEmola = localStorage.getItem('evolux_e2_wallet_emola');
+
+            const response = await fetch('/api/e2payments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phone,
+                    amount: parseFloat(amount),
+                    reference: description || `PAG-${Date.now()}`,
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    wallet_mpesa: walletMpesa,
+                    wallet_emola: walletEmola
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao processar pagamento');
+            }
+
+            toast.success(data.message || 'Solicitação enviada com sucesso!');
+            setAmount('');
+            setPhone('');
+            setDescription('');
+        } catch (err: any) {
+            toast.error(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 max-w-none mx-auto w-full">
@@ -18,8 +68,6 @@ export const PagamentosView = () => {
                     <h2 className="text-2xl md:text-3xl font-black text-violet-950 dark:text-white tracking-tight leading-none mb-2">Pagamentos</h2>
                     <p className="text-xs md:text-sm text-slate-400 dark:text-brand-400 font-medium italic">Receba pagamentos dos clientes via M-Pesa ou e-Mola</p>
                 </div>
-
-
             </div>
 
             {/* KPI Cards */}
@@ -77,7 +125,9 @@ export const PagamentosView = () => {
                         <div className="space-y-1.5">
                             <label className="text-[9px] md:text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-wider ml-1">Valor (MZN)</label>
                             <input
-                                type="text"
+                                type="number"
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
                                 placeholder="0.00"
                                 className="w-full h-11 md:h-12 px-4 rounded-xl border border-slate-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-950 font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-500/20 outline-none transition-all placeholder:text-slate-300 text-xs md:text-sm"
                             />
@@ -87,6 +137,8 @@ export const PagamentosView = () => {
                             <label className="text-[9px] md:text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-wider ml-1">Descrição (opcional)</label>
                             <input
                                 type="text"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
                                 placeholder="Ex: Pagamento do curso..."
                                 className="w-full h-11 md:h-12 px-4 rounded-xl border border-slate-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-950 font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-500/20 outline-none transition-all placeholder:text-slate-300 text-xs md:text-sm"
                             />
@@ -101,7 +153,9 @@ export const PagamentosView = () => {
                                     +258
                                 </div>
                                 <input
-                                    type="text"
+                                    type="tel"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
                                     placeholder="84 123 4567"
                                     className="flex-1 h-11 md:h-12 px-4 rounded-xl border border-slate-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-950 font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-500/20 outline-none transition-all placeholder:text-slate-300 text-xs md:text-sm"
                                 />
@@ -152,9 +206,13 @@ export const PagamentosView = () => {
                 </div>
 
                 <div className="mt-6 md:mt-8">
-                    <button className="w-full h-11 md:h-12 bg-gradient-to-r from-violet-600 to-purple-700 text-white rounded-xl font-black flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20 hover:scale-[1.01] active:scale-[0.99] transition-all text-xs md:text-sm">
-                        <Send size={16} />
-                        Enviar Solicitação
+                    <button 
+                        onClick={handleSendRequest}
+                        disabled={loading}
+                        className="w-full h-11 md:h-12 bg-gradient-to-r from-violet-600 to-purple-700 text-white rounded-xl font-black flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20 hover:scale-[1.01] active:scale-[0.99] transition-all text-xs md:text-sm disabled:opacity-70"
+                    >
+                        {loading ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
+                        {loading ? 'Processando...' : 'Enviar Solicitação'}
                     </button>
                 </div>
             </motion.div>
