@@ -87,13 +87,28 @@ axios.post(url, payload, { headers });`,
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 <div className="lg:col-span-2 space-y-12">
                     
-                    {/* Auth Section */}
-                    <section id="auth" className="space-y-6">
-                        <div className="space-y-2">
-                            <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                <Shield className="text-blue-500" size={20} />
-                                1. Autenticação (OAuth2)
-                            </h2>
+                    {/* Step-by-Step Integration */}
+                    <div className="space-y-6">
+                        <div className="p-5 md:p-8 rounded-2xl md:rounded-3xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800">
+                            <h4 className="text-sm md:text-base font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span className="h-6 w-6 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px]">1</span>
+                                Obter Wallet ID
+                            </h4>
+                            <p className="text-xs md:text-sm text-slate-500 dark:text-brand-400 leading-relaxed mb-4 italic">
+                                O erro mais comum é usar o número de telefone. Você deve usar o <b>ID Numérico</b> da sua carteira.
+                            </p>
+                            <ol className="text-[11px] md:text-xs text-slate-600 dark:text-brand-300 space-y-2 list-decimal list-inside mb-4">
+                                <li>Aceda ao seu painel em <a href="https://mpesaemolatech.com/admin/mpesa" target="_blank" className="text-violet-600 underline font-bold">mpesaemolatech.com/admin/mpesa</a>.</li>
+                                <li>Na lista de carteiras, procure a coluna <b>ID</b>.</li>
+                                <li>Copie esse número (Ex: 12345) e cole nas suas configurações.</li>
+                            </ol>
+                        </div>
+
+                        <div className="p-5 md:p-8 rounded-2xl md:rounded-3xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800">
+                            <h4 className="text-sm md:text-base font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span className="h-6 w-6 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px]">2</span>
+                                Autenticação (OAuth2)
+                            </h4>
                             <p className="text-sm text-slate-600 dark:text-brand-300 font-medium">
                                 Todas as requisições (exceto a de token) exigem um <b>Bearer Token</b> no cabeçalho. O token tem validade estendida, mas recomendamos renovar conforme necessário.
                             </p>
