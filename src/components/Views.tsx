@@ -8,6 +8,7 @@ import { PremiacoesView } from './PremiacoesView';
 import { FerramentasView } from './FerramentasView';
 import { AnalyticsView } from './AnalyticsView';
 import { ConfiguracoesView } from './ConfiguracoesView';
+import { DocumentacaoView } from './DocumentacaoView';
 import type { User } from '@supabase/supabase-js';
 
 export const Views = {
@@ -21,4 +22,5 @@ export const Views = {
     Ferramentas: () => <FerramentasView />,
     Análise: () => <AnalyticsView />,
     Configuracoes: ({ onLogout }: { onLogout: () => void }) => <ConfiguracoesView onLogout={onLogout} />,
+    Documentacao: () => <DocumentacaoView />,
 };

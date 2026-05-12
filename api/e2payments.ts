@@ -71,9 +71,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const token = authData.access_token;
 
     // 2. Criar Pedido de Pagamento (C2B)
+    // Conforme documentação: https://mpesaemolatech.com/docs/api#transaction_c2b
+    // Endpoint: /v1/c2b/mpesa-payment/{wallet_id}
     let paymentResponse;
     try {
-      paymentResponse = await fetch('https://e2payments.explicador.co.mz/v1/c2b/payment', {
+      const paymentUrl = `https://e2payments.explicador.co.mz/v1/c2b/mpesa-payment/${wallet_number}`;
+      
+      paymentResponse = await fetch(paymentUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -83,8 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         body: JSON.stringify({
           client_id: final_client_id,
           amount: amount,
-          phone_number: phone,
-          wallet_number: wallet_number,
+          phone: phone, // Campo correto é 'phone' conforme o Exemplo 06 da documentação
           reference: reference || `EV-${Date.now()}`
         })
       });
@@ -109,7 +112,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).json({
       success: true,
-      transactionId: paymentData.transaction_id,
+      transactionId: paymentData.transaction_id || paymentData.id,
       message: 'Solicitação enviada! Por favor, confirme no seu telemóvel.'
     });
 
