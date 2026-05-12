@@ -458,7 +458,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                     </div>
                                     
                                     <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
-                                        Configure as suas credenciais da E2Payments para aceitar pagamentos via M-Pesa e e-Mola de forma automática.
+                                        Configure as suas credenciais da E2Payments. Você pode encontrar o <b>ID da Carteira</b> no menu <a href="https://mpesaemolatech.com/admin/mpesa" target="_blank" rel="noopener noreferrer" className="text-violet-600 underline">Carteiras</a> do painel e2Payments.
                                     </p>
 
                                     <div className="grid gap-4">
@@ -486,23 +486,23 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
 
                                     <div className="grid gap-4 md:grid-cols-2">
                                         <div className="space-y-1.5">
-                                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Carteira M-Pesa (Vodacom)</label>
+                                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">ID Carteira M-Pesa (Vodacom)</label>
                                             <input
                                                 type="text"
                                                 value={e2WalletMpesa}
                                                 onChange={(e) => setE2WalletMpesa(e.target.value)}
-                                                placeholder="84XXXXXXX"
+                                                placeholder="Ex: 12345"
                                                 className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
                                             />
                                         </div>
 
                                         <div className="space-y-1.5">
-                                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Carteira e-Mola (Movitel)</label>
+                                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">ID Carteira e-Mola (Movitel)</label>
                                             <input
                                                 type="text"
                                                 value={e2WalletEmola}
                                                 onChange={(e) => setE2WalletEmola(e.target.value)}
-                                                placeholder="86XXXXXXX"
+                                                placeholder="Ex: 67890"
                                                 className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
                                             />
                                         </div>
@@ -511,7 +511,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
 
                                     <div className="p-3 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/20">
                                         <p className="text-[10px] font-bold text-blue-700 dark:text-blue-300 leading-relaxed">
-                                            <b>Nota:</b> Certifique-se de que a sua carteira está ativa e aprovada na plataforma E2Payments para evitar erros no checkout.
+                                            <b>Atenção:</b> Não insira o seu número de telefone. Use o <b>ID Numérico</b> disponível em <a href="https://mpesaemolatech.com/admin/mpesa" target="_blank" className="underline"> mpeseamolatech.com/admin/mpesa</a>.
                                         </p>
                                     </div>
                                 </section>
