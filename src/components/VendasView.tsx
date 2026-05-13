@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -6,27 +5,16 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { User } from '@supabase/supabase-js';
+import { useTransactionsStore } from '../lib/store';
 
 type PeriodType = 'Hoje' | 'Ontem' | '7d' | '30d' | '90d' | 'Todo' | 'custom';
-
-
-
-
-const transactionsData: Record<PeriodType, any[]> = {
-    'Hoje': [],
-    'Ontem': [],
-    '7d': [],
-    '30d': [],
-    '90d': [],
-    'Todo': [],
-    'custom': []
-};
 
 interface VendasViewProps {
     user: User;
 }
 
 export const VendasView = ({ user: _user }: VendasViewProps) => {
+    const { transactions } = useTransactionsStore();
     const [period, setPeriod] = useState<PeriodType>('Hoje');
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -82,64 +70,85 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
         if (type === 'start') {
             const newParts = { ...startParts, [key]: numericVal };
             setStartParts(newParts);
-
-            // Auto-focus logic
             if (key === 'd' && numericVal.length === 2) startMRef.current?.focus();
             if (key === 'm' && numericVal.length === 2) startYRef.current?.focus();
             if (key === 'y' && numericVal.length === 4) endDRef.current?.focus();
-
             if (newParts.d.length === 2 && newParts.m.length === 2 && newParts.y.length === 4) {
                 setStartDate(`${newParts.y}-${newParts.m}-${newParts.d}`);
             }
         } else {
             const newParts = { ...endParts, [key]: numericVal };
             setEndParts(newParts);
-
-            // Auto-focus logic
             if (key === 'd' && numericVal.length === 2) endMRef.current?.focus();
             if (key === 'm' && numericVal.length === 2) endYRef.current?.focus();
-
             if (newParts.d.length === 2 && newParts.m.length === 2 && newParts.y.length === 4) {
                 setEndDate(`${newParts.y}-${newParts.m}-${newParts.d}`);
             }
         }
     };
 
-    const rawTransactions = period === 'custom' ? transactionsData['Todo'] : (transactionsData[period] || transactionsData['Hoje']);
-
+    // Filter transactions by type and date
     const filteredTransactions = useMemo(() => {
-        return rawTransactions.filter(trx => {
-            const matchesSearch =
-                trx.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                trx.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                trx.id.toLowerCase().includes(searchTerm.toLowerCase());
+        const now = new Date();
+        return transactions.filter(trx => {
+            if (trx.type !== 'payment') return false;
 
-            const matchesStatus = statusFilter === 'Todas' || trx.status === statusFilter;
-
-            // Date range filtering for 'custom' period
-            let matchesDate = true;
-            if (period === 'custom' && startDate && endDate) {
-                matchesDate = trx.date >= startDate && trx.date <= endDate;
+            const txDate = new Date(trx.createdAt);
+            
+            // Period filtering
+            let matchesPeriod = true;
+            if (period === 'Hoje') matchesPeriod = txDate.toDateString() === now.toDateString();
+            else if (period === 'Ontem') {
+                const yesterday = new Date();
+                yesterday.setDate(now.getDate() - 1);
+                matchesPeriod = txDate.toDateString() === yesterday.toDateString();
+            } else if (period === '7d') {
+                const limit = new Date();
+                limit.setDate(now.getDate() - 7);
+                matchesPeriod = txDate >= limit;
+            } else if (period === '30d') {
+                const limit = new Date();
+                limit.setDate(now.getDate() - 30);
+                matchesPeriod = txDate >= limit;
+            } else if (period === '90d') {
+                const limit = new Date();
+                limit.setDate(now.getDate() - 90);
+                matchesPeriod = txDate >= limit;
+            } else if (period === 'custom' && startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59);
+                matchesPeriod = txDate >= start && txDate <= end;
             }
 
-            return matchesSearch && matchesStatus && matchesDate;
-        });
-    }, [rawTransactions, searchTerm, statusFilter, period, startDate, endDate]);
+            // Status filtering
+            const matchesStatus = statusFilter === 'Todas' || trx.status === statusFilter;
+
+            // Search term filtering
+            const search = searchTerm.toLowerCase();
+            const matchesSearch = !searchTerm || 
+                trx.id.toLowerCase().includes(search) ||
+                (trx.description || '').toLowerCase().includes(search) ||
+                (trx.customerName || '').toLowerCase().includes(search) ||
+                (trx.customerEmail || '').toLowerCase().includes(search) ||
+                trx.phone.includes(search);
+
+            return matchesPeriod && matchesStatus && matchesSearch;
+        }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }, [transactions, period, startDate, endDate, statusFilter, searchTerm]);
 
     const stats = useMemo(() => {
-        const approved = filteredTransactions.filter(t => t.status === 'Aprovado');
+        const approved = filteredTransactions.filter(t => t.status === 'Concluído');
         const pending = filteredTransactions.filter(t => t.status === 'Pendente');
-        const cancelled = filteredTransactions.filter(t => t.status === 'Cancelado');
+        const cancelled = filteredTransactions.filter(t => t.status === 'Falhou');
 
         return {
-            total: filteredTransactions.reduce((acc: number, t: any) => acc + t.amount, 0),
+            total: approved.reduce((acc, t) => acc + t.amount, 0),
             approvedCount: approved.length,
             pendingCount: pending.length,
             cancelledCount: cancelled.length
         };
     }, [filteredTransactions]);
-
-
 
     return (
         <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700">
@@ -157,8 +166,6 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                 </motion.div>
 
                 <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 bg-white dark:bg-brand-900 border border-slate-100 dark:border-white/5 p-1.5 rounded-3xl shadow-xl relative" ref={datePickerRef}>
-
-
                     <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1">
                         {(['Hoje', 'Ontem', '7d', '30d', '90d', 'Todo'] as PeriodType[]).map((p) => (
                             <button
@@ -239,161 +246,35 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                         </div>
 
                                         <div className="grid grid-cols-1 gap-6 relative">
-
-                                            {/* Data De */}
                                             <div className="space-y-6">
                                                 <div className="flex items-center gap-3">
                                                     <div className="h-10 w-10 rounded-full bg-violet-600/20 flex items-center justify-center text-violet-400">
                                                         <ArrowUpRight size={20} />
                                                     </div>
                                                     <span className="text-xs font-black uppercase text-white tracking-widest">Data de Início</span>
-                                                    <div className="ml-auto flex gap-2">
-                                                        <button 
-                                                            onClick={() => setStartDate(new Date().toISOString().split('T')[0])}
-                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-violet-500 hover:text-white transition-all"
-                                                        >
-                                                            Hoje
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => {
-                                                                const d = new Date();
-                                                                d.setDate(d.getDate() - 1);
-                                                                setStartDate(d.toISOString().split('T')[0]);
-                                                            }}
-                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-violet-500 hover:text-white transition-all"
-                                                        >
-                                                            Ontem
-                                                        </button>
-                                                    </div>
                                                 </div>
-                                                <div className="flex gap-2 items-center bg-brand-950/50 p-3 rounded-2xl border border-white/5 focus-within:ring-2 focus-within:ring-violet-500/20 transition-all shadow-inner">
-                                                    <input
-                                                        ref={startDRef}
-                                                        type="text"
-                                                        placeholder="DD"
-                                                        maxLength={2}
-                                                        value={startParts.d}
-                                                        onChange={(e) => updateFromParts('start', 'd', e.target.value)}
-                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
-                                                    />
+                                                <div className="flex gap-2 items-center bg-brand-950/50 p-3 rounded-2xl border border-white/5">
+                                                    <input ref={startDRef} type="text" placeholder="DD" maxLength={2} value={startParts.d} onChange={(e) => updateFromParts('start', 'd', e.target.value)} className="w-12 bg-transparent text-lg font-black text-white text-center outline-none" />
                                                     <span className="text-white/10 text-2xl font-light">/</span>
-                                                    <input
-                                                        ref={startMRef}
-                                                        type="text"
-                                                        placeholder="MM"
-                                                        maxLength={2}
-                                                        value={startParts.m}
-                                                        onChange={(e) => updateFromParts('start', 'm', e.target.value)}
-                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
-                                                    />
+                                                    <input ref={startMRef} type="text" placeholder="MM" maxLength={2} value={startParts.m} onChange={(e) => updateFromParts('start', 'm', e.target.value)} className="w-12 bg-transparent text-lg font-black text-white text-center outline-none" />
                                                     <span className="text-white/10 text-2xl font-light">/</span>
-                                                    <input
-                                                        ref={startYRef}
-                                                        type="text"
-                                                        placeholder="YYYY"
-                                                        maxLength={4}
-                                                        value={startParts.y}
-                                                        onChange={(e) => updateFromParts('start', 'y', e.target.value)}
-                                                        className="w-20 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
-                                                    />
-                                                    <div 
-                                                        onClick={() => {
-                                                            try {
-                                                                (startInputRef.current as any)?.showPicker();
-                                                            } catch (e) {
-                                                                startInputRef.current?.focus();
-                                                            }
-                                                        }}
-                                                        className="ml-auto relative group-hover:scale-125 transition-transform cursor-pointer"
-                                                    >
-                                                        <Calendar size={20} className="text-violet-500" />
-                                                        <input
-                                                            ref={startInputRef}
-                                                            type="date"
-                                                            value={startDate}
-                                                            onChange={(e) => setStartDate(e.target.value)}
-                                                            className="absolute inset-0 opacity-0 cursor-pointer"
-                                                        />
-                                                    </div>
+                                                    <input ref={startYRef} type="text" placeholder="YYYY" maxLength={4} value={startParts.y} onChange={(e) => updateFromParts('start', 'y', e.target.value)} className="w-20 bg-transparent text-lg font-black text-white text-center outline-none" />
                                                 </div>
                                             </div>
 
-                                            {/* Data Até */}
                                             <div className="space-y-6">
                                                 <div className="flex items-center gap-3">
                                                     <div className="h-10 w-10 rounded-full bg-fuchsia-600/20 flex items-center justify-center text-fuchsia-400">
                                                         <ArrowDownRight size={20} />
                                                     </div>
                                                     <span className="text-xs font-black uppercase text-white tracking-widest">Data de Fim</span>
-                                                    <div className="ml-auto flex gap-2">
-                                                        <button 
-                                                            onClick={() => setEndDate(new Date().toISOString().split('T')[0])}
-                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-fuchsia-500 hover:text-white transition-all"
-                                                        >
-                                                            Hoje
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => {
-                                                                const d = new Date();
-                                                                const startOfYear = new Date(d.getFullYear(), 0, 1);
-                                                                setStartDate(startOfYear.toISOString().split('T')[0]);
-                                                                setEndDate(d.toISOString().split('T')[0]);
-                                                            }}
-                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-fuchsia-500 hover:text-white transition-all"
-                                                        >
-                                                            Ano
-                                                        </button>
-                                                    </div>
                                                 </div>
-                                                <div className="flex gap-2 items-center bg-brand-950/50 p-3 rounded-2xl border border-white/5 focus-within:ring-2 focus-within:ring-fuchsia-500/20 transition-all shadow-inner">
-                                                    <input
-                                                        ref={endDRef}
-                                                        type="text"
-                                                        placeholder="DD"
-                                                        maxLength={2}
-                                                        value={endParts.d}
-                                                        onChange={(e) => updateFromParts('end', 'd', e.target.value)}
-                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
-                                                    />
+                                                <div className="flex gap-2 items-center bg-brand-950/50 p-3 rounded-2xl border border-white/5">
+                                                    <input ref={endDRef} type="text" placeholder="DD" maxLength={2} value={endParts.d} onChange={(e) => updateFromParts('end', 'd', e.target.value)} className="w-12 bg-transparent text-lg font-black text-white text-center outline-none" />
                                                     <span className="text-white/10 text-2xl font-light">/</span>
-                                                    <input
-                                                        ref={endMRef}
-                                                        type="text"
-                                                        placeholder="MM"
-                                                        maxLength={2}
-                                                        value={endParts.m}
-                                                        onChange={(e) => updateFromParts('end', 'm', e.target.value)}
-                                                        className="w-12 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
-                                                    />
+                                                    <input ref={endMRef} type="text" placeholder="MM" maxLength={2} value={endParts.m} onChange={(e) => updateFromParts('end', 'm', e.target.value)} className="w-12 bg-transparent text-lg font-black text-white text-center outline-none" />
                                                     <span className="text-white/10 text-2xl font-light">/</span>
-                                                    <input
-                                                        ref={endYRef}
-                                                        type="text"
-                                                        placeholder="YYYY"
-                                                        maxLength={4}
-                                                        value={endParts.y}
-                                                        onChange={(e) => updateFromParts('end', 'y', e.target.value)}
-                                                        className="w-20 bg-transparent text-lg font-black focus:outline-none text-white placeholder:text-white/10 text-center"
-                                                    />
-                                                    <div 
-                                                        onClick={() => {
-                                                            try {
-                                                                (endInputRef.current as any)?.showPicker();
-                                                            } catch (e) {
-                                                                endInputRef.current?.focus();
-                                                            }
-                                                        }}
-                                                        className="ml-auto relative group-hover:scale-125 transition-transform cursor-pointer"
-                                                    >
-                                                        <Calendar size={20} className="text-fuchsia-500" />
-                                                        <input
-                                                            ref={endInputRef}
-                                                            type="date"
-                                                            value={endDate}
-                                                            onChange={(e) => setEndDate(e.target.value)}
-                                                            className="absolute inset-0 opacity-0 cursor-pointer"
-                                                        />
-                                                    </div>
+                                                    <input ref={endYRef} type="text" placeholder="YYYY" maxLength={4} value={endParts.y} onChange={(e) => updateFromParts('end', 'y', e.target.value)} className="w-20 bg-transparent text-lg font-black text-white text-center outline-none" />
                                                 </div>
                                             </div>
                                         </div>
@@ -405,9 +286,9 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                                     setShowDatePicker(false);
                                                 }
                                             }}
-                                            className="w-full h-14 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-[0_20px_60px_-10px_rgba(139,92,246,0.5)] active:scale-[0.98] transition-all hover:brightness-110 flex items-center justify-center gap-6 group"
+                                            className="w-full h-14 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-lg active:scale-[0.98] transition-all hover:brightness-110 flex items-center justify-center gap-6"
                                         >
-                                            <BarChart3 size={18} className="group-hover:rotate-12 transition-transform" />
+                                            <BarChart3 size={18} />
                                             Aplicar Filtro
                                         </button>
                                     </div>
@@ -418,57 +299,23 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                 </div>
             </div>
 
-            {/* Notification Portal */}
-
-
-            {/* Sales Summary Plates (Cards) */}
+            {/* Sales Summary Plates */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                 {[
-                    {
-                        label: 'Receita Total',
-                        value: `${stats.total.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN`,
-                        borderColor: 'border-l-emerald-400',
-                        textColor: 'text-emerald-500',
-                        labelColor: 'text-emerald-400',
-                    },
-                    {
-                        label: 'Aprovadas',
-                        value: stats.approvedCount.toString(),
-                        borderColor: 'border-l-emerald-400',
-                        textColor: 'text-emerald-500',
-                        labelColor: 'text-emerald-400',
-                    },
-                    {
-                        label: 'Pendentes',
-                        value: stats.pendingCount.toString(),
-                        borderColor: 'border-l-amber-400',
-                        textColor: 'text-amber-500',
-                        labelColor: 'text-amber-400',
-                    },
-                    {
-                        label: 'Canceladas',
-                        value: stats.cancelledCount.toString(),
-                        borderColor: 'border-l-red-400',
-                        textColor: 'text-red-500',
-                        labelColor: 'text-red-400',
-                    },
+                    { label: 'Receita Total', value: `${stats.total.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN`, borderColor: 'border-l-emerald-400', textColor: 'text-emerald-500', labelColor: 'text-emerald-400' },
+                    { label: 'Aprovadas', value: stats.approvedCount.toString(), borderColor: 'border-l-emerald-400', textColor: 'text-emerald-500', labelColor: 'text-emerald-400' },
+                    { label: 'Pendentes', value: stats.pendingCount.toString(), borderColor: 'border-l-amber-400', textColor: 'text-amber-500', labelColor: 'text-amber-400' },
+                    { label: 'Falhas', value: stats.cancelledCount.toString(), borderColor: 'border-l-red-400', textColor: 'text-red-500', labelColor: 'text-red-400' },
                 ].map((item, idx) => (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.08, type: 'spring', stiffness: 120 }}
                         key={item.label}
-                        className={cn(
-                            "bg-white dark:bg-brand-900/60 rounded-2xl p-5 border border-slate-100 dark:border-white/5 shadow-sm border-l-4",
-                            item.borderColor
-                        )}
+                        className={cn("bg-white dark:bg-brand-900/60 rounded-2xl p-5 border border-slate-100 dark:border-white/5 shadow-sm border-l-4", item.borderColor)}
                     >
-                        <p className={cn("text-xs font-semibold uppercase tracking-wide mb-2", item.labelColor)}>
-                            {item.label}
-                        </p>
-                        <p className={cn("text-2xl font-black tracking-tight", item.textColor)}>
-                            {item.value}
-                        </p>
+                        <p className={cn("text-xs font-semibold uppercase tracking-wide mb-2", item.labelColor)}>{item.label}</p>
+                        <p className={cn("text-2xl font-black tracking-tight", item.textColor)}>{item.value}</p>
                     </motion.div>
                 ))}
             </div>
@@ -480,14 +327,14 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                         <input
                             type="text"
-                            placeholder="Pesquisar por cliente, produto ou ID de protocolo..."
+                            placeholder="Pesquisar por cliente, e-mail ou referência..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full h-12 pl-12 pr-6 rounded-xl border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all placeholder:text-slate-400 shadow-inner"
                         />
                     </div>
-                    <div className="flex items-center gap-2 p-1.5 bg-slate-100/50 dark:bg-brand-900/60 rounded-3xl border border-white/10 backdrop-blur-3xl overflow-x-auto w-full lg:w-auto scrollbar-hide">
-                        {['Todas', 'Aprovado', 'Pendente', 'Cancelado'].map((filter) => (
+                    <div className="flex items-center gap-2 p-1.5 bg-slate-100/50 dark:bg-brand-900/60 rounded-3xl border border-white/10 overflow-x-auto w-full lg:w-auto scrollbar-hide">
+                        {['Todas', 'Concluído', 'Pendente', 'Falhou'].map((filter) => (
                             <button
                                 key={filter}
                                 onClick={() => setStatusFilter(filter)}
@@ -512,13 +359,13 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                         <table className="w-full text-left border-collapse min-w-[1000px]">
                             <thead>
                                 <tr className="bg-slate-50/50 dark:bg-white/5">
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">ID</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Produto</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">ID Transação</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Descrição / Produto</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Cliente</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Método</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-right">Valor</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Canal</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-right">Valor Bruto</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Estado</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Data/Hora</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Data / Hora</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
@@ -533,22 +380,22 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                             className="group/row hover:bg-violet-600/[0.03] dark:hover:bg-white/[0.02] transition-all"
                                         >
                                             <td className="px-10 py-2.5 font-mono text-[11px] font-black text-slate-400 dark:text-brand-600 group-hover/row:text-violet-600 transition-colors">
-                                                #{trx.id}
+                                                #{trx.id.substring(0, 12)}
                                             </td>
                                             <td className="px-10 py-2.5">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[14px] font-black text-slate-800 dark:text-white tracking-tight">{trx.product}</span>
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Produto Digital</span>
+                                                    <span className="text-[14px] font-black text-slate-800 dark:text-white tracking-tight">{trx.description || 'Pagamento Direto'}</span>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Referência: {trx.reference}</span>
                                                 </div>
                                             </td>
                                             <td className="px-10 py-2.5">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="h-10 w-10 rounded-2xl bg-slate-100 dark:bg-brand-800 flex items-center justify-center text-[12px] font-black text-slate-500 dark:text-brand-300 group-hover/row:scale-110 transition-transform">
-                                                        {trx.customer[0]}
+                                                    <div className="h-10 w-10 rounded-2xl bg-slate-100 dark:bg-brand-800 flex items-center justify-center text-[12px] font-black text-slate-500 dark:text-brand-300">
+                                                        {(trx.customerName || 'C')[0]}
                                                     </div>
                                                     <div className="flex flex-col">
-                                                        <span className="text-[14px] font-black text-slate-700 dark:text-white tracking-tight">{trx.customer}</span>
-                                                        <span className="text-[10px] font-bold text-slate-400 dark:text-brand-500 italic mt-0.5">{trx.email}</span>
+                                                        <span className="text-[14px] font-black text-slate-700 dark:text-white tracking-tight">{trx.customerName || 'Cliente Direto'}</span>
+                                                        <span className="text-[10px] font-bold text-slate-400 dark:text-brand-500 mt-0.5">{trx.phone}</span>
                                                     </div>
                                                 </div>
                                             </td>
@@ -557,7 +404,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                                     <div className="h-7 w-7 rounded-lg bg-white border border-slate-100 p-0.5 overflow-hidden shadow-sm">
                                                         <img 
                                                             src={trx.method === 'e-Mola' ? '/emola_logo.png' : '/mpesa_logo.png'} 
-                                                            alt={trx.method || 'M-Pesa'} 
+                                                            alt={trx.method} 
                                                             className="w-full h-full object-cover" 
                                                         />
                                                     </div>
@@ -566,14 +413,14 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                             <td className="px-10 py-2.5 text-right">
                                                 <div className="flex flex-col items-end">
                                                     <span className="text-[15px] font-black text-slate-900 dark:text-white tabular-nums tracking-tighter">{trx.amount.toLocaleString()} <span className="text-[10px] opacity-60">MZN</span></span>
-                                                    <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5">Valor Verificado</span>
+                                                    <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5">Processado</span>
                                                 </div>
                                             </td>
                                             <td className="px-10 py-2.5">
                                                 <div className="flex justify-center">
                                                     <span className={cn(
                                                         "px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] border whitespace-nowrap",
-                                                        trx.status === 'Aprovado' ? "bg-green-500/5 border-green-500/20 text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.1)]" :
+                                                        trx.status === 'Concluído' ? "bg-green-500/5 border-green-500/20 text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.1)]" :
                                                             trx.status === 'Pendente' ? "bg-amber-500/5 border-amber-500/20 text-amber-500" :
                                                                 "bg-red-500/5 border-red-500/20 text-red-500"
                                                     )}>
@@ -583,22 +430,19 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                             </td>
                                             <td className="px-10 py-2.5 text-center">
                                                 <div className="flex flex-col items-center">
-                                                    <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Hoje</span>
-                                                    <span className="text-[10px] font-bold text-slate-400 dark:text-brand-500 mt-0.5">{trx.date}</span>
+                                                    <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">{new Date(trx.createdAt).toLocaleDateString('pt-PT')}</span>
+                                                    <span className="text-[10px] font-bold text-slate-400 dark:text-brand-500 mt-0.5">{new Date(trx.createdAt).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}</span>
                                                 </div>
                                             </td>
                                         </motion.tr>
                                     )) : (
                                         <motion.tr layout>
-                                            <td colSpan={6} className="px-8 py-32 text-center relative">
+                                            <td colSpan={7} className="px-8 py-32 text-center">
                                                 <div className="flex flex-col items-center gap-6">
                                                     <div className="h-20 w-20 rounded-full bg-slate-50 dark:bg-brand-950 flex items-center justify-center text-slate-200 dark:text-brand-900 border-2 border-dashed border-slate-200 dark:border-brand-800">
                                                         <Search size={40} />
                                                     </div>
-                                                    <div className="space-y-2">
-                                                        <p className="text-lg font-black text-slate-800 dark:text-white uppercase tracking-tight">Nenhum Resultado</p>
-                                                        <p className="text-sm font-bold text-slate-400 max-w-xs mx-auto">Nenhum registo corresponde à sua pesquisa atual.</p>
-                                                    </div>
+                                                    <p className="text-lg font-black text-slate-800 dark:text-white uppercase tracking-tight">Sem Vendas no Período</p>
                                                 </div>
                                             </td>
                                         </motion.tr>
@@ -606,30 +450,6 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                 </AnimatePresence>
                             </tbody>
                         </table>
-                    </div>
-
-                    {/* Table Footer / Info */}
-                    <div className="p-4 bg-slate-50/50 dark:bg-brand-950/40 border-t border-slate-100 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div className="flex items-center gap-6">
-                            <div className="flex -space-x-3">
-                                {[1, 2, 3, 4].map(i => (
-                                    <div key={i} className="h-10 w-10 rounded-2xl border-4 border-white dark:border-brand-900 bg-slate-200 dark:bg-brand-800" />
-                                ))}
-                                <div className="h-10 w-10 rounded-2xl border-4 border-white dark:border-brand-900 bg-violet-600 flex items-center justify-center text-[10px] font-black text-white">0</div>
-                            </div>
-                            <p className="text-[11px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-widest">Rede de Clientes</p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <button className="h-12 w-12 rounded-2xl glass hover:bg-violet-600 hover:text-white transition-all flex items-center justify-center text-slate-500">
-                                <ArrowUpRight size={20} className="rotate-[225deg]" />
-                            </button>
-                            <div className="flex items-center gap-2 px-6 h-12 rounded-2xl bg-white dark:bg-white text-slate-900 text-[10px] font-black uppercase tracking-[0.3em] shadow-xl ring-1 ring-inset ring-black/5">
-                                Página 01 de 12
-                            </div>
-                            <button className="h-12 w-12 rounded-2xl glass hover:bg-violet-600 hover:text-white transition-all flex items-center justify-center text-slate-500">
-                                <ArrowUpRight size={20} className="rotate-[45deg]" />
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>

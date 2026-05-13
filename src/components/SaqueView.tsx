@@ -1,36 +1,67 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Wallet, Clock, CheckCircle2,
     History, Loader2,
-    ArrowDownLeft, ShieldAlert, BadgeDollarSign
+    ArrowDownLeft, ShieldAlert, BadgeDollarSign,
+    Smartphone
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { toast } from 'sonner';
-
-// ─── Constants & Mock Data ──────────────────────────────────────────────────
-
-const withdrawalsData: any[] = [];
+import { supabase } from '../lib/supabase';
+import { useTransactionsStore } from '../lib/store';
 
 // ─── SaqueView ──────────────────────────────────────────────────────────────
 
 export const SaqueView = () => {
+    const { transactions, addTransaction } = useTransactionsStore();
     const [amount, setAmount] = useState('');
+    const [phone, setPhone] = useState('');
     const [method, setMethod] = useState<'M-Pesa' | 'e-Mola'>('M-Pesa');
     const [loading, setLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
 
+    // Filtrar apenas saques para o histórico desta view
+    const withdrawalHistory = transactions.filter(t => t.type === 'withdrawal');
+
     // Mock balances separated by wallet with "Total Coletado"
     const [balances] = useState({
-        'M-Pesa': { available: 0.00, pending: 0.00, collected: 0.00 },
-        'e-Mola': { available: 0.00, pending: 0.00, collected: 0.00 }
+        'M-Pesa': { available: 2500.00, pending: 450.00, collected: 12000.00 },
+        'e-Mola': { available: 850.00, pending: 0.00, collected: 3400.00 }
     });
 
     // Tracking pending withdrawals per wallet to enforce the "1 per wallet" rule
-    const [pendingByWallet, setPendingByWallet] = useState({
-        'M-Pesa': false,
-        'e-Mola': false
+    const [pendingByWallet, setPendingByWallet] = useState(() => {
+        return {
+            'M-Pesa': withdrawalHistory.some(w => w.method === 'M-Pesa' && w.status === 'Pendente'),
+            'e-Mola': withdrawalHistory.some(w => w.method === 'e-Mola' && w.status === 'Pendente')
+        };
     });
+
+    useEffect(() => {
+        setPendingByWallet({
+            'M-Pesa': withdrawalHistory.some(w => w.method === 'M-Pesa' && w.status === 'Pendente'),
+            'e-Mola': withdrawalHistory.some(w => w.method === 'e-Mola' && w.status === 'Pendente')
+        });
+    }, [transactions]);
+
+    useEffect(() => {
+        const loadUserData = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user?.user_metadata?.phone_number) {
+                setPhone(user.user_metadata.phone_number.replace(/\D/g, '').slice(-9));
+            } else {
+                const fake = localStorage.getItem('evolux_prod_fake_session');
+                if (fake) {
+                    const parsed = JSON.parse(fake);
+                    if (parsed.user?.user_metadata?.phone_number) {
+                        setPhone(parsed.user.user_metadata.phone_number.replace(/\D/g, '').slice(-9));
+                    }
+                }
+            }
+        };
+        loadUserData();
+    }, []);
 
     const handleWithdraw = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -38,6 +69,11 @@ export const SaqueView = () => {
 
         if (!amount || numAmount <= 0) {
             toast.error("Insira um valor válido para o saque.");
+            return;
+        }
+
+        if (!phone || phone.length < 9) {
+            toast.error("Por favor, confirme o número de telefone de destino.");
             return;
         }
 
@@ -57,13 +93,55 @@ export const SaqueView = () => {
         }
 
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+            // Pegar credenciais guardadas no localStorage
+            const clientId = localStorage.getItem('evolux_e2_client_id');
+            const clientSecret = localStorage.getItem('evolux_e2_client_secret');
+            const walletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
+            const walletEmola = localStorage.getItem('evolux_e2_wallet_emola');
 
-        setLoading(false);
-        setPendingByWallet(prev => ({ ...prev, [method]: true }));
-        setShowSuccess(true);
-        toast.success(`Solicitação de saque via ${method} enviada!`);
-        setAmount('');
+            const reference = `SQ-${Date.now()}`;
+
+            const response = await fetch('/api/e2payments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phone: phone,
+                    amount: numAmount,
+                    type: 'b2c', // BUSINESS TO CUSTOMER (Payout)
+                    reference: reference,
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    wallet_mpesa: walletMpesa,
+                    wallet_emola: walletEmola
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao processar saque');
+            }
+
+            // Registrar no histórico local
+            addTransaction({
+                id: data.transactionId || reference,
+                type: 'withdrawal',
+                amount: numAmount,
+                phone: phone,
+                method: method,
+                status: 'Pendente',
+                reference: reference
+            });
+
+            setShowSuccess(true);
+            toast.success(data.message || `Solicitação de saque via ${method} enviada!`);
+            setAmount('');
+        } catch (err: any) {
+            toast.error(err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -80,8 +158,6 @@ export const SaqueView = () => {
                         Gere as suas retiradas e acompanhe os seus lucros disponíveis.
                     </p>
                 </div>
-
-
             </div>
 
             {/* TABELA DE VALORES DISPONÍVEIS */}
@@ -146,7 +222,7 @@ export const SaqueView = () => {
                                     </td>
                                     <td className="px-6 py-3 text-right">
                                         <span className="text-xs font-bold text-slate-500 dark:text-brand-400">
-                                            {balances[wallet.id as 'M-Pesa' | 'e-Mola'].pending.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN
+                                            {balances[wallet.id as 'M-Pesa' | 'e-Mola'].available > 0 ? (balances[wallet.id as 'M-Pesa' | 'e-Mola'].available * 0.1).toLocaleString('pt-PT', { minimumFractionDigits: 2 }) : '0,00'} MZN
                                         </span>
                                     </td>
                                     <td className="px-6 py-3 text-right">
@@ -166,7 +242,7 @@ export const SaqueView = () => {
                             <tr className="bg-slate-950 text-white font-black border-t border-violet-500">
                                 <td colSpan={2} className="px-6 py-3 text-xs uppercase tracking-[0.2em] text-violet-400">Saldos Globais</td>
                                 <td className="px-6 py-3 text-right text-xs text-slate-400">
-                                    {(balances['M-Pesa'].pending + balances['e-Mola'].pending).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN
+                                    {(balances['M-Pesa'].available * 0.1 + balances['e-Mola'].available * 0.1).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN
                                 </td>
                                 <td className="px-6 py-3 text-right text-xs text-teal-400">
                                     {(balances['M-Pesa'].collected + balances['e-Mola'].collected).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN
@@ -223,6 +299,20 @@ export const SaqueView = () => {
                             </div>
 
                             <div className="space-y-3">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Número de Telefone</label>
+                                <div className="relative group">
+                                    <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                                    <input
+                                        type="tel"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                                        placeholder="84 123 4567"
+                                        className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-brand-950 border border-violet-50 dark:border-brand-800 rounded-2xl text-sm font-black outline-none focus:ring-4 focus:ring-violet-500/10 transition-all dark:text-white"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Quanto deseja levantar?</label>
                                 <div className="relative group">
                                     <input
@@ -247,7 +337,7 @@ export const SaqueView = () => {
                                 <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/20 flex gap-3 animate-in slide-in-from-top duration-300">
                                     <ShieldAlert size={16} className="text-amber-600 shrink-0 mt-0.5" />
                                     <p className="text-[10px] font-bold text-amber-700 dark:text-amber-300 leading-relaxed italic">
-                                        Limitação ativa: Você já possui um saque em analise para **{method}**.
+                                        Limitação ativa: Você já possui um saque em análise para **{method}**.
                                     </p>
                                 </div>
                             ) : (
@@ -307,7 +397,12 @@ export const SaqueView = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50 dark:divide-brand-800">
-                                    {withdrawalsData.map((w) => (
+                                    {withdrawalHistory.length === 0 && (
+                                        <tr>
+                                            <td colSpan={4} className="px-6 py-12 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest italic opacity-50">Nenhum levantamento realizado ainda.</td>
+                                        </tr>
+                                    )}
+                                    {withdrawalHistory.map((w) => (
                                         <tr key={w.id} className="hover:bg-violet-50/10 dark:hover:bg-brand-800/10 transition-all group">
                                             <td className="px-6 py-2.5">
                                                 <div className="flex items-center gap-3">
@@ -316,7 +411,7 @@ export const SaqueView = () => {
                                                     </div>
                                                     <div>
                                                         <p className="text-[10px] font-black text-slate-800 dark:text-white tracking-widest uppercase">{w.id}</p>
-                                                        <p className="text-[9px] font-bold text-slate-400 mt-0.5 italic">{w.date}</p>
+                                                        <p className="text-[9px] font-bold text-slate-400 mt-0.5 italic">{new Date(w.createdAt).toLocaleString('pt-PT')}</p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -328,7 +423,7 @@ export const SaqueView = () => {
                                                     )}>
                                                         {w.method}
                                                     </div>
-                                                    <span className="text-[9px] font-black opacity-40">{w.recipient}</span>
+                                                    <span className="text-[9px] font-black opacity-40">{w.phone}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-2.5 text-right font-black text-slate-950 dark:text-white text-sm">
@@ -367,7 +462,7 @@ export const SaqueView = () => {
                             </div>
                             <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3">Solicitação Recebida!</h3>
                             <p className="text-sm text-slate-400 font-medium leading-relaxed mb-10 px-4">
-                                Recebemos o seu pedido de levantamento. Em alguns instantes o valor será creditado na sua conta móvel.
+                                Recebemos o seu pedido de levantamento. O valor será creditado na sua conta móvel em alguns instantes.
                             </p>
                             <button
                                 onClick={() => setShowSuccess(false)}

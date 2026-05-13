@@ -9,7 +9,7 @@ import {
     ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { useProductsStore } from '../lib/store';
+import { useProductsStore, useTransactionsStore } from '../lib/store';
 
 // ─── Data Generation Utilities ──────────────────────────────────────────────
 
@@ -46,6 +46,7 @@ type Period = 'Hoje' | 'Ontem' | '7d' | '30d' | '90d' | 'Todo' | 'custom';
 
 export const AnalyticsView = () => {
     const { products } = useProductsStore();
+    const { transactions } = useTransactionsStore();
     const [period, setPeriod] = useState<Period>('Hoje');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -115,42 +116,99 @@ export const AnalyticsView = () => {
         }
     };
 
+    // Helper to filter transactions by date range
+    const getFilteredTransactions = () => {
+        const now = new Date();
+        return transactions.filter(tx => {
+            const txDate = new Date(tx.createdAt);
+            if (period === 'Hoje') return txDate.toDateString() === now.toDateString();
+            if (period === 'Ontem') {
+                const yesterday = new Date();
+                yesterday.setDate(now.getDate() - 1);
+                return txDate.toDateString() === yesterday.toDateString();
+            }
+            if (period === '7d') {
+                const weekAgo = new Date();
+                weekAgo.setDate(now.getDate() - 7);
+                return txDate >= weekAgo;
+            }
+            if (period === '30d') {
+                const monthAgo = new Date();
+                monthAgo.setDate(now.getDate() - 30);
+                return txDate >= monthAgo;
+            }
+            if (period === '90d') {
+                const threeMonthsAgo = new Date();
+                threeMonthsAgo.setDate(now.getDate() - 90);
+                return txDate >= threeMonthsAgo;
+            }
+            if (period === 'Todo') return true;
+            if (period === 'custom' && startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59);
+                return txDate >= start && txDate <= end;
+            }
+            return true;
+        });
+    };
+
     // Filtering logic that generates UI-optimized data per period
     const filteredData = useMemo(() => {
-        if (period === 'Hoje') return generateHourlyData(true);
-        if (period === 'Ontem') return generateHourlyData(false);
-        if (period === '7d') return generateDailyData(7);
-        if (period === '30d') return generateDailyData(30);
-        if (period === '90d') return generateDailyData(90);
-        if (period === 'Todo') return generateDailyData(120);
-
-        if (period === 'custom' && startDate && endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            const diffTime = Math.abs(end.getTime() - start.getTime());
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            return generateDailyData(Math.min(diffDays, 120));
+        const txs = getFilteredTransactions().filter(t => t.type === 'payment');
+        
+        if (period === 'Hoje' || period === 'Ontem') {
+            const hours = period === 'Hoje' ? new Date().getHours() + 1 : 24;
+            return Array.from({ length: hours }, (_, i) => {
+                const hourTxs = txs.filter(t => new Date(t.createdAt).getHours() === i);
+                return {
+                    name: `${i.toString().padStart(2, '0')}h`,
+                    leads: 0,
+                    vendas: hourTxs.length,
+                    receita: hourTxs.reduce((acc, curr) => acc + (curr.status === 'Concluído' ? curr.amount : 0), 0),
+                    perdido: hourTxs.reduce((acc, curr) => acc + (curr.status === 'Falhou' ? curr.amount : 0), 0)
+                };
+            });
         }
 
-        return generateDailyData(7);
-    }, [period, startDate, endDate]);
+        // Daily aggregation for longer periods
+        const days = period === '7d' ? 7 : period === '30d' ? 30 : period === '90d' ? 90 : 120;
+        return Array.from({ length: days }, (_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - (days - 1 - i));
+            const dayStr = date.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' });
+            
+            const dayTxs = txs.filter(t => new Date(t.createdAt).toDateString() === date.toDateString());
+
+            return {
+                name: dayStr,
+                leads: 0,
+                vendas: dayTxs.length,
+                receita: dayTxs.reduce((acc, curr) => acc + (curr.status === 'Concluído' ? curr.amount : 0), 0),
+                perdido: dayTxs.reduce((acc, curr) => acc + (curr.status === 'Falhou' ? curr.amount : 0), 0)
+            };
+        });
+    }, [period, startDate, endDate, transactions]);
 
     // Calculate dynamic stats based on filtered data
     const stats = useMemo(() => {
-        const totalRevenue = filteredData.reduce((acc, curr) => acc + curr.receita, 0);
-        const totalSales = filteredData.reduce((acc, curr) => acc + curr.vendas, 0);
-        const lostRevenue = filteredData.reduce((acc, curr) => acc + curr.perdido, 0);
+        const currentTxs = getFilteredTransactions();
+        const payments = currentTxs.filter(t => t.type === 'payment');
+        
+        const totalRevenue = payments.reduce((acc, curr) => acc + (curr.status === 'Concluído' ? curr.amount : 0), 0);
+        const totalSales = payments.filter(t => t.status === 'Concluído').length;
+        const lostRevenue = payments.reduce((acc, curr) => acc + (curr.status === 'Falhou' ? curr.amount : 0), 0);
 
         return {
             totalRevenue,
             totalSales,
             lostRevenue,
-            netRevenue: totalRevenue - lostRevenue,
-            failedTransactions: Math.floor(totalSales * 0.1),
-            pendingTransactions: Math.floor(totalSales * 0.15),
-            totalTransactions: totalSales + Math.floor(totalSales * 0.25)
+            netRevenue: totalRevenue,
+            failedTransactions: payments.filter(t => t.status === 'Falhou').length,
+            pendingTransactions: payments.filter(t => t.status === 'Pendente').length,
+            totalTransactions: payments.length
         };
-    }, [filteredData, period]);
+    }, [filteredData, period, transactions]);
 
     const topProducts = useMemo(() =>
         [...products].sort((a, b) => b.revenue - a.revenue).slice(0, 5),
