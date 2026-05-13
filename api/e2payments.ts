@@ -10,7 +10,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const body = req.body || {};
     const parsedBody = typeof body === 'string' ? JSON.parse(body) : body;
 
-    const { phone, amount, reference, client_id, client_secret, wallet_mpesa, wallet_emola } = parsedBody;
+    const { phone, amount, reference, client_id, client_secret, wallet_mpesa, wallet_emola, type = 'c2b' } = parsedBody;
 
     if (!phone || !amount) {
       return res.status(400).json({ error: 'Telefone e valor são obrigatórios.' });
@@ -26,12 +26,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Lógica para selecionar a carteira correta baseada no prefixo
     let wallet_number = wallet_mpesa || process.env.E2_WALLET_MPESA;
     
-    if (phone.startsWith('86') || phone.startsWith('87') || phone.startsWith('+25886') || phone.startsWith('+25887')) {
+    // Prefixos e-Mola (86, 87)
+    if (phone.startsWith('86') || phone.startsWith('87') || phone.startsWith('+25886') || phone.startsWith('+25887') || phone.startsWith('25886') || phone.startsWith('25887')) {
       wallet_number = wallet_emola || process.env.E2_WALLET_EMOLA;
     }
 
     if (!wallet_number) {
-       return res.status(400).json({ error: 'Número da carteira de receção não configurado.' });
+       return res.status(400).json({ error: 'Número da carteira de receção/saída não configurado.' });
     }
 
     // 1. Obter Token
@@ -70,12 +71,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const token = authData.access_token;
 
-    // 2. Criar Pedido de Pagamento (C2B)
-    // Conforme documentação: https://mpesaemolatech.com/docs/api#transaction_c2b
-    // Endpoint: /v1/c2b/mpesa-payment/{wallet_id}
+    // 2. Criar Pedido de Transação (C2B ou B2C)
+    // C2B: /v1/c2b/mpesa-payment/{wallet_id}
+    // B2C: /v1/b2c/mpesa-payment/{wallet_id}
     let paymentResponse;
     try {
-      const paymentUrl = `https://e2payments.explicador.co.mz/v1/c2b/mpesa-payment/${wallet_number}`;
+      const transactionType = type === 'b2c' ? 'b2c' : 'c2b';
+      const paymentUrl = `https://e2payments.explicador.co.mz/v1/${transactionType}/mpesa-payment/${wallet_number}`;
       
       paymentResponse = await fetch(paymentUrl, {
         method: 'POST',
@@ -87,25 +89,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         body: JSON.stringify({
           client_id: final_client_id,
           amount: amount,
-          phone: phone, // Campo correto é 'phone' conforme o Exemplo 06 da documentação
+          phone: phone,
           reference: reference || `EV-${Date.now()}`
         })
       });
     } catch (pError: any) {
-      return res.status(500).json({ error: 'Erro de rede ao processar pagamento na E2Payments.', message: pError.message });
+      return res.status(500).json({ error: 'Erro de rede ao processar transação na E2Payments.', message: pError.message });
     }
 
     const payContentType = paymentResponse.headers.get("content-type");
     if (!payContentType || !payContentType.includes("application/json")) {
       const rawPay = await paymentResponse.text();
-      return res.status(500).json({ error: 'E2Payments respondeu com formato inválido no Pagamento.', details: rawPay });
+      return res.status(500).json({ error: 'E2Payments respondeu com formato inválido na Transação.', details: rawPay });
     }
 
     const paymentData = await paymentResponse.json();
 
     if (!paymentResponse.ok) {
       return res.status(paymentResponse.status || 400).json({ 
-        error: paymentData.message || 'Erro ao processar pagamento na E2Payments.',
+        error: paymentData.message || 'Erro ao processar transação na E2Payments.',
         details: paymentData
       });
     }
@@ -113,7 +115,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({
       success: true,
       transactionId: paymentData.transaction_id || paymentData.id,
-      message: 'Solicitação enviada! Por favor, confirme no seu telemóvel.'
+      message: type === 'b2c' 
+        ? 'Saque processado com sucesso! O valor será creditado na sua conta.' 
+        : 'Solicitação enviada! Por favor, confirme no seu telemóvel.'
     });
 
   } catch (error: any) {

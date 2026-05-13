@@ -7,6 +7,7 @@ import {
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import type { Product } from '../lib/store';
+import { useTransactionsStore } from '../lib/store';
 import { Logo } from './Logo';
 
 interface CheckoutModalProps {
@@ -16,6 +17,7 @@ interface CheckoutModalProps {
 }
 
 export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) => {
+    const { addTransaction } = useTransactionsStore();
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
     const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
     const [name, setName] = useState('');
@@ -60,13 +62,15 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 throw new Error('Configuração de pagamento incompleta. Vá às Definições > Pagamentos.');
             }
 
+            const reference = `ORD-${Date.now()}`;
+
             const response = await fetch('/api/e2payments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     phone: paymentPhone,
                     amount: product.price,
-                    reference: `ORD-${Date.now()}`,
+                    reference: reference,
                     client_id: clientId,
                     client_secret: clientSecret,
                     wallet_mpesa: walletMpesa,
@@ -87,8 +91,22 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 }
             }
 
-            // @ts-ignore
             const data = await response.json();
+            
+            // Registrar transação no store local
+            addTransaction({
+                id: data.transactionId || reference,
+                type: 'payment',
+                amount: product.price,
+                phone: paymentPhone,
+                method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                status: 'Pendente', // Começa como pendente até confirmação do PIN
+                reference: reference,
+                description: `Compra: ${product.name}`,
+                customerName: name,
+                customerEmail: email
+            });
+
             setStatus('success');
             
             // Aqui podes disparar o Pixel de Meta Ads (Purchase)

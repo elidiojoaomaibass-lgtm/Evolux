@@ -221,3 +221,62 @@ export const useMarketingStore = () => {
 
     return { coupons, addCoupon, deleteCoupon, campaigns, addCampaign };
 };
+
+// --- Transactions Store ---
+
+export interface Transaction {
+    id: string;
+    type: 'payment' | 'withdrawal';
+    amount: number;
+    phone: string;
+    method: 'M-Pesa' | 'e-Mola';
+    status: 'Pendente' | 'Concluído' | 'Falhou';
+    reference: string;
+    description?: string;
+    createdAt: string;
+}
+
+const TRANSACTIONS_STORAGE_KEY = 'evolux_prod_transactions';
+
+const getInitialTransactions = (): Transaction[] => {
+    const stored = localStorage.getItem(TRANSACTIONS_STORAGE_KEY);
+    if (stored) {
+        try {
+            return JSON.parse(stored);
+        } catch (e) {
+            console.error('Failed to parse transactions', e);
+        }
+    }
+    return [];
+};
+
+let globalTransactions = getInitialTransactions();
+const transactionListeners = new Set<(txs: Transaction[]) => void>();
+
+export const useTransactionsStore = () => {
+    const [transactions, setTransactions] = useState<Transaction[]>(globalTransactions);
+
+    useEffect(() => {
+        const listener = (newTxs: Transaction[]) => setTransactions(newTxs);
+        transactionListeners.add(listener);
+        return () => {
+            transactionListeners.delete(listener);
+        };
+    }, []);
+
+    const updateTransactions = (newTxs: Transaction[]) => {
+        globalTransactions = newTxs;
+        localStorage.setItem(TRANSACTIONS_STORAGE_KEY, JSON.stringify(globalTransactions));
+        transactionListeners.forEach(l => l(globalTransactions));
+    };
+
+    const addTransaction = (tx: Omit<Transaction, 'createdAt'>) => {
+        const newTx: Transaction = {
+            ...tx,
+            createdAt: new Date().toISOString()
+        };
+        updateTransactions([newTx, ...globalTransactions]);
+    };
+
+    return { transactions, addTransaction };
+};

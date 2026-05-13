@@ -8,12 +8,20 @@ import { useState } from 'react';
 import { cn } from '../lib/utils';
 import { toast } from 'sonner';
 
+import { useTransactionsStore } from '../lib/store';
+
 export const PagamentosView = () => {
+    const { transactions, addTransaction } = useTransactionsStore();
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
     const [amount, setAmount] = useState('');
     const [phone, setPhone] = useState('');
     const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // Calculate real stats
+    const paymentTxs = transactions.filter(t => t.type === 'payment' && t.status === 'Concluído');
+    const totalReceived = paymentTxs.reduce((acc, curr) => acc + curr.amount, 0);
+    const countReceived = paymentTxs.length;
 
     const handleSendRequest = async () => {
         if (!amount || !phone) {
@@ -29,13 +37,15 @@ export const PagamentosView = () => {
             const walletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
             const walletEmola = localStorage.getItem('evolux_e2_wallet_emola');
 
+            const reference = description || `PAG-${Date.now()}`;
+
             const response = await fetch('/api/e2payments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     phone,
                     amount: parseFloat(amount),
-                    reference: description || `PAG-${Date.now()}`,
+                    reference: reference,
                     client_id: clientId,
                     client_secret: clientSecret,
                     wallet_mpesa: walletMpesa,
@@ -48,6 +58,18 @@ export const PagamentosView = () => {
             if (!response.ok) {
                 throw new Error(data.error || 'Erro ao processar pagamento');
             }
+
+            // Registrar no store local
+            addTransaction({
+                id: data.transactionId || `TX-${Date.now()}`,
+                type: 'payment',
+                amount: parseFloat(amount),
+                phone: phone,
+                method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                status: 'Pendente',
+                reference: reference,
+                description: description
+            });
 
             toast.success(data.message || 'Solicitação enviada com sucesso!');
             setAmount('');
@@ -82,7 +104,7 @@ export const PagamentosView = () => {
                     </div>
                     <div>
                         <p className="text-[9px] md:text-[10px] font-black text-green-600/60 uppercase tracking-widest mb-0.5">Total Recebido</p>
-                        <h3 className="text-xl md:text-2xl font-black text-green-700 dark:text-green-400 leading-tight">0 MZN</h3>
+                        <h3 className="text-xl md:text-2xl font-black text-green-700 dark:text-green-400 leading-tight">{totalReceived.toLocaleString('pt-PT')} MZN</h3>
                     </div>
                 </motion.div>
 
@@ -97,7 +119,7 @@ export const PagamentosView = () => {
                     </div>
                     <div>
                         <p className="text-[9px] md:text-[10px] font-black text-violet-600/60 uppercase tracking-widest mb-0.5">Pagamentos Recebidos</p>
-                        <h3 className="text-xl md:text-2xl font-black text-violet-700 dark:text-brand-300 leading-tight">0</h3>
+                        <h3 className="text-xl md:text-2xl font-black text-violet-700 dark:text-brand-300 leading-tight">{countReceived}</h3>
                     </div>
                 </motion.div>
             </div>
