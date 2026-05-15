@@ -88,7 +88,7 @@ axios.post(url, payload, { headers });`,
                 <div className="lg:col-span-2 space-y-12">
                     
                     {/* Step-by-Step Integration */}
-                    <div className="space-y-6">
+                    <section id="auth" className="space-y-6">
                         <div className="p-5 md:p-8 rounded-2xl md:rounded-3xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800">
                             <h4 className="text-sm md:text-base font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                                 <span className="h-6 w-6 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px]">1</span>

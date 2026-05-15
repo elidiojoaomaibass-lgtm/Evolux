@@ -23,17 +23,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Credenciais E2Payments (Client ID/Secret) não configuradas.' });
     }
 
-    // Lógica para selecionar a carteira correta baseada no prefixo
+    // Lógica para selecionar a carteira correta e o provider baseado no prefixo
     let wallet_number = wallet_mpesa || process.env.E2_WALLET_MPESA;
+    let provider = 'mpesa';
     
     // Prefixos e-Mola (86, 87)
     if (phone.startsWith('86') || phone.startsWith('87') || phone.startsWith('+25886') || phone.startsWith('+25887') || phone.startsWith('25886') || phone.startsWith('25887')) {
       wallet_number = wallet_emola || process.env.E2_WALLET_EMOLA;
+      provider = 'emola';
     }
 
     if (!wallet_number) {
-       return res.status(400).json({ error: 'Número da carteira de receção/saída não configurado.' });
+       return res.status(400).json({ error: `Número da carteira de receção/saída (${provider === 'mpesa' ? 'M-Pesa' : 'e-Mola'}) não configurado.` });
     }
+
+    console.log(`Iniciando transação ${provider.toUpperCase()} para o número ${phone} usando carteira ${wallet_number}`);
 
     // 1. Obter Token
     let authResponse;
@@ -51,18 +55,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         })
       });
     } catch (fError: any) {
+      console.error("Erro no Token E2Payments:", fError);
       return res.status(500).json({ error: 'Erro de rede ao contactar E2Payments (Token).', message: fError.message });
     }
 
     const authContentType = authResponse.headers.get("content-type");
     if (!authContentType || !authContentType.includes("application/json")) {
       const rawAuth = await authResponse.text();
+      console.error("Resposta não-JSON no Token:", rawAuth);
       return res.status(500).json({ error: 'E2Payments respondeu com formato inválido no Token.', details: rawAuth });
     }
 
     const authData = await authResponse.json();
 
     if (!authResponse.ok || !authData.access_token) {
+      console.error("Falha na Autenticação E2Payments:", authData);
       return res.status(401).json({ 
         error: 'Falha na autenticação com E2Payments. Verifique Client ID e Secret.',
         details: authData 
@@ -72,13 +79,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const token = authData.access_token;
 
     // 2. Criar Pedido de Transação (C2B ou B2C)
-    // C2B: /v1/c2b/mpesa-payment/{wallet_id}
-    // B2C: /v1/b2c/mpesa-payment/{wallet_id}
+    // C2B M-Pesa: /v1/c2b/mpesa-payment/{wallet_id}
+    // C2B e-Mola: /v1/c2b/emola-payment/{wallet_id}
     let paymentResponse;
     try {
       const transactionType = type === 'b2c' ? 'b2c' : 'c2b';
-      const paymentUrl = `https://e2payments.explicador.co.mz/v1/${transactionType}/mpesa-payment/${wallet_number}`;
+      // URL Dinâmica: mpesa-payment ou emola-payment
+      const endpoint = `${provider}-payment`;
+      const paymentUrl = `https://e2payments.explicador.co.mz/v1/${transactionType}/${endpoint}/${wallet_number}`;
       
+      console.log(`Chamando endpoint: ${paymentUrl}`);
+
       paymentResponse = await fetch(paymentUrl, {
         method: 'POST',
         headers: {
@@ -94,18 +105,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         })
       });
     } catch (pError: any) {
+      console.error("Erro na Transação E2Payments:", pError);
       return res.status(500).json({ error: 'Erro de rede ao processar transação na E2Payments.', message: pError.message });
     }
 
     const payContentType = paymentResponse.headers.get("content-type");
     if (!payContentType || !payContentType.includes("application/json")) {
       const rawPay = await paymentResponse.text();
+      console.error("Resposta não-JSON na Transação:", rawPay);
       return res.status(500).json({ error: 'E2Payments respondeu com formato inválido na Transação.', details: rawPay });
     }
 
     const paymentData = await paymentResponse.json();
 
     if (!paymentResponse.ok) {
+      console.error("Erro retornado pela E2Payments:", paymentData);
       return res.status(paymentResponse.status || 400).json({ 
         error: paymentData.message || 'Erro ao processar transação na E2Payments.',
         details: paymentData

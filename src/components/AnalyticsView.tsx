@@ -13,34 +13,6 @@ import { useProductsStore, useTransactionsStore } from '../lib/store';
 
 // ─── Data Generation Utilities ──────────────────────────────────────────────
 
-const generateDailyData = (days: number) => {
-    return Array.from({ length: days }, (_, i) => {
-        const date = new Date();
-        date.setDate(date.getDate() - (days - 1 - i));
-        const dayStr = date.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' });
-
-        return {
-            name: dayStr,
-            leads: 0,
-            vendas: 0,
-            receita: 0,
-            perdido: 0
-        };
-    });
-};
-
-const generateHourlyData = (isToday: boolean) => {
-    const hours = isToday ? new Date().getHours() + 1 : 24;
-    return Array.from({ length: hours }, (_, i) => {
-        return {
-            name: `${i.toString().padStart(2, '0')}h`,
-            leads: 0,
-            vendas: 0,
-            receita: 0,
-            perdido: 0
-        };
-    });
-};
 
 type Period = 'Hoje' | 'Ontem' | '7d' | '30d' | '90d' | 'Todo' | 'custom';
 

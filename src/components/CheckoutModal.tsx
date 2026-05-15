@@ -83,11 +83,14 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             if (!response.ok) {
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error || 'Erro na API de Pagamento.');
+                    throw new Error(`Erro API (${response.status}): ${errorData.error || errorData.message || 'Erro desconhecido'}`);
                 } else {
                     const textError = await response.text();
                     console.error("Erro não-JSON recebido:", textError);
-                    throw new Error('O servidor de API não está a responder corretamente. Se estiveres em Localhost, usa "vercel dev".');
+                    if (response.status === 404) {
+                        throw new Error('Endpoint não encontrado (404). Se estiver em Localhost, certifique-se de que está a usar "vercel dev" em vez de "npm run dev".');
+                    }
+                    throw new Error(`Erro do Servidor (${response.status}). Verifique os logs do backend.`);
                 }
             }
 

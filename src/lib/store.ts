@@ -233,6 +233,8 @@ export interface Transaction {
     status: 'Pendente' | 'Concluído' | 'Falhou';
     reference: string;
     description?: string;
+    customerName?: string;
+    customerEmail?: string;
     createdAt: string;
 }
 
