@@ -33,8 +33,6 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
     const endMRef = useRef<HTMLInputElement>(null);
     const endYRef = useRef<HTMLInputElement>(null);
     const datePickerRef = useRef<HTMLDivElement>(null);
-    const startInputRef = useRef<HTMLInputElement>(null);
-    const endInputRef = useRef<HTMLInputElement>(null);
 
     // Close dropdown when clicking outside
     useEffect(() => {
