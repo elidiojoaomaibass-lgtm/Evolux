@@ -16,12 +16,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Telefone e valor são obrigatórios.' });
     }
 
-    const final_client_id = client_id || process.env.E2_CLIENT_ID;
-    const final_client_secret = client_secret || process.env.E2_CLIENT_SECRET;
+    const final_client_id = (client_id || process.env.E2_CLIENT_ID || '').trim();
+    const final_client_secret = (client_secret || process.env.E2_CLIENT_SECRET || '').trim();
 
     if (!final_client_id || !final_client_secret) {
       return res.status(400).json({ error: 'Credenciais E2Payments (Client ID/Secret) não configuradas.' });
     }
+
+    console.log(`Debug Autenticação: Usando Client ID: ${final_client_id.substring(0, 8)}...`);
 
     // Lógica para selecionar a carteira correta e o provider baseado no prefixo
     let wallet_number = wallet_mpesa || process.env.E2_WALLET_MPESA;

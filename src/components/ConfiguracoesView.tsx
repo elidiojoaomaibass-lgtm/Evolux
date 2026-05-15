@@ -95,11 +95,22 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
 
         // Payment save logic (E2Payments)
         if (activeTab === 'payments') {
-            localStorage.setItem('evolux_e2_client_id', e2ClientId);
-            localStorage.setItem('evolux_e2_client_secret', e2ClientSecret);
-            localStorage.setItem('evolux_e2_wallet_mpesa', e2WalletMpesa);
-            localStorage.setItem('evolux_e2_wallet_emola', e2WalletEmola);
+            const cleanId = e2ClientId.trim();
+            const cleanSecret = e2ClientSecret.trim();
+            const cleanMpesa = e2WalletMpesa.trim();
+            const cleanEmola = e2WalletEmola.trim();
+
+            localStorage.setItem('evolux_e2_client_id', cleanId);
+            localStorage.setItem('evolux_e2_client_secret', cleanSecret);
+            localStorage.setItem('evolux_e2_wallet_mpesa', cleanMpesa);
+            localStorage.setItem('evolux_e2_wallet_emola', cleanEmola);
             
+            // Update local state to show trimmed values
+            setE2ClientId(cleanId);
+            setE2ClientSecret(cleanSecret);
+            setE2WalletMpesa(cleanMpesa);
+            setE2WalletEmola(cleanEmola);
+
             setMessage({ type: 'success', text: 'Credenciais E2Payments salvas com sucesso!' });
             setLoading(false);
             return;

@@ -71,10 +71,10 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                     phone: paymentPhone,
                     amount: product.price,
                     reference: reference,
-                    client_id: clientId,
-                    client_secret: clientSecret,
-                    wallet_mpesa: walletMpesa,
-                    wallet_emola: walletEmola
+                    client_id: (clientId || '').trim(),
+                    client_secret: (clientSecret || '').trim(),
+                    wallet_mpesa: (walletMpesa || '').trim(),
+                    wallet_emola: (walletEmola || '').trim()
                 })
             });
 
