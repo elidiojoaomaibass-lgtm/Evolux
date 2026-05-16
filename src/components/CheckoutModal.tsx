@@ -18,7 +18,7 @@ interface CheckoutModalProps {
 
 export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) => {
     const { addTransaction } = useTransactionsStore();
-    const [method, setMethod] = useState<'emola'>('emola');
+    const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
     const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
@@ -34,7 +34,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 setPhone('');
                 setEmail('');
                 setPaymentPhone('');
-                setMethod('emola');
+                setMethod('mpesa');
             }, 500);
         }
     }, [isOpen]);
@@ -104,7 +104,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 type: 'payment',
                 amount: product.price,
                 phone: paymentPhone,
-                method: 'e-Mola',
+                method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
                 status: 'Pendente', // Começa como pendente até confirmação do PIN
                 reference: reference,
                 description: `Compra: ${product.name}`,
@@ -337,6 +337,46 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                 <h3 className="text-lg font-bold text-slate-900">Pagamento</h3>
                                 
                                 <div className="space-y-3">
+                                    {/* M-Pesa */}
+                                    <div 
+                                        onClick={() => setMethod('mpesa')}
+                                        className={cn(
+                                            "rounded-xl border transition-all cursor-pointer overflow-hidden",
+                                            method === 'mpesa' ? "border-red-500 ring-1 ring-red-500 bg-red-50/10" : "border-slate-200 hover:border-slate-300 bg-white"
+                                        )}
+                                    >
+                                        <div className="p-4 flex items-center gap-3">
+                                            <div className={cn(
+                                                "h-4 w-4 rounded-full border-2 flex items-center justify-center transition-all",
+                                                method === 'mpesa' ? "border-red-500" : "border-slate-300"
+                                            )}>
+                                                {method === 'mpesa' && <div className="h-2 w-2 rounded-full bg-red-500" />}
+                                            </div>
+                                            <div className="h-8 w-8 p-0.5 bg-white rounded-lg border border-slate-100 flex items-center justify-center overflow-hidden">
+                                                <img src="/mpesa_logo.png" alt="M-Pesa" className="w-full h-full object-cover" />
+                                            </div>
+                                            <span className="text-xs font-black text-slate-900 uppercase tracking-tight">M-Pesa</span>
+                                        </div>
+
+                                        <AnimatePresence>
+                                            {method === 'mpesa' && (
+                                                <motion.div 
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    className="px-4 pb-4 space-y-2"
+                                                >
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Número de celular*</label>
+                                                    <input 
+                                                        type="text" 
+                                                        placeholder="84 xxx xxxx"
+                                                        value={paymentPhone}
+                                                        onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300"
+                                                    />
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
 
                                     {/* e-Mola */}
                                     <div 
