@@ -58,8 +58,10 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             const walletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
             const walletEmola = localStorage.getItem('evolux_e2_wallet_emola');
 
-            if (!clientId || !clientSecret) {
-                throw new Error('Configuração de pagamento incompleta. Vá às Definições > Pagamentos.');
+            if ((!clientId || !clientSecret) && process.env.NODE_ENV !== 'development') {
+                // Em produção ou caso o .env não esteja acessível ao cliente, se usarmos o env do Vercel, o backend tratará disso.
+                // Mas alertaremos no console do frontend:
+                console.log('Credenciais E2Payments não encontradas no localStorage. As variáveis de ambiente do backend (.env) serão usadas.');
             }
 
             const reference = `ORD-${Date.now()}`;
