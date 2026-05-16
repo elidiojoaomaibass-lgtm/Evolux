@@ -6,7 +6,7 @@
 export class E2Payments {
   private clientId: string;
   private clientSecret: string | undefined;
-  private baseURL: string = 'https://e2payments.explicador.co.mz';
+  private baseURL: string = 'https://mpesaemolatech.com';
   private token: string | null = null;
 
   constructor(clientId: string, clientSecret?: string) {
