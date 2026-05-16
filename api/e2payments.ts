@@ -103,7 +103,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           client_id: final_client_id,
           amount: String(amount),
           phone: String(phone),
-          reference: String(reference || `EV-${Date.now()}`)
+          reference: String(reference || `EV${Date.now()}`).replace(/[^a-zA-Z0-9]/g, '').slice(0, 20)
         })
       });
     } catch (pError: any) {
