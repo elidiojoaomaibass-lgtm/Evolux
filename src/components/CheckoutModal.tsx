@@ -2,7 +2,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     X, ChevronDown, Check,
     ShieldCheck, 
-    Loader2
+    Loader2,
+    AlertCircle
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
@@ -20,6 +21,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
     const { addTransaction } = useTransactionsStore();
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
     const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
@@ -30,6 +32,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
         if (!isOpen) {
             setTimeout(() => {
                 setStatus('idle');
+                setErrorMessage(null);
                 setName('');
                 setPhone('');
                 setEmail('');
@@ -44,8 +47,10 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
     const handlePurchase = async (e: React.FormEvent) => {
         e.preventDefault();
         
+        setErrorMessage(null);
+
         if (!paymentPhone) {
-            alert('Por favor, introduza o número de telefone para pagamento.');
+            setErrorMessage('Por favor, introduza o número de telefone para pagamento.');
             return;
         }
 
@@ -124,7 +129,17 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             }
 
         } catch (err: any) {
-            alert(err.message);
+            // Extrair só a mensagem útil sem todo o JSON
+            let msg = err.message || 'Ocorreu um erro. Tente novamente.';
+            if (msg.includes('Saldo insuficiente') || msg.includes('Insufficient')) {
+                msg = 'Saldo insuficiente. Por favor, recarregue a sua conta e tente novamente.';
+            } else if (msg.includes('INS-6') || msg.includes('Transaction cancelled')) {
+                msg = 'Pagamento cancelado pelo utilizador.';
+            } else if (msg.includes('Detalhes:')) {
+                // Mostrar apenas a parte antes dos detalhes técnicos
+                msg = msg.split('- Detalhes:')[0].trim();
+            }
+            setErrorMessage(msg);
             setStatus('idle');
         }
     };
@@ -420,6 +435,27 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                 </div>
                             </section>
                         </div>
+
+                        {/* Error Message */}
+                        <AnimatePresence>
+                            {errorMessage && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 10 }}
+                                    className="mx-6 mb-0 rounded-xl bg-red-50 border border-red-200 p-4 flex items-start gap-3"
+                                >
+                                    <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
+                                    <div className="flex-1">
+                                        <p className="text-sm font-bold text-red-700">Pagamento não processado</p>
+                                        <p className="text-xs text-red-600 mt-0.5 leading-relaxed">{errorMessage}</p>
+                                    </div>
+                                    <button onClick={() => setErrorMessage(null)} className="text-red-400 hover:text-red-600 transition-colors shrink-0">
+                                        <X size={14} />
+                                    </button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
 
                         {/* Footer / Button Area */}
                         <div className="bg-white border-t border-slate-100 p-6 md:p-8 space-y-4">
