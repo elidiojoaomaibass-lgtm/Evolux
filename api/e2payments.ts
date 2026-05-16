@@ -123,15 +123,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!paymentResponse.ok) {
       console.error("Erro retornado pela E2Payments:", paymentData);
       
-      let errorMessage = paymentData.message || 'Erro ao processar transação na E2Payments.';
-      if (paymentData.error_description) {
-        errorMessage += ` - ${paymentData.error_description}`;
-      } else if (paymentData.details || paymentData.error) {
-        errorMessage += ` - Detalhes: ${JSON.stringify(paymentData)}`;
+      // Tentar extrair o código de resposta do M-Pesa/e-Mola
+      const mpesaResponse = paymentData.mpesa_server_response || paymentData.emola_server_response || {};
+      const responseCode = mpesaResponse.output_ResponseCode || '';
+      const responseDesc = mpesaResponse.output_ResponseDesc || '';
+
+      // Mapear códigos M-Pesa para mensagens amigáveis em português
+      const mpesaErrorMessages: Record<string, string> = {
+        'INS-2006': 'Saldo insuficiente. Por favor, recarregue a sua conta M-Pesa e tente novamente.',
+        'INS-6':    'Pagamento falhou. Verifique o saldo da sua conta e tente novamente.',
+        'INS-5':    'Pagamento cancelado. Confirme o PIN no seu telemóvel para completar o pagamento.',
+        'INS-9':    'Tempo de resposta esgotado. Por favor, tente novamente.',
+        'INS-10':   'Transação duplicada. Aguarde alguns minutos e tente novamente.',
+        'INS-13':   'Valor inválido. O valor mínimo é 1 MT e o máximo é 1.250.000 MT.',
+        'INS-14':   'Número de telemóvel inválido. Verifique e tente novamente.',
+        'INS-19':   'Referência inválida. Por favor, tente novamente.',
+        'INS-1':    'Erro interno. Por favor, tente novamente mais tarde.',
+        'INS-4':    'Não foi possível iniciar o pagamento. Tente novamente.',
+      };
+
+      let friendlyMessage = mpesaErrorMessages[responseCode];
+      if (!friendlyMessage) {
+        // Fallback para mensagens genéricas baseadas no texto
+        if (responseDesc.toLowerCase().includes('insufficient') || responseDesc.toLowerCase().includes('balance')) {
+          friendlyMessage = 'Saldo insuficiente. Por favor, recarregue a sua conta e tente novamente.';
+        } else if (responseDesc.toLowerCase().includes('cancel')) {
+          friendlyMessage = 'Pagamento cancelado pelo utilizador.';
+        } else {
+          friendlyMessage = paymentData.message || 'Não foi possível processar o pagamento. Tente novamente.';
+        }
       }
 
       return res.status(paymentResponse.status || 400).json({ 
-        error: errorMessage,
+        error: friendlyMessage,
+        code: responseCode,
         details: paymentData
       });
     }
