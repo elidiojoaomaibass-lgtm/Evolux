@@ -126,34 +126,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Tentar extrair o código de resposta do M-Pesa/e-Mola
       const mpesaResponse = paymentData.mpesa_server_response || paymentData.emola_server_response || {};
       const responseCode = mpesaResponse.output_ResponseCode || '';
-      const responseDesc = mpesaResponse.output_ResponseDesc || '';
+      const responseDesc = (mpesaResponse.output_ResponseDesc || '').toLowerCase();
 
-      // Mapear códigos M-Pesa para mensagens amigáveis em português
-      const mpesaErrorMessages: Record<string, string> = {
+      // Mapeamento completo de todos os códigos M-Pesa/e-Mola
+      const errorMessages: Record<string, string> = {
+        // Saldo
         'INS-2006': 'Saldo insuficiente. Por favor, recarregue a sua conta M-Pesa e tente novamente.',
-        'INS-6':    'Pagamento falhou. Verifique o saldo da sua conta e tente novamente.',
-        'INS-5':    'Pagamento cancelado. Confirme o PIN no seu telemóvel para completar o pagamento.',
-        'INS-9':    'Tempo de resposta esgotado. Por favor, tente novamente.',
-        'INS-10':   'Transação duplicada. Aguarde alguns minutos e tente novamente.',
+        'INS-6':    'Saldo insuficiente. Por favor, verifique o saldo e tente novamente.',
+        // Cancelamento / sem PIN
+        'INS-5':    'Pagamento cancelado. Não introduziu o PIN no seu telemóvel. Tente novamente e confirme o PIN quando solicitado.',
+        'INS-17':   'Pagamento cancelado ou recusado. Tente novamente e confirme o PIN quando solicitado.',
+        // Timeout (não respondeu ao PIN)
+        'INS-9':    'Tempo esgotado. Não confirmou o PIN a tempo. Por favor, tente novamente.',
+        // Número inválido
+        'INS-14':   'Número de telemóvel inválido. Verifique o número introduzido e tente novamente.',
+        'INS-2':    'Número de telemóvel não encontrado. Verifique se é um número M-Pesa válido.',
+        'INS-3':    'Número de destino inválido. Por favor, verifique o número e tente novamente.',
+        // Valor inválido
         'INS-13':   'Valor inválido. O valor mínimo é 1 MT e o máximo é 1.250.000 MT.',
-        'INS-14':   'Número de telemóvel inválido. Verifique e tente novamente.',
-        'INS-19':   'Referência inválida. Por favor, tente novamente.',
-        'INS-1':    'Erro interno. Por favor, tente novamente mais tarde.',
-        'INS-4':    'Não foi possível iniciar o pagamento. Tente novamente.',
+        // Transação duplicada
+        'INS-10':   'Transação duplicada. Aguarde alguns minutos antes de tentar novamente.',
+        // Referência
+        'INS-19':   'Erro de referência. Por favor, tente novamente.',
+        'INS-15':   'Erro de referência. Por favor, tente novamente.',
+        // Não conseguiu iniciar
+        'INS-4':    'Não foi possível enviar o pedido ao seu telemóvel. Verifique se tem M-Pesa ativo e tente novamente.',
+        // Erros internos
+        'INS-1':    'Erro temporário no sistema. Por favor, tente novamente em instantes.',
+        'INS-20':   'Erro temporário no sistema. Por favor, tente novamente em instantes.',
       };
 
-      let friendlyMessage = mpesaErrorMessages[responseCode];
+      let friendlyMessage = errorMessages[responseCode];
+
       if (!friendlyMessage) {
-        // Fallback para mensagens genéricas baseadas no texto
-        if (responseDesc.toLowerCase().includes('insufficient') || responseDesc.toLowerCase().includes('balance')) {
+        // Fallback baseado no texto da descrição
+        if (responseDesc.includes('insufficient') || responseDesc.includes('balance') || responseDesc.includes('saldo')) {
           friendlyMessage = 'Saldo insuficiente. Por favor, recarregue a sua conta e tente novamente.';
-        } else if (responseDesc.toLowerCase().includes('cancel')) {
-          friendlyMessage = 'Pagamento cancelado pelo utilizador.';
-        } else if (provider === 'mpesa') {
-          // Para M-Pesa, saldo insuficiente é o erro mais comum em pagamentos falhados
-          friendlyMessage = 'Saldo insuficiente. Por favor, recarregue a sua conta M-Pesa e tente novamente.';
+        } else if (responseDesc.includes('cancel') || responseDesc.includes('reject') || responseDesc.includes('refused')) {
+          friendlyMessage = 'Pagamento cancelado. Tente novamente e confirme o PIN quando solicitado.';
+        } else if (responseDesc.includes('timeout') || responseDesc.includes('time out') || responseDesc.includes('expired')) {
+          friendlyMessage = 'Tempo esgotado. Não confirmou o PIN a tempo. Tente novamente.';
+        } else if (responseDesc.includes('invalid') && responseDesc.includes('number')) {
+          friendlyMessage = 'Número de telemóvel inválido. Verifique e tente novamente.';
         } else {
-          friendlyMessage = paymentData.message || 'Não foi possível processar o pagamento. Tente novamente.';
+          // Fallback final genérico mas útil
+          friendlyMessage = 'Pagamento não processado. Verifique os seus dados e tente novamente.';
         }
       }
 
