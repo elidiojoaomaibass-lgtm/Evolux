@@ -44,7 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 1. Obter Token
     let authResponse;
     try {
-      authResponse = await fetch('https://e2payments.explicador.co.mz/oauth/token', {
+      authResponse = await fetch('https://mpesaemolatech.com/oauth/token', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json', 
@@ -88,7 +88,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const transactionType = type === 'b2c' ? 'b2c' : 'c2b';
       // URL Dinâmica: mpesa-payment ou emola-payment
       const endpoint = `${provider}-payment`;
-      const paymentUrl = `https://e2payments.explicador.co.mz/v1/${transactionType}/${endpoint}/${wallet_number}`;
+      const paymentUrl = `https://mpesaemolatech.com/v1/${transactionType}/${endpoint}/${wallet_number}`;
       
       console.log(`Chamando endpoint: ${paymentUrl}`);
 

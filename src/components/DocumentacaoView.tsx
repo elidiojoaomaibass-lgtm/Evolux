@@ -16,7 +16,7 @@ export const DocumentacaoView = () => {
 
     const codeSnippets = {
         token: `// 1. Gerar Token de Acesso
-axios.post('https://e2payments.explicador.co.mz/oauth/token', {
+axios.post('https://mpesaemolatech.com/oauth/token', {
   grant_type: 'client_credentials',
   client_id: 'SUA_CLIENT_ID',
   client_secret: 'SUA_CLIENT_SECRET'
@@ -26,7 +26,7 @@ axios.post('https://e2payments.explicador.co.mz/oauth/token', {
 });`,
         c2b: `// 2. Realizar Pagamento C2B (M-Pesa)
 const wallet_id = 'SUA_CARTEIRA_ID'; // ID da carteira no painel e2Payments
-const url = \`https://e2payments.explicador.co.mz/v1/c2b/mpesa-payment/\${wallet_id}\`;
+const url = \`https://mpesaemolatech.com/v1/c2b/mpesa-payment/\${wallet_id}\`;
 
 const payload = {
   client_id: 'SUA_CLIENT_ID',
