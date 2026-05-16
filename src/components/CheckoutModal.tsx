@@ -90,7 +90,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             if (!response.ok) {
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     const errorData = await response.json();
-                    throw new Error(`Erro API (${response.status}): ${errorData.error || errorData.message || 'Erro desconhecido'}`);
+                    // Usar diretamente a mensagem amigável vinda do backend
+                    throw new Error(errorData.error || errorData.message || 'Não foi possível processar o pagamento. Tente novamente.');
                 } else {
                     const textError = await response.text();
                     console.error("Erro não-JSON recebido:", textError);
@@ -129,17 +130,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             }
 
         } catch (err: any) {
-            // Extrair só a mensagem útil sem todo o JSON
-            let msg = err.message || 'Ocorreu um erro. Tente novamente.';
-            if (msg.includes('Saldo insuficiente') || msg.includes('Insufficient')) {
-                msg = 'Saldo insuficiente. Por favor, recarregue a sua conta e tente novamente.';
-            } else if (msg.includes('INS-6') || msg.includes('Transaction cancelled')) {
-                msg = 'Pagamento cancelado pelo utilizador.';
-            } else if (msg.includes('Detalhes:')) {
-                // Mostrar apenas a parte antes dos detalhes técnicos
-                msg = msg.split('- Detalhes:')[0].trim();
-            }
-            setErrorMessage(msg);
+            // A mensagem já vem tratada do backend — mostrar diretamente
+            setErrorMessage(err.message || 'Ocorreu um erro. Tente novamente.');
             setStatus('idle');
         }
     };
