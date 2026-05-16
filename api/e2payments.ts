@@ -101,9 +101,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         },
         body: JSON.stringify({
           client_id: final_client_id,
-          amount: amount,
-          phone: phone,
-          reference: reference || `EV-${Date.now()}`
+          amount: String(amount),
+          phone: String(phone),
+          reference: String(reference || `EV-${Date.now()}`)
         })
       });
     } catch (pError: any) {
