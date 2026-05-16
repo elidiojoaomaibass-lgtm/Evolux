@@ -149,6 +149,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           friendlyMessage = 'Saldo insuficiente. Por favor, recarregue a sua conta e tente novamente.';
         } else if (responseDesc.toLowerCase().includes('cancel')) {
           friendlyMessage = 'Pagamento cancelado pelo utilizador.';
+        } else if (provider === 'mpesa') {
+          // Para M-Pesa, saldo insuficiente é o erro mais comum em pagamentos falhados
+          friendlyMessage = 'Saldo insuficiente. Por favor, recarregue a sua conta M-Pesa e tente novamente.';
         } else {
           friendlyMessage = paymentData.message || 'Não foi possível processar o pagamento. Tente novamente.';
         }
