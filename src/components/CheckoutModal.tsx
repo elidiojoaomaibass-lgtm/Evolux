@@ -64,7 +64,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 console.log('Credenciais E2Payments não encontradas no localStorage. As variáveis de ambiente do backend (.env) serão usadas.');
             }
 
-            const reference = `ORD-${Date.now()}`;
+            const reference = `ORD${Date.now()}`;
 
             const response = await fetch('/api/e2payments', {
                 method: 'POST',
