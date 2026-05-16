@@ -120,6 +120,17 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
             setStatus('success');
             
+            // Redirecionar para a página de obrigado com detalhes da compra
+            const params = new URLSearchParams({
+                name: name || '',
+                email: email || '',
+                product: product.name || '',
+                amount: String(product.price),
+                method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                reference: reference,
+            });
+            window.location.href = `/obrigado?${params.toString()}`;
+            
             // Aqui podes disparar o Pixel de Meta Ads (Purchase)
             if ((window as any).fbq) {
                 (window as any).fbq('track', 'Purchase', {
