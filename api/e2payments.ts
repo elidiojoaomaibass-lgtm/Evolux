@@ -122,8 +122,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!paymentResponse.ok) {
       console.error("Erro retornado pela E2Payments:", paymentData);
+      
+      let errorMessage = paymentData.message || 'Erro ao processar transação na E2Payments.';
+      if (paymentData.error_description) {
+        errorMessage += ` - ${paymentData.error_description}`;
+      } else if (paymentData.details || paymentData.error) {
+        errorMessage += ` - Detalhes: ${JSON.stringify(paymentData)}`;
+      }
+
       return res.status(paymentResponse.status || 400).json({ 
-        error: paymentData.message || 'Erro ao processar transação na E2Payments.',
+        error: errorMessage,
         details: paymentData
       });
     }
