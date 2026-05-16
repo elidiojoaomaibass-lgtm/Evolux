@@ -1,7 +1,7 @@
 import { 
     Terminal, 
     Copy, Check, ExternalLink, Shield, 
-    Smartphone, Zap, Server, Key
+    Smartphone, Zap, Server, Key, Code
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -42,6 +42,24 @@ const headers = {
 };
 
 axios.post(url, payload, { headers });`,
+        sdk: `import { E2Payments } from '@/lib/e2payments';
+
+// 1. Inicialize o SDK
+const e2p = new E2Payments('SEU_CLIENT_ID', 'SEU_CLIENT_SECRET');
+
+// 2. Autentique-se e realize uma cobrança (C2B)
+async function cobrarCliente() {
+  await e2p.authenticate(); // Gera o token ou usa do cache
+  
+  const resposta = await e2p.c2bMpesaPayment(
+    '12345',       // Wallet ID
+    100,           // Valor
+    '841234567',   // Número de telefone
+    'Pagamento01'  // Referência
+  );
+  
+  console.log('Sucesso!', resposta);
+}`,
         webhook: `// Exemplo de resposta de sucesso (Status 200)
 {
   "status": "success",
@@ -181,6 +199,33 @@ axios.post(url, payload, { headers });`,
                         </div>
                     </section>
 
+                    {/* SDK Section */}
+                    <section id="sdk" className="space-y-6">
+                        <div className="space-y-2">
+                            <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                <Code className="text-blue-500" size={20} />
+                                3. SDK JavaScript / TypeScript
+                            </h2>
+                            <p className="text-sm text-slate-600 dark:text-brand-300 font-medium">
+                                A aplicação já inclui um SDK pronto para uso em <code className="text-[11px] font-bold bg-slate-100 dark:bg-brand-800 px-1 py-0.5 rounded text-emerald-600 dark:text-emerald-400">src/lib/e2payments.ts</code> baseado na documentação oficial.
+                            </p>
+                        </div>
+
+                        <div className="relative group">
+                            <div className="absolute top-4 right-4 z-20">
+                                <button 
+                                    onClick={() => copyToClipboard(codeSnippets.sdk, 'sdk')}
+                                    className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white/50 hover:text-white transition-colors border border-white/10"
+                                >
+                                    {copiedId === 'sdk' ? <Check size={14} /> : <Copy size={14} />}
+                                </button>
+                            </div>
+                            <pre className="p-6 rounded-3xl bg-slate-950 text-slate-300 overflow-x-auto text-[11px] md:text-xs font-mono leading-relaxed border border-white/5 shadow-2xl">
+                                {codeSnippets.sdk}
+                            </pre>
+                        </div>
+                    </section>
+
                     {/* Endpoints List */}
                     <section id="endpoints" className="space-y-4">
                         <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
@@ -214,7 +259,8 @@ axios.post(url, payload, { headers });`,
                                 {[
                                     { id: "auth", label: "1. Autenticação", icon: Shield },
                                     { id: "c2b", label: "2. Pagamento C2B", icon: Smartphone },
-                                    { id: "endpoints", label: "3. Endpoints", icon: Server },
+                                    { id: "sdk", label: "3. SDK JavaScript", icon: Code },
+                                    { id: "endpoints", label: "4. Endpoints", icon: Server },
                                 ].map((item) => (
                                     <a 
                                         key={item.id}
