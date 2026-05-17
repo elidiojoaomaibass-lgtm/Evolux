@@ -524,7 +524,12 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                             {tx.customerName || 'Cliente'} ({tx.phone})
                                         </div>
                                         <div className="flex justify-center">
-                                            <div className="h-6 w-6 rounded-md bg-white border border-slate-100 p-0.5 overflow-hidden shadow-sm flex items-center justify-center text-[10px] font-black uppercase text-slate-500">
+                                            <div className={cn(
+                                                "px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border shadow-sm",
+                                                tx.method === 'e-Mola' 
+                                                    ? "bg-orange-50 text-orange-600 border-orange-200"
+                                                    : "bg-red-50 text-red-600 border-red-200"
+                                            )}>
                                                 {tx.method}
                                             </div>
                                         </div>
