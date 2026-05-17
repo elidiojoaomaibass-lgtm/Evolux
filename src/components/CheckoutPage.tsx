@@ -57,14 +57,14 @@ export const CheckoutPage = () => {
 
         setStatus('processing');
 
+        const reference = `ORD${Date.now()}`;
+
         try {
             // Check credentials from URL or localStorage
             const clientId = localStorage.getItem('evolux_e2_client_id');
             const clientSecret = localStorage.getItem('evolux_e2_client_secret');
             const walletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
             const walletEmola = localStorage.getItem('evolux_e2_wallet_emola');
-
-            const reference = `ORD${Date.now()}`;
 
             const response = await fetch('/api/e2payments', {
                 method: 'POST',
@@ -125,6 +125,24 @@ export const CheckoutPage = () => {
         } catch (err: any) {
             setErrorMessage(err.message || 'Ocorreu um erro ao processar a compra. Tente novamente.');
             setStatus('idle');
+
+            // Registrar falha imediatamente no Supabase para contabilizar nos relatórios
+            try {
+                addTransaction({
+                    id: `ERR${Date.now()}`,
+                    type: 'payment',
+                    amount: product.price,
+                    phone: paymentPhone,
+                    method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                    status: 'Falhou',
+                    reference: reference,
+                    description: `Compra: ${product.name} (Rejeitado/Erro: ${err.message || 'Erro'})`,
+                    customerName: name || 'Cliente',
+                    customerEmail: email || ''
+                });
+            } catch (dbErr) {
+                console.error("Erro ao salvar falha de transação no Supabase:", dbErr);
+            }
         }
     };
 
