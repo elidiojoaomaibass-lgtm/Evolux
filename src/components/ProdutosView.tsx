@@ -138,18 +138,35 @@ export const ProdutosView = () => {
             price: String(product.price)
         };
 
+        setShorteningProductId(product.id);
+
         if (product.image) {
-            try {
-                if (product.image.startsWith('data:')) {
-                    // Comprime a imagem base64 de forma agressiva (para 60x60 pixels a 40% de qualidade jpeg)
-                    // de modo que ela caiba perfeitamente no limite de caracteres do encurtador de links.
-                    const tinyImage = await compressImageForUrl(product.image);
-                    queryParams.image = tinyImage;
-                } else {
-                    queryParams.image = product.image;
+            if (product.image.startsWith('data:')) {
+                try {
+                    // Upload base64 image to serverless endpoint to get a short permanent URL
+                    const uploadResponse = await fetch('/api/upload', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: product.image })
+                    });
+                    if (uploadResponse.ok) {
+                        const uploadData = await uploadResponse.json();
+                        if (uploadData.url) {
+                            queryParams.image = uploadData.url;
+                        }
+                    } else {
+                        throw new Error('Server upload failed');
+                    }
+                } catch (e) {
+                    console.warn('Failed to upload image, falling back to local compression...', e);
+                    try {
+                        const tinyImage = await compressImageForUrl(product.image);
+                        queryParams.image = tinyImage;
+                    } catch (err) {
+                        queryParams.image = product.image;
+                    }
                 }
-            } catch (e) {
-                console.warn('Falha ao comprimir imagem para URL', e);
+            } else {
                 queryParams.image = product.image;
             }
         }
@@ -157,7 +174,6 @@ export const ProdutosView = () => {
         const params = new URLSearchParams(queryParams);
         const longLink = `${origin}/checkout?${params.toString()}`;
         
-        setShorteningProductId(product.id);
         const shortLink = await shortenUrl(longLink);
         setShorteningProductId(null);
         
@@ -186,14 +202,30 @@ export const ProdutosView = () => {
         };
 
         if (product.image) {
-            try {
-                if (product.image.startsWith('data:')) {
-                    const tinyImage = await compressImageForUrl(product.image);
-                    queryParams.image = tinyImage;
-                } else {
-                    queryParams.image = product.image;
+            if (product.image.startsWith('data:')) {
+                try {
+                    const uploadResponse = await fetch('/api/upload', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: product.image })
+                    });
+                    if (uploadResponse.ok) {
+                        const uploadData = await uploadResponse.json();
+                        if (uploadData.url) {
+                            queryParams.image = uploadData.url;
+                        }
+                    } else {
+                        throw new Error('Server upload failed');
+                    }
+                } catch (e) {
+                    try {
+                        const tinyImage = await compressImageForUrl(product.image);
+                        queryParams.image = tinyImage;
+                    } catch (err) {
+                        queryParams.image = product.image;
+                    }
                 }
-            } catch (e) {
+            } else {
                 queryParams.image = product.image;
             }
         }
