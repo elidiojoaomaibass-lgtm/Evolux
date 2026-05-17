@@ -1,9 +1,13 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { 
     Gem, Calendar, Bell, LogOut, BarChart3, X, UserCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
+import { useTransactionsStore } from '../lib/store';
+import {
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
 
 interface DashboardProps {
     user: any;
@@ -21,6 +25,8 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
     const profileRef = useRef<HTMLDivElement>(null);
     const notificationsRef = useRef<HTMLDivElement>(null);
     const datePickerRef = useRef<HTMLDivElement>(null);
+
+    const { transactions } = useTransactionsStore();
 
     // Close dropdowns on click outside
     useEffect(() => {
@@ -55,36 +61,122 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
         { key: 'TODO', label: 'Todo' },
     ];
 
+    // Filter transactions based on selected period
+    const filteredTxs = useMemo(() => {
+        const now = new Date();
+        return transactions.filter(tx => {
+            if (tx.type !== 'payment') return false;
+            const txDate = new Date(tx.createdAt);
+            if (period === 'HOJE') return txDate.toDateString() === now.toDateString();
+            if (period === 'ONTEM') {
+                const yesterday = new Date();
+                yesterday.setDate(now.getDate() - 1);
+                return txDate.toDateString() === yesterday.toDateString();
+            }
+            if (period === '7D') {
+                const weekAgo = new Date();
+                weekAgo.setDate(now.getDate() - 7);
+                return txDate >= weekAgo;
+            }
+            if (period === '30D') {
+                const monthAgo = new Date();
+                monthAgo.setDate(now.getDate() - 30);
+                return txDate >= monthAgo;
+            }
+            if (period === '90D') {
+                const threeMonthsAgo = new Date();
+                threeMonthsAgo.setDate(now.getDate() - 90);
+                return txDate >= threeMonthsAgo;
+            }
+            if (period === 'TODO') return true;
+            return true;
+        });
+    }, [transactions, period]);
+
+    const approvedTxs = useMemo(() => filteredTxs.filter(t => t.status === 'Concluído'), [filteredTxs]);
+    const pendingTxs = useMemo(() => filteredTxs.filter(t => t.status === 'Pendente'), [filteredTxs]);
+    const failedTxs = useMemo(() => filteredTxs.filter(t => t.status === 'Falhou'), [filteredTxs]);
+
+    const totalRevenue = useMemo(() => approvedTxs.reduce((sum, t) => sum + t.amount, 0), [approvedTxs]);
+
+    // Calculate level progression (Bronze, Silver, Gold, Platinum, Diamond) using all-time confirmed revenue
+    const allApprovedTxs = useMemo(() => transactions.filter(t => t.type === 'payment' && t.status === 'Concluído'), [transactions]);
+    const allTimeRevenue = useMemo(() => allApprovedTxs.reduce((sum, t) => sum + t.amount, 0), [allApprovedTxs]);
+
+    const level = useMemo(() => {
+        if (allTimeRevenue < 10000) return { name: 'BRONZE', target: 10000, color: 'text-cyan-500', bg: 'bg-cyan-500' };
+        if (allTimeRevenue < 50000) return { name: 'PRATA', target: 50000, color: 'text-slate-400', bg: 'bg-slate-400' };
+        if (allTimeRevenue < 150000) return { name: 'OURO', target: 150000, color: 'text-amber-500', bg: 'bg-amber-500' };
+        if (allTimeRevenue < 500000) return { name: 'PLATINA', target: 500000, color: 'text-indigo-400', bg: 'bg-indigo-400' };
+        return { name: 'DIAMANTE', target: allTimeRevenue || 1, color: 'text-purple-500', bg: 'bg-purple-500' };
+    }, [allTimeRevenue]);
+
+    const progressPercent = Math.min(100, (allTimeRevenue / level.target) * 100);
+
     const stats = [
         {
             label: 'RECEITA TOTAL',
-            value: '0,00 MZN',
+            value: `${totalRevenue.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN`,
             borderColor: 'border-l-emerald-500',
             labelColor: 'text-emerald-400',
             textColor: 'text-emerald-500'
         },
         {
             label: 'APROVADAS',
-            value: '0',
+            value: approvedTxs.length.toLocaleString(),
             borderColor: 'border-l-emerald-400',
             labelColor: 'text-emerald-400',
             textColor: 'text-emerald-500'
         },
         {
             label: 'PENDENTES',
-            value: '0',
+            value: pendingTxs.length.toLocaleString(),
             borderColor: 'border-l-amber-400',
             labelColor: 'text-amber-400',
             textColor: 'text-amber-500'
         },
         {
             label: 'CANCELADAS',
-            value: '0',
+            value: failedTxs.length.toLocaleString(),
             borderColor: 'border-l-red-400',
             labelColor: 'text-red-400',
             textColor: 'text-red-500'
         },
     ];
+
+    // Chart data aggregation for standard/custom filters
+    const chartData = useMemo(() => {
+        if (period === 'HOJE' || period === 'ONTEM') {
+            const hours = period === 'HOJE' ? new Date().getHours() + 1 : 24;
+            return Array.from({ length: hours }, (_, i) => {
+                const hourTxs = filteredTxs.filter(t => new Date(t.createdAt).getHours() === i);
+                return {
+                    name: `${i.toString().padStart(2, '0')}h`,
+                    receita: hourTxs.reduce((acc, curr) => acc + (curr.status === 'Concluído' ? curr.amount : 0), 0)
+                };
+            });
+        }
+        
+        const days = period === '7D' ? 7 : period === '30D' ? 30 : period === '90D' ? 90 : 30;
+        return Array.from({ length: days }, (_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - (days - 1 - i));
+            const dayStr = date.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' });
+            const dayTxs = filteredTxs.filter(t => new Date(t.createdAt).toDateString() === date.toDateString());
+            return {
+                name: dayStr,
+                receita: dayTxs.reduce((acc, curr) => acc + (curr.status === 'Concluído' ? curr.amount : 0), 0)
+            };
+        });
+    }, [period, filteredTxs]);
+
+    // Payment methods calculation
+    const mpesaCount = useMemo(() => approvedTxs.filter(t => t.method === 'M-Pesa').length, [approvedTxs]);
+    const emolaCount = useMemo(() => approvedTxs.filter(t => t.method === 'e-Mola').length, [approvedTxs]);
+    const totalApprovedCount = approvedTxs.length;
+
+    const mpesaPercent = totalApprovedCount > 0 ? Math.round((mpesaCount / totalApprovedCount) * 100) : 0;
+    const emolaPercent = totalApprovedCount > 0 ? Math.round((emolaCount / totalApprovedCount) * 100) : 0;
 
     return (
         <div className="min-h-screen bg-[#fafbff] dark:bg-[#0f0525] p-4 md:p-8 font-sans">
@@ -97,12 +189,18 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Gem size={14} className="text-cyan-500" />
-                                <span className="text-[10px] font-black text-slate-800 dark:text-brand-500 uppercase tracking-widest">PROGRESSO BRONZE</span>
+                                <span className="text-[10px] font-black text-slate-800 dark:text-brand-500 uppercase tracking-widest">PROGRESSO {level.name}</span>
                             </div>
-                            <span className="text-[10px] font-black text-cyan-500 dark:text-cyan-400">0 / 10K MZN</span>
+                            <span className="text-[10px] font-black text-cyan-500 dark:text-cyan-400">
+                                {allTimeRevenue.toLocaleString('pt-PT')} / {level.target >= 1000000 ? '1M+' : `${(level.target / 1000)}K`} MZN
+                            </span>
                         </div>
                         <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-white/5 overflow-hidden shadow-inner">
-                            <motion.div initial={{ width: 0 }} animate={{ width: '0%' }} className="h-full bg-cyan-500 rounded-full" />
+                            <motion.div 
+                                initial={{ width: 0 }} 
+                                animate={{ width: `${progressPercent}%` }} 
+                                className={cn("h-full rounded-full transition-all duration-500", level.bg)} 
+                            />
                         </div>
                     </div>
 
@@ -281,21 +379,62 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                     <div className="h-1.5 w-1.5 rounded-full bg-violet-500" />
                                     Gráfico de Vendas
                                 </h3>
-                                <p className="text-[10px] text-slate-400 font-medium ml-3.5">Volume total do período: <span className="text-violet-600 font-bold">0 MT</span></p>
+                                <p className="text-[10px] text-slate-400 font-medium ml-3.5">Volume total do período: <span className="text-violet-600 font-bold">{totalRevenue.toLocaleString('pt-PT')} MZN</span></p>
                             </div>
                             <div className="flex gap-4 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-100">
                                 <div className="flex items-center gap-1.5">
                                     <div className="h-1.5 w-1.5 rounded-full bg-violet-600" />
                                     <span className="text-[8px] font-black uppercase text-slate-500 tracking-widest">Faturamento</span>
                                 </div>
-                                <div className="flex items-center gap-1.5">
-                                    <div className="h-1.5 w-1.5 rounded-full bg-cyan-500" />
-                                    <span className="text-[8px] font-black uppercase text-slate-500 tracking-widest">Contagem</span>
-                                </div>
                             </div>
                         </div>
-                        <div className="bg-white rounded-[2rem] h-[350px] w-full shadow-sm border border-slate-100 p-6 flex flex-col items-center justify-center">
-                            {/* Empty Chart Area */}
+                        <div className="bg-white rounded-[2rem] h-[350px] w-full shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
+                            <div className="h-full w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={chartData}>
+                                        <defs>
+                                            <linearGradient id="colorDashboard" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2} />
+                                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="10 10" vertical={false} stroke="rgba(148, 163, 184, 0.08)" />
+                                        <XAxis
+                                            dataKey="name"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 700 }}
+                                            dy={10}
+                                        />
+                                        <YAxis
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 700 }}
+                                            dx={-10}
+                                            tickFormatter={(val) => val >= 1000 ? `${(val / 1000)}k` : val}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: 'rgba(15, 5, 37, 0.95)',
+                                                borderRadius: '16px',
+                                                border: '1px solid rgba(255,255,255,0.1)',
+                                                color: '#fff',
+                                                padding: '12px'
+                                            }}
+                                            labelStyle={{ color: '#8b5cf6', fontSize: '9px', fontWeight: 'black' }}
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="receita"
+                                            name="Faturamento"
+                                            stroke="#8b5cf6"
+                                            strokeWidth={3}
+                                            fillOpacity={1}
+                                            fill="url(#colorDashboard)"
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
                         </div>
                     </div>
 
@@ -306,14 +445,14 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                 Métodos de<br/>Pagamento
                             </h3>
                             <div className="text-right">
-                                <span className="text-[9px] font-black uppercase text-violet-600 tracking-widest block">Total: 0</span>
+                                <span className="text-[9px] font-black uppercase text-violet-600 tracking-widest block">Total: {totalApprovedCount}</span>
                                 <span className="text-[9px] font-black uppercase text-violet-600 tracking-widest block">Vendas</span>
                             </div>
                         </div>
                         <div className="bg-white rounded-[2rem] h-[350px] shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
                             <div className="flex-1 flex flex-col items-center justify-center">
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total</span>
-                                <span className="text-5xl font-black text-slate-900 tracking-tighter">0</span>
+                                <span className="text-5xl font-black text-slate-900 tracking-tighter">{totalApprovedCount}</span>
                             </div>
                             <div className="grid grid-cols-2 gap-3 mt-auto">
                                 <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-100">
@@ -323,8 +462,8 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                         </div>
                                         <span className="text-[9px] font-black text-slate-900 tracking-widest">M-PESA</span>
                                     </div>
-                                    <span className="text-sm font-black text-violet-600">0%</span>
-                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">0 Vendas</span>
+                                    <span className="text-sm font-black text-violet-600">{mpesaPercent}%</span>
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{mpesaCount} Vendas</span>
                                 </div>
                                 <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-100">
                                     <div className="flex items-center gap-2 mb-2">
@@ -333,8 +472,8 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                         </div>
                                         <span className="text-[9px] font-black text-slate-900 tracking-widest">E-MOLA</span>
                                     </div>
-                                    <span className="text-sm font-black text-violet-600">0%</span>
-                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">0 Vendas</span>
+                                    <span className="text-sm font-black text-violet-600">{emolaPercent}%</span>
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{emolaCount} Vendas</span>
                                 </div>
                             </div>
                         </div>
@@ -347,14 +486,17 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                         <div className="flex items-center gap-4">
                             <h3 className="text-xl font-black text-slate-900 tracking-tight">Transações em Tempo Real</h3>
                             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-[10px] font-black text-slate-500 tracking-widest">
-                                TOTAL: 0
+                                TOTAL: {filteredTxs.length}
                             </div>
                             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/50 text-[10px] font-black text-emerald-600 tracking-widest">
                                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                                 ATIVO
                             </div>
                         </div>
-                        <button className="px-6 py-3 rounded-xl bg-white border border-slate-100 shadow-sm text-[10px] font-black uppercase text-slate-700 tracking-widest hover:bg-slate-50 transition-all">
+                        <button 
+                            onClick={() => setView('Vendas')}
+                            className="px-6 py-3 rounded-xl bg-white border border-slate-100 shadow-sm text-[10px] font-black uppercase text-slate-700 tracking-widest hover:bg-slate-50 transition-all cursor-pointer"
+                        >
                             Ver Histórico Completo
                         </button>
                     </div>
@@ -368,9 +510,47 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                             <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Valor / Estado</div>
                             <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-right">Data/Hora</div>
                         </div>
-                        <div className="h-32 flex items-center justify-center text-sm font-medium text-slate-400">
-                            Nenhuma transação recente.
-                        </div>
+                        {filteredTxs.length > 0 ? (
+                            <div className="divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
+                                {filteredTxs.slice(0, 5).map(tx => (
+                                    <div key={tx.id} className="grid grid-cols-6 gap-4 px-6 py-3.5 items-center hover:bg-slate-50/50 transition-all">
+                                        <div className="font-mono text-[10px] font-bold text-slate-400 truncate">
+                                            #{tx.id.substring(0, 12)}
+                                        </div>
+                                        <div className="text-xs font-bold text-slate-700 text-center truncate">
+                                            {tx.description || 'Pagamento'}
+                                        </div>
+                                        <div className="text-xs text-slate-600 text-center truncate">
+                                            {tx.customerName || 'Cliente'} ({tx.phone})
+                                        </div>
+                                        <div className="flex justify-center">
+                                            <div className="h-6 w-6 rounded-md bg-white border border-slate-100 p-0.5 overflow-hidden shadow-sm flex items-center justify-center text-[10px] font-black uppercase text-slate-500">
+                                                {tx.method}
+                                            </div>
+                                        </div>
+                                        <div className="text-center flex flex-col items-center">
+                                            <span className="text-xs font-black text-slate-800">{tx.amount.toLocaleString()} MZN</span>
+                                            <span className={cn(
+                                                "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider mt-0.5 border",
+                                                tx.status === 'Concluído' ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
+                                                tx.status === 'Pendente' ? "bg-amber-50 text-amber-600 border-amber-200" :
+                                                "bg-red-50 text-red-600 border-red-200"
+                                            )}>
+                                                {tx.status}
+                                            </span>
+                                        </div>
+                                        <div className="text-right text-[10px] text-slate-400 font-bold">
+                                            {new Date(tx.createdAt).toLocaleDateString('pt-PT')} <br />
+                                            {new Date(tx.createdAt).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="h-32 flex items-center justify-center text-sm font-medium text-slate-400">
+                                Nenhuma transação recente.
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -378,3 +558,4 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
         </div>
     );
 }
+
