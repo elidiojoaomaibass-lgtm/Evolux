@@ -112,7 +112,9 @@ export const ThankYouPage = () => {
                         {details.amount && (
                             <div className="flex justify-between items-center">
                                 <span className="text-xs text-slate-500 font-medium">Valor pago</span>
-                                <span className="text-sm font-black text-emerald-600">{Number(details.amount).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
+                                <span className="text-sm font-black text-emerald-600">
+                                    {(isNaN(Number(details.amount)) ? 0 : Number(details.amount)).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT
+                                </span>
                             </div>
                         )}
                         {details.method && (

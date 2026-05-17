@@ -5,7 +5,7 @@ import App from './App.tsx'
 import { ThankYouPage } from './components/ThankYouPage.tsx'
 import { CheckoutPage } from './components/CheckoutPage.tsx'
 
-const path = window.location.pathname;
+const path = window.location.pathname.replace(/\/$/, "");
 const isThankYouPage = path === '/obrigado';
 const isCheckoutPage = path === '/checkout';
 

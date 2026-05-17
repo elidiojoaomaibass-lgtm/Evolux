@@ -23,10 +23,11 @@ export const CheckoutPage = () => {
 
     // Parse product info from URL
     const searchParams = new URLSearchParams(window.location.search);
+    const rawPrice = Number(searchParams.get('price'));
     const product = {
         id: searchParams.get('id') || 'PRD-MOCK',
         name: searchParams.get('name') || 'Produto sem Nome',
-        price: Number(searchParams.get('price')) || 0,
+        price: isNaN(rawPrice) ? 0 : rawPrice,
         type: searchParams.get('type') || 'Digital',
         category: searchParams.get('category') || 'Outro',
         image: searchParams.get('image') || '',
