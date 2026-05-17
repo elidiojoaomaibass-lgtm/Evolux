@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Search, Edit2,
@@ -24,6 +24,48 @@ export const ProdutosView = () => {
     const [checkoutProduct, setCheckoutProduct] = useState<Product | null>(null);
     const [copiedProductId, setCopiedProductId] = useState<string | null>(null);
 
+    useEffect(() => {
+        // Run migration only once on mount to compress legacy huge base64 images
+        products.forEach(product => {
+            if (product.image && product.image.startsWith('data:') && product.image.length > 5000) {
+                const img = new Image();
+                img.src = product.image;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 150;
+                    const MAX_HEIGHT = 150;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                        
+                        editProduct({
+                            ...product,
+                            image: compressedBase64
+                        });
+                    }
+                };
+            }
+        });
+    }, []);
+
     const handleCopyLink = (product: Product) => {
         const origin = window.location.origin;
         
@@ -40,8 +82,7 @@ export const ProdutosView = () => {
             price: String(product.price)
         };
 
-        // Only append image in URL if it is a short hosted URL (not base64 data)
-        if (product.image && !product.image.startsWith('data:')) {
+        if (product.image) {
             queryParams.image = product.image;
         }
 
@@ -72,8 +113,7 @@ export const ProdutosView = () => {
             price: String(product.price)
         };
 
-        // Only append image in URL if it is a short hosted URL (not base64 data)
-        if (product.image && !product.image.startsWith('data:')) {
+        if (product.image) {
             queryParams.image = product.image;
         }
 
@@ -100,7 +140,38 @@ export const ProdutosView = () => {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImagePreview(reader.result as string);
+                const img = new Image();
+                img.src = reader.result as string;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 150;
+                    const MAX_HEIGHT = 150;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                        setImagePreview(compressedBase64);
+                    } else {
+                        setImagePreview(reader.result as string);
+                    }
+                };
             };
             reader.readAsDataURL(file);
         }
