@@ -277,6 +277,9 @@ export const useTransactionsStore = () => {
                     .select('*')
                     .order('createdAt', { ascending: false });
                 
+                if (error) {
+                    console.error('Erro ao carregar transações do Supabase:', error);
+                }
                 if (data && data.length > 0) {
                     updateTransactions(data);
                 }
@@ -290,7 +293,7 @@ export const useTransactionsStore = () => {
         // Inscreve no canal em tempo real para escutar atualizações de transações
         const channel = supabase
             .channel('public-transactions-changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, (payload) => {
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, (payload: any) => {
                 console.log('Realtime transaction update:', payload);
                 fetchTransactions();
             })
