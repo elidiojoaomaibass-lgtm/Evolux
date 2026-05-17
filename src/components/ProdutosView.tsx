@@ -12,7 +12,33 @@ import { useProductsStore, type Product, type Category } from '../lib/store';
 import { ConfirmationModal } from './ConfirmationModal';
 import { CheckoutModal } from './CheckoutModal';
 
-// --- Data Types & Mocks Removed (moved to store.ts) ---
+const shortenUrl = async (longUrl: string): Promise<string> => {
+    try {
+        const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.shorturl) {
+                return data.shorturl;
+            }
+        }
+    } catch (e) {
+        console.warn('is.gd shortening failed, trying tinyurl...', e);
+    }
+
+    try {
+        const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+        if (response.ok) {
+            const shortUrl = await response.text();
+            if (shortUrl && shortUrl.startsWith('http')) {
+                return shortUrl;
+            }
+        }
+    } catch (e) {
+        console.warn('tinyurl shortening failed, returning original URL', e);
+    }
+
+    return longUrl;
+};
 
 export const ProdutosView = () => {
     const { products, addProduct, deleteProduct, editProduct } = useProductsStore();
@@ -23,6 +49,7 @@ export const ProdutosView = () => {
     const [productToDelete, setProductToDelete] = useState<string | null>(null);
     const [checkoutProduct, setCheckoutProduct] = useState<Product | null>(null);
     const [copiedProductId, setCopiedProductId] = useState<string | null>(null);
+    const [shorteningProductId, setShorteningProductId] = useState<string | null>(null);
 
     useEffect(() => {
         // Run migration only once on mount to compress legacy huge base64 images
@@ -66,7 +93,7 @@ export const ProdutosView = () => {
         });
     }, []);
 
-    const handleCopyLink = (product: Product) => {
+    const handleCopyLink = async (product: Product) => {
         const origin = window.location.origin;
         
         // Save image to localStorage for same-origin preview
@@ -87,9 +114,13 @@ export const ProdutosView = () => {
         }
 
         const params = new URLSearchParams(queryParams);
-        const link = `${origin}/checkout?${params.toString()}`;
+        const longLink = `${origin}/checkout?${params.toString()}`;
         
-        navigator.clipboard.writeText(link).then(() => {
+        setShorteningProductId(product.id);
+        const shortLink = await shortenUrl(longLink);
+        setShorteningProductId(null);
+        
+        navigator.clipboard.writeText(shortLink).then(() => {
             setCopiedProductId(product.id);
             setTimeout(() => {
                 setCopiedProductId(null);
@@ -420,13 +451,22 @@ export const ProdutosView = () => {
                                     </button>
                                     <button 
                                         onClick={() => handleCopyLink(product)}
+                                        disabled={shorteningProductId === product.id}
                                         className={cn(
                                             "h-8 w-8 flex items-center justify-center rounded-[10px] bg-white dark:bg-brand-800 border border-slate-100 dark:border-white/5 transition-all shadow-sm",
-                                            copiedProductId === product.id ? "text-emerald-500" : "text-slate-400 hover:text-violet-600"
+                                            copiedProductId === product.id ? "text-emerald-500" : (shorteningProductId === product.id ? "text-violet-500 animate-pulse" : "text-slate-400 hover:text-violet-600")
                                         )}
                                         title="Copiar Link de Checkout"
                                     >
-                                        {copiedProductId === product.id ? <Check size={14} /> : <Link2 size={14} />}
+                                        {copiedProductId === product.id ? (
+                                            <Check size={14} />
+                                        ) : (
+                                            shorteningProductId === product.id ? (
+                                                <div className="h-3.5 w-3.5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                                            ) : (
+                                                <Link2 size={14} />
+                                            )
+                                        )}
                                     </button>
                                     <button
                                         onClick={() => handleDeleteProduct(product.id)}
