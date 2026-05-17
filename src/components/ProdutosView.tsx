@@ -109,7 +109,9 @@ export const ProdutosView = () => {
             price: String(product.price)
         };
 
-        if (product.image) {
+        // Apenas inclui a imagem nos parâmetros de consulta se for uma URL da web (começando com http),
+        // evitando injetar strings base64 gigantes na URL (o que inviabilizava os encurtadores de links).
+        if (product.image && product.image.startsWith('http')) {
             queryParams.image = product.image;
         }
 
@@ -144,7 +146,9 @@ export const ProdutosView = () => {
             price: String(product.price)
         };
 
-        if (product.image) {
+        // Apenas inclui a imagem nos parâmetros de consulta se for uma URL da web (começando com http),
+        // evitando injetar strings base64 gigantes na URL.
+        if (product.image && product.image.startsWith('http')) {
             queryParams.image = product.image;
         }
 
