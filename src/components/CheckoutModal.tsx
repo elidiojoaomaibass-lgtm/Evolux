@@ -56,6 +56,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
         setStatus('processing');
 
+        const reference = `ORD${Date.now()}`;
+        
         try {
             // Pegar credenciais guardadas no localStorage
             const clientId = localStorage.getItem('evolux_e2_client_id');
@@ -68,8 +70,6 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 // Mas alertaremos no console do frontend:
                 console.log('Credenciais E2Payments não encontradas no localStorage. As variáveis de ambiente do backend (.env) serão usadas.');
             }
-
-            const reference = `ORD${Date.now()}`;
 
             const response = await fetch('/api/e2payments', {
                 method: 'POST',
@@ -144,6 +144,24 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             // A mensagem já vem tratada do backend — mostrar diretamente
             setErrorMessage(err.message || 'Ocorreu um erro. Tente novamente.');
             setStatus('idle');
+
+            // Registrar falha imediatamente no Supabase para contabilizar nos relatórios
+            try {
+                addTransaction({
+                    id: `ERR${Date.now()}`,
+                    type: 'payment',
+                    amount: product.price,
+                    phone: paymentPhone,
+                    method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                    status: 'Falhou',
+                    reference: reference,
+                    description: `Compra: ${product.name} (Rejeitado/Erro: ${err.message || 'Erro'})`,
+                    customerName: name || 'Cliente',
+                    customerEmail: email || ''
+                });
+            } catch (dbErr) {
+                console.error("Erro ao salvar falha de transação no Supabase:", dbErr);
+            }
         }
     };
 
