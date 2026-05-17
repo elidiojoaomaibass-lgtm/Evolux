@@ -40,6 +40,35 @@ const shortenUrl = async (longUrl: string): Promise<string> => {
     return longUrl;
 };
 
+const compressImageForUrl = (base64Str: string): Promise<string> => {
+    return new Promise((resolve) => {
+        if (!base64Str || !base64Str.startsWith('data:')) {
+            resolve(base64Str);
+            return;
+        }
+        const img = new Image();
+        img.src = base64Str;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const SIZE = 60; // 60x60 pixels is ideal for the checkout cover/thumbnail
+            canvas.width = SIZE;
+            canvas.height = SIZE;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(img, 0, 0, SIZE, SIZE);
+                // Compress to Keep character length very low
+                const tinyBase64 = canvas.toDataURL('image/jpeg', 0.4);
+                resolve(tinyBase64);
+            } else {
+                resolve(base64Str);
+            }
+        };
+        img.onerror = () => {
+            resolve(base64Str);
+        };
+    });
+};
+
 export const ProdutosView = () => {
     const { products, addProduct, deleteProduct, editProduct } = useProductsStore();
     const [searchTerm, setSearchTerm] = useState('');
@@ -109,10 +138,20 @@ export const ProdutosView = () => {
             price: String(product.price)
         };
 
-        // Apenas inclui a imagem nos parâmetros de consulta se for uma URL da web (começando com http),
-        // evitando injetar strings base64 gigantes na URL (o que inviabilizava os encurtadores de links).
-        if (product.image && product.image.startsWith('http')) {
-            queryParams.image = product.image;
+        if (product.image) {
+            try {
+                if (product.image.startsWith('data:')) {
+                    // Comprime a imagem base64 de forma agressiva (para 60x60 pixels a 40% de qualidade jpeg)
+                    // de modo que ela caiba perfeitamente no limite de caracteres do encurtador de links.
+                    const tinyImage = await compressImageForUrl(product.image);
+                    queryParams.image = tinyImage;
+                } else {
+                    queryParams.image = product.image;
+                }
+            } catch (e) {
+                console.warn('Falha ao comprimir imagem para URL', e);
+                queryParams.image = product.image;
+            }
         }
 
         const params = new URLSearchParams(queryParams);
@@ -130,7 +169,7 @@ export const ProdutosView = () => {
         });
     };
 
-    const handleOpenCheckout = (product: Product) => {
+    const handleOpenCheckout = async (product: Product) => {
         const origin = window.location.origin;
 
         // Save image to localStorage for same-origin preview
@@ -146,10 +185,17 @@ export const ProdutosView = () => {
             price: String(product.price)
         };
 
-        // Apenas inclui a imagem nos parâmetros de consulta se for uma URL da web (começando com http),
-        // evitando injetar strings base64 gigantes na URL.
-        if (product.image && product.image.startsWith('http')) {
-            queryParams.image = product.image;
+        if (product.image) {
+            try {
+                if (product.image.startsWith('data:')) {
+                    const tinyImage = await compressImageForUrl(product.image);
+                    queryParams.image = tinyImage;
+                } else {
+                    queryParams.image = product.image;
+                }
+            } catch (e) {
+                queryParams.image = product.image;
+            }
         }
 
         const params = new URLSearchParams(queryParams);
