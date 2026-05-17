@@ -202,7 +202,7 @@ export const CheckoutPage = () => {
                             </div>
                         </div>
 
-                        {/* Section 2: Resumo do Produto (PLACED IN THE MIDDLE) */}
+                        {/* Section 2: Resumo do Produto */}
                         <div className="space-y-4 p-5 rounded-2xl bg-slate-50 border border-slate-100">
                             <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
                                 <span className="h-5 w-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-black">2</span>
@@ -260,87 +260,133 @@ export const CheckoutPage = () => {
                                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Método de Pagamento</h3>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-4">
                                 {/* M-Pesa Option */}
                                 <div 
                                     onClick={() => {
-                                        setMethod('mpesa');
-                                        setPaymentPhone('');
+                                        if (method !== 'mpesa') {
+                                            setMethod('mpesa');
+                                            setPaymentPhone('');
+                                        }
                                     }}
                                     className={cn(
-                                        "rounded-2xl border-2 p-4 flex flex-col justify-between gap-4 cursor-pointer transition-all relative overflow-hidden",
+                                        "rounded-2xl border-2 p-4 cursor-pointer transition-all relative overflow-hidden space-y-4",
                                         method === 'mpesa' ? "border-red-500 bg-red-50/5 shadow-md shadow-red-500/5" : "border-slate-100 hover:border-slate-200 bg-white"
                                     )}
                                 >
                                     <div className="flex items-center justify-between">
-                                        <div className="h-10 w-10 p-1 bg-white rounded-xl border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                                            <img src="/mpesa_logo.png" alt="M-Pesa" className="w-full h-full object-cover" />
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-10 w-10 p-1 bg-white rounded-xl border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                                                <img src="/mpesa_logo.png" alt="M-Pesa" className="w-full h-full object-cover" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-xs font-black text-slate-950 uppercase tracking-wider">M-Pesa Vodafone</h4>
+                                                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Pagamento rápido via Push USSD.</p>
+                                            </div>
                                         </div>
                                         <div className={cn(
                                             "h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all",
                                             method === 'mpesa' ? "border-red-500" : "border-slate-300"
                                         )}>
-                                            {method === 'mpesa' && <div className="h-2.5 w-2.5 rounded-full bg-red-500 animate-scale" />}
+                                            {method === 'mpesa' && <div className="h-2.5 w-2.5 rounded-full bg-red-500" />}
                                         </div>
                                     </div>
-                                    <div>
-                                        <h4 className="text-xs font-black text-slate-950 uppercase tracking-wider">M-Pesa Vodafone</h4>
-                                        <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Pagamento rápido via Push USSD.</p>
-                                    </div>
+
+                                    {/* M-Pesa Wallet Input inside card */}
+                                    <AnimatePresence>
+                                        {method === 'mpesa' && (
+                                            <motion.div 
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                className="space-y-2 pt-3 border-t border-red-500/10 cursor-default"
+                                                onClick={(e) => e.stopPropagation()} // Prevent card deselection/toggle click
+                                            >
+                                                <label className="text-[10px] font-black text-slate-650 uppercase tracking-widest leading-none block">
+                                                    Número da Carteira M-Pesa*
+                                                </label>
+                                                <div className="flex overflow-hidden">
+                                                    <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
+                                                        <span className="text-[9px] opacity-60 uppercase font-black">MZ</span> +258
+                                                    </div>
+                                                    <input 
+                                                        type="text" 
+                                                        placeholder="84 xxx xxxx"
+                                                        value={paymentPhone}
+                                                        onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                                                        className="flex-1 h-12 px-4 rounded-r-xl border border-slate-200 bg-white text-sm font-bold focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
+                                                        required={method === 'mpesa'}
+                                                    />
+                                                </div>
+                                                <span className="text-[9px] text-slate-400 font-medium block">Introduza o seu PIN de segurança no telemóvel quando solicitado.</span>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
 
                                 {/* e-Mola Option */}
                                 <div 
                                     onClick={() => {
-                                        setMethod('emola');
-                                        setPaymentPhone('');
+                                        if (method !== 'emola') {
+                                            setMethod('emola');
+                                            setPaymentPhone('');
+                                        }
                                     }}
                                     className={cn(
-                                        "rounded-2xl border-2 p-4 flex flex-col justify-between gap-4 cursor-pointer transition-all relative overflow-hidden",
+                                        "rounded-2xl border-2 p-4 cursor-pointer transition-all relative overflow-hidden space-y-4",
                                         method === 'emola' ? "border-orange-500 bg-orange-50/5 shadow-md shadow-orange-500/5" : "border-slate-100 hover:border-slate-200 bg-white"
                                     )}
                                 >
                                     <div className="flex items-center justify-between">
-                                        <div className="h-10 w-10 p-1 bg-white rounded-xl border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                                            <img src="/emola_logo.png" alt="e-Mola" className="w-full h-full object-cover" />
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-10 w-10 p-1 bg-white rounded-xl border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                                                <img src="/emola_logo.png" alt="e-Mola" className="w-full h-full object-cover" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-xs font-black text-slate-950 uppercase tracking-wider">e-Mola Movitel</h4>
+                                                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Prompt imediato no seu telemóvel.</p>
+                                            </div>
                                         </div>
                                         <div className={cn(
                                             "h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all",
                                             method === 'emola' ? "border-orange-500" : "border-slate-300"
                                         )}>
-                                            {method === 'emola' && <div className="h-2.5 w-2.5 rounded-full bg-orange-500 animate-scale" />}
+                                            {method === 'emola' && <div className="h-2.5 w-2.5 rounded-full bg-orange-500" />}
                                         </div>
                                     </div>
-                                    <div>
-                                        <h4 className="text-xs font-black text-slate-950 uppercase tracking-wider">e-Mola Movitel</h4>
-                                        <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Prompt imediato no seu telemóvel.</p>
-                                    </div>
+
+                                    {/* e-Mola Wallet Input inside card */}
+                                    <AnimatePresence>
+                                        {method === 'emola' && (
+                                            <motion.div 
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                className="space-y-2 pt-3 border-t border-orange-500/10 cursor-default"
+                                                onClick={(e) => e.stopPropagation()} // Prevent card deselection/toggle click
+                                            >
+                                                <label className="text-[10px] font-black text-slate-650 uppercase tracking-widest leading-none block">
+                                                    Número da Carteira e-Mola*
+                                                </label>
+                                                <div className="flex overflow-hidden">
+                                                    <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
+                                                        <span className="text-[9px] opacity-60 uppercase font-black">MZ</span> +258
+                                                    </div>
+                                                    <input 
+                                                        type="text" 
+                                                        placeholder="86 xxx xxxx / 87 xxx xxxx"
+                                                        value={paymentPhone}
+                                                        onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                                                        className="flex-1 h-12 px-4 rounded-r-xl border border-slate-200 bg-white text-sm font-bold focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
+                                                        required={method === 'emola'}
+                                                    />
+                                                </div>
+                                                <span className="text-[9px] text-slate-400 font-medium block">Introduza o seu PIN de segurança no telemóvel quando solicitado.</span>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                             </div>
-
-                            {/* Payment phone input fields based on payment provider choice */}
-                            <motion.div 
-                                layout
-                                className="bg-slate-50/50 rounded-2xl border border-slate-100 p-4 space-y-2 mt-4"
-                            >
-                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest leading-none block">
-                                    Número da Carteira {method === 'mpesa' ? 'M-Pesa' : 'e-Mola'}*
-                                </label>
-                                <div className="flex overflow-hidden">
-                                    <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
-                                        <span className="text-[9px] opacity-60 uppercase font-black">MZ</span> +258
-                                    </div>
-                                    <input 
-                                        type="text" 
-                                        placeholder={method === 'mpesa' ? "84 xxx xxxx" : "86 xxx xxxx / 87 xxx xxxx"}
-                                        value={paymentPhone}
-                                        onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
-                                        className="flex-1 h-12 px-4 rounded-r-xl border border-slate-200 bg-white text-sm font-bold focus:ring-2 focus:ring-slate-900/10 focus:border-slate-950 outline-none transition-all placeholder:text-slate-300 shadow-inner"
-                                        required
-                                    />
-                                </div>
-                                <span className="text-[10px] text-slate-400 font-medium block">Após clicar em "Comprar agora", introduza o seu PIN de segurança no telemóvel quando solicitado.</span>
-                            </motion.div>
                         </div>
 
                         {/* Error Displays inside checkout form */}
