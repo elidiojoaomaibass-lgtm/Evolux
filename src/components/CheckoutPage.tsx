@@ -153,7 +153,6 @@ export const CheckoutPage = () => {
                         {/* Section 1: Customer Details */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-                                <span className="h-5 w-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-black">1</span>
                                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Dados Pessoais</h3>
                             </div>
                             
@@ -205,7 +204,6 @@ export const CheckoutPage = () => {
                         {/* Section 2: Resumo do Produto */}
                         <div className="space-y-4 p-5 rounded-2xl bg-slate-50 border border-slate-100">
                             <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
-                                <span className="h-5 w-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-black">2</span>
                                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Resumo da Encomenda</h3>
                             </div>
 
@@ -256,7 +254,6 @@ export const CheckoutPage = () => {
                         {/* Section 3: Payment Provider */}
                         <div className="space-y-4 pt-2">
                             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-                                <span className="h-5 w-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-black">3</span>
                                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Método de Pagamento</h3>
                             </div>
 
