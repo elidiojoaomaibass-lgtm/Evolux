@@ -45,6 +45,21 @@ export const ProdutosView = () => {
         });
     };
 
+    const handleOpenCheckout = (product: Product) => {
+        const origin = window.location.origin;
+        const params = new URLSearchParams({
+            id: product.id,
+            name: product.name,
+            price: String(product.price),
+            category: product.category,
+            type: product.type,
+            image: product.image || '',
+            description: product.description || ''
+        });
+        const link = `${origin}/checkout?${params.toString()}`;
+        window.open(link, '_blank');
+    };
+
     // Create Form States
     const [newName, setNewName] = useState('');
     const [newPrice, setNewPrice] = useState('');
@@ -304,7 +319,7 @@ export const ProdutosView = () => {
                                         Editar
                                     </button>
                                     <button 
-                                        onClick={() => setCheckoutProduct(product)}
+                                        onClick={() => handleOpenCheckout(product)}
                                         className="h-8 w-8 flex items-center justify-center rounded-[10px] bg-white dark:bg-brand-800 border border-slate-100 dark:border-white/5 text-slate-400 hover:text-violet-600 transition-all shadow-sm"
                                         title="Visualizar Checkout"
                                     >
