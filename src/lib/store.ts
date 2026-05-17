@@ -237,6 +237,7 @@ export interface Transaction {
     customerName?: string;
     customerEmail?: string;
     createdAt: string;
+    device?: 'Mobile' | 'Desktop';
 }
 
 const TRANSACTIONS_STORAGE_KEY = 'evolux_prod_transactions';
@@ -324,8 +325,10 @@ export const useTransactionsStore = () => {
     }, []);
 
     const addTransaction = async (tx: Omit<Transaction, 'createdAt'>) => {
+        const isMobile = typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const newTx: Transaction = {
             ...tx,
+            device: tx.device || (isMobile ? 'Mobile' : 'Desktop'),
             createdAt: new Date().toISOString()
         };
         
