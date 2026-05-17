@@ -277,7 +277,7 @@ export const CheckoutPage = () => {
                                                 <img src="/mpesa_logo.png" alt="M-Pesa" className="w-full h-full object-cover" />
                                             </div>
                                             <div>
-                                                <h4 className="text-xs font-black text-slate-950 uppercase tracking-wider">M-Pesa Vodafone</h4>
+                                                <h4 className="text-xs font-black text-slate-950 uppercase tracking-wider">M-Pesa Vodacom</h4>
                                                 <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Pagamento rápido via Push USSD.</p>
                                             </div>
                                         </div>
