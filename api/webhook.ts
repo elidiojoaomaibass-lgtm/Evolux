@@ -18,10 +18,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const payload = req.body;
         console.log('E2Payments Webhook Received:', JSON.stringify(payload, null, 2));
 
-        const { transaction_id, status, reference } = payload;
+        const { status, reference } = payload;
+        const transaction_id = payload.transaction_id || payload.id || payload.transactionId;
 
-        if (!transaction_id) {
-            return res.status(400).json({ error: 'Missing transaction_id' });
+        if (!transaction_id && !reference) {
+            return res.status(400).json({ error: 'Missing transaction identifiers (id or reference)' });
         }
 
         // Mapeia o status da E2Payments para o status do nosso painel
