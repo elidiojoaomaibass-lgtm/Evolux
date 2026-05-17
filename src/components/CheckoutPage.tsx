@@ -24,10 +24,18 @@ export const CheckoutPage = () => {
     // Parse product info from URL
     const searchParams = new URLSearchParams(window.location.search);
     const rawPrice = Number(searchParams.get('price'));
+    const productId = searchParams.get('id') || 'PRD-MOCK';
+
+    // Attempt to load image from localStorage (for same-origin base64 preview) or URL parameter
+    const storedImage = localStorage.getItem(`checkout_img_${productId}`) || '';
+    const urlImage = searchParams.get('image') || '';
+    const productImage = storedImage || urlImage;
+
     const product = {
-        id: searchParams.get('id') || 'PRD-MOCK',
+        id: productId,
         name: searchParams.get('name') || 'Produto sem Nome',
-        price: isNaN(rawPrice) ? 0 : rawPrice
+        price: isNaN(rawPrice) ? 0 : rawPrice,
+        image: productImage
     };
 
     const handlePurchase = async (e: React.FormEvent) => {
@@ -161,7 +169,7 @@ export const CheckoutPage = () => {
                                         placeholder="Introduza o seu nome completo"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white text-sm font-bold focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
+                                        className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white text-base font-bold focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
                                         required
                                     />
                                 </div>
@@ -178,7 +186,7 @@ export const CheckoutPage = () => {
                                                 placeholder="84 xxx xxxx"
                                                 value={phone}
                                                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
-                                                className="flex-1 h-12 px-4 rounded-r-xl border border-slate-200 bg-white text-sm font-bold focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
+                                                className="flex-1 h-12 px-4 rounded-r-xl border border-slate-200 bg-white text-base font-bold focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
                                                 required
                                             />
                                         </div>
@@ -191,7 +199,7 @@ export const CheckoutPage = () => {
                                             placeholder="seu@email.com"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white text-sm font-bold focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
+                                            className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white text-base font-bold focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
                                         />
                                     </div>
                                 </div>
@@ -206,9 +214,19 @@ export const CheckoutPage = () => {
 
                             {/* Image and Basic Info */}
                             <div className="flex gap-4 pt-2">
-                                <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-violet-600 to-pink-500 flex items-center justify-center text-white text-xl font-black shadow-md shrink-0 border border-white/20 select-none">
-                                    {product.name ? product.name.charAt(0).toUpperCase() : 'P'}
-                                </div>
+                                {product.image ? (
+                                    <div className="h-16 w-16 rounded-xl overflow-hidden bg-slate-150 border border-slate-200 shrink-0 shadow-sm">
+                                        <img 
+                                            src={product.image} 
+                                            alt="" 
+                                            className="w-full h-full object-cover" 
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-violet-600 to-pink-500 flex items-center justify-center text-white text-xl font-black shadow-md shrink-0 border border-white/20 select-none">
+                                        {product.name ? product.name.charAt(0).toUpperCase() : 'P'}
+                                    </div>
+                                )}
                                 <div className="flex-1 min-w-0 space-y-1">
                                     <div className="flex justify-between items-start gap-2">
                                         <p className="text-sm font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
@@ -297,7 +315,7 @@ export const CheckoutPage = () => {
                                                         placeholder="84 xxx xxxx"
                                                         value={paymentPhone}
                                                         onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
-                                                        className="flex-1 h-12 px-4 rounded-r-xl border border-slate-200 bg-white text-sm font-bold focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
+                                                        className="flex-1 h-12 px-4 rounded-r-xl border border-slate-200 bg-white text-base font-bold focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
                                                         required={method === 'mpesa'}
                                                     />
                                                 </div>
@@ -360,7 +378,7 @@ export const CheckoutPage = () => {
                                                         placeholder="86 xxx xxxx / 87 xxx xxxx"
                                                         value={paymentPhone}
                                                         onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
-                                                        className="flex-1 h-12 px-4 rounded-r-xl border border-slate-200 bg-white text-sm font-bold focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
+                                                        className="flex-1 h-12 px-4 rounded-r-xl border border-slate-200 bg-white text-base font-bold focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
                                                         required={method === 'emola'}
                                                     />
                                                 </div>

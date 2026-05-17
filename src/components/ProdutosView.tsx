@@ -26,11 +26,26 @@ export const ProdutosView = () => {
 
     const handleCopyLink = (product: Product) => {
         const origin = window.location.origin;
-        const params = new URLSearchParams({
+        
+        // Save image to localStorage for same-origin preview
+        if (product.image) {
+            localStorage.setItem(`checkout_img_${product.id}`, product.image);
+        } else {
+            localStorage.removeItem(`checkout_img_${product.id}`);
+        }
+
+        const queryParams: Record<string, string> = {
             id: product.id,
             name: product.name,
             price: String(product.price)
-        });
+        };
+
+        // Only append image in URL if it is a short hosted URL (not base64 data)
+        if (product.image && !product.image.startsWith('data:')) {
+            queryParams.image = product.image;
+        }
+
+        const params = new URLSearchParams(queryParams);
         const link = `${origin}/checkout?${params.toString()}`;
         
         navigator.clipboard.writeText(link).then(() => {
@@ -43,11 +58,26 @@ export const ProdutosView = () => {
 
     const handleOpenCheckout = (product: Product) => {
         const origin = window.location.origin;
-        const params = new URLSearchParams({
+
+        // Save image to localStorage for same-origin preview
+        if (product.image) {
+            localStorage.setItem(`checkout_img_${product.id}`, product.image);
+        } else {
+            localStorage.removeItem(`checkout_img_${product.id}`);
+        }
+
+        const queryParams: Record<string, string> = {
             id: product.id,
             name: product.name,
             price: String(product.price)
-        });
+        };
+
+        // Only append image in URL if it is a short hosted URL (not base64 data)
+        if (product.image && !product.image.startsWith('data:')) {
+            queryParams.image = product.image;
+        }
+
+        const params = new URLSearchParams(queryParams);
         const link = `${origin}/checkout?${params.toString()}`;
         window.open(link, '_blank');
     };
