@@ -27,11 +27,7 @@ export const CheckoutPage = () => {
     const product = {
         id: searchParams.get('id') || 'PRD-MOCK',
         name: searchParams.get('name') || 'Produto sem Nome',
-        price: isNaN(rawPrice) ? 0 : rawPrice,
-        type: searchParams.get('type') || 'Digital',
-        category: searchParams.get('category') || 'Outro',
-        image: searchParams.get('image') || '',
-        description: searchParams.get('description') || ''
+        price: isNaN(rawPrice) ? 0 : rawPrice
     };
 
     const handlePurchase = async (e: React.FormEvent) => {
@@ -210,30 +206,19 @@ export const CheckoutPage = () => {
 
                             {/* Image and Basic Info */}
                             <div className="flex gap-4 pt-2">
-                                <div className="h-16 w-16 rounded-xl overflow-hidden bg-slate-100 border border-slate-250 shrink-0 shadow-sm">
-                                    <img 
-                                        src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&fit=crop"} 
-                                        alt="" 
-                                        className="w-full h-full object-cover" 
-                                    />
+                                <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-violet-600 to-pink-500 flex items-center justify-center text-white text-xl font-black shadow-md shrink-0 border border-white/20 select-none">
+                                    {product.name ? product.name.charAt(0).toUpperCase() : 'P'}
                                 </div>
                                 <div className="flex-1 min-w-0 space-y-1">
                                     <div className="flex justify-between items-start gap-2">
                                         <p className="text-sm font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className="px-2 py-0.5 bg-slate-200 text-slate-650 rounded text-[9px] font-black uppercase tracking-wider">{product.type}</span>
-                                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{product.category}</span>
+                                        <span className="px-2 py-0.5 bg-violet-100 text-violet-750 rounded text-[9px] font-black uppercase tracking-wider">Acesso Imediato</span>
+                                        <span className="text-[9px] text-slate-450 font-black uppercase tracking-wider">🔒 Pagamento Seguro</span>
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Description */}
-                            {product.description && (
-                                <p className="text-xs text-slate-500 leading-relaxed pt-2 italic">
-                                    "{product.description}"
-                                </p>
-                            )}
 
                             {/* Money Totals */}
                             <div className="space-y-2 pt-3 border-t border-slate-200">

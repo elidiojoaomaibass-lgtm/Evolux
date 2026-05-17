@@ -29,11 +29,7 @@ export const ProdutosView = () => {
         const params = new URLSearchParams({
             id: product.id,
             name: product.name,
-            price: String(product.price),
-            category: product.category,
-            type: product.type,
-            image: product.image || '',
-            description: product.description || ''
+            price: String(product.price)
         });
         const link = `${origin}/checkout?${params.toString()}`;
         
@@ -50,11 +46,7 @@ export const ProdutosView = () => {
         const params = new URLSearchParams({
             id: product.id,
             name: product.name,
-            price: String(product.price),
-            category: product.category,
-            type: product.type,
-            image: product.image || '',
-            description: product.description || ''
+            price: String(product.price)
         });
         const link = `${origin}/checkout?${params.toString()}`;
         window.open(link, '_blank');
