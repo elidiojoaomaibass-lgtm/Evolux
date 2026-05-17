@@ -278,30 +278,48 @@ export const useTransactionsStore = () => {
                     .order('createdAt', { ascending: false });
                 
                 if (error) {
-                    console.error('Erro ao carregar transações do Supabase:', error);
+                    throw error;
                 }
                 if (data && data.length > 0) {
                     updateTransactions(data);
+                } else {
+                    // Se estiver vazio no Supabase, tenta carregar as transações locais salvas
+                    const local = getInitialTransactions();
+                    if (local.length > 0) {
+                        updateTransactions(local);
+                    }
                 }
             } catch (err) {
-                console.error('Erro ao carregar transações do Supabase:', err);
+                console.warn('Erro ao conectar ao Supabase (usando localStorage como backup offline):', err);
+                // Carrega transações offline salvas em localStorage
+                const local = getInitialTransactions();
+                updateTransactions(local);
             }
         };
 
         fetchTransactions();
 
         // Inscreve no canal em tempo real para escutar atualizações de transações
-        const channel = supabase
-            .channel('public-transactions-changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, (payload: any) => {
-                console.log('Realtime transaction update:', payload);
-                fetchTransactions();
-            })
-            .subscribe();
+        let channel: any = null;
+        try {
+            channel = supabase
+                .channel('public-transactions-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, (payload: any) => {
+                    console.log('Realtime transaction update:', payload);
+                    fetchTransactions();
+                })
+                .subscribe();
+        } catch (e) {
+            console.warn('Falha ao assinar canal em tempo real do Supabase:', e);
+        }
 
         return () => {
             transactionListeners.delete(listener);
-            supabase.removeChannel(channel);
+            if (channel) {
+                try {
+                    supabase.removeChannel(channel);
+                } catch (e) {}
+            }
         };
     }, []);
 
@@ -320,10 +338,10 @@ export const useTransactionsStore = () => {
                 .from('transactions')
                 .insert([newTx]);
             if (error) {
-                console.error('Erro ao inserir transação no Supabase:', error);
+                console.warn('Erro ao inserir transação no Supabase:', error);
             }
         } catch (err) {
-            console.error('Falha de rede ao persistir transação no Supabase:', err);
+            console.warn('Falha de rede ao persistir transação no Supabase (salva apenas localmente):', err);
         }
     };
 
