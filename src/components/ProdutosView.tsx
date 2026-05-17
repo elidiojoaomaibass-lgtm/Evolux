@@ -5,7 +5,7 @@ import {
     Plus, Search, Edit2,
     Trash2, Package, Globe,
     ChevronDown, Phone, Link2, Target,
-    Upload, X, DollarSign, XCircle
+    Upload, X, DollarSign, XCircle, Check
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useProductsStore, type Product, type Category } from '../lib/store';
@@ -22,6 +22,28 @@ export const ProdutosView = () => {
     const [filterStatus, setFilterStatus] = useState<'Todos' | 'Ativo' | 'Rascunho'>('Todos');
     const [productToDelete, setProductToDelete] = useState<string | null>(null);
     const [checkoutProduct, setCheckoutProduct] = useState<Product | null>(null);
+    const [copiedProductId, setCopiedProductId] = useState<string | null>(null);
+
+    const handleCopyLink = (product: Product) => {
+        const origin = window.location.origin;
+        const params = new URLSearchParams({
+            id: product.id,
+            name: product.name,
+            price: String(product.price),
+            category: product.category,
+            type: product.type,
+            image: product.image || '',
+            description: product.description || ''
+        });
+        const link = `${origin}/checkout?${params.toString()}`;
+        
+        navigator.clipboard.writeText(link).then(() => {
+            setCopiedProductId(product.id);
+            setTimeout(() => {
+                setCopiedProductId(null);
+            }, 2000);
+        });
+    };
 
     // Create Form States
     const [newName, setNewName] = useState('');
@@ -284,12 +306,24 @@ export const ProdutosView = () => {
                                     <button 
                                         onClick={() => setCheckoutProduct(product)}
                                         className="h-8 w-8 flex items-center justify-center rounded-[10px] bg-white dark:bg-brand-800 border border-slate-100 dark:border-white/5 text-slate-400 hover:text-violet-600 transition-all shadow-sm"
+                                        title="Visualizar Checkout"
                                     >
                                         <Globe size={14} />
+                                    </button>
+                                    <button 
+                                        onClick={() => handleCopyLink(product)}
+                                        className={cn(
+                                            "h-8 w-8 flex items-center justify-center rounded-[10px] bg-white dark:bg-brand-800 border border-slate-100 dark:border-white/5 transition-all shadow-sm",
+                                            copiedProductId === product.id ? "text-emerald-500" : "text-slate-400 hover:text-violet-600"
+                                        )}
+                                        title="Copiar Link de Checkout"
+                                    >
+                                        {copiedProductId === product.id ? <Check size={14} /> : <Link2 size={14} />}
                                     </button>
                                     <button
                                         onClick={() => handleDeleteProduct(product.id)}
                                         className="h-8 w-8 flex items-center justify-center rounded-[10px] bg-white dark:bg-brand-800 border border-slate-100 dark:border-white/5 text-slate-400 hover:text-rose-500 transition-all shadow-sm"
+                                        title="Apagar Produto"
                                     >
                                         <Trash2 size={14} />
                                     </button>
