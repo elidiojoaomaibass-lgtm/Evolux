@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { supabase } from './supabase';
 
 // Shared type definitions
 export type ProductType = 'Digital' | 'Fisico' | 'Serviço';
@@ -258,26 +259,69 @@ const transactionListeners = new Set<(txs: Transaction[]) => void>();
 export const useTransactionsStore = () => {
     const [transactions, setTransactions] = useState<Transaction[]>(globalTransactions);
 
-    useEffect(() => {
-        const listener = (newTxs: Transaction[]) => setTransactions(newTxs);
-        transactionListeners.add(listener);
-        return () => {
-            transactionListeners.delete(listener);
-        };
-    }, []);
-
     const updateTransactions = (newTxs: Transaction[]) => {
         globalTransactions = newTxs;
         localStorage.setItem(TRANSACTIONS_STORAGE_KEY, JSON.stringify(globalTransactions));
         transactionListeners.forEach(l => l(globalTransactions));
     };
 
-    const addTransaction = (tx: Omit<Transaction, 'createdAt'>) => {
+    useEffect(() => {
+        const listener = (newTxs: Transaction[]) => setTransactions(newTxs);
+        transactionListeners.add(listener);
+
+        const fetchTransactions = async () => {
+            try {
+                // Carrega todas as transações da tabela 'transactions' no Supabase
+                const { data, error } = await supabase
+                    .from('transactions')
+                    .select('*')
+                    .order('createdAt', { ascending: false });
+                
+                if (data && data.length > 0) {
+                    updateTransactions(data);
+                }
+            } catch (err) {
+                console.error('Erro ao carregar transações do Supabase:', err);
+            }
+        };
+
+        fetchTransactions();
+
+        // Inscreve no canal em tempo real para escutar atualizações de transações
+        const channel = supabase
+            .channel('public-transactions-changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, (payload) => {
+                console.log('Realtime transaction update:', payload);
+                fetchTransactions();
+            })
+            .subscribe();
+
+        return () => {
+            transactionListeners.delete(listener);
+            supabase.removeChannel(channel);
+        };
+    }, []);
+
+    const addTransaction = async (tx: Omit<Transaction, 'createdAt'>) => {
         const newTx: Transaction = {
             ...tx,
             createdAt: new Date().toISOString()
         };
+        
+        // Atualização otimista local
         updateTransactions([newTx, ...globalTransactions]);
+
+        // Grava no Supabase de forma assíncrona
+        try {
+            const { error } = await supabase
+                .from('transactions')
+                .insert([newTx]);
+            if (error) {
+                console.error('Erro ao inserir transação no Supabase:', error);
+            }
+        } catch (err) {
+            console.error('Falha de rede ao persistir transação no Supabase:', err);
+        }
     };
 
     return { transactions, addTransaction };
