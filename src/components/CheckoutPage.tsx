@@ -127,7 +127,7 @@ export const CheckoutPage = () => {
         <div className="min-h-screen bg-slate-50 flex flex-col">
             {/* Header */}
             <header className="bg-white border-b border-slate-100 py-4 px-6 sticky top-0 z-50">
-                <div className="max-w-6xl mx-auto flex items-center justify-between">
+                <div className="max-w-4xl mx-auto flex items-center justify-between">
                     <Logo size={28} showText={true} textColor="text-slate-900" />
                     <div className="flex items-center gap-1.5 text-emerald-600 font-bold bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
                         <ShieldCheck size={16} />
@@ -136,19 +136,19 @@ export const CheckoutPage = () => {
                 </div>
             </header>
 
-            {/* Split Layout Container */}
-            <main className="flex-1 max-w-6xl w-full mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Centered Single-Column Container */}
+            <main className="flex-1 max-w-2xl w-full mx-auto p-4 md:p-8">
                 
-                {/* Left Side: Forms (7 Cols) */}
-                <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 space-y-8">
+                {/* Unified Form and Card */}
+                <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 space-y-8">
                     
                     {/* Header Info */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 text-center pb-4 border-b border-slate-100">
                         <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Finalizar Compra 🚀</h2>
                         <p className="text-xs text-slate-400 font-semibold tracking-tight">Preencha os seus dados de facturação e pagamento para obter o acesso.</p>
                     </div>
 
-                    <form onSubmit={handlePurchase} className="space-y-6">
+                    <form onSubmit={handlePurchase} className="space-y-8">
                         
                         {/* Section 1: Customer Details */}
                         <div className="space-y-4">
@@ -202,10 +202,61 @@ export const CheckoutPage = () => {
                             </div>
                         </div>
 
-                        {/* Section 2: Payment Provider */}
+                        {/* Section 2: Resumo do Produto (PLACED IN THE MIDDLE) */}
+                        <div className="space-y-4 p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                            <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+                                <span className="h-5 w-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-black">2</span>
+                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Resumo da Encomenda</h3>
+                            </div>
+
+                            {/* Image and Basic Info */}
+                            <div className="flex gap-4 pt-2">
+                                <div className="h-16 w-16 rounded-xl overflow-hidden bg-slate-100 border border-slate-250 shrink-0 shadow-sm">
+                                    <img 
+                                        src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&fit=crop"} 
+                                        alt="" 
+                                        className="w-full h-full object-cover" 
+                                    />
+                                </div>
+                                <div className="flex-1 min-w-0 space-y-1">
+                                    <div className="flex justify-between items-start gap-2">
+                                        <p className="text-sm font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="px-2 py-0.5 bg-slate-200 text-slate-650 rounded text-[9px] font-black uppercase tracking-wider">{product.type}</span>
+                                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{product.category}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            {product.description && (
+                                <p className="text-xs text-slate-500 leading-relaxed pt-2 italic">
+                                    "{product.description}"
+                                </p>
+                            )}
+
+                            {/* Money Totals */}
+                            <div className="space-y-2 pt-3 border-t border-slate-200">
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="text-slate-400 font-bold">Subtotal</span>
+                                    <span className="text-slate-600 font-black">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
+                                </div>
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="text-slate-400 font-bold">Taxas / IVA</span>
+                                    <span className="text-emerald-500 font-black">0,00 MT</span>
+                                </div>
+                                <div className="flex justify-between items-center pt-2.5 border-t border-slate-200">
+                                    <span className="text-sm font-black text-slate-900">Total a pagar</span>
+                                    <span className="text-base font-black text-slate-900 tabular-nums">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Section 3: Payment Provider */}
                         <div className="space-y-4 pt-2">
                             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-                                <span className="h-5 w-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-black">2</span>
+                                <span className="h-5 w-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-black">3</span>
                                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Método de Pagamento</h3>
                             </div>
 
@@ -346,64 +397,17 @@ export const CheckoutPage = () => {
                             </p>
                         </div>
                     </form>
-                </div>
-
-                {/* Right Side: Product Card Summary (5 Cols) */}
-                <div className="lg:col-span-5 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-6">
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-2">Resumo da Encomenda</h3>
-                    
-                    {/* Image and Basic Info */}
-                    <div className="flex gap-4">
-                        <div className="h-20 w-20 rounded-xl overflow-hidden bg-slate-100 border border-slate-100 shrink-0 shadow-sm">
-                            <img 
-                                src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&fit=crop"} 
-                                alt="" 
-                                className="w-full h-full object-cover" 
-                            />
-                        </div>
-                        <div className="flex-1 min-w-0 space-y-1">
-                            <div className="flex justify-between items-start gap-2">
-                                <p className="text-sm font-bold text-slate-900 leading-tight line-clamp-2">{product.name}</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-bold uppercase tracking-wider">{product.type}</span>
-                                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{product.category}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Description */}
-                    {product.description && (
-                        <p className="text-xs text-slate-500 leading-relaxed pt-2 border-t border-slate-100 italic">
-                            "{product.description}"
-                        </p>
-                    )}
-
-                    {/* Money Totals */}
-                    <div className="space-y-3 pt-4 border-t border-slate-100">
-                        <div className="flex justify-between items-center text-xs">
-                            <span className="text-slate-400 font-bold">Subtotal</span>
-                            <span className="text-slate-600 font-black">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
-                        </div>
-                        <div className="flex justify-between items-center text-xs">
-                            <span className="text-slate-400 font-bold">Taxas / IVA</span>
-                            <span className="text-emerald-500 font-black">0,00 MT</span>
-                        </div>
-                        <div className="flex justify-between items-center pt-3 border-t border-slate-100">
-                            <span className="text-base font-black text-slate-900">Total a pagar</span>
-                            <span className="text-xl font-black text-slate-900 tabular-nums">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
-                        </div>
-                    </div>
 
                     {/* Features Badges */}
-                    <div className="pt-4 border-t border-slate-100 space-y-3">
-                        <div className="flex items-center gap-2 text-slate-600 text-xs">
-                            <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
-                            <span className="font-medium">Acesso imediato no seu telemóvel/email</span>
+                    <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-center items-center gap-4 text-slate-500 text-[11px] font-semibold">
+                        <div className="flex items-center gap-1.5">
+                            <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+                            <span>Acesso imediato no telemóvel/email</span>
                         </div>
-                        <div className="flex items-center gap-2 text-slate-600 text-xs">
-                            <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
-                            <span className="font-medium">Ambiente de segurança garantido</span>
+                        <div className="hidden sm:block text-slate-350">•</div>
+                        <div className="flex items-center gap-1.5">
+                            <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+                            <span>Ambiente de segurança garantido</span>
                         </div>
                     </div>
                 </div>
@@ -412,7 +416,7 @@ export const CheckoutPage = () => {
 
             {/* Footer */}
             <footer className="bg-white border-t border-slate-100 py-6 px-6 mt-auto">
-                <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-[10px] text-slate-400 font-medium">
                         © {new Date().getFullYear()} InfroPay. Todos os direitos reservados.
                     </p>
