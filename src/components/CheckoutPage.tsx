@@ -57,6 +57,55 @@ export const CheckoutPage = () => {
 
         setStatus('processing');
 
+        // Abrir nova janela de obrigado imediatamente para evitar bloqueio do pop-up do navegador
+        const thankYouWindow = window.open('about:blank', '_blank');
+        if (thankYouWindow) {
+            thankYouWindow.document.write(`
+                <html>
+                <head>
+                    <title>Processando Pagamento...</title>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <style>
+                        body {
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
+                            height: 100vh;
+                            margin: 0;
+                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                            background: #faf9ff;
+                            color: #1e293b;
+                            text-align: center;
+                            padding: 20px;
+                        }
+                        .loader {
+                            border: 4px solid #f3f3f3;
+                            border-top: 4px solid #10b981;
+                            border-radius: 50%;
+                            width: 50px;
+                            height: 50px;
+                            animation: spin 1s linear infinite;
+                            margin-bottom: 20px;
+                        }
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+                        h2 { font-weight: 800; font-size: 22px; margin: 0 0 10px 0; }
+                        p { font-size: 14px; color: #64748b; max-width: 300px; margin: 0; }
+                    </style>
+                </head>
+                <body>
+                    <div class="loader"></div>
+                    <h2>A processar pagamento...</h2>
+                    <p>Por favor, confirme o pagamento no seu telemóvel introduzindo o seu PIN.</p>
+                </body>
+                </html>
+            `);
+        }
+
         const reference = `ORD${Date.now()}`;
 
         // Sanitização robusta dos números de telefone antes de enviar
@@ -118,9 +167,15 @@ export const CheckoutPage = () => {
                 method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
                 reference: reference,
             });
-            window.open(`/obrigado?${params.toString()}`, '_blank');
+
+            if (thankYouWindow) {
+                thankYouWindow.location.href = `/obrigado?${params.toString()}`;
+            }
 
         } catch (err: any) {
+            if (thankYouWindow) {
+                thankYouWindow.close();
+            }
             setErrorMessage(err.message || 'Ocorreu um erro ao processar a compra. Tente novamente.');
             setStatus('idle');
 
