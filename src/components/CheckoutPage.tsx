@@ -12,6 +12,7 @@ import { useTransactionsStore } from '../lib/store';
 import { Logo } from './Logo';
 
 export const CheckoutPage = () => {
+    const { addTransaction } = useTransactionsStore();
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
     const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -125,7 +126,6 @@ export const CheckoutPage = () => {
 
             // Fallback de segurança local para quando a requisição falhar totalmente (ex: localhost 404)
             try {
-                const { addTransaction } = useTransactionsStore();
                 addTransaction({
                     id: `ERR_FB_${Date.now()}`,
                     type: 'payment',

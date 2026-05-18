@@ -17,6 +17,7 @@ interface CheckoutModalProps {
 }
 
 export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) => {
+    const { addTransaction } = useTransactionsStore();
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
     const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -139,7 +140,6 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
             // Fallback de segurança local para quando a requisição falhar totalmente (ex: localhost 404)
             try {
-                const { addTransaction } = useTransactionsStore();
                 addTransaction({
                     id: `ERR_FB_${Date.now()}`,
                     type: 'payment',
