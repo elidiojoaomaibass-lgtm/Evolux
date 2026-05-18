@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, ArrowLeft, ShoppingBag } from 'lucide-react';
+import { CheckCircle2, ShoppingBag } from 'lucide-react';
 
 export const ThankYouPage = () => {
     const [details, setDetails] = useState<{
@@ -45,8 +45,12 @@ export const ThankYouPage = () => {
     }, []);
 
     const handleBack = () => {
-        // Voltar para a loja (remover /obrigado da URL)
-        window.location.href = window.location.origin;
+        // Voltar para a página de vendas anterior (referenciador) ou histórico do navegador
+        if (document.referrer && document.referrer.indexOf(window.location.hostname) === -1) {
+            window.location.href = document.referrer;
+        } else {
+            window.history.back();
+        }
     };
 
     return (
@@ -154,17 +158,6 @@ export const ThankYouPage = () => {
                 >
                     <ShoppingBag size={18} />
                     Continuar a Comprar
-                </motion.button>
-
-                <motion.button
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.8 }}
-                    onClick={handleBack}
-                    className="mt-3 w-full flex items-center justify-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors py-2"
-                >
-                    <ArrowLeft size={12} />
-                    Voltar à página inicial
                 </motion.button>
             </motion.div>
 

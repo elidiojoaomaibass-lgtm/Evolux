@@ -118,7 +118,7 @@ export const CheckoutPage = () => {
                 method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
                 reference: reference,
             });
-            window.location.href = `/obrigado?${params.toString()}`;
+            window.open(`/obrigado?${params.toString()}`, '_blank');
 
         } catch (err: any) {
             setErrorMessage(err.message || 'Ocorreu um erro ao processar a compra. Tente novamente.');

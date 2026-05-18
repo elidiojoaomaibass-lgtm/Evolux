@@ -123,7 +123,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
                 reference: reference,
             });
-            window.location.href = `/obrigado?${params.toString()}`;
+            window.open(`/obrigado?${params.toString()}`, '_blank');
             
             // Aqui podes disparar o Pixel de Meta Ads (Purchase)
             if ((window as any).fbq) {
