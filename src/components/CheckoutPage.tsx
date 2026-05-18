@@ -154,7 +154,7 @@ export const CheckoutPage = () => {
                     <Logo size={28} showText={true} textColor="text-slate-900" />
                     <div className="flex items-center gap-1.5 text-emerald-600 font-bold bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
                         <ShieldCheck size={16} />
-                        <span className="text-[10px] uppercase tracking-wider">Pagamento 100% Seguro</span>
+                        <span className="text-[10px]  tracking-wider">Pagamento 100% Seguro</span>
                     </div>
                 </div>
             </header>
@@ -176,12 +176,12 @@ export const CheckoutPage = () => {
                         {/* Section 1: Customer Details */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Dados Pessoais</h3>
+                                <h3 className="text-sm font-bold text-slate-900  tracking-wider">Dados Pessoais</h3>
                             </div>
                             
                             <div className="space-y-3.5">
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider">Nome Completo*</label>
+                                    <label className="text-[10px] font-black text-slate-600  tracking-wider">Nome Completo*</label>
                                     <input 
                                         type="text" 
                                         placeholder="Introduza o seu nome completo"
@@ -194,10 +194,10 @@ export const CheckoutPage = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider">Contacto WhatsApp*</label>
+                                        <label className="text-[10px] font-black text-slate-600  tracking-wider">Contacto WhatsApp*</label>
                                         <div className="flex overflow-hidden">
                                             <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
-                                                <span className="text-[9px] opacity-60 uppercase font-black">MZ</span> +258
+                                                <span className="text-[9px] opacity-60  font-black">MZ</span> +258
                                             </div>
                                             <input 
                                                 type="text" 
@@ -211,7 +211,7 @@ export const CheckoutPage = () => {
                                     </div>
 
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider">E-mail (opcional)</label>
+                                        <label className="text-[10px] font-black text-slate-600  tracking-wider">E-mail (opcional)</label>
                                         <input 
                                             type="email" 
                                             placeholder="seu@email.com"
@@ -227,7 +227,7 @@ export const CheckoutPage = () => {
                         {/* Section 2: Resumo do Produto */}
                         <div className="space-y-4 p-5 rounded-2xl bg-slate-50 border border-slate-100">
                             <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
-                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Resumo do pedido</h3>
+                                <h3 className="text-sm font-bold text-slate-900  tracking-wider">Resumo do pedido</h3>
                             </div>
 
                             {/* Image and Basic Info */}
@@ -250,7 +250,7 @@ export const CheckoutPage = () => {
                                         <p className="text-sm font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className="px-2 py-0.5 bg-violet-100 text-violet-750 rounded text-[9px] font-black uppercase tracking-wider">Acesso Imediato</span>
+                                        <span className="px-2 py-0.5 bg-violet-100 text-violet-750 rounded text-[9px] font-black  tracking-wider">Acesso Imediato</span>
                                     </div>
                                 </div>
                             </div>
@@ -275,7 +275,7 @@ export const CheckoutPage = () => {
                         {/* Section 3: Payment Provider */}
                         <div className="space-y-4 pt-2">
                             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Método de Pagamento</h3>
+                                <h3 className="text-sm font-bold text-slate-900  tracking-wider">Método de Pagamento</h3>
                             </div>
 
                             <div className="space-y-4">
@@ -298,7 +298,7 @@ export const CheckoutPage = () => {
                                                 <img src="/mpesa_logo.png" alt="M-Pesa" className="w-full h-full object-cover" />
                                             </div>
                                             <div>
-                                                <h4 className="text-xs font-black text-slate-950 uppercase tracking-wider">M-Pesa</h4>
+                                                <h4 className="text-xs font-black text-slate-950  tracking-wider">M-Pesa</h4>
                                             </div>
                                         </div>
                                         <div className={cn(
@@ -321,7 +321,7 @@ export const CheckoutPage = () => {
                                             >
                                                 <div className="flex overflow-hidden">
                                                     <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
-                                                        <span className="text-[9px] opacity-60 uppercase font-black">MZ</span> +258
+                                                        <span className="text-[9px] opacity-60  font-black">MZ</span> +258
                                                     </div>
                                                     <input 
                                                         type="text" 
@@ -357,7 +357,7 @@ export const CheckoutPage = () => {
                                                 <img src="/emola_logo.png" alt="e-Mola" className="w-full h-full object-cover" />
                                             </div>
                                             <div>
-                                                <h4 className="text-xs font-black text-slate-950 uppercase tracking-wider">e-Mola</h4>
+                                                <h4 className="text-xs font-black text-slate-950  tracking-wider">e-Mola</h4>
                                             </div>
                                         </div>
                                         <div className={cn(
@@ -380,7 +380,7 @@ export const CheckoutPage = () => {
                                             >
                                                 <div className="flex overflow-hidden">
                                                     <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
-                                                        <span className="text-[9px] opacity-60 uppercase font-black">MZ</span> +258
+                                                        <span className="text-[9px] opacity-60  font-black">MZ</span> +258
                                                     </div>
                                                     <input 
                                                         type="text" 
@@ -436,14 +436,14 @@ export const CheckoutPage = () => {
                                 {status === 'processing' ? (
                                     <>
                                         <Loader2 className="animate-spin" size={20} />
-                                        <span className="uppercase tracking-[0.1em]">Processando...</span>
+                                        <span className=" tracking-[0.1em]">Processando...</span>
                                     </>
                                 ) : (
                                     <>
                                         <div className="h-5 w-5 rounded-full border-2 border-white flex items-center justify-center">
                                             <Check size={12} strokeWidth={4} />
                                         </div>
-                                        <span className="uppercase tracking-[0.1em]">Comprar agora</span>
+                                        <span className=" tracking-[0.1em]">Comprar agora</span>
                                     </>
                                 )}
                             </button>

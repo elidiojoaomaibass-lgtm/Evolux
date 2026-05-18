@@ -185,7 +185,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                             </p>
                             <button 
                                 onClick={onClose}
-                                className="w-full h-14 bg-slate-900 text-white rounded-xl font-bold uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg"
+                                className="w-full h-14 bg-slate-900 text-white rounded-xl font-bold  tracking-widest hover:bg-slate-800 transition-all shadow-lg"
                             >
                                 Fechar
                             </button>
@@ -271,8 +271,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                                     <span className="text-sm font-black text-slate-900 shrink-0">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="px-2 py-0.5 bg-slate-200 text-slate-600 rounded text-[10px] font-bold uppercase tracking-wider">{product.type}</span>
-                                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{product.category}</span>
+                                                    <span className="px-2 py-0.5 bg-slate-200 text-slate-600 rounded text-[10px] font-bold  tracking-wider">{product.type}</span>
+                                                    <span className="text-[10px] text-slate-400 font-bold  tracking-wider">{product.category}</span>
                                                 </div>
                                                 {product.description && (
                                                     <p className="text-xs text-slate-500 line-clamp-2 md:line-clamp-3 leading-relaxed pt-1 italic">
@@ -311,7 +311,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                         <label className="text-xs font-bold text-slate-700">Telefone*</label>
                                         <div className="flex overflow-hidden">
                                             <div className="h-11 px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-medium text-slate-600 gap-1.5 shrink-0">
-                                                <span className="text-[10px] opacity-60 uppercase font-black">MZ</span> +258
+                                                <span className="text-[10px] opacity-60  font-black">MZ</span> +258
                                             </div>
                                             <input 
                                                 type="text" 
@@ -385,7 +385,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                             <div className="h-8 w-8 p-0.5 bg-white rounded-lg border border-slate-100 flex items-center justify-center overflow-hidden">
                                                 <img src="/mpesa_logo.png" alt="M-Pesa" className="w-full h-full object-cover" />
                                             </div>
-                                            <span className="text-xs font-black text-slate-900 uppercase tracking-tight">M-Pesa</span>
+                                            <span className="text-xs font-black text-slate-900  tracking-tight">M-Pesa</span>
                                         </div>
 
                                         <AnimatePresence>
@@ -395,7 +395,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                                     animate={{ height: 'auto', opacity: 1 }}
                                                     className="px-4 pb-4 space-y-2"
                                                 >
-                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Número de celular*</label>
+                                                    <label className="text-[10px] font-black text-slate-500  tracking-widest leading-none">Número de celular*</label>
                                                     <input 
                                                         type="text" 
                                                         placeholder="84 xxx xxxx"
@@ -426,7 +426,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                             <div className="h-8 w-8 p-0.5 bg-white rounded-lg border border-slate-100 flex items-center justify-center overflow-hidden">
                                                 <img src="/emola_logo.png" alt="e-Mola" className="w-full h-full object-cover" />
                                             </div>
-                                            <span className="text-xs font-black text-slate-900 uppercase tracking-tight">e-Mola</span>
+                                            <span className="text-xs font-black text-slate-900  tracking-tight">e-Mola</span>
                                         </div>
                                         <AnimatePresence>
                                             {method === 'emola' && (
@@ -435,7 +435,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                                     animate={{ height: 'auto', opacity: 1 }}
                                                     className="px-4 pb-4 space-y-2"
                                                 >
-                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Número de celular*</label>
+                                                    <label className="text-[10px] font-black text-slate-500  tracking-widest leading-none">Número de celular*</label>
                                                     <input 
                                                         type="text" 
                                                         placeholder="87 xxx xxxx"
@@ -501,11 +501,11 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                             <div className="flex flex-row items-center justify-center gap-4 opacity-70">
                                 <div className="flex items-center gap-1.5 text-emerald-600">
                                     <ShieldCheck size={14} />
-                                    <span className="text-[9px] font-bold uppercase tracking-widest">Seguro</span>
+                                    <span className="text-[9px] font-bold  tracking-widest">Seguro</span>
                                 </div>
                                 <div className="flex items-center gap-1.5 text-emerald-600">
                                     <Check size={14} />
-                                    <span className="text-[9px] font-bold uppercase tracking-widest">100% Protegido</span>
+                                    <span className="text-[9px] font-bold  tracking-widest">100% Protegido</span>
                                 </div>
                             </div>
                         </div>
