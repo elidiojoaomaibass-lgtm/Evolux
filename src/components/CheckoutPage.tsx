@@ -225,7 +225,7 @@ export const CheckoutPage = () => {
                         {/* Section 2: Resumo do Produto */}
                         <div className="space-y-4 p-5 rounded-2xl bg-slate-50 border border-slate-100">
                             <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
-                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Resumo da Encomenda</h3>
+                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Resumo do pedido</h3>
                             </div>
 
                             {/* Image and Basic Info */}
@@ -249,7 +249,6 @@ export const CheckoutPage = () => {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <span className="px-2 py-0.5 bg-violet-100 text-violet-750 rounded text-[9px] font-black uppercase tracking-wider">Acesso Imediato</span>
-                                        <span className="text-[9px] text-slate-450 font-black uppercase tracking-wider">🔒 Pagamento Seguro</span>
                                     </div>
                                 </div>
                             </div>
@@ -318,9 +317,6 @@ export const CheckoutPage = () => {
                                                 className="space-y-2 pt-3 border-t border-red-500/10 cursor-default"
                                                 onClick={(e) => e.stopPropagation()} // Prevent card deselection/toggle click
                                             >
-                                                <label className="text-[10px] font-black text-slate-650 uppercase tracking-widest leading-none block">
-                                                    Número da Carteira M-Pesa*
-                                                </label>
                                                 <div className="flex overflow-hidden">
                                                     <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
                                                         <span className="text-[9px] opacity-60 uppercase font-black">MZ</span> +258
@@ -380,9 +376,6 @@ export const CheckoutPage = () => {
                                                 className="space-y-2 pt-3 border-t border-orange-500/10 cursor-default"
                                                 onClick={(e) => e.stopPropagation()} // Prevent card deselection/toggle click
                                             >
-                                                <label className="text-[10px] font-black text-slate-650 uppercase tracking-widest leading-none block">
-                                                    Número da Carteira e-Mola*
-                                                </label>
                                                 <div className="flex overflow-hidden">
                                                     <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
                                                         <span className="text-[9px] opacity-60 uppercase font-black">MZ</span> +258
