@@ -145,13 +145,15 @@ export const CheckoutPage = () => {
 
     return (
         <div className="min-h-[100dvh] bg-slate-50 flex flex-col">
-            <CountdownBanner />
-            {/* Header */}
-            <header className="bg-white border-b border-slate-100 py-4 px-6 sticky top-0 z-50">
-                <div className="max-w-4xl mx-auto flex items-center justify-center">
-                    <Logo size={28} showText={true} textColor="text-slate-900" />
-                </div>
-            </header>
+            <div className="sticky top-0 z-50 shadow-sm">
+                <CountdownBanner />
+                {/* Header */}
+                <header className="bg-white border-b border-slate-100 py-4 px-6">
+                    <div className="max-w-4xl mx-auto flex items-center justify-start">
+                        <Logo size={28} showText={true} textColor="text-slate-900" />
+                    </div>
+                </header>
+            </div>
 
             {/* Centered Single-Column Container */}
             <main className="flex-1 max-w-2xl w-full mx-auto p-4 md:p-8">
