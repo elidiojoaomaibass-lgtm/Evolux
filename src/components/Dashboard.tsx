@@ -502,60 +502,68 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                     </div>
 
                     <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-slate-100 overflow-hidden">
-                        <div className="grid grid-cols-6 gap-4 px-6 py-4 border-b border-slate-100/50">
-                            <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest">ID</div>
-                            <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Produto</div>
-                            <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Cliente</div>
-                            <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Método</div>
-                            <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Valor / Estado</div>
-                            <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-right">Data/Hora</div>
-                        </div>
-                        {filteredTxs.length > 0 ? (
-                            <div className="divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
-                                {filteredTxs.slice(0, 5).map(tx => (
-                                    <div key={tx.id} className="grid grid-cols-6 gap-4 px-6 py-3.5 items-center hover:bg-slate-50/50 transition-all">
-                                        <div className="font-mono text-[10px] font-bold text-slate-400 truncate">
-                                            #{tx.id.substring(0, 12)}
-                                        </div>
-                                        <div className="text-xs font-bold text-slate-700 text-center truncate">
-                                            {tx.description || 'Pagamento'}
-                                        </div>
-                                        <div className="text-xs text-slate-600 text-center truncate">
-                                            {tx.customerName || 'Cliente'} ({tx.phone})
-                                        </div>
-                                        <div className="flex justify-center">
-                                            <div className={cn(
-                                                "px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border shadow-sm",
-                                                tx.method === 'e-Mola' 
-                                                    ? "bg-orange-50 text-orange-600 border-orange-200"
-                                                    : "bg-red-50 text-red-600 border-red-200"
-                                            )}>
-                                                {tx.method}
+                        <div className="overflow-x-auto">
+                            <div className="min-w-[900px]">
+                                <div className="grid grid-cols-7 gap-4 px-6 py-4 border-b border-slate-100/50">
+                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest">ID</div>
+                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Produto</div>
+                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Cliente</div>
+                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">E-mail</div>
+                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Método</div>
+                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Valor / Estado</div>
+                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-right">Data/Hora</div>
+                                </div>
+                                {filteredTxs.length > 0 ? (
+                                    <div className="divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
+                                        {filteredTxs.slice(0, 5).map(tx => (
+                                            <div key={tx.id} className="grid grid-cols-7 gap-4 px-6 py-3.5 items-center hover:bg-slate-50/50 transition-all">
+                                                <div className="font-mono text-[10px] font-bold text-slate-400 truncate">
+                                                    #{tx.id.substring(0, 12)}
+                                                </div>
+                                                <div className="text-xs font-bold text-slate-700 text-center truncate">
+                                                    {tx.description || 'Pagamento'}
+                                                </div>
+                                                <div className="text-xs text-slate-600 text-center truncate">
+                                                    {tx.customerName || 'Cliente'} ({tx.phone})
+                                                </div>
+                                                <div className="text-xs text-slate-600 text-center truncate select-all">
+                                                    {tx.customerEmail || '—'}
+                                                </div>
+                                                <div className="flex justify-center">
+                                                    <div className={cn(
+                                                        "px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border shadow-sm",
+                                                        tx.method === 'e-Mola' 
+                                                            ? "bg-orange-50 text-orange-600 border-orange-200"
+                                                            : "bg-red-50 text-red-600 border-red-200"
+                                                    )}>
+                                                        {tx.method}
+                                                    </div>
+                                                </div>
+                                                <div className="text-center flex flex-col items-center">
+                                                    <span className="text-xs font-black text-slate-800">{tx.amount.toLocaleString()} MZN</span>
+                                                    <span className={cn(
+                                                        "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider mt-0.5 border",
+                                                        tx.status === 'Concluído' ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
+                                                        tx.status === 'Pendente' ? "bg-amber-50 text-amber-600 border-amber-200" :
+                                                        "bg-red-50 text-red-600 border-red-200"
+                                                    )}>
+                                                        {tx.status}
+                                                    </span>
+                                                </div>
+                                                <div className="text-right text-[10px] text-slate-400 font-bold">
+                                                    {new Date(tx.createdAt).toLocaleDateString('pt-PT')} <br />
+                                                    {new Date(tx.createdAt).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="text-center flex flex-col items-center">
-                                            <span className="text-xs font-black text-slate-800">{tx.amount.toLocaleString()} MZN</span>
-                                            <span className={cn(
-                                                "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider mt-0.5 border",
-                                                tx.status === 'Concluído' ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
-                                                tx.status === 'Pendente' ? "bg-amber-50 text-amber-600 border-amber-200" :
-                                                "bg-red-50 text-red-600 border-red-200"
-                                            )}>
-                                                {tx.status}
-                                            </span>
-                                        </div>
-                                        <div className="text-right text-[10px] text-slate-400 font-bold">
-                                            {new Date(tx.createdAt).toLocaleDateString('pt-PT')} <br />
-                                            {new Date(tx.createdAt).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
-                                        </div>
+                                        ))}
                                     </div>
-                                ))}
+                                ) : (
+                                    <div className="h-32 flex items-center justify-center text-sm font-medium text-slate-400">
+                                        Nenhuma transação recente.
+                                    </div>
+                                )}
                             </div>
-                        ) : (
-                            <div className="h-32 flex items-center justify-center text-sm font-medium text-slate-400">
-                                Nenhuma transação recente.
-                            </div>
-                        )}
+                        </div>
                     </div>
                 </div>
 
