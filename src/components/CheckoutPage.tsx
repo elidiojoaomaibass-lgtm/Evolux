@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     X, Check,
-    ShieldCheck, 
     Loader2,
     AlertCircle
 } from 'lucide-react';
