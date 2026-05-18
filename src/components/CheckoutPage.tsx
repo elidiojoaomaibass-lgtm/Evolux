@@ -146,7 +146,7 @@ export const CheckoutPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-[100dvh] bg-slate-50 flex flex-col">
             <CountdownBanner />
             {/* Header */}
             <header className="bg-white border-b border-slate-100 py-4 px-6 sticky top-0 z-50">

@@ -214,7 +214,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                         initial={{ opacity: 0, y: 100 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 100 }}
-                        className="relative w-full max-w-[500px] bg-[#f8f9fa] md:rounded-[2rem] shadow-2xl overflow-hidden min-h-screen md:min-h-0 md:max-h-[95vh] flex flex-col"
+                        className="relative w-full max-w-[500px] bg-[#f8f9fa] md:rounded-[2rem] shadow-2xl overflow-hidden min-h-[100dvh] md:min-h-0 md:max-h-[95vh] flex flex-col"
                     >
                         <CountdownBanner />
                         {/* Branding Header */}
