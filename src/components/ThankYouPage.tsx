@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, ShoppingBag } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
 export const ThankYouPage = () => {
     const [details, setDetails] = useState<{
@@ -44,14 +44,7 @@ export const ThankYouPage = () => {
         }
     }, []);
 
-    const handleBack = () => {
-        // Voltar para a página de vendas anterior (referenciador) ou histórico do navegador
-        if (document.referrer && document.referrer.indexOf(window.location.hostname) === -1) {
-            window.location.href = document.referrer;
-        } else {
-            window.history.back();
-        }
-    };
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-center justify-center p-4 relative overflow-hidden">
