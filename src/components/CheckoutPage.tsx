@@ -8,11 +8,9 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../lib/utils';
-import { useTransactionsStore } from '../lib/store';
 import { Logo } from './Logo';
 
 export const CheckoutPage = () => {
-    const { addTransaction } = useTransactionsStore();
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
     const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -68,7 +66,6 @@ export const CheckoutPage = () => {
             return digits.slice(0, 9);
         };
 
-        const sanitizedPhone = cleanPhone(phone);
         const sanitizedPaymentPhone = cleanPhone(paymentPhone);
 
         try {

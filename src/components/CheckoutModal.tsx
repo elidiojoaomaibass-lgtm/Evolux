@@ -8,7 +8,6 @@ import {
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import type { Product } from '../lib/store';
-import { useTransactionsStore } from '../lib/store';
 import { Logo } from './Logo';
 
 interface CheckoutModalProps {
@@ -18,7 +17,6 @@ interface CheckoutModalProps {
 }
 
 export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) => {
-    const { addTransaction } = useTransactionsStore();
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
     const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -67,7 +65,6 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             return digits.slice(0, 9);
         };
 
-        const sanitizedPhone = cleanPhone(phone);
         const sanitizedPaymentPhone = cleanPhone(paymentPhone);
 
         try {
