@@ -300,7 +300,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                             placeholder="Seu nome completo"
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
-                                            className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300"
+                                            className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white text-base focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300"
                                             required
                                         />
                                     </div>
@@ -316,7 +316,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                                 placeholder="84 xxx xxxx"
                                                 value={phone}
                                                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
-                                                className="flex-1 h-11 px-4 rounded-r-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300"
+                                                className="flex-1 h-11 px-4 rounded-r-xl border border-slate-200 bg-white text-base focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300"
                                                 required
                                             />
                                         </div>
@@ -329,7 +329,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                             placeholder="seu@email.com"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300"
+                                            className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white text-base focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300"
                                         />
                                     </div>
                                 </div>
@@ -399,7 +399,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                                         placeholder="84 xxx xxxx"
                                                         value={paymentPhone}
                                                         onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
-                                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300"
+                                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white text-base focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300"
                                                     />
                                                 </motion.div>
                                             )}
@@ -439,7 +439,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                                         placeholder="87 xxx xxxx"
                                                         value={paymentPhone}
                                                         onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
-                                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-slate-300"
+                                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white text-base focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-slate-300"
                                                     />
                                                 </motion.div>
                                             )}
