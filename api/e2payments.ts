@@ -43,7 +43,7 @@ async function logFailure(
       customerName: customerName || 'Cliente',
       customerEmail: customerEmail || '',
       device: device || 'Desktop',
-      createdAt: new Date().toISOString()
+      createdat: new Date().toISOString()
     }]);
     console.log('Transação de erro persistida com sucesso no Supabase.');
   } catch (dbErr) {
@@ -280,7 +280,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         customerName: customerName,
         customerEmail: customerEmail,
         device: device,
-        createdAt: new Date().toISOString()
+        createdat: new Date().toISOString()
       }]);
       console.log('Transação pendente persistida com sucesso no Supabase.');
     } catch (dbErr) {

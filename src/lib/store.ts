@@ -276,13 +276,17 @@ export const useTransactionsStore = () => {
                 const { data, error } = await supabase
                     .from('transactions')
                     .select('*')
-                    .order('createdAt', { ascending: false });
+                    .order('createdat', { ascending: false });
                 
                 if (error) {
                     throw error;
                 }
                 if (data && data.length > 0) {
-                    updateTransactions(data);
+                    const mapped = data.map((tx: any) => ({
+                        ...tx,
+                        createdAt: tx.createdAt || tx.createdat
+                    }));
+                    updateTransactions(mapped);
                 } else {
                     // Se estiver vazio no Supabase, tenta carregar as transações locais salvas
                     const local = getInitialTransactions();
@@ -339,7 +343,20 @@ export const useTransactionsStore = () => {
         try {
             const { error } = await supabase
                 .from('transactions')
-                .insert([newTx]);
+                .insert([{
+                    id: newTx.id,
+                    type: newTx.type,
+                    amount: newTx.amount,
+                    phone: newTx.phone,
+                    method: newTx.method,
+                    status: newTx.status,
+                    reference: newTx.reference,
+                    description: newTx.description,
+                    customerName: newTx.customerName,
+                    customerEmail: newTx.customerEmail,
+                    device: newTx.device,
+                    createdat: newTx.createdAt
+                }]);
             if (error) {
                 console.warn('Erro ao inserir transação no Supabase:', error);
             }
