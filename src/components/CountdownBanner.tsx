@@ -21,7 +21,7 @@ export const CountdownBanner = () => {
     };
 
     return (
-        <div className="w-full bg-[#007BFF] text-white py-2 px-4 flex items-center justify-center gap-2 text-sm font-black tracking-wide shadow-sm z-[100] relative">
+        <div className="w-full bg-[#007BFF] text-white py-3 px-4 flex items-center justify-center gap-2 text-base md:text-lg font-black tracking-wide shadow-sm z-[100] relative">
             <span>⚡ Oferta Exclusiva! Expira em ⏰ {formatTime(timeLeft)}</span>
         </div>
     );

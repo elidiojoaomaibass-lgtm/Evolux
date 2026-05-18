@@ -149,12 +149,8 @@ export const CheckoutPage = () => {
             <CountdownBanner />
             {/* Header */}
             <header className="bg-white border-b border-slate-100 py-4 px-6 sticky top-0 z-50">
-                <div className="max-w-4xl mx-auto flex items-center justify-between">
+                <div className="max-w-4xl mx-auto flex items-center justify-center">
                     <Logo size={28} showText={true} textColor="text-slate-900" />
-                    <div className="flex items-center gap-1.5 text-emerald-600 font-bold bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
-                        <ShieldCheck size={16} />
-                        <span className="text-[10px]  tracking-wider">Pagamento 100% Seguro</span>
-                    </div>
                 </div>
             </header>
 
@@ -175,12 +171,12 @@ export const CheckoutPage = () => {
                         {/* Section 1: Customer Details */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-                                <h3 className="text-sm font-bold text-slate-900  tracking-wider">Informações do cliente</h3>
+                                <h3 className="text-base font-bold text-slate-900  tracking-wider">Informações do cliente</h3>
                             </div>
                             
                             <div className="space-y-3.5">
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-black text-slate-600  tracking-wider">Nome</label>
+                                    <label className="text-xs font-black text-slate-600  tracking-wider">Nome</label>
                                     <input 
                                         type="text" 
                                         placeholder="Introduza o seu nome completo"
@@ -193,10 +189,10 @@ export const CheckoutPage = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black text-slate-600  tracking-wider">Contacto WhatsApp*</label>
+                                        <label className="text-xs font-black text-slate-600  tracking-wider">Contacto WhatsApp*</label>
                                         <div className="flex overflow-hidden">
                                             <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
-                                                <span className="text-[9px] opacity-60  font-black">MZ</span> +258
+                                                <span className="text-[10px] opacity-60  font-black">MZ</span> +258
                                             </div>
                                             <input 
                                                 type="text" 
@@ -210,7 +206,7 @@ export const CheckoutPage = () => {
                                     </div>
 
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black text-slate-600  tracking-wider">E-mail</label>
+                                        <label className="text-xs font-black text-slate-600  tracking-wider">E-mail</label>
                                         <input 
                                             type="email" 
                                             placeholder="seu@email.com"
@@ -226,7 +222,7 @@ export const CheckoutPage = () => {
                         {/* Section 2: Resumo do Produto */}
                         <div className="space-y-4 p-5 rounded-2xl bg-slate-50 border border-slate-100">
                             <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
-                                <h3 className="text-sm font-bold text-slate-900  tracking-wider">Resumo do pedido</h3>
+                                <h3 className="text-base font-bold text-slate-900  tracking-wider">Resumo do pedido</h3>
                             </div>
 
                             {/* Image and Basic Info */}
@@ -246,10 +242,10 @@ export const CheckoutPage = () => {
                                 )}
                                 <div className="flex-1 min-w-0 space-y-1">
                                     <div className="flex justify-between items-start gap-2">
-                                        <p className="text-sm font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
+                                        <p className="text-base font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className="px-2 py-0.5 bg-violet-100 text-violet-750 rounded text-[9px] font-black  tracking-wider">Acesso Imediato</span>
+                                        <span className="px-2 py-0.5 bg-violet-100 text-violet-750 rounded text-[10px] font-black  tracking-wider">Acesso Imediato</span>
                                     </div>
                                 </div>
                             </div>
@@ -274,7 +270,7 @@ export const CheckoutPage = () => {
                         {/* Section 3: Payment Provider */}
                         <div className="space-y-4 pt-2">
                             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-                                <h3 className="text-sm font-bold text-slate-900  tracking-wider">Método de Pagamento</h3>
+                                <h3 className="text-base font-bold text-slate-900  tracking-wider">Método de Pagamento</h3>
                             </div>
 
                             <div className="space-y-4">
@@ -297,7 +293,7 @@ export const CheckoutPage = () => {
                                                 <img src="/mpesa_logo.png" alt="M-Pesa" className="w-full h-full object-cover" />
                                             </div>
                                             <div>
-                                                <h4 className="text-xs font-black text-slate-950  tracking-wider">M-Pesa</h4>
+                                                <h4 className="text-sm font-black text-slate-950  tracking-wider">M-Pesa</h4>
                                             </div>
                                         </div>
                                         <div className={cn(
@@ -320,7 +316,7 @@ export const CheckoutPage = () => {
                                             >
                                                 <div className="flex overflow-hidden">
                                                     <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
-                                                        <span className="text-[9px] opacity-60  font-black">MZ</span> +258
+                                                        <span className="text-[10px] opacity-60  font-black">MZ</span> +258
                                                     </div>
                                                     <input 
                                                         type="text" 
@@ -331,7 +327,7 @@ export const CheckoutPage = () => {
                                                         required={method === 'mpesa'}
                                                     />
                                                 </div>
-                                                <span className="text-[9px] text-slate-400 font-medium block">Introduza o seu PIN de segurança no telemóvel quando solicitado.</span>
+                                                <span className="text-[10px] text-slate-400 font-medium block">Introduza o seu PIN de segurança no telemóvel quando solicitado.</span>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
@@ -356,7 +352,7 @@ export const CheckoutPage = () => {
                                                 <img src="/emola_logo.png" alt="e-Mola" className="w-full h-full object-cover" />
                                             </div>
                                             <div>
-                                                <h4 className="text-xs font-black text-slate-950  tracking-wider">e-Mola</h4>
+                                                <h4 className="text-sm font-black text-slate-950  tracking-wider">e-Mola</h4>
                                             </div>
                                         </div>
                                         <div className={cn(
@@ -379,7 +375,7 @@ export const CheckoutPage = () => {
                                             >
                                                 <div className="flex overflow-hidden">
                                                     <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
-                                                        <span className="text-[9px] opacity-60  font-black">MZ</span> +258
+                                                        <span className="text-[10px] opacity-60  font-black">MZ</span> +258
                                                     </div>
                                                     <input 
                                                         type="text" 
@@ -390,7 +386,7 @@ export const CheckoutPage = () => {
                                                         required={method === 'emola'}
                                                     />
                                                 </div>
-                                                <span className="text-[9px] text-slate-400 font-medium block">Introduza o seu PIN de segurança no telemóvel quando solicitado.</span>
+                                                <span className="text-[10px] text-slate-400 font-medium block">Introduza o seu PIN de segurança no telemóvel quando solicitado.</span>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
@@ -447,7 +443,7 @@ export const CheckoutPage = () => {
                                 )}
                             </button>
 
-                            <p className="text-[10px] text-slate-400 font-medium leading-relaxed text-center max-w-md mx-auto">
+                            <p className="text-xs text-slate-400 font-medium leading-relaxed text-center max-w-md mx-auto">
                                 Clicando acima, aceita os nossos Termos de Compra. Seus dados estão 100% protegidos.
                             </p>
                         </div>
