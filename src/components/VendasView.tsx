@@ -354,12 +354,13 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 opacity-30" />
 
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse min-w-[1000px]">
+                        <table className="w-full text-left border-collapse min-w-[1100px]">
                             <thead>
                                 <tr className="bg-slate-50/50 dark:bg-white/5">
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">ID Transação</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Descrição / Produto</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Cliente</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">E-mail</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Canal</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-right">Valor Bruto</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Estado</th>
@@ -395,6 +396,11 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                                         <span className="text-[14px] font-black text-slate-700 dark:text-white tracking-tight">{trx.customerName || 'Cliente Direto'}</span>
                                                         <span className="text-[10px] font-bold text-slate-400 dark:text-brand-500 mt-0.5">{trx.phone}</span>
                                                     </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-10 py-2.5">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[13px] font-bold text-slate-700 dark:text-brand-350 tracking-tight select-all">{trx.customerEmail || '—'}</span>
                                                 </div>
                                             </td>
                                             <td className="px-10 py-2.5">
@@ -435,7 +441,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                         </motion.tr>
                                     )) : (
                                         <motion.tr layout>
-                                            <td colSpan={7} className="px-8 py-32 text-center">
+                                            <td colSpan={8} className="px-8 py-32 text-center">
                                                 <div className="flex flex-col items-center gap-6">
                                                     <div className="h-20 w-20 rounded-full bg-slate-50 dark:bg-brand-950 flex items-center justify-center text-slate-200 dark:text-brand-900 border-2 border-dashed border-slate-200 dark:border-brand-800">
                                                         <Search size={40} />
