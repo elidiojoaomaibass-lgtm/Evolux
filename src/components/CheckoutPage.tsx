@@ -3,8 +3,7 @@ import {
     X, Check,
     ShieldCheck, 
     Loader2,
-    AlertCircle,
-    CheckCircle2
+    AlertCircle
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../lib/utils';
@@ -176,12 +175,12 @@ export const CheckoutPage = () => {
                         {/* Section 1: Customer Details */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-                                <h3 className="text-sm font-bold text-slate-900  tracking-wider">Dados Pessoais</h3>
+                                <h3 className="text-sm font-bold text-slate-900  tracking-wider">Informações do cliente</h3>
                             </div>
                             
                             <div className="space-y-3.5">
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-black text-slate-600  tracking-wider">Nome Completo*</label>
+                                    <label className="text-[10px] font-black text-slate-600  tracking-wider">Nome</label>
                                     <input 
                                         type="text" 
                                         placeholder="Introduza o seu nome completo"
@@ -211,7 +210,7 @@ export const CheckoutPage = () => {
                                     </div>
 
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black text-slate-600  tracking-wider">E-mail (opcional)</label>
+                                        <label className="text-[10px] font-black text-slate-600  tracking-wider">E-mail</label>
                                         <input 
                                             type="email" 
                                             placeholder="seu@email.com"
@@ -453,19 +452,6 @@ export const CheckoutPage = () => {
                             </p>
                         </div>
                     </form>
-
-                    {/* Features Badges */}
-                    <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-center items-center gap-4 text-slate-500 text-[11px] font-semibold">
-                        <div className="flex items-center gap-1.5">
-                            <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                            <span>Acesso imediato no telemóvel/email</span>
-                        </div>
-                        <div className="hidden sm:block text-slate-350">•</div>
-                        <div className="flex items-center gap-1.5">
-                            <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                            <span>Ambiente de segurança garantido</span>
-                        </div>
-                    </div>
                 </div>
 
             </main>

@@ -296,7 +296,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                 
                                 <div className="space-y-3">
                                     <div className="space-y-1">
-                                        <label className="text-xs font-bold text-slate-700">Nome*</label>
+                                        <label className="text-xs font-bold text-slate-700">Nome</label>
                                         <input 
                                             type="text" 
                                             placeholder="Seu nome completo"
@@ -325,7 +325,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                     </div>
 
                                     <div className="space-y-1">
-                                        <label className="text-xs font-bold text-slate-700">E-mail (opcional)</label>
+                                        <label className="text-xs font-bold text-slate-700">E-mail</label>
                                         <input 
                                             type="email" 
                                             placeholder="seu@email.com"
