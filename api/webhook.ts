@@ -1,9 +1,17 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+
+let supabase: any = null;
+if (supabaseUrl && supabaseAnonKey) {
+    try {
+        supabase = createClient(supabaseUrl, supabaseAnonKey);
+    } catch (e) {
+        console.error('Erro ao inicializar Supabase no webhook:', e);
+    }
+}
 
 /**
  * Webhook Handler for E2Payments
@@ -12,6 +20,11 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+
+    if (!supabase) {
+        console.error('Supabase client is not configured in webhook.');
+        return res.status(500).json({ error: 'Supabase environment variables are missing on Vercel.' });
     }
 
     try {

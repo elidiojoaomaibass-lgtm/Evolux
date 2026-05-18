@@ -1,9 +1,17 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+
+let supabase: any = null;
+if (supabaseUrl && supabaseAnonKey) {
+  try {
+    supabase = createClient(supabaseUrl, supabaseAnonKey);
+  } catch (e) {
+    console.error('Erro ao inicializar Supabase no e2payments:', e);
+  }
+}
 
 // Helper central para registar falhas no Supabase em qualquer cenário
 async function logFailure(
@@ -18,6 +26,10 @@ async function logFailure(
   type: string
 ) {
   if (type === 'b2c') return; // Saques não são registados como falhas de compra
+  if (!supabase) {
+    console.warn('Supabase não configurado no backend. Impossível persistir log de falha.');
+    return;
+  }
   try {
     await supabase.from('transactions').insert([{
       id: `ERR${Date.now()}_${Math.floor(Math.random() * 1000)}`,
@@ -254,8 +266,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Salvar transação de sucesso (Pendente) no Supabase
-    try {
-      await supabase.from('transactions').insert([{
+    if (supabase) {
+      try {
+        await supabase.from('transactions').insert([{
         id: paymentData.transaction_id || paymentData.id || reference,
         type: type === 'b2c' ? 'withdrawal' : 'payment',
         amount: amountNum,
@@ -273,6 +286,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch (dbErr) {
       console.error("Erro ao registrar transação pendente no Supabase:", dbErr);
     }
+  } else {
+    console.warn("Supabase não configurado no backend. Transação concluída sem persistência.");
+  }
 
     return res.status(200).json({
       success: true,
