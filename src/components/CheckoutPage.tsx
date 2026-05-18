@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { cn } from '../lib/utils';
 import { useTransactionsStore } from '../lib/store';
 import { Logo } from './Logo';
+import { CountdownBanner } from './CountdownBanner';
 
 export const CheckoutPage = () => {
     const { addTransaction } = useTransactionsStore();
@@ -146,6 +147,7 @@ export const CheckoutPage = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
+            <CountdownBanner />
             {/* Header */}
             <header className="bg-white border-b border-slate-100 py-4 px-6 sticky top-0 z-50">
                 <div className="max-w-4xl mx-auto flex items-center justify-between">

@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { useTransactionsStore, type Product } from '../lib/store';
 import { Logo } from './Logo';
+import { CountdownBanner } from './CountdownBanner';
 
 interface CheckoutModalProps {
     product: Product | null;
@@ -215,6 +216,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                         exit={{ opacity: 0, y: 100 }}
                         className="relative w-full max-w-[500px] bg-[#f8f9fa] md:rounded-[2rem] shadow-2xl overflow-hidden min-h-screen md:min-h-0 md:max-h-[95vh] flex flex-col"
                     >
+                        <CountdownBanner />
                         {/* Branding Header */}
                         <div className="bg-white px-6 py-4 md:py-6 flex items-center justify-between z-30 shadow-sm">
                             <Logo size={28} showText={true} textColor="text-slate-900" />
