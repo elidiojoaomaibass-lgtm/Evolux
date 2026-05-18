@@ -5,29 +5,79 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// Helper central para registar falhas no Supabase em qualquer cenário
+async function logFailure(
+  sanitizedPhone: string,
+  amount: number,
+  provider: string,
+  reference: string,
+  friendlyMessage: string,
+  customerName: string,
+  customerEmail: string,
+  device: string,
+  type: string
+) {
+  if (type === 'b2c') return; // Saques não são registados como falhas de compra
+  try {
+    await supabase.from('transactions').insert([{
+      id: `ERR${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+      type: 'payment',
+      amount: Number(amount || 0),
+      phone: sanitizedPhone || '000000000',
+      method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
+      status: 'Falhou',
+      reference: reference || `REF${Date.now()}`,
+      description: `Compra recusada: ${friendlyMessage}`,
+      customerName: customerName || 'Cliente',
+      customerEmail: customerEmail || '',
+      device: device || 'Desktop',
+      createdAt: new Date().toISOString()
+    }]);
+    console.log('Transação de erro persistida com sucesso no Supabase.');
+  } catch (dbErr) {
+    console.error("Erro ao registrar falha de transação no Supabase:", dbErr);
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método não permitido.' });
   }
 
+  // Valores padrão para log de falhas precoce
+  let sanitizedPhone = '';
+  let amountNum = 0;
+  let provider = 'mpesa';
+  let reference = `REF${Date.now()}`;
+  let customerName = 'Cliente';
+  let customerEmail = '';
+  let type = 'c2b';
+  let device = 'Desktop';
+
   try {
-    // Garantir que temos o body
+    const userAgent = req.headers['user-agent'] || '';
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    device = isMobile ? 'Mobile' : 'Desktop';
+
     const body = req.body || {};
     const parsedBody = typeof body === 'string' ? JSON.parse(body) : body;
 
     const { 
       phone, 
       amount, 
-      reference, 
       client_id, 
       client_secret, 
       wallet_mpesa, 
-      wallet_emola, 
-      type = 'c2b',
-      customerName = 'Cliente',
-      customerEmail = '',
-      description = ''
+      wallet_emola,
+      customerName: cName,
+      customerEmail: cEmail
     } = parsedBody;
+
+    if (parsedBody.type) type = parsedBody.type;
+    if (parsedBody.reference) reference = parsedBody.reference;
+    if (cName) customerName = cName;
+    if (cEmail) customerEmail = cEmail;
+    if (amount) amountNum = Number(amount);
 
     if (!phone || !amount) {
       return res.status(400).json({ error: 'Telefone e valor são obrigatórios.' });
@@ -38,29 +88,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (digits.startsWith('258') && digits.length > 9) {
       digits = digits.substring(3);
     }
-    const sanitizedPhone = digits.slice(0, 9);
+    sanitizedPhone = digits.slice(0, 9);
 
     const final_client_id = (client_id || process.env.E2_CLIENT_ID || '').trim();
     const final_client_secret = (client_secret || process.env.E2_CLIENT_SECRET || '').trim();
 
-    if (!final_client_id || !final_client_secret) {
-      return res.status(400).json({ error: 'Credenciais E2Payments (Client ID/Secret) não configuradas.' });
-    }
-
-    console.log(`Debug Autenticação: Usando Client ID: ${final_client_id.substring(0, 8)}...`);
-
-    // Lógica para selecionar a carteira correta e o provider baseado no prefixo
-    let wallet_number = wallet_mpesa || process.env.E2_WALLET_MPESA;
-    let provider = 'mpesa';
-    
-    // Prefixos e-Mola (86, 87)
+    // Deteção do provider baseado no prefixo
     if (sanitizedPhone.startsWith('86') || sanitizedPhone.startsWith('87')) {
-      wallet_number = wallet_emola || process.env.E2_WALLET_EMOLA;
       provider = 'emola';
     }
 
+    if (!final_client_id || !final_client_secret) {
+      const friendly = 'Credenciais E2Payments (Client ID/Secret) não configuradas.';
+      await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type);
+      return res.status(400).json({ error: friendly });
+    }
+
+    // Selecionar carteira correta
+    let wallet_number = provider === 'emola' 
+      ? (wallet_emola || process.env.E2_WALLET_EMOLA)
+      : (wallet_mpesa || process.env.E2_WALLET_MPESA);
+
     if (!wallet_number) {
-       return res.status(400).json({ error: `Número da carteira de receção/saída (${provider === 'mpesa' ? 'M-Pesa' : 'e-Mola'}) não configurado.` });
+       const friendly = `Número da carteira de receção (${provider === 'mpesa' ? 'M-Pesa' : 'e-Mola'}) não configurado.`;
+       await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type);
+       return res.status(400).json({ error: friendly });
     }
 
     console.log(`Iniciando transação ${provider.toUpperCase()} para o número ${sanitizedPhone} usando carteira ${wallet_number}`);
@@ -82,22 +134,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     } catch (fError: any) {
       console.error("Erro no Token E2Payments:", fError);
-      return res.status(500).json({ error: 'Erro de rede ao contactar E2Payments (Token).', message: fError.message });
+      const friendly = 'Erro de rede ao contactar E2Payments (Token).';
+      await logFailure(sanitizedPhone, amountNum, provider, reference, `${friendly}: ${fError.message}`, customerName, customerEmail, device, type);
+      return res.status(500).json({ error: friendly, message: fError.message });
     }
 
     const authContentType = authResponse.headers.get("content-type");
     if (!authContentType || !authContentType.includes("application/json")) {
       const rawAuth = await authResponse.text();
       console.error("Resposta não-JSON no Token:", rawAuth);
-      return res.status(500).json({ error: 'E2Payments respondeu com formato inválido no Token.', details: rawAuth });
+      const friendly = 'E2Payments respondeu com formato inválido no Token.';
+      await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type);
+      return res.status(500).json({ error: friendly, details: rawAuth });
     }
 
     const authData = await authResponse.json();
 
     if (!authResponse.ok || !authData.access_token) {
       console.error("Falha na Autenticação E2Payments:", authData);
+      const friendly = 'Falha na autenticação com E2Payments. Verifique Client ID e Secret.';
+      await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type);
       return res.status(401).json({ 
-        error: 'Falha na autenticação com E2Payments. Verifique Client ID e Secret.',
+        error: friendly,
         details: authData 
       });
     }
@@ -122,28 +180,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         },
         body: JSON.stringify({
           client_id: final_client_id,
-          amount: String(amount),
+          amount: String(amountNum),
           phone: String(sanitizedPhone),
-          reference: String(reference || `EV${Date.now()}`).replace(/[^a-zA-Z0-9]/g, '').slice(0, 20)
+          reference: String(reference).replace(/[^a-zA-Z0-9]/g, '').slice(0, 20)
         })
       });
     } catch (pError: any) {
       console.error("Erro na Transação E2Payments:", pError);
-      return res.status(500).json({ error: 'Erro de rede ao processar transação na E2Payments.', message: pError.message });
+      const friendly = 'Erro de rede ao processar transação na E2Payments.';
+      await logFailure(sanitizedPhone, amountNum, provider, reference, `${friendly}: ${pError.message}`, customerName, customerEmail, device, type);
+      return res.status(500).json({ error: friendly, message: pError.message });
     }
 
     const payContentType = paymentResponse.headers.get("content-type");
     if (!payContentType || !payContentType.includes("application/json")) {
       const rawPay = await paymentResponse.text();
       console.error("Resposta não-JSON na Transação:", rawPay);
-      return res.status(500).json({ error: 'E2Payments respondeu com formato inválido na Transação.', details: rawPay });
+      const friendly = 'E2Payments respondeu com formato inválido na Transação.';
+      await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type);
+      return res.status(500).json({ error: friendly, details: rawPay });
     }
 
     const paymentData = await paymentResponse.json();
-
-    const userAgent = req.headers['user-agent'] || '';
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-    const device = isMobile ? 'Mobile' : 'Desktop';
 
     if (!paymentResponse.ok) {
       console.error("Erro retornado pela E2Payments:", paymentData);
@@ -186,28 +244,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       }
 
-      // Salvar falha no Supabase imediatamente para C2B
-      if (type !== 'b2c') {
-        try {
-          await supabase.from('transactions').insert([{
-            id: `ERR${Date.now()}`,
-            type: 'payment',
-            amount: Number(amount),
-            phone: sanitizedPhone,
-            method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
-            status: 'Falhou',
-            reference: reference || `REF${Date.now()}`,
-            description: description || `Compra recusada: ${friendlyMessage}`,
-            customerName: customerName,
-            customerEmail: customerEmail,
-            device: device,
-            createdAt: new Date().toISOString()
-          }]);
-          console.log('Transação de erro persistida com sucesso no Supabase.');
-        } catch (dbErr) {
-          console.error("Erro ao registrar falha de transação no Supabase:", dbErr);
-        }
-      }
+      await logFailure(sanitizedPhone, amountNum, provider, reference, friendlyMessage, customerName, customerEmail, device, type);
 
       return res.status(paymentResponse.status || 400).json({ 
         error: friendlyMessage,
@@ -221,12 +258,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       await supabase.from('transactions').insert([{
         id: paymentData.transaction_id || paymentData.id || reference,
         type: type === 'b2c' ? 'withdrawal' : 'payment',
-        amount: Number(amount),
+        amount: amountNum,
         phone: sanitizedPhone,
         method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
         status: 'Pendente',
         reference: reference || `REF${Date.now()}`,
-        description: description || (type === 'b2c' ? 'Levantamento de Saldo' : `Compra online`),
+        description: type === 'b2c' ? 'Levantamento de Saldo' : `Compra online`,
         customerName: customerName,
         customerEmail: customerEmail,
         device: device,
@@ -249,41 +286,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error("Erro Fatal E2Payments:", error);
 
     // Salvar falha fatal no Supabase imediatamente para C2B
-    try {
-      const body = req.body || {};
-      const parsedBody = typeof body === 'string' ? JSON.parse(body) : body;
-      const { phone, amount, reference, customerName = 'Cliente', customerEmail = '', description = '', type = 'c2b' } = parsedBody;
-      
-      let digits = String(phone || '').replace(/\D/g, '');
-      if (digits.startsWith('258') && digits.length > 9) {
-        digits = digits.substring(3);
-      }
-      const sanitizedPhone = digits.slice(0, 9);
-      
-      const userAgent = req.headers['user-agent'] || '';
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-      const device = isMobile ? 'Mobile' : 'Desktop';
-
-      if (type !== 'b2c' && sanitizedPhone && amount) {
-        await supabase.from('transactions').insert([{
-          id: `ERR_FATAL_${Date.now()}`,
-          type: 'payment',
-          amount: Number(amount),
-          phone: sanitizedPhone,
-          method: (sanitizedPhone.startsWith('86') || sanitizedPhone.startsWith('87')) ? 'e-Mola' : 'M-Pesa',
-          status: 'Falhou',
-          reference: reference || `REF${Date.now()}`,
-          description: description || `Erro fatal de pagamento: ${error.message || 'Erro no servidor'}`,
-          customerName: customerName,
-          customerEmail: customerEmail,
-          device: device,
-          createdAt: new Date().toISOString()
-        }]);
-        console.log('Transação de erro fatal persistida com sucesso no Supabase.');
-      }
-    } catch (dbErr) {
-      console.error("Erro ao salvar falha fatal no Supabase:", dbErr);
-    }
+    await logFailure(sanitizedPhone, amountNum, provider, reference, `Erro crítico: ${error.message || 'Erro de processamento'}`, customerName, customerEmail, device, type);
 
     return res.status(500).json({ 
       error: 'Erro fatal no servidor de pagamento.',

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../lib/utils';
+import { useTransactionsStore } from '../lib/store';
 import { Logo } from './Logo';
 
 export const CheckoutPage = () => {
@@ -121,6 +122,25 @@ export const CheckoutPage = () => {
         } catch (err: any) {
             setErrorMessage(err.message || 'Ocorreu um erro ao processar a compra. Tente novamente.');
             setStatus('idle');
+
+            // Fallback de segurança local para quando a requisição falhar totalmente (ex: localhost 404)
+            try {
+                const { addTransaction } = useTransactionsStore();
+                addTransaction({
+                    id: `ERR_FB_${Date.now()}`,
+                    type: 'payment',
+                    amount: product.price,
+                    phone: paymentPhone,
+                    method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                    status: 'Falhou',
+                    reference: reference,
+                    description: `Compra: ${product.name} (Fallback/Erro: ${err.message || 'Erro'})`,
+                    customerName: name || 'Cliente',
+                    customerEmail: email || ''
+                });
+            } catch (dbErr) {
+                console.warn("Falha no fallback de gravação Supabase (não autenticado):", dbErr);
+            }
         }
     };
 
