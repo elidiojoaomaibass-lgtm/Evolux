@@ -1,4 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -10,11 +15,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const body = req.body || {};
     const parsedBody = typeof body === 'string' ? JSON.parse(body) : body;
 
-    const { phone, amount, reference, client_id, client_secret, wallet_mpesa, wallet_emola, type = 'c2b' } = parsedBody;
+    const { 
+      phone, 
+      amount, 
+      reference, 
+      client_id, 
+      client_secret, 
+      wallet_mpesa, 
+      wallet_emola, 
+      type = 'c2b',
+      customerName = 'Cliente',
+      customerEmail = '',
+      description = ''
+    } = parsedBody;
 
     if (!phone || !amount) {
       return res.status(400).json({ error: 'Telefone e valor são obrigatórios.' });
     }
+
+    // Sanitizar número de telefone
+    let digits = String(phone).replace(/\D/g, '');
+    if (digits.startsWith('258') && digits.length > 9) {
+      digits = digits.substring(3);
+    }
+    const sanitizedPhone = digits.slice(0, 9);
 
     const final_client_id = (client_id || process.env.E2_CLIENT_ID || '').trim();
     const final_client_secret = (client_secret || process.env.E2_CLIENT_SECRET || '').trim();
@@ -30,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let provider = 'mpesa';
     
     // Prefixos e-Mola (86, 87)
-    if (phone.startsWith('86') || phone.startsWith('87') || phone.startsWith('+25886') || phone.startsWith('+25887') || phone.startsWith('25886') || phone.startsWith('25887')) {
+    if (sanitizedPhone.startsWith('86') || sanitizedPhone.startsWith('87')) {
       wallet_number = wallet_emola || process.env.E2_WALLET_EMOLA;
       provider = 'emola';
     }
@@ -39,7 +63,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
        return res.status(400).json({ error: `Número da carteira de receção/saída (${provider === 'mpesa' ? 'M-Pesa' : 'e-Mola'}) não configurado.` });
     }
 
-    console.log(`Iniciando transação ${provider.toUpperCase()} para o número ${phone} usando carteira ${wallet_number}`);
+    console.log(`Iniciando transação ${provider.toUpperCase()} para o número ${sanitizedPhone} usando carteira ${wallet_number}`);
 
     // 1. Obter Token
     let authResponse;
@@ -81,12 +105,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const token = authData.access_token;
 
     // 2. Criar Pedido de Transação (C2B ou B2C)
-    // C2B M-Pesa: /v1/c2b/mpesa-payment/{wallet_id}
-    // C2B e-Mola: /v1/c2b/emola-payment/{wallet_id}
     let paymentResponse;
     try {
       const transactionType = type === 'b2c' ? 'b2c' : 'c2b';
-      // URL Dinâmica: mpesa-payment ou emola-payment
       const endpoint = `${provider}-payment`;
       const paymentUrl = `https://mpesaemolatech.com/v1/${transactionType}/${endpoint}/${wallet_number}`;
       
@@ -102,7 +123,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         body: JSON.stringify({
           client_id: final_client_id,
           amount: String(amount),
-          phone: String(phone),
+          phone: String(sanitizedPhone),
           reference: String(reference || `EV${Date.now()}`).replace(/[^a-zA-Z0-9]/g, '').slice(0, 20)
         })
       });
@@ -120,38 +141,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const paymentData = await paymentResponse.json();
 
+    const userAgent = req.headers['user-agent'] || '';
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    const device = isMobile ? 'Mobile' : 'Desktop';
+
     if (!paymentResponse.ok) {
       console.error("Erro retornado pela E2Payments:", paymentData);
       
-      // Tentar extrair o código de resposta do M-Pesa/e-Mola
       const mpesaResponse = paymentData.mpesa_server_response || paymentData.emola_server_response || {};
       const responseCode = mpesaResponse.output_ResponseCode || '';
       const responseDesc = (mpesaResponse.output_ResponseDesc || '').toLowerCase();
 
-      // Mapeamento completo de todos os códigos M-Pesa/e-Mola
       const errorMessages: Record<string, string> = {
-        // Saldo
         'INS-2006': 'Saldo insuficiente. Por favor, recarregue a sua conta M-Pesa e tente novamente.',
         'INS-6':    'Saldo insuficiente. Por favor, verifique o saldo e tente novamente.',
-        // Cancelamento / sem PIN
         'INS-5':    'Pagamento cancelado. Não introduziu o PIN no seu telemóvel. Tente novamente e confirme o PIN quando solicitado.',
         'INS-17':   'Pagamento cancelado ou recusado. Tente novamente e confirme o PIN quando solicitado.',
-        // Timeout (não respondeu ao PIN)
         'INS-9':    'Tempo esgotado. Não confirmou o PIN a tempo. Por favor, tente novamente.',
-        // Número inválido
         'INS-14':   'Número de telemóvel inválido. Verifique o número introduzido e tente novamente.',
         'INS-2':    'Número de telemóvel não encontrado. Verifique se é um número M-Pesa válido.',
         'INS-3':    'Número de destino inválido. Por favor, verifique o número e tente novamente.',
-        // Valor inválido
         'INS-13':   'Valor inválido. O valor mínimo é 1 MT e o máximo é 1.250.000 MT.',
-        // Transação duplicada
         'INS-10':   'Transação duplicada. Aguarde alguns minutos antes de tentar novamente.',
-        // Referência
         'INS-19':   'Erro de referência. Por favor, tente novamente.',
         'INS-15':   'Erro de referência. Por favor, tente novamente.',
-        // Não conseguiu iniciar
         'INS-4':    'Não foi possível enviar o pedido ao seu telemóvel. Verifique se tem M-Pesa ativo e tente novamente.',
-        // Erros internos
         'INS-1':    'Erro temporário no sistema. Por favor, tente novamente em instantes.',
         'INS-20':   'Erro temporário no sistema. Por favor, tente novamente em instantes.',
       };
@@ -159,7 +173,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       let friendlyMessage = errorMessages[responseCode];
 
       if (!friendlyMessage) {
-        // Fallback baseado no texto da descrição
         if (responseDesc.includes('insufficient') || responseDesc.includes('balance') || responseDesc.includes('saldo')) {
           friendlyMessage = 'Saldo insuficiente. Por favor, recarregue a sua conta e tente novamente.';
         } else if (responseDesc.includes('cancel') || responseDesc.includes('reject') || responseDesc.includes('refused')) {
@@ -169,8 +182,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         } else if (responseDesc.includes('invalid') && responseDesc.includes('number')) {
           friendlyMessage = 'Número de telemóvel inválido. Verifique e tente novamente.';
         } else {
-          // Fallback final genérico mas útil
           friendlyMessage = 'Pagamento não processado. Verifique os seus dados e tente novamente.';
+        }
+      }
+
+      // Salvar falha no Supabase imediatamente para C2B
+      if (type !== 'b2c') {
+        try {
+          await supabase.from('transactions').insert([{
+            id: `ERR${Date.now()}`,
+            type: 'payment',
+            amount: Number(amount),
+            phone: sanitizedPhone,
+            method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
+            status: 'Falhou',
+            reference: reference || `REF${Date.now()}`,
+            description: description || `Compra recusada: ${friendlyMessage}`,
+            customerName: customerName,
+            customerEmail: customerEmail,
+            device: device,
+            createdAt: new Date().toISOString()
+          }]);
+          console.log('Transação de erro persistida com sucesso no Supabase.');
+        } catch (dbErr) {
+          console.error("Erro ao registrar falha de transação no Supabase:", dbErr);
         }
       }
 
@@ -179,6 +214,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         code: responseCode,
         details: paymentData
       });
+    }
+
+    // Salvar transação de sucesso (Pendente) no Supabase
+    try {
+      await supabase.from('transactions').insert([{
+        id: paymentData.transaction_id || paymentData.id || reference,
+        type: type === 'b2c' ? 'withdrawal' : 'payment',
+        amount: Number(amount),
+        phone: sanitizedPhone,
+        method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
+        status: 'Pendente',
+        reference: reference || `REF${Date.now()}`,
+        description: description || (type === 'b2c' ? 'Levantamento de Saldo' : `Compra online`),
+        customerName: customerName,
+        customerEmail: customerEmail,
+        device: device,
+        createdAt: new Date().toISOString()
+      }]);
+      console.log('Transação pendente persistida com sucesso no Supabase.');
+    } catch (dbErr) {
+      console.error("Erro ao registrar transação pendente no Supabase:", dbErr);
     }
 
     return res.status(200).json({
@@ -191,6 +247,44 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   } catch (error: any) {
     console.error("Erro Fatal E2Payments:", error);
+
+    // Salvar falha fatal no Supabase imediatamente para C2B
+    try {
+      const body = req.body || {};
+      const parsedBody = typeof body === 'string' ? JSON.parse(body) : body;
+      const { phone, amount, reference, customerName = 'Cliente', customerEmail = '', description = '', type = 'c2b' } = parsedBody;
+      
+      let digits = String(phone || '').replace(/\D/g, '');
+      if (digits.startsWith('258') && digits.length > 9) {
+        digits = digits.substring(3);
+      }
+      const sanitizedPhone = digits.slice(0, 9);
+      
+      const userAgent = req.headers['user-agent'] || '';
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      const device = isMobile ? 'Mobile' : 'Desktop';
+
+      if (type !== 'b2c' && sanitizedPhone && amount) {
+        await supabase.from('transactions').insert([{
+          id: `ERR_FATAL_${Date.now()}`,
+          type: 'payment',
+          amount: Number(amount),
+          phone: sanitizedPhone,
+          method: (sanitizedPhone.startsWith('86') || sanitizedPhone.startsWith('87')) ? 'e-Mola' : 'M-Pesa',
+          status: 'Falhou',
+          reference: reference || `REF${Date.now()}`,
+          description: description || `Erro fatal de pagamento: ${error.message || 'Erro no servidor'}`,
+          customerName: customerName,
+          customerEmail: customerEmail,
+          device: device,
+          createdAt: new Date().toISOString()
+        }]);
+        console.log('Transação de erro fatal persistida com sucesso no Supabase.');
+      }
+    } catch (dbErr) {
+      console.error("Erro ao salvar falha fatal no Supabase:", dbErr);
+    }
+
     return res.status(500).json({ 
       error: 'Erro fatal no servidor de pagamento.',
       message: error.message,

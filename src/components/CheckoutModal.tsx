@@ -58,6 +58,18 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
         const reference = `ORD${Date.now()}`;
         
+        // Sanitização robusta dos números de telefone antes de enviar
+        const cleanPhone = (num: string) => {
+            let digits = num.replace(/\D/g, '');
+            if (digits.startsWith('258') && digits.length > 9) {
+                digits = digits.substring(3);
+            }
+            return digits.slice(0, 9);
+        };
+
+        const sanitizedPhone = cleanPhone(phone);
+        const sanitizedPaymentPhone = cleanPhone(paymentPhone);
+
         try {
             // Pegar credenciais guardadas no localStorage
             const clientId = localStorage.getItem('evolux_e2_client_id');
@@ -66,8 +78,6 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             const walletEmola = localStorage.getItem('evolux_e2_wallet_emola');
 
             if ((!clientId || !clientSecret) && import.meta.env.MODE !== 'development') {
-                // Em produção ou caso o .env não esteja acessível ao cliente, se usarmos o env do Vercel, o backend tratará disso.
-                // Mas alertaremos no console do frontend:
                 console.log('Credenciais E2Payments não encontradas no localStorage. As variáveis de ambiente do backend (.env) serão usadas.');
             }
 
@@ -75,13 +85,16 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    phone: paymentPhone,
+                    phone: sanitizedPaymentPhone,
                     amount: product.price,
                     reference: reference,
                     client_id: (clientId || '').trim(),
                     client_secret: (clientSecret || '').trim(),
                     wallet_mpesa: (walletMpesa || '').trim(),
-                    wallet_emola: (walletEmola || '').trim()
+                    wallet_emola: (walletEmola || '').trim(),
+                    customerName: name,
+                    customerEmail: email,
+                    description: `Compra: ${product.name}`
                 })
             });
 
@@ -90,7 +103,6 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             if (!response.ok) {
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     const errorData = await response.json();
-                    // Usar diretamente a mensagem amigável vinda do backend
                     throw new Error(errorData.error || errorData.message || 'Não foi possível processar o pagamento. Tente novamente.');
                 } else {
                     const textError = await response.text();
@@ -101,22 +113,6 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                     throw new Error(`Erro do Servidor (${response.status}). Verifique os logs do backend.`);
                 }
             }
-
-            const data = await response.json();
-            
-            // Registrar transação no store local
-            addTransaction({
-                id: data.transactionId || reference,
-                type: 'payment',
-                amount: product.price,
-                phone: paymentPhone,
-                method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
-                status: 'Pendente', // Começa como pendente até confirmação do PIN
-                reference: reference,
-                description: `Compra: ${product.name}`,
-                customerName: name,
-                customerEmail: email
-            });
 
             setStatus('success');
             
@@ -141,27 +137,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             }
 
         } catch (err: any) {
-            // A mensagem já vem tratada do backend — mostrar diretamente
             setErrorMessage(err.message || 'Ocorreu um erro. Tente novamente.');
             setStatus('idle');
-
-            // Registrar falha imediatamente no Supabase para contabilizar nos relatórios
-            try {
-                addTransaction({
-                    id: `ERR${Date.now()}`,
-                    type: 'payment',
-                    amount: product.price,
-                    phone: paymentPhone,
-                    method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
-                    status: 'Falhou',
-                    reference: reference,
-                    description: `Compra: ${product.name} (Rejeitado/Erro: ${err.message || 'Erro'})`,
-                    customerName: name || 'Cliente',
-                    customerEmail: email || ''
-                });
-            } catch (dbErr) {
-                console.error("Erro ao salvar falha de transação no Supabase:", dbErr);
-            }
         }
     };
 
@@ -323,7 +300,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                                 type="text" 
                                                 placeholder="84 xxx xxxx"
                                                 value={phone}
-                                                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                                                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
                                                 className="flex-1 h-11 px-4 rounded-r-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300"
                                                 required
                                             />
@@ -406,7 +383,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                                         type="text" 
                                                         placeholder="84 xxx xxxx"
                                                         value={paymentPhone}
-                                                        onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                                                        onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
                                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300"
                                                     />
                                                 </motion.div>
@@ -446,7 +423,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                                         type="text" 
                                                         placeholder="87 xxx xxxx"
                                                         value={paymentPhone}
-                                                        onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                                                        onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
                                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-slate-300"
                                                     />
                                                 </motion.div>

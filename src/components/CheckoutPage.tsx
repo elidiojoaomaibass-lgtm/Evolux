@@ -59,6 +59,18 @@ export const CheckoutPage = () => {
 
         const reference = `ORD${Date.now()}`;
 
+        // Sanitização robusta dos números de telefone antes de enviar
+        const cleanPhone = (num: string) => {
+            let digits = num.replace(/\D/g, '');
+            if (digits.startsWith('258') && digits.length > 9) {
+                digits = digits.substring(3);
+            }
+            return digits.slice(0, 9);
+        };
+
+        const sanitizedPhone = cleanPhone(phone);
+        const sanitizedPaymentPhone = cleanPhone(paymentPhone);
+
         try {
             // Check credentials from URL or localStorage
             const clientId = localStorage.getItem('evolux_e2_client_id');
@@ -70,13 +82,16 @@ export const CheckoutPage = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    phone: paymentPhone,
+                    phone: sanitizedPaymentPhone,
                     amount: product.price,
                     reference: reference,
                     client_id: (clientId || '').trim(),
                     client_secret: (clientSecret || '').trim(),
                     wallet_mpesa: (walletMpesa || '').trim(),
-                    wallet_emola: (walletEmola || '').trim()
+                    wallet_emola: (walletEmola || '').trim(),
+                    customerName: name,
+                    customerEmail: email,
+                    description: `Compra: ${product.name}`
                 })
             });
 
@@ -92,22 +107,6 @@ export const CheckoutPage = () => {
                     throw new Error('Não foi possível concluir o pagamento. Verifique os logs.');
                 }
             }
-
-            const data = await response.json();
-
-            // Register transaction locally
-            addTransaction({
-                id: data.transactionId || reference,
-                type: 'payment',
-                amount: product.price,
-                phone: paymentPhone,
-                method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
-                status: 'Pendente',
-                reference: reference,
-                description: `Compra: ${product.name}`,
-                customerName: name,
-                customerEmail: email
-            });
 
             setStatus('success');
 
@@ -125,24 +124,6 @@ export const CheckoutPage = () => {
         } catch (err: any) {
             setErrorMessage(err.message || 'Ocorreu um erro ao processar a compra. Tente novamente.');
             setStatus('idle');
-
-            // Registrar falha imediatamente no Supabase para contabilizar nos relatórios
-            try {
-                addTransaction({
-                    id: `ERR${Date.now()}`,
-                    type: 'payment',
-                    amount: product.price,
-                    phone: paymentPhone,
-                    method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
-                    status: 'Falhou',
-                    reference: reference,
-                    description: `Compra: ${product.name} (Rejeitado/Erro: ${err.message || 'Erro'})`,
-                    customerName: name || 'Cliente',
-                    customerEmail: email || ''
-                });
-            } catch (dbErr) {
-                console.error("Erro ao salvar falha de transação no Supabase:", dbErr);
-            }
         }
     };
 
@@ -203,7 +184,7 @@ export const CheckoutPage = () => {
                                                 type="text" 
                                                 placeholder="84 xxx xxxx"
                                                 value={phone}
-                                                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                                                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
                                                 className="flex-1 h-12 px-4 rounded-r-xl border border-slate-200 bg-white text-base font-bold focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
                                                 required
                                             />
@@ -332,7 +313,7 @@ export const CheckoutPage = () => {
                                                         type="text" 
                                                         placeholder="84 xxx xxxx"
                                                         value={paymentPhone}
-                                                        onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                                                        onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
                                                         className="flex-1 h-12 px-4 rounded-r-xl border border-slate-200 bg-white text-base font-bold focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
                                                         required={method === 'mpesa'}
                                                     />
@@ -395,7 +376,7 @@ export const CheckoutPage = () => {
                                                         type="text" 
                                                         placeholder="86 xxx xxxx / 87 xxx xxxx"
                                                         value={paymentPhone}
-                                                        onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                                                        onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
                                                         className="flex-1 h-12 px-4 rounded-r-xl border border-slate-200 bg-white text-base font-bold focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
                                                         required={method === 'emola'}
                                                     />
