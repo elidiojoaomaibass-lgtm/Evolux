@@ -429,7 +429,7 @@ export const CheckoutPage = () => {
                                 type="submit"
                                 disabled={status === 'processing'}
                                 className={cn(
-                                    "w-full h-14 bg-[#e11d24] text-white rounded-2xl font-black text-sm md:text-base flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-red-500/10 disabled:opacity-70 cursor-pointer"
+                                    "w-full h-14 bg-violet-600 text-white rounded-2xl font-black text-sm md:text-base flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-violet-500/20 disabled:opacity-70 cursor-pointer"
                                 )}
                             >
                                 {status === 'processing' ? (
@@ -442,7 +442,7 @@ export const CheckoutPage = () => {
                                         <div className="h-5 w-5 rounded-full border-2 border-white flex items-center justify-center">
                                             <Check size={12} strokeWidth={4} />
                                         </div>
-                                        <span className=" tracking-[0.1em]">Comprar agora</span>
+                                        <span className=" tracking-[0.1em]">Pagar agora</span>
                                     </>
                                 )}
                             </button>
