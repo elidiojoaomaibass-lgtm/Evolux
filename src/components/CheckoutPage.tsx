@@ -297,8 +297,7 @@ export const CheckoutPage = () => {
                                                 <img src="/mpesa_logo.png" alt="M-Pesa" className="w-full h-full object-cover" />
                                             </div>
                                             <div>
-                                                <h4 className="text-xs font-black text-slate-950 uppercase tracking-wider">M-Pesa Vodacom</h4>
-                                                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Pagamento rápido via Push USSD.</p>
+                                                <h4 className="text-xs font-black text-slate-950 uppercase tracking-wider">M-Pesa</h4>
                                             </div>
                                         </div>
                                         <div className={cn(
@@ -360,8 +359,7 @@ export const CheckoutPage = () => {
                                                 <img src="/emola_logo.png" alt="e-Mola" className="w-full h-full object-cover" />
                                             </div>
                                             <div>
-                                                <h4 className="text-xs font-black text-slate-950 uppercase tracking-wider">e-Mola Movitel</h4>
-                                                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Prompt imediato no seu telemóvel.</p>
+                                                <h4 className="text-xs font-black text-slate-950 uppercase tracking-wider">e-Mola</h4>
                                             </div>
                                         </div>
                                         <div className={cn(
@@ -477,18 +475,7 @@ export const CheckoutPage = () => {
 
             </main>
 
-            {/* Footer */}
-            <footer className="bg-white border-t border-slate-100 py-6 px-6 mt-auto">
-                <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-                    <p className="text-[10px] text-slate-400 font-medium">
-                        © {new Date().getFullYear()} InfroPay. Todos os direitos reservados.
-                    </p>
-                    <div className="flex gap-4 items-center opacity-60">
-                        <ShieldCheck size={16} className="text-slate-400" />
-                        <span className="text-[9px] uppercase tracking-widest font-black text-slate-400">Segurança SSL</span>
-                    </div>
-                </div>
-            </footer>
+
         </div>
     );
 };

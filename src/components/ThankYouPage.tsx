@@ -148,17 +148,7 @@ export const ThankYouPage = () => {
                     </motion.p>
                 )}
 
-                {/* CTA Button */}
-                <motion.button
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7 }}
-                    onClick={handleBack}
-                    className="w-full h-13 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-200 py-4"
-                >
-                    <ShoppingBag size={18} />
-                    Continuar a Comprar
-                </motion.button>
+
             </motion.div>
 
             {/* CSS para a animação de confetti */}
