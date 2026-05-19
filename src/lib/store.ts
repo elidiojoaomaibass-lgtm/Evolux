@@ -318,8 +318,40 @@ export const useTransactionsStore = () => {
             console.warn('Falha ao assinar canal em tempo real do Supabase:', e);
         }
 
+        // Auto-aprovação: verifica pendentes a cada 30s e aprova os que têm +2 minutos
+        const autoApprove = async () => {
+            const now = new Date();
+            const pending = globalTransactions.filter(t => t.status === 'Pendente' && t.type === 'payment');
+            for (const tx of pending) {
+                const created = new Date(tx.createdAt);
+                const diffMs = now.getTime() - created.getTime();
+                if (diffMs >= 2 * 60 * 1000) { // 2 minutos
+                    // Atualiza localmente
+                    const updated = globalTransactions.map(t =>
+                        t.id === tx.id ? { ...t, status: 'Concluído' as const } : t
+                    );
+                    updateTransactions(updated);
+                    // Atualiza no Supabase
+                    try {
+                        await supabase
+                            .from('transactions')
+                            .update({ status: 'Concluído' })
+                            .eq('id', tx.id);
+                    } catch (e) {
+                        console.warn('Erro ao aprovar transação no Supabase:', e);
+                    }
+                }
+            }
+        };
+
+        // Roda imediatamente ao carregar (resolve pendentes antigas)
+        autoApprove();
+        // Depois roda a cada 30 segundos
+        const approvalInterval = setInterval(autoApprove, 30 * 1000);
+
         return () => {
             transactionListeners.delete(listener);
+            clearInterval(approvalInterval);
             if (channel) {
                 try {
                     supabase.removeChannel(channel);
@@ -365,5 +397,20 @@ export const useTransactionsStore = () => {
         }
     };
 
-    return { transactions, addTransaction };
+    const updateTransactionStatus = async (id: string, status: Transaction['status']) => {
+        const updated = globalTransactions.map(t =>
+            t.id === id ? { ...t, status } : t
+        );
+        updateTransactions(updated);
+        try {
+            await supabase
+                .from('transactions')
+                .update({ status })
+                .eq('id', id);
+        } catch (e) {
+            console.warn('Erro ao atualizar status no Supabase:', e);
+        }
+    };
+
+    return { transactions, addTransaction, updateTransactionStatus };
 };
