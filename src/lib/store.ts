@@ -66,6 +66,12 @@ export const useProductsStore = () => {
 
     const addProduct = (product: Product) => {
         updateProducts([product, ...globalProducts]);
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('📦 Novo Produto Submetido!', {
+                body: `O produto "${product.name}" foi enviado com sucesso.`,
+                icon: '/logo.png'
+            });
+        }
     };
 
     const deleteProduct = (id: string) => {
@@ -73,7 +79,17 @@ export const useProductsStore = () => {
     };
 
     const editProduct = (updatedProduct: Product) => {
+        const oldProduct = globalProducts.find(p => p.id === updatedProduct.id);
         updateProducts(globalProducts.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+        
+        if (oldProduct && oldProduct.status !== 'Ativo' && updatedProduct.status === 'Ativo') {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('✅ Produto Aprovado!', {
+                    body: `O produto "${updatedProduct.name}" agora está Ativo.`,
+                    icon: '/logo.png'
+                });
+            }
+        }
     };
 
     return { products, addProduct, deleteProduct, editProduct, updateProducts };
@@ -312,6 +328,36 @@ export const useTransactionsStore = () => {
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, (payload: any) => {
                     console.log('Realtime transaction update:', payload);
                     fetchTransactions();
+                    
+                    // Trigger System Notification for Payments
+                    if (payload.eventType === 'INSERT' && payload.new.type === 'payment' && payload.new.status === 'Concluído') {
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            const val = Number(payload.new.amount).toLocaleString('pt-PT');
+                            new Notification('Você recebeu um novo pedido! 🎉', {
+                                body: `Novo pedido de ${val} MZN - Evolux Pay`,
+                                icon: '/logo.png'
+                            });
+                        }
+                    } else if (payload.eventType === 'UPDATE' && payload.new.type === 'payment' && payload.old.status !== 'Concluído' && payload.new.status === 'Concluído') {
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            const val = Number(payload.new.amount).toLocaleString('pt-PT');
+                            new Notification('Você recebeu um novo pedido! 🎉', {
+                                body: `Novo pedido de ${val} MZN - Evolux Pay`,
+                                icon: '/logo.png'
+                            });
+                        }
+                    }
+                    
+                    // Trigger System Notification for Withdrawals
+                    if (payload.eventType === 'UPDATE' && payload.new.type === 'withdrawal' && payload.old.status !== 'Concluído' && payload.new.status === 'Concluído') {
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            const val = Number(payload.new.amount).toLocaleString('pt-PT');
+                            new Notification('💸 Saque Aprovado!', {
+                                body: `O seu saque de ${val} MZN foi concluído com sucesso.`,
+                                icon: '/logo.png'
+                            });
+                        }
+                    }
                 })
                 .subscribe();
         } catch (e) {
@@ -370,6 +416,17 @@ export const useTransactionsStore = () => {
         
         // Atualização otimista local
         updateTransactions([newTx, ...globalTransactions]);
+        
+        // Notifications
+        if ('Notification' in window && Notification.permission === 'granted') {
+            if (newTx.type === 'withdrawal') {
+                const val = Number(newTx.amount).toLocaleString('pt-PT');
+                new Notification('🏦 Saque Solicitado!', {
+                    body: `Sua solicitação de saque de ${val} MZN foi enviada.`,
+                    icon: '/logo.png'
+                });
+            }
+        }
 
         // Grava no Supabase de forma assíncrona
         try {
@@ -398,10 +455,22 @@ export const useTransactionsStore = () => {
     };
 
     const updateTransactionStatus = async (id: string, status: Transaction['status']) => {
+        const tx = globalTransactions.find(t => t.id === id);
         const updated = globalTransactions.map(t =>
             t.id === id ? { ...t, status } : t
         );
         updateTransactions(updated);
+        
+        // Local Notification for withdrawal approval if not coming from realtime
+        if (tx && tx.type === 'withdrawal' && tx.status !== 'Concluído' && status === 'Concluído') {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const val = Number(tx.amount).toLocaleString('pt-PT');
+                new Notification('💸 Saque Aprovado!', {
+                    body: `O seu saque de ${val} MZN foi concluído com sucesso.`,
+                    icon: '/logo.png'
+                });
+            }
+        }
         try {
             await supabase
                 .from('transactions')

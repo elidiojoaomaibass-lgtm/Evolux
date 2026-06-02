@@ -16,6 +16,7 @@ export const FerramentasView = () => {
 
     // Meta Ads Pixel state
     const [pixelId, setPixelId] = useState(() => localStorage.getItem('evolux_prod_facebook_pixel_id') || '');
+    const [tiktokId, setTiktokId] = useState(() => localStorage.getItem('evolux_prod_tiktok_pixel_id') || '');
 
     // Webhook state
     const [webhookUrl, setWebhookUrl] = useState(() => localStorage.getItem('evolux_prod_webhook_url') || '');
@@ -39,6 +40,14 @@ export const FerramentasView = () => {
         localStorage.setItem('evolux_prod_facebook_pixel_id', pixelId);
         toast.success('Pixel do Meta Ads salvo!', {
             description: 'O rastreamento do Facebook Pixel está agora ativo.'
+        });
+    };
+
+    const handleSaveTikTok = (e: React.FormEvent) => {
+        e.preventDefault();
+        localStorage.setItem('evolux_prod_tiktok_pixel_id', tiktokId);
+        toast.success('Pixel do TikTok salvo!', {
+            description: 'O rastreamento do TikTok está agora ativo.'
         });
     };
 
@@ -87,7 +96,7 @@ export const FerramentasView = () => {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
-                                <Database size={20} />
+                                <img src="/integrations/utmify_integration_1780442539632.png" alt="Utmify integration" className="w-8 h-8" />
                             </div>
                             <div>
                                 <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">Utmify</h3>
@@ -141,8 +150,8 @@ export const FerramentasView = () => {
                 >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center text-violet-600">
-                                <Facebook size={20} />
+                            <div className="h-10 w-10 rounded-xl bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center">
+                                <img src="/integrations/meta_ads_integration_1780442567251.png" alt="Meta Ads integration" className="w-8 h-8" />
                             </div>
                             <div>
                                 <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">Meta Ads</h3>
@@ -186,6 +195,63 @@ export const FerramentasView = () => {
                         </button>
                     </form>
                 </motion.div>
+
+                {/* TikTok Ads Integration */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                >
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                                <img src="/integrations/tiktok_integration_1780442583402.png" alt="TikTok integration" className="w-8 h-8" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">TikTok Ads</h3>
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">TikTok Pixel</p>
+                            </div>
+                        </div>
+                        <div className="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 text-[10px] font-black uppercase tracking-widest border border-blue-100 dark:border-blue-900/30">
+                            Ativo
+                        </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800">
+                        <div className="flex gap-2">
+                            <Info size={14} className="text-blue-500 shrink-0 mt-0.5" />
+                            <p className="text-[10px] leading-snug text-slate-500 font-medium italic">
+                                Rastreie conversões e crie públicos personalizados no TikTok.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSaveTikTok} className="space-y-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">ID do Pixel TikTok</label>
+                            <div className="relative">
+                                <Target className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                <input
+                                    type="text"
+                                    placeholder="Ex: 123456789012345"
+                                    value={tiktokId}
+                                    onChange={(e) => setTiktokId(e.target.value)}
+                                    className="w-full h-11 pl-12 pr-4 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800 text-xs font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full h-11 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                        >
+                            <Save size={16} />
+                            Salvar TikTok Pixel
+                        </button>
+                    </form>
+                </motion.div>
+
+                {/* Webhook Integration */}
 
                 {/* Webhook Integration */}
                 <motion.div

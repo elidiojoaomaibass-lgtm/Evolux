@@ -52,7 +52,6 @@ const menuGroups = [
     {
         label: "Sistema",
         items: [
-            { icon: BookOpen, label: "Documentação" as ViewType },
             { icon: Settings, label: "Configurações" as ViewType },
         ],
     },

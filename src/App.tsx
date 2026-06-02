@@ -97,6 +97,13 @@ function App() {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
+  // Request Notification Permission
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
   // Meta Ads Pixel Injection
   useEffect(() => {
     const pixelId = localStorage.getItem('evolux_prod_facebook_pixel_id');
@@ -122,6 +129,47 @@ function App() {
 
     w.fbq('init', pixelId);
     w.fbq('track', 'PageView');
+  }, []);
+
+  // TikTok Pixel Injection
+  useEffect(() => {
+    const pixelId = localStorage.getItem('evolux_prod_tiktok_pixel_id');
+    if (!pixelId) return;
+
+    const w = window as any;
+    if (w.ttq) return;
+
+    w.ttq = w.ttq || [];
+    w.ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie"];
+    w.ttq.setAndDefer = function(t: any, e: any) {
+        t[e] = function() {
+            t.push([e].concat(Array.prototype.slice.call(arguments, 0)))
+        }
+    };
+    for (var i = 0; i < w.ttq.methods.length; i++) w.ttq.setAndDefer(w.ttq, w.ttq.methods[i]);
+    w.ttq.instance = function(t: any) {
+        for (var e = w.ttq._i[t] || [], n = 0; n < w.ttq.methods.length; n++) w.ttq.setAndDefer(e, w.ttq.methods[n]);
+        return e
+    };
+    w.ttq.load = function(e: any, n: any) {
+        var i = "https://analytics.tiktok.com/i18n/pixel/events.js";
+        w.ttq._i = w.ttq._i || {};
+        w.ttq._i[e] = [];
+        w.ttq._i[e]._u = i;
+        w.ttq._t = w.ttq._t || {};
+        w.ttq._t[e] = +new Date;
+        w.ttq._o = w.ttq._o || {};
+        w.ttq._o[e] = n || {};
+        var o = document.createElement("script");
+        o.type = "text/javascript";
+        o.async = !0;
+        o.src = i + "?sdkid=" + e + "&lib=ttq";
+        var a = document.getElementsByTagName("script")[0];
+        a.parentNode?.insertBefore(o, a)
+    };
+
+    w.ttq.load(pixelId);
+    w.ttq.page();
   }, []);
 
   const handleLogout = async () => {
