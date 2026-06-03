@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
     Link as LinkIcon,
-    Send, Database, ShieldCheck,
+    Send, ShieldCheck,
     Info, Save,
-    Settings2, Code2, Target, Facebook
+    Settings2, Code2, Target
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { toast } from 'sonner';

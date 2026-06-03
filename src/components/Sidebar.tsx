@@ -2,8 +2,7 @@ import {
     LayoutDashboard, ShoppingBag, BarChart2, Users,
     Settings,
     Gift, Layers, ShoppingCart, Wallet,
-    Wrench, Moon, Sun, Banknote, Trophy,
-    BookOpen
+    Wrench, Moon, Sun, Banknote, Trophy
 } from "lucide-react";
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
