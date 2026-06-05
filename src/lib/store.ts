@@ -316,7 +316,7 @@ export const useTransactionsStore = () => {
                 const { data, error } = await supabase
                     .from('transactions')
                     .select('*')
-                    .order('created_at', { ascending: false });
+                    .order('createdat', { ascending: false });
                 
                 if (error) {
                     throw error;
@@ -360,7 +360,7 @@ export const useTransactionsStore = () => {
                             body: `Novo pedido de ${val} MZN - Evolux Pay`,
                             icon: '/logo.png'
                         });
-                    } else if (payload.eventType === 'UPDATE' && payload.new.type === 'payment' && payload.old.status !== 'Concluído' && payload.new.status === 'Concluído') {
+                    } else if (payload.eventType === 'UPDATE' && payload.new.type === 'payment' && payload.old?.status !== 'Concluído' && payload.new.status === 'Concluído') {
                         const val = Number(payload.new.amount).toLocaleString('pt-PT');
                         sendLocalNotification('Você recebeu um novo pedido! 🎉', {
                             body: `Novo pedido de ${val} MZN - Evolux Pay`,
@@ -460,7 +460,7 @@ export const useTransactionsStore = () => {
                     customerName: newTx.customerName,
                     customerEmail: newTx.customerEmail,
                     device: newTx.device,
-                    created_at: newTx.createdAt
+                    createdat: newTx.createdAt
                 }]);
             if (error) {
                 console.warn('Erro ao inserir transação no Supabase:', error);

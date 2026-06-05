@@ -235,7 +235,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                 {/* ─── TOP HEADER ─── */}
                 <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-y-4 lg:gap-6 border-b border-slate-100 dark:border-white/5 pb-4">
                     {/* Left: Progress */}
-                    <div className="flex flex-col gap-2 w-48 lg:w-48 ml-16 lg:ml-20 order-1">
+                    <div className="flex flex-col gap-2 w-48 lg:w-48 ml-16 lg:ml-0 order-1">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Gem size={14} className="text-cyan-500" />

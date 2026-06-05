@@ -39,13 +39,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // Mapeia o status da E2Payments para o status do nosso painel
-        // O status de sucesso da E2Payments é 'SUCCESSFUL'
-        const finalStatus = status === 'SUCCESSFUL' ? 'Concluído' : 'Falhou';
+        // O status de sucesso da E2Payments é 'SUCCESSFUL', mas pode vir em minúsculo
+        const statusUpper = String(status).toUpperCase();
+        const finalStatus = (statusUpper === 'SUCCESSFUL' || statusUpper === 'SUCCESS' || statusUpper === 'CONCLUÍDO') ? 'Concluído' : 'Falhou';
 
-        console.log(`Atualizando transação ${transaction_id} (Ref: ${reference}) para status: ${finalStatus}`);
+        console.log(`Atualizando transação ${transaction_id} (Ref: ${reference}) para status: ${finalStatus} (Original: ${status})`);
 
         // Atualiza a transação no Supabase
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('transactions')
             .update({ status: finalStatus })
             .eq('id', transaction_id);
