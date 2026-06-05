@@ -155,7 +155,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="space-y-3"
+                    className="space-y-3 pl-14 lg:pl-0"
                 >
                     <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
                         Protocolo de <span className="text-gradient">Vendas</span> 🧾

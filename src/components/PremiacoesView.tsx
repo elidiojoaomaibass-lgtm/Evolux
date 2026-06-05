@@ -60,7 +60,7 @@ export const PremiacoesView = () => {
             {/* Header */}
             <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-8">
                 <div>
-                    <h2 className="text-lg md:text-xl font-black text-violet-950 dark:text-white tracking-tight leading-none mb-1">Premiações</h2>
+                    <h2 className="pl-14 lg:pl-0 text-lg md:text-xl font-black text-violet-950 dark:text-white tracking-tight leading-none mb-1">Premiações</h2>
                     <p className="text-[9px] md:text-[10px] text-slate-400 dark:text-brand-400 font-medium">Conquiste marcos e desbloqueie prêmios exclusivos pela Evolux.</p>
                 </div>
             </div>

@@ -79,7 +79,7 @@ export const FerramentasView = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h2 className="text-xl md:text-2xl font-black text-violet-950 dark:text-white tracking-tight leading-none mb-2">Ferramentas e Integrações</h2>
+                    <h2 className="pl-14 lg:pl-0 text-xl md:text-2xl font-black text-violet-950 dark:text-white tracking-tight leading-none mb-2">Ferramentas e Integrações</h2>
                     <p className="text-xs text-slate-400 dark:text-brand-400 font-medium italic">
                         Conecte a Evolux Prod com serviços externos para automatizar o seu negócio.
                     </p>

@@ -392,7 +392,7 @@ export const ProdutosView = () => {
                     className="space-y-3"
                 >
                     <div className="flex flex-col md:flex-row items-baseline gap-3">
-                        <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
+                        <h2 className="pl-14 lg:pl-0 text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
                             Meus <span className="text-gradient">Produtos</span> 💎
                         </h2>
                         <div className="flex items-center gap-2 bg-white/50 dark:bg-violet-950/20 backdrop-blur-md px-3 py-1.5 rounded-xl border border-violet-200/50 dark:border-violet-500/20 shadow-sm group/badge hover:border-violet-400 transition-all duration-300">

@@ -26,7 +26,7 @@ const menuGroups = [
     {
         label: "Principal",
         items: [
-            { icon: LayoutDashboard, label: "Dashboard" as ViewType },
+            { icon: LayoutDashboard, label: "Painel", view: "Dashboard" as ViewType },
             { icon: ShoppingCart, label: "Vendas" as ViewType },
             { icon: ShoppingBag, label: "Produtos" as ViewType },
             { icon: Wallet, label: "Pagamentos" as ViewType },
@@ -86,11 +86,12 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
                                 <h3 className="px-3 text-[10px] font-black text-slate-400 dark:text-white/40 uppercase tracking-widest">{group.label}</h3>
                                 <div className="space-y-1">
                                     {group.items.map((item) => {
-                                        const isActive = activeView === item.label;
+                                        const viewTarget = 'view' in item && item.view ? item.view : (item.label as ViewType);
+                                        const isActive = activeView === viewTarget;
                                         return (
                                             <button
                                                 key={item.label}
-                                                onClick={() => setView(item.label)}
+                                                onClick={() => setView(viewTarget)}
                                                 className={cn(
                                                     "group relative flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold transition-all duration-200",
                                                     isActive

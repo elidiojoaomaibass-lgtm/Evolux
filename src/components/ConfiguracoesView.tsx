@@ -199,7 +199,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
     return (
         <div className="px-4 md:px-6 pt-2 pb-20 space-y-3 md:space-y-4 w-full max-w-none mx-auto">
             <div>
-                <h2 className="text-xl md:text-2xl font-black text-violet-950 dark:text-white tracking-tight">Configurações</h2>
+                <h2 className="pl-14 lg:pl-0 text-xl md:text-2xl font-black text-violet-950 dark:text-white tracking-tight">Configurações</h2>
                 <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium">Gira as preferências da tua conta e segurança.</p>
             </div>
 

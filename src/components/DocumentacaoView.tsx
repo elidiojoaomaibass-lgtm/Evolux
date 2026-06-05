@@ -149,7 +149,7 @@ async function cobrarCliente() {
 
                     {/* C2B Section */}
                     <section id="c2b" className="space-y-6">
-                        <div className="space-y-2">
+                        <div className="space-y-2 pl-14 lg:pl-0">
                             <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
                                 <Terminal className="text-emerald-500" size={20} />
                                 2. Pagamento C2B (M-Pesa)

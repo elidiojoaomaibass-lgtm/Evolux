@@ -193,7 +193,7 @@ export const AnalyticsView = () => {
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="space-y-1.5"
+                    className="space-y-1.5 pl-14 lg:pl-0"
                 >
                     <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
                         Relatório de <span className="text-gradient">Transações</span>

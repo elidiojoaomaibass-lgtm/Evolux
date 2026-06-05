@@ -87,7 +87,7 @@ export const PagamentosView = () => {
             {/* Header */}
             <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-8">
                 <div>
-                    <h2 className="text-2xl md:text-3xl font-black text-violet-950 dark:text-white tracking-tight leading-none mb-2">Pagamentos</h2>
+                    <h2 className="pl-14 lg:pl-0 text-2xl md:text-3xl font-black text-violet-950 dark:text-white tracking-tight leading-none mb-2">Pagamentos</h2>
                     <p className="text-xs md:text-sm text-slate-400 dark:text-brand-400 font-medium italic">Receba pagamentos dos clientes via M-Pesa ou e-Mola</p>
                 </div>
             </div>

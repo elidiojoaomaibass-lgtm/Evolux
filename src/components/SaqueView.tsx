@@ -149,7 +149,7 @@ export const SaqueView = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h2 className="text-2xl md:text-3xl font-black text-violet-950 dark:text-white tracking-tight flex items-center gap-3">
+                    <h2 className="pl-14 lg:pl-0 text-2xl md:text-3xl font-black text-violet-950 dark:text-white tracking-tight flex items-center gap-3">
                         Centro Financeiro
                         <div className="h-2.5 w-2.5 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.4)] animate-pulse" />
                     </h2>

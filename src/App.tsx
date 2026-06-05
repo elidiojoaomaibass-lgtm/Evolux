@@ -10,6 +10,9 @@ import { Menu } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { Toaster } from 'sonner';
 
+// (Removed global error handler - hooks must be inside component)
+
+
 function App() {
   const [session, setSession] = useState<Session | null>(() => {
     const saved = localStorage.getItem('evolux_prod_fake_session');
@@ -224,11 +227,11 @@ function App() {
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/* Global Mobile Menu Trigger - Fixed for all views */}
+      {/* Global Mobile Menu Trigger - Scrolls with page */}
       {!sidebarOpen && (
         <button
           onClick={() => setSidebarOpen(true)}
-          className="lg:hidden fixed top-4 left-4 z-[60] h-12 w-12 flex items-center justify-center rounded-2xl bg-white dark:bg-brand-900 border border-violet-100 dark:border-white/5 text-slate-600 dark:text-brand-100 shadow-xl active:scale-95 transition-all"
+          className="lg:hidden absolute top-4 left-4 z-[60] h-12 w-12 flex items-center justify-center rounded-2xl bg-white dark:bg-brand-900 border border-violet-100 dark:border-white/5 text-slate-600 dark:text-brand-100 shadow-xl active:scale-95 transition-all"
         >
           <Menu size={24} />
         </button>

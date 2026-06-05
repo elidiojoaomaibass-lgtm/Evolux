@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { 
-    Gem, Calendar, Bell, LogOut, BarChart3, X, UserCircle2
+    Gem, Calendar, Bell, LogOut, BarChart3, X, UserCircle2, ChevronDown,
+    DollarSign, CheckCircle2, Clock, XCircle, TrendingUp, TrendingDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
+import { Logo } from './Logo';
 import { useTransactionsStore } from '../lib/store';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -21,10 +23,12 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
     const [profileOpen, setProfileOpen] = useState(false);
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [showPeriodDropdown, setShowPeriodDropdown] = useState(false);
     
     const profileRef = useRef<HTMLDivElement>(null);
     const notificationsRef = useRef<HTMLDivElement>(null);
     const datePickerRef = useRef<HTMLDivElement>(null);
+    const periodDropdownRef = useRef<HTMLDivElement>(null);
 
     const { transactions } = useTransactionsStore();
 
@@ -40,6 +44,9 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
             if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
                 setShowDatePicker(false);
             }
+            if (periodDropdownRef.current && !periodDropdownRef.current.contains(event.target as Node)) {
+                setShowPeriodDropdown(false);
+            }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -52,13 +59,20 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
         return 'Boa noite';
     };
 
+    const recentNotifications = useMemo(() => {
+        const recent = transactions
+            .filter(t => t.status === 'Concluído')
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+            .slice(0, 5);
+        return recent;
+    }, [transactions]);
+
     const periodOptions = [
         { key: 'HOJE', label: 'Hoje' },
         { key: 'ONTEM', label: 'Ontem' },
-        { key: '7D', label: '7D' },
-        { key: '30D', label: '30D' },
-        { key: '90D', label: '90D' },
-        { key: 'TODO', label: 'Todo' },
+        { key: '7D', label: '7 Dias' },
+        { key: '30D', label: '30 Dias' },
+        { key: 'PERSONALIZADO', label: 'Personalizado' },
     ];
 
     // Filter transactions based on selected period
@@ -113,34 +127,70 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
 
     const progressPercent = Math.min(100, (allTimeRevenue / level.target) * 100);
 
+    const totalTxs = filteredTxs.length;
+    const conversionRate = totalTxs > 0 ? ((approvedTxs.length / totalTxs) * 100).toFixed(1) : '0.0';
+    const abandonmentRate = totalTxs > 0 ? ((failedTxs.length / totalTxs) * 100).toFixed(1) : '0.0';
+
     const stats = [
         {
             label: 'RECEITA TOTAL',
             value: `${totalRevenue.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN`,
             borderColor: 'border-l-emerald-500',
             labelColor: 'text-emerald-400',
-            textColor: 'text-emerald-500'
+            textColor: 'text-emerald-500',
+            icon: DollarSign,
+            iconBg: 'bg-emerald-50 dark:bg-emerald-500/10',
+            iconColor: 'text-emerald-500'
         },
         {
             label: 'APROVADAS',
             value: approvedTxs.length.toLocaleString(),
             borderColor: 'border-l-emerald-400',
             labelColor: 'text-emerald-400',
-            textColor: 'text-emerald-500'
+            textColor: 'text-emerald-500',
+            icon: CheckCircle2,
+            iconBg: 'bg-emerald-50 dark:bg-emerald-500/10',
+            iconColor: 'text-emerald-500'
         },
         {
             label: 'PENDENTES',
             value: pendingTxs.length.toLocaleString(),
             borderColor: 'border-l-amber-400',
             labelColor: 'text-amber-400',
-            textColor: 'text-amber-500'
+            textColor: 'text-amber-500',
+            icon: Clock,
+            iconBg: 'bg-amber-50 dark:bg-amber-500/10',
+            iconColor: 'text-amber-500'
         },
         {
             label: 'CANCELADAS',
             value: failedTxs.length.toLocaleString(),
             borderColor: 'border-l-red-400',
             labelColor: 'text-red-400',
-            textColor: 'text-red-500'
+            textColor: 'text-red-500',
+            icon: XCircle,
+            iconBg: 'bg-red-50 dark:bg-red-500/10',
+            iconColor: 'text-red-500'
+        },
+        {
+            label: 'TAXA DE CONVERSÃO',
+            value: `${conversionRate}%`,
+            borderColor: 'border-l-violet-500',
+            labelColor: 'text-violet-400',
+            textColor: 'text-violet-500',
+            icon: TrendingUp,
+            iconBg: 'bg-violet-50 dark:bg-violet-500/10',
+            iconColor: 'text-violet-500'
+        },
+        {
+            label: 'TAXA DE ABANDONO',
+            value: `${abandonmentRate}%`,
+            borderColor: 'border-l-orange-400',
+            labelColor: 'text-orange-400',
+            textColor: 'text-orange-500',
+            icon: TrendingDown,
+            iconBg: 'bg-orange-50 dark:bg-orange-500/10',
+            iconColor: 'text-orange-500'
         },
     ];
 
@@ -183,13 +233,13 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
             <div className="w-full space-y-8">
                 
                 {/* ─── TOP HEADER ─── */}
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-6 border-b border-slate-100 dark:border-white/5 pb-4">
+                <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-y-4 lg:gap-6 border-b border-slate-100 dark:border-white/5 pb-4">
                     {/* Left: Progress */}
-                    <div className="flex flex-col gap-2 w-full lg:w-64">
+                    <div className="flex flex-col gap-2 w-48 lg:w-48 ml-16 lg:ml-20 order-1">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Gem size={14} className="text-cyan-500" />
-                                <span className="text-[10px] font-black text-slate-800 dark:text-brand-500 uppercase tracking-widest">PROGRESSO {level.name}</span>
+                                <span className="text-[10px] font-black text-slate-800 dark:text-brand-500 uppercase tracking-widest">{level.name}</span>
                             </div>
                             <span className="text-[10px] font-black text-cyan-500 dark:text-cyan-400">
                                 {allTimeRevenue.toLocaleString('pt-PT')} / {level.target >= 1000000 ? '1M+' : `${(level.target / 1000)}K`} MZN
@@ -204,74 +254,18 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                         </div>
                     </div>
 
-                    {/* Right: Filters & Icons */}
-                    <div className="flex items-center gap-4 w-full lg:w-auto z-50">
-                        <div className="relative" ref={datePickerRef}>
-                            <div className="flex items-center gap-1.5 p-1.5 bg-white dark:bg-brand-900/40 border border-slate-100 dark:border-white/5 rounded-full shadow-sm overflow-x-auto scrollbar-hide max-w-[calc(100vw-6rem)] lg:max-w-none">
-                                {periodOptions.map((p) => (
-                                    <button
-                                        key={p.key}
-                                        onClick={() => { setPeriod(p.key); setShowDatePicker(false); }}
-                                        className={cn(
-                                            "px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
-                                            period === p.key && !showDatePicker
-                                                ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
-                                                : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"
-                                        )}
-                                    >
-                                        {p.key}
-                                    </button>
-                                ))}
-                                <div className="mx-1 w-px bg-slate-200 dark:bg-white/10 h-4 shrink-0" />
-                                <button 
-                                    onClick={() => setShowDatePicker(!showDatePicker)}
-                                    className={cn(
-                                        "h-8 px-4 rounded-full text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap",
-                                        showDatePicker
-                                            ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
-                                            : "text-slate-500 hover:text-slate-800 transition-all"
-                                    )}
-                                >
-                                    <Calendar size={12} />
-                                    <span>Personalizar</span>
-                                </button>
-                            </div>
+                    {/* Filters & Icons moved below */}
 
-                            <AnimatePresence>
-                                {showDatePicker && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        className="absolute right-0 top-[calc(100%+0.5rem)] w-72 rounded-[1.5rem] bg-white dark:bg-brand-950 p-4 border border-slate-100 dark:border-white/5 shadow-2xl z-50"
-                                    >
-                                        <div className="flex items-center justify-between mb-4">
-                                            <h4 className="text-[10px] font-black uppercase text-slate-800 tracking-widest">Filtro Customizado</h4>
-                                            <button onClick={() => setShowDatePicker(false)} className="text-slate-400 hover:text-slate-600"><X size={14} /></button>
-                                        </div>
-                                        <div className="space-y-4">
-                                            <div>
-                                                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest block mb-1">Data Inicial</label>
-                                                <input type="date" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/20" />
-                                            </div>
-                                            <div>
-                                                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest block mb-1">Data Final</label>
-                                                <input type="date" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/20" />
-                                            </div>
-                                            <button onClick={() => setShowDatePicker(false)} className="w-full py-2 bg-violet-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-700 transition-all">Aplicar</button>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-
+                    <div className="flex items-center gap-4 order-2 lg:order-3 ml-auto lg:ml-0 z-50">
                         <div className="relative shrink-0" ref={notificationsRef}>
                             <button 
                                 onClick={() => setNotificationsOpen(!notificationsOpen)}
                                 className="relative h-11 w-11 flex items-center justify-center bg-white dark:bg-brand-900 rounded-full border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all"
                             >
                                 <Bell size={18} className="text-slate-600 dark:text-brand-400" />
-                                <div className="absolute top-[10px] right-[10px] h-2 w-2 rounded-full bg-violet-600 border-2 border-white dark:border-brand-900" />
+                                {recentNotifications.length > 0 && (
+                                    <div className="absolute top-[10px] right-[10px] h-2 w-2 rounded-full bg-violet-600 border-2 border-white dark:border-brand-900" />
+                                )}
                             </button>
 
                             <AnimatePresence>
@@ -280,16 +274,43 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        className="absolute right-0 top-[calc(100%+0.5rem)] w-72 rounded-[1.5rem] bg-white dark:bg-brand-950 p-2 border border-slate-100 dark:border-white/5 shadow-2xl z-50"
+                                        className="absolute right-0 top-[calc(100%+0.5rem)] w-72 rounded-[1.5rem] bg-white dark:bg-brand-950 p-2 border border-slate-100 dark:border-white/5 shadow-2xl z-50 overflow-hidden"
                                     >
-                                        <div className="px-4 py-3 border-b border-slate-100 mb-2 flex justify-between items-center">
-                                            <span className="text-[10px] font-black uppercase text-slate-800 tracking-widest">Notificações</span>
-                                            <span className="bg-violet-100 text-violet-600 text-[8px] font-black px-2 py-0.5 rounded-full">1 NOVA</span>
+                                        <div className="px-4 py-3 border-b border-slate-100 dark:border-white/5 mb-2 flex justify-between items-center">
+                                            <span className="text-[10px] font-black uppercase text-slate-800 dark:text-white tracking-widest">Notificações</span>
+                                            {recentNotifications.length > 0 && (
+                                                <span className="bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 text-[8px] font-black px-2 py-0.5 rounded-full">
+                                                    {recentNotifications.length} RECENTES
+                                                </span>
+                                            )}
                                         </div>
-                                        <div className="p-3 text-center text-xs text-slate-500 font-medium h-24 flex flex-col items-center justify-center">
-                                            <Bell size={24} className="text-slate-200 mb-2" />
-                                            Nenhum alerta crítico no momento.
-                                        </div>
+                                        {recentNotifications.length === 0 ? (
+                                            <div className="p-3 text-center text-xs text-slate-500 font-medium h-24 flex flex-col items-center justify-center">
+                                                <Bell size={24} className="text-slate-200 dark:text-brand-800 mb-2" />
+                                                Nenhum alerta crítico no momento.
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col gap-1 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+                                                {recentNotifications.map((notif) => (
+                                                    <div key={notif.id} className="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-brand-900/50 transition-colors cursor-pointer">
+                                                        <div className={cn("mt-0.5 h-8 w-8 rounded-full flex items-center justify-center shrink-0", notif.type === 'payment' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400')}>
+                                                            {notif.type === 'payment' ? <Gem size={14} /> : <DollarSign size={14} />}
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                                                                {notif.type === 'payment' ? 'Nova Venda' : 'Saque Aprovado'}
+                                                            </span>
+                                                            <span className="text-[10px] text-slate-500 dark:text-brand-400 mt-0.5 leading-tight">
+                                                                {notif.type === 'payment' ? `Recebeu ${notif.amount.toLocaleString('pt-PT')} MZN de ${notif.customerName || 'Cliente'}` : `O seu saque de ${notif.amount.toLocaleString('pt-PT')} MZN foi efetuado.`}
+                                                            </span>
+                                                            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wider">
+                                                                {new Date(notif.createdAt).toLocaleDateString('pt-PT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -317,11 +338,14 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                         className="absolute right-0 top-[calc(100%+0.5rem)] w-64 rounded-[1.5rem] bg-white dark:bg-brand-950 p-2 border border-slate-100 dark:border-white/5 shadow-2xl z-50 overflow-hidden"
                                     >
-                                        <div className="px-4 py-4 bg-slate-50 dark:bg-white/5 rounded-xl mb-2">
-                                            <p className="text-sm font-black text-slate-900 dark:text-white truncate">
-                                                {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
-                                            </p>
-                                            <p className="text-[10px] text-slate-400 font-medium truncate mt-0.5">{user?.email}</p>
+                                        <div className="px-4 py-4 bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-violet-900/20 dark:to-fuchsia-900/20 rounded-xl mb-2 flex flex-col gap-2">
+                                            <Logo showText size={28} textColor="text-slate-900 dark:text-white" />
+                                            <div className="pl-1">
+                                                <p className="text-[11px] font-black text-slate-900 dark:text-white truncate">
+                                                    {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
+                                                </p>
+                                                <p className="text-[10px] text-slate-400 font-medium truncate">{user?.email}</p>
+                                            </div>
                                         </div>
                                         <button
                                             onClick={() => { setView('Configurações'); setProfileOpen(false); }}
@@ -341,27 +365,112 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                 </div>
 
                 {/* ─── WELCOME ─── */}
-                <div className="flex items-center gap-4">
-                    <button onClick={toggleSidebar} className="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 shadow-sm md:hidden">
-                        <BarChart3 size={20} className="text-slate-600" />
-                    </button>
-                    <div>
-                        <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-1">
-                            {getGreeting()}, {user?.user_metadata?.full_name || user?.email?.split('@')[0]} 👋
-                        </h2>
-                        <p className="text-sm text-slate-400 dark:text-brand-400 font-medium">
-                            Acompanhe as suas vendas e receitas de hoje.
-                        </p>
+                <div className="flex flex-col gap-1 relative z-[40]">
+                    {/* Row 1: greeting + filter button */}
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <button onClick={toggleSidebar} className="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 shadow-sm md:hidden">
+                                <BarChart3 size={20} className="text-slate-600" />
+                            </button>
+                            <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+                                {getGreeting()}, {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
+                            </h2>
+                        </div>
+
+                        {/* Period Filter Dropdown */}
+                        <div className="relative flex items-center gap-4 z-50 shrink-0" ref={periodDropdownRef}>
+                            <button
+                                onClick={() => { setShowPeriodDropdown(!showPeriodDropdown); setShowDatePicker(false); }}
+                                className="h-10 px-5 bg-white dark:bg-brand-900/40 border border-slate-100 dark:border-white/5 rounded-full shadow-sm flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-brand-900/60 transition-all"
+                            >
+                                <Calendar size={14} className="text-violet-600 dark:text-violet-400" />
+                                <span className="text-[10px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-widest">
+                                    {showDatePicker ? 'Personalizado' : (periodOptions.find(p => p.key === period)?.label || 'Hoje')}
+                                </span>
+                                <ChevronDown size={14} className={cn("text-slate-400 transition-transform", showPeriodDropdown && "rotate-180")} />
+                            </button>
+
+                            <AnimatePresence>
+                                {showPeriodDropdown && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        className="absolute right-0 top-[calc(100%+0.5rem)] w-48 rounded-[1.5rem] bg-white dark:bg-brand-950 p-2 border border-slate-100 dark:border-white/5 shadow-2xl z-50 flex flex-col gap-1"
+                                    >
+                                        {periodOptions.map((p) => (
+                                            <button
+                                                key={p.key}
+                                                onClick={() => { 
+                                                    if (p.key === 'PERSONALIZADO') {
+                                                        setShowDatePicker(true);
+                                                    } else {
+                                                        setPeriod(p.key);
+                                                        setShowDatePicker(false);
+                                                    }
+                                                    setShowPeriodDropdown(false);
+                                                }}
+                                                className={cn(
+                                                    "w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                                    (period === p.key && p.key !== 'PERSONALIZADO' && !showDatePicker) || (p.key === 'PERSONALIZADO' && showDatePicker)
+                                                        ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
+                                                        : "text-slate-500 hover:text-slate-800 hover:bg-slate-50 dark:text-brand-400 dark:hover:text-white dark:hover:bg-brand-900"
+                                                )}
+                                            >
+                                                {p.label}
+                                            </button>
+                                        ))}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <AnimatePresence>
+                                {showDatePicker && (
+                                    <motion.div
+                                        ref={datePickerRef}
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        className="absolute right-0 top-[calc(100%+0.5rem)] w-72 rounded-[1.5rem] bg-white dark:bg-brand-950 p-4 border border-slate-100 dark:border-white/5 shadow-2xl z-50"
+                                    >
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h4 className="text-[10px] font-black uppercase text-slate-800 tracking-widest">Filtro Customizado</h4>
+                                            <button onClick={() => setShowDatePicker(false)} className="text-slate-400 hover:text-slate-600"><X size={14} /></button>
+                                        </div>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest block mb-1">Data Inicial</label>
+                                                <input type="date" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/20" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest block mb-1">Data Final</label>
+                                                <input type="date" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/20" />
+                                            </div>
+                                            <button onClick={() => setShowDatePicker(false)} className="w-full py-2 bg-violet-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-700 transition-all">Aplicar</button>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                     </div>
+                    {/* Row 2: subtitle */}
+                    <p className="text-sm text-slate-400 dark:text-brand-400 font-medium">
+                        Acompanhe as suas vendas e receitas de hoje.
+                    </p>
                 </div>
 
                 {/* ─── STATS CARDS ─── */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                     {stats.map((item) => (
-                        <div key={item.label} className={cn("bg-white dark:bg-brand-900 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-white/5 border-l-[4px]", item.borderColor)}>
-                            <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-2", item.labelColor)}>
-                                {item.label}
-                            </p>
+                        <div key={item.label} className={cn("bg-white dark:bg-brand-900 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-white/5 border-l-[4px] flex flex-col gap-3", item.borderColor)}>
+                            <div className="flex items-center justify-between">
+                                <p className={cn("text-[10px] font-bold uppercase tracking-widest", item.labelColor)}>
+                                    {item.label}
+                                </p>
+                                <div className={cn("h-8 w-8 rounded-xl flex items-center justify-center", item.iconBg)}>
+                                    <item.icon size={16} className={item.iconColor} />
+                                </div>
+                            </div>
                             <p className={cn("text-2xl font-black tracking-tighter", item.textColor)}>
                                 {item.value}
                             </p>
