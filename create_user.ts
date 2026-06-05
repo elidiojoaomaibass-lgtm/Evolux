@@ -12,9 +12,7 @@ async function createUser() {
         email: 'kingleakds@gmail.com',
         password: 'Albertina198211',
         options: {
-            data: {
-                full_name: 'Senhor Incrível',
-            }
+
         }
     });
 
