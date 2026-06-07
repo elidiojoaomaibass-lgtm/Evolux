@@ -51,24 +51,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .update({ status: finalStatus })
             .eq('id', transaction_id);
 
-        if (error) {
-            console.error('Erro ao atualizar transação no Supabase por ID:', error);
-            // Tenta atualizar usando a referência como fallback
-            if (reference) {
-                const { error: refError } = await supabase
-                    .from('transactions')
-                    .update({ status: finalStatus })
-                    .eq('reference', reference);
-                if (refError) {
-                    console.error('Erro no fallback por referência:', refError);
-                } else {
-                    console.log('Sucesso ao atualizar o status da transação pelo fallback de referência.');
-                }
-            }
-        } else {
-            console.log('Sucesso ao atualizar o status da transação no Supabase por ID.');
-        }
+        // Determine user ID from payload (assume payload contains user_id or userId)
+        const userId = payload.user_id || payload.userId;
+        // After updating transaction status
+        import { sendPushNotificationV1 as sendPushNotification, getUserTokens } from '../src/lib/push_v1';
 
+        if (!error) {
+          console.log('Sucesso ao atualizar o status da transação no Supabase por ID.');
+          // Send push notification to user if userId available
+          if (userId) {
+            try {
+              const tokens = await getUserTokens(userId);
+              for (const token of tokens) {
+                await sendPushNotification(token, {
+                  title: 'Venda concluída',
+                  body: `Sua venda ${transaction_id} foi concluída com sucesso.`,
+                });
+              }
+            } catch (e) {
+              console.error('Erro ao enviar notificação push', e);
+            }
+          }
+        }
         return res.status(200).json({ 
             message: 'Webhook processed successfully',
             updated: { transaction_id, status: finalStatus, reference }

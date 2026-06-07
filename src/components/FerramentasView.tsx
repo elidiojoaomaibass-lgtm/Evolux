@@ -14,6 +14,9 @@ export const FerramentasView = () => {
     // Utmify state
     const [utmifyToken, setUtmifyToken] = useState(() => localStorage.getItem('evolux_prod_utmify_token') || '');
 
+    // LowTrack state
+    const [lowTrackToken, setLowTrackToken] = useState(() => localStorage.getItem('evolux_prod_lowtrack_token') || '');
+
     // Meta Ads Pixel state
     const [pixelId, setPixelId] = useState(() => localStorage.getItem('evolux_prod_facebook_pixel_id') || '');
     const [tiktokId, setTiktokId] = useState(() => localStorage.getItem('evolux_prod_tiktok_pixel_id') || '');
@@ -32,6 +35,14 @@ export const FerramentasView = () => {
         localStorage.setItem('evolux_prod_utmify_token', utmifyToken);
         toast.success('Token Utmify salvo!', {
             description: 'A integração com Utmify está agora ativa no seu checkout.'
+        });
+    };
+
+    const handleSaveLowTrack = (e: React.FormEvent) => {
+        e.preventDefault();
+        localStorage.setItem('evolux_prod_lowtrack_token', lowTrackToken);
+        toast.success('Token LowTrack salvo!', {
+            description: 'A integração com LowTrack está agora ativa no seu checkout.'
         });
     };
 
@@ -86,7 +97,7 @@ export const FerramentasView = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Utmify Integration */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -251,7 +262,67 @@ export const FerramentasView = () => {
                     </form>
                 </motion.div>
 
-                {/* Webhook Integration */}
+                {/* LowTrack Integration */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                >
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-xl bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center text-orange-600">
+                                <img 
+                                    src="/integrations/lowtrack.png" 
+                                    alt="LowTrack integration" 
+                                    className="w-8 h-8 rounded-lg object-contain" 
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).src = "https://ui-avatars.com/api/?name=LT&background=ea580c&color=fff&bold=true&size=128";
+                                    }} 
+                                />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">LowTrack</h3>
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Rastreamento Avançado</p>
+                            </div>
+                        </div>
+                        <div className="px-3 py-1 rounded-full bg-orange-50 dark:bg-orange-950 text-orange-600 text-[10px] font-black uppercase tracking-widest border border-orange-100 dark:border-orange-900/30">
+                            Ativo
+                        </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800">
+                        <div className="flex gap-2">
+                            <Info size={14} className="text-orange-500 shrink-0 mt-0.5" />
+                            <p className="text-[10px] leading-snug text-slate-500 font-medium italic">
+                                Ferramenta de tracking avançado. Insira o seu Token para ativar.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSaveLowTrack} className="space-y-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Token LowTrack</label>
+                            <div className="relative">
+                                <Code2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                <input
+                                    type="text"
+                                    placeholder="lt_..."
+                                    value={lowTrackToken}
+                                    onChange={(e) => setLowTrackToken(e.target.value)}
+                                    className="w-full h-11 pl-12 pr-4 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800 text-xs font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-orange-500/10 transition-all shadow-sm"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full h-11 bg-orange-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-orange-700 shadow-lg shadow-orange-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                        >
+                            <Save size={16} />
+                            Salvar Configuração
+                        </button>
+                    </form>
+                </motion.div>
 
                 {/* Webhook Integration */}
                 <motion.div

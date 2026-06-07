@@ -310,13 +310,16 @@ export const useTransactionsStore = () => {
         const listener = (newTxs: Transaction[]) => setTransactions(newTxs);
         transactionListeners.add(listener);
 
+        console.log('Supabase client initialized:', supabase);
+
         const fetchTransactions = async () => {
             try {
                 // Carrega todas as transações da tabela 'transactions' no Supabase
                 const { data, error } = await supabase
                     .from('transactions')
                     .select('*')
-                    .order('createdat', { ascending: false });
+                    .order('createdat', { ascending: false })
+                console.log('Supabase fetch result:', { data, error });
                 
                 if (error) {
                     throw error;

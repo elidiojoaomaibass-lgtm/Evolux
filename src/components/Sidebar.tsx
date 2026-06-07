@@ -10,7 +10,7 @@ import { Logo } from "./Logo";
 
 export type ViewType =
     | "Dashboard" | "Vendas" | "Produtos" | "Afiliados"
-    | "Mercado" | "Pagamentos" | "Saque" | "Premiações" | "Marketing"
+    | "Mercado" | "Pagamentos" | "Saque" | "Premiações" | "Integrações"
     | "Análise" | "Configurações" | "Documentação";
 
 interface SidebarProps {
@@ -37,7 +37,7 @@ const menuGroups = [
         items: [
             { icon: Users, label: "Afiliados" as ViewType, badge: "Novo" },
             { icon: Layers, label: "Mercado" as ViewType, badge: "Novo" },
-            { icon: Wrench, label: "Marketing" as ViewType },
+            { icon: Wrench, label: "Integrações" as ViewType },
             { icon: Gift, label: "Premiações" as ViewType },
         ],
     },

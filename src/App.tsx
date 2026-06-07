@@ -6,14 +6,16 @@ import { Dashboard } from "./components/Dashboard";
 import { Views } from "./components/Views";
 import { LoginView } from "./components/LoginView";
 import { supabase } from "./lib/supabase";
-import { Menu } from "lucide-react";
+import { getFcmToken } from "./lib/firebase";
 import type { Session } from "@supabase/supabase-js";
 import { Toaster } from 'sonner';
+import { Menu } from './components/MenuIcon';
 
 // (Removed global error handler - hooks must be inside component)
 
 
 function App() {
+  console.log('App rendered');
   const [session, setSession] = useState<Session | null>(() => {
     const saved = localStorage.getItem('evolux_prod_fake_session');
     return saved ? JSON.parse(saved) : null;
@@ -100,12 +102,40 @@ function App() {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  // Request Notification Permission
+  // Request Notification Permission and obtain FCM token
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-  }, []);
+    const setupPush = async () => {
+      if ('Notification' in window && Notification.permission === 'default') {
+        await Notification.requestPermission();
+      }
+      if (Notification.permission === 'granted') {
+        // Register service worker (required for background messages)
+        if ('serviceWorker' in navigator) {
+          try {
+            const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+            console.log('Service Worker registered', registration);
+          } catch (e) {
+            console.error('Service Worker registration failed', e);
+          }
+        }
+        // Get FCM token and send to backend
+        const token = await getFcmToken();
+        if (token && session?.user?.id) {
+          try {
+            await fetch('/api/push/subscribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token, userId: session.user.id })
+            });
+            console.log('FCM token sent to backend');
+          } catch (err) {
+            console.error('Failed to send FCM token', err);
+          }
+        }
+      }
+    };
+    setupPush();
+  }, [session]);
 
   // Meta Ads Pixel Injection
   useEffect(() => {
@@ -198,8 +228,8 @@ function App() {
           // Final fallback
           const fakeSession = { 
             user: { 
-              email: 'kingleakds@gmail.com',
-              user_metadata: { full_name: 'Senhor Incrível' }
+              email: 'admin@evolux.com',
+              user_metadata: { full_name: 'Administrador' }
             } 
           };
           localStorage.setItem('evolux_prod_fake_session', JSON.stringify(fakeSession));
@@ -259,7 +289,7 @@ function App() {
           {activeView === "Pagamentos" && <Views.Pagamentos />}
           {activeView === "Saque" && <Views.Saque />}
           {activeView === "Premiações" && <Views.Premiações />}
-          {activeView === "Marketing" && <Views.Ferramentas />}
+          {activeView === "Integrações" && <Views.Ferramentas />}
           {activeView === "Análise" && <Views.Análise />}
           {activeView === "Configurações" && <Views.Configuracoes onLogout={handleLogout} />}
           {activeView === "Documentação" && <Views.Documentacao />}

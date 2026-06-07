@@ -321,13 +321,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                 onClick={() => setProfileOpen(!profileOpen)}
                                 className="h-11 w-11 rounded-xl bg-violet-50 dark:bg-violet-900/30 border border-violet-200 dark:border-violet-500/20 p-1 flex items-center justify-center cursor-pointer hover:scale-105 transition-all overflow-hidden"
                             >
-                                {user?.user_metadata?.photo_url ? (
-                                    <img src={user.user_metadata.photo_url} alt="Profile" className="h-full w-full object-cover rounded-lg" />
-                                ) : (
-                                    <div className="h-full w-full rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center text-white font-black text-xs">
-                                        {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'E'}
-                                    </div>
-                                )}
+                                <Logo size={40} showText={false} />
                             </button>
 
                             <AnimatePresence>
@@ -342,7 +336,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                             <Logo showText size={28} textColor="text-slate-900 dark:text-white" />
                                             <div className="pl-1">
                                                 <p className="text-[11px] font-black text-slate-900 dark:text-white truncate">
-                                                    {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
+                                                    {(user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0])}
                                                 </p>
                                                 <p className="text-[10px] text-slate-400 font-medium truncate">{user?.email}</p>
                                             </div>
@@ -364,16 +358,16 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                     </div>
                 </div>
 
-                {/* ─── WELCOME ─── */}
+                {/* ─── GREETING & FILTERS ─── */}
                 <div className="flex flex-col gap-1 relative z-[40]">
                     {/* Row 1: greeting + filter button */}
                     <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            <button onClick={toggleSidebar} className="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 shadow-sm md:hidden">
-                                <BarChart3 size={20} className="text-slate-600" />
+                            <button onClick={toggleSidebar} className="h-10 w-10 flex items-center justify-center rounded-xl bg-white dark:bg-brand-900 border border-slate-200 dark:border-white/5 shadow-sm">
+                                <BarChart3 size={20} className="text-slate-600 dark:text-brand-400" />
                             </button>
                             <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
-                                {getGreeting()}, {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
+                                {getGreeting()}, {(user?.user_metadata?.full_name?.split(' ')[0] || user?.user_metadata?.nickname?.split(' ')[0] || user?.email?.split('@')[0])}
                             </h2>
                         </div>
 
@@ -455,18 +449,18 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                     </div>
                     {/* Row 2: subtitle */}
                     <p className="text-sm text-slate-400 dark:text-brand-400 font-medium">
-                        Acompanhe as suas vendas e receitas de hoje.
+                      Acompanhe as suas vendas e receitas de hoje.
                     </p>
                 </div>
 
-                {/* ─── STATS CARDS ─── */}
-                <div className="grid grid-cols-2 gap-4">
-                    {stats.map((item) => (
-                        <div key={item.label} className={cn("bg-white dark:bg-brand-900 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-white/5 border-l-[4px] flex flex-col gap-3", item.borderColor)}>
-                            <div className="flex items-center justify-between">
-                                <p className={cn("text-[10px] font-bold uppercase tracking-widest", item.labelColor)}>
+                {/* ─── STATS GRID ─── */}
+                <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+                    {stats.map((item, idx) => (
+                        <div key={idx} className={cn("bg-white dark:bg-brand-900/50 rounded-2xl p-4 border border-slate-100 dark:border-white/5 shadow-sm", item.borderColor)}>
+                            <div className="flex items-center justify-between mb-4">
+                                <span className={cn("text-[9px] font-black uppercase tracking-widest", item.labelColor)}>
                                     {item.label}
-                                </p>
+                                </span>
                                 <div className={cn("h-8 w-8 rounded-xl flex items-center justify-center", item.iconBg)}>
                                     <item.icon size={16} className={item.iconColor} />
                                 </div>
@@ -477,6 +471,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                         </div>
                     ))}
                 </div>
+
 
                 {/* ─── MAIN GRID ─── */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -547,23 +542,14 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                         </div>
                     </div>
 
-                    {/* Métodos de Pagamento */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between px-2">
-                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest leading-tight">
-                                Métodos de<br/>Pagamento
-                            </h3>
-                            <div className="text-right">
-                                <span className="text-[9px] font-black uppercase text-violet-600 tracking-widest block">Total: {totalApprovedCount}</span>
-                                <span className="text-[9px] font-black uppercase text-violet-600 tracking-widest block">Vendas</span>
-                            </div>
-                        </div>
-                        <div className="bg-white rounded-[2rem] h-[350px] shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
+
+
+                                        <div className="bg-white rounded-[2rem] h-[350px] shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
                             <div className="flex-1 flex flex-col items-center justify-center">
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total</span>
                                 <span className="text-5xl font-black text-slate-900 tracking-tighter">{totalApprovedCount}</span>
                             </div>
-                            <div className="grid grid-cols-2 gap-3 mt-auto">
+                            <div className="grid grid-cols-2 gap-4 mt-auto">
                                 <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-100">
                                     <div className="flex items-center gap-2 mb-2">
                                         <div className="h-3 w-3 rounded-sm bg-red-500 flex items-center justify-center">
@@ -606,7 +592,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                             onClick={() => setView('Vendas')}
                             className="px-6 py-3 rounded-xl bg-white border border-slate-100 shadow-sm text-[10px] font-black uppercase text-slate-700 tracking-widest hover:bg-slate-50 transition-all cursor-pointer"
                         >
-                            Ver Histórico Completo
+                            Ver Histórico
                         </button>
                     </div>
 
@@ -677,7 +663,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                 </div>
 
             </div>
-        </div>
+
     );
 }
 
