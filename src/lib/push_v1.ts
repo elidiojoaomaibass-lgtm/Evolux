@@ -20,7 +20,7 @@ if (!credPath) {
 //      Função para obter token de acesso OAuth2
 // ---------------------------------------------------------------
 async function getAccessToken(): Promise<string> {
-  const credentials = JSON.parse(await readFile(credPath, 'utf8'));
+  const credentials = JSON.parse(await readFile(credPath as string, 'utf8'));
   const auth = new GoogleAuth({
     credentials,
     scopes: ['https://www.googleapis.com/auth/firebase.messaging'],

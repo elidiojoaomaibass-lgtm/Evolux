@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Lock, Bell, Shield, Save, Loader2, Eye, EyeOff, LogOut } from 'lucide-react';
+import { User, Lock, Bell, Shield, LogOut, AlertCircle, Loader2, Save, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
@@ -9,12 +9,6 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications'>('profile');
-
-    // E2Payments settings states
-    const [e2ClientId, setE2ClientId] = useState('');
-    const [e2ClientSecret, setE2ClientSecret] = useState('');
-    const [e2WalletMpesa, setE2WalletMpesa] = useState('');
-    const [e2WalletEmola, setE2WalletEmola] = useState('');
 
     // Form states
     const [fullName, setFullName] = useState('');
@@ -33,7 +27,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
     useEffect(() => {
         // Try real Supabase session first, fallback to fake localStorage session
         const loadUser = async () => {
-            const { data: { user: realUser } } = await supabase.auth.getUser() as any;
+            const { data: { user: realUser } } = await supabase.auth.getUser();
             if (realUser) {
                 setUser(realUser);
                 const m = realUser.user_metadata || {};
@@ -60,15 +54,15 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
         loadUser();
 
         // Load E2Payments settings from localStorage
-        const savedClientId = localStorage.getItem('evolux_e2_client_id');
-        const savedClientSecret = localStorage.getItem('evolux_e2_client_secret');
-        const savedWalletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
-        const savedWalletEmola = localStorage.getItem('evolux_e2_wallet_emola');
+        // const savedClientId = localStorage.getItem('evolux_e2_client_id');
+        // const savedClientSecret = localStorage.getItem('evolux_e2_client_secret');
+        // const savedWalletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
+        // const savedWalletEmola = localStorage.getItem('evolux_e2_wallet_emola');
 
-        if (savedClientId) setE2ClientId(savedClientId);
-        if (savedClientSecret) setE2ClientSecret(savedClientSecret);
-        if (savedWalletMpesa) setE2WalletMpesa(savedWalletMpesa);
-        if (savedWalletEmola) setE2WalletEmola(savedWalletEmola);
+        // if (savedClientId) setE2ClientId(savedClientId);
+// if (savedClientSecret) setE2ClientSecret(savedClientSecret);
+// if (savedWalletMpesa) setE2WalletMpesa(savedWalletMpesa);
+// if (savedWalletEmola) setE2WalletEmola(savedWalletEmola);
     }, []);
 
 
@@ -446,6 +440,4 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
     );
 };
 
-const AlertCircle = ({ size }: { size: number }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-);
+

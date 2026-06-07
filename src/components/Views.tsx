@@ -2,8 +2,9 @@ import { VendasView } from './VendasView';
 import { ProdutosView } from './ProdutosView';
 import { AfiliadosView } from './AfiliadosView';
 import { MercadoView } from './MercadoView';
-
 import { SaqueView } from './SaqueView';
+
+import { PagamentosView } from './PagamentosView';
 import { PremiacoesView } from './PremiacoesView';
 import { FerramentasView } from './FerramentasView';
 import { AnalyticsView } from './AnalyticsView';
@@ -17,6 +18,7 @@ export const Views = {
     Afiliados: () => <AfiliadosView />,
     Mercado: () => <MercadoView />,
 
+    Pagamentos: () => <PagamentosView />,
     Saque: () => <SaqueView />,
     Premiações: () => <PremiacoesView />,
     Ferramentas: () => <FerramentasView />,

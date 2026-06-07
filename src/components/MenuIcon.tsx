@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export const Menu = ({ size = 24, color = 'currentColor', className = '' }: { size?: number; color?: string; className?: string }) => (
   <svg
