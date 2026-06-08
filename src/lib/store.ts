@@ -359,14 +359,16 @@ export const useTransactionsStore = () => {
                     // Trigger System Notification for Payments
                     if (payload.eventType === 'INSERT' && payload.new.type === 'payment' && payload.new.status === 'Concluído') {
                         const val = Number(payload.new.amount).toLocaleString('pt-PT');
+                        const method = payload.new.method || 'Evolux Pay';
                         sendLocalNotification('Você recebeu um novo pedido! 🎉', {
-                            body: `Novo pedido de ${val} MZN - Evolux Pay`,
+                            body: `Novo pedido de ${val} MZN via ${method}`,
                             icon: '/logo.png'
                         });
                     } else if (payload.eventType === 'UPDATE' && payload.new.type === 'payment' && payload.old?.status !== 'Concluído' && payload.new.status === 'Concluído') {
                         const val = Number(payload.new.amount).toLocaleString('pt-PT');
+                        const method = payload.new.method || 'Evolux Pay';
                         sendLocalNotification('Você recebeu um novo pedido! 🎉', {
-                            body: `Novo pedido de ${val} MZN - Evolux Pay`,
+                            body: `Novo pedido de ${val} MZN via ${method}`,
                             icon: '/logo.png'
                         });
                     }
