@@ -6,21 +6,27 @@ import { GoogleAuth } from 'google-auth-library';
 // ---------------------------------------------------------------
 //      Configurações – variáveis de ambiente
 // ---------------------------------------------------------------
-const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID;
-const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS; // backend only
-
-if (!projectId) {
-  throw new Error('VITE_FIREBASE_PROJECT_ID não está definido no .env');
-}
-if (!credPath) {
-  throw new Error('GOOGLE_APPLICATION_CREDENTIALS não está definido no .env');
-}
+const getProjectId = () => process.env.VITE_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID;
 
 // ---------------------------------------------------------------
 //      Função para obter token de acesso OAuth2
 // ---------------------------------------------------------------
 async function getAccessToken(): Promise<string> {
-  const credentials = JSON.parse(await readFile(credPath as string, 'utf8'));
+  const projectId = getProjectId();
+  if (!projectId) throw new Error('FIREBASE_PROJECT_ID não está definido no ambiente');
+
+  const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
+  
+  let credentials;
+  if (serviceAccountJson) {
+      credentials = JSON.parse(serviceAccountJson);
+  } else if (credPath) {
+      credentials = JSON.parse(await readFile(credPath, 'utf8'));
+  } else {
+      throw new Error('A variável FIREBASE_SERVICE_ACCOUNT ou GOOGLE_APPLICATION_CREDENTIALS não está definida. Impossível enviar push.');
+  }
+
   const auth = new GoogleAuth({
     credentials,
     scopes: ['https://www.googleapis.com/auth/firebase.messaging'],
@@ -41,6 +47,7 @@ export async function sendPushNotificationV1(
   payload: { title: string; body: string; url?: string },
 ): Promise<void> {
   const accessToken = await getAccessToken();
+  const projectId = getProjectId();
 
   const url = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
 

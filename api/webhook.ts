@@ -1,5 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
+import { sendPushNotificationV1 as sendPushNotification, getUserTokens } from '../src/lib/push_v1';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
@@ -46,15 +47,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log(`Atualizando transação ${transaction_id} (Ref: ${reference}) para status: ${finalStatus} (Original: ${status})`);
 
         // Atualiza a transação no Supabase
-        const { error } = await supabase
+        const { data: updatedTx, error } = await supabase
             .from('transactions')
             .update({ status: finalStatus })
-            .eq('id', transaction_id);
+            .eq('id', transaction_id)
+            .select()
+            .single();
 
-        // Determine user ID from payload (assume payload contains user_id or userId)
-        const userId = payload.user_id || payload.userId;
-        // After updating transaction status
-        import { sendPushNotificationV1 as sendPushNotification, getUserTokens } from '../src/lib/push_v1';
+        // Determine user ID from payload or the updated transaction
+        const userId = payload.user_id || payload.userId || (updatedTx ? updatedTx.user_id : null);
 
         if (!error) {
           console.log('Sucesso ao atualizar o status da transação no Supabase por ID.');
