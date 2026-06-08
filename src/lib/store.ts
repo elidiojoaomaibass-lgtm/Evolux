@@ -416,9 +416,19 @@ export const useTransactionsStore = () => {
         // Depois roda a cada 30 segundos
         const approvalInterval = setInterval(autoApprove, 30 * 1000);
 
+        // Recarrega transações ao voltar ao aplicativo (ex: no celular quando sai de segundo plano)
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                console.log('App returned to foreground, refreshing transactions...');
+                fetchTransactions();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
         return () => {
             transactionListeners.delete(listener);
             clearInterval(approvalInterval);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
             if (channel) {
                 try {
                     supabase.removeChannel(channel);

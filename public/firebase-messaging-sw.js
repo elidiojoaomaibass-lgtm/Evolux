@@ -4,12 +4,12 @@ importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js');
 
 const firebaseConfig = {
-  apiKey: 'YOUR_API_KEY',
-  authDomain: 'YOUR_AUTH_DOMAIN',
-  projectId: 'YOUR_PROJECT_ID',
-  storageBucket: 'YOUR_STORAGE_BUCKET',
-  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-  appId: 'YOUR_APP_ID'
+  apiKey: 'AIzaSyDhIwBjlR_YEqbsZTx_TT64tO_c8-bhR6M',
+  authDomain: 'evolux-b9300.firebaseapp.com',
+  projectId: 'evolux-b9300',
+  storageBucket: 'evolux-b9300.firebasestorage.app',
+  messagingSenderId: '414354486042',
+  appId: '1:414354486042:web:53f0d264b1f059570532a3'
 };
 
 firebase.initializeApp(firebaseConfig);
