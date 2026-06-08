@@ -18,10 +18,11 @@ const messaging = getMessaging(app);
  * Retrieves the FCM token for the current device.
  * Call this after the user has granted Notification permission.
  */
-export const getFcmToken = async (): Promise<string | null> => {
+export const getFcmToken = async (registration?: ServiceWorkerRegistration): Promise<string | null> => {
   try {
     const token = await getToken(messaging, {
-      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY, // Uses env VAPID key
+      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+      serviceWorkerRegistration: registration,
     });
     return token;
   } catch (err) {

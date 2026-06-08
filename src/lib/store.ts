@@ -4,14 +4,21 @@ import { supabase } from './supabase';
 import { toast } from 'sonner';
 
 export const sendLocalNotification = (title: string, options?: NotificationOptions) => {
-    // Show beautiful in-app toast notification
+    // Always show a toast in-app (styled by sonner)
     if (title.includes('Erro') || title.includes('Falha')) {
         toast.error(title, { description: options?.body });
     } else {
         toast.success(title, { description: options?.body });
     }
 
-    // Try to send native browser notification
+    // If the page is currently visible, skip the native browser notification –
+    // the user already sees the toast. This prevents duplicate notifications
+    // and fixes the case where notifications seemed not to fire while inside the app.
+    if (document.visibilityState === 'visible') {
+        return;
+    }
+
+    // Try to send native browser notification for background/away state
     if (!('Notification' in window)) return;
     if (Notification.permission === 'granted') {
         if ('serviceWorker' in navigator) {

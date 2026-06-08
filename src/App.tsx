@@ -103,39 +103,36 @@ function App() {
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
   // Request Notification Permission and obtain FCM token
+  const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
+
   useEffect(() => {
     const setupPush = async () => {
       if ('Notification' in window && Notification.permission === 'default') {
         await Notification.requestPermission();
       }
       if (Notification.permission === 'granted') {
-        // Register service worker (required for background messages)
         if ('serviceWorker' in navigator) {
           try {
             const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
             console.log('Service Worker registered', registration);
+            setSwRegistration(registration);
+            // Get FCM token with the newly registered service worker
+            const token = await getFcmToken(registration);
+            if (token && session?.user?.id) {
+              await fetch('/api/push/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token, userId: session.user.id })
+              });
+              console.log('FCM token sent to backend');
+            }
           } catch (e) {
             console.error('Service Worker registration failed', e);
           }
         }
-        // Get FCM token and send to backend
-        const token = await getFcmToken();
-        if (token && session?.user?.id) {
-          try {
-            await fetch('/api/push/subscribe', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ token, userId: session.user.id })
-            });
-            console.log('FCM token sent to backend');
-          } catch (err) {
-            console.error('Failed to send FCM token', err);
-          }
-        }
       }
-    };
-    setupPush();
-  }, [session]);
+    };    setupPush();
+  }, [session, swRegistration]);
 
   // Meta Ads Pixel Injection
   useEffect(() => {
