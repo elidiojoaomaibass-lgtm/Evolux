@@ -118,14 +118,13 @@ function App() {
             setSwRegistration(registration);
             // Get FCM token with the newly registered service worker
             const token = await getFcmToken(registration);
-            if (token && session?.user?.id) {
-              await fetch('/api/push/subscribe', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, userId: session.user.id })
-              });
-              console.log('FCM token sent to backend');
-            }
+            // Send FCM token to backend regardless of login state
+            await fetch('/api/push/subscribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token, userId: session?.user?.id ?? null })
+            });
+            console.log('FCM token sent to backend');
           } catch (e) {
             console.error('Service Worker registration failed', e);
           }
