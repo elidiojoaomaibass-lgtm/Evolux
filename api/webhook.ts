@@ -69,7 +69,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           for (const token of tokens) {
             await sendPushNotification(token, {
               title: 'Você recebeu um novo pedido! 🎉',
-              body: `from Evolux Prod\nVenda aprovada de ${val} MZN ${method}`,
+              body: `from Prod\nVenda aprovada de ${val} MZN ${method}`,
             });
           }
         } catch (e) {
