@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Lock, Bell, Shield, LogOut, AlertCircle, Loader2, Save, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { requestPermissionAndStoreToken } from '../lib/firebase';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
@@ -27,9 +28,12 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
     useEffect(() => {
         // Try real Supabase session first, fallback to fake localStorage session
         const loadUser = async () => {
-            const { data: { user: realUser } } = await supabase.auth.getUser();
+            const { data } = await supabase.auth.getSession();
+            const realUser = data.session?.user;
+
             if (realUser) {
                 setUser(realUser);
+                requestPermissionAndStoreToken(realUser.id);
                 const m = realUser.user_metadata || {};
                 if (m.full_name) setFullName(m.full_name);
                 if (m.nickname) setNickname(m.nickname);

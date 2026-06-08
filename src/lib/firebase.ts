@@ -21,7 +21,7 @@ const messaging = getMessaging(app);
 export const getFcmToken = async (): Promise<string | null> => {
   try {
     const token = await getToken(messaging, {
-      vapidKey: 'YOUR_PUBLIC_VAPID_KEY', // Replace with your VAPID key.
+      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY, // Uses env VAPID key
     });
     return token;
   } catch (err) {
@@ -36,4 +36,47 @@ export const onFcmMessage = (callback: (payload: any) => void) => {
     console.log('FCM foreground message', payload);
     callback(payload);
   });
+};
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
+
+/**
+ * Persiste o token FCM no Firestore sob users/{uid}/tokens.
+ * Chame após getFcmToken quando o usuário estiver autenticado.
+ */
+export const storeFcmToken = async (uid: string, token: string) => {
+  try {
+    const db = getFirestore();
+    await setDoc(doc(db, 'users', uid, 'tokens', 'device'), { token }, { merge: true });
+    console.log('FCM token stored for uid', uid);
+  } catch (err) {
+    console.error('Error storing FCM token', err);
+  }
+};
+
+/**
+ * Requests browser notification permission, obtains the FCM token, and stores it in Firestore.
+ * If a user ID is provided, the token is linked to that user. Otherwise it is stored locally.
+ */
+export const requestPermissionAndStoreToken = async (uid?: string): Promise<void> => {
+  // Request permission from the browser
+  const permission = await Notification.requestPermission();
+  if (permission !== 'granted') {
+    console.warn('Notification permission not granted');
+    return;
+  }
+
+  // Get the FCM token
+  const token = await getFcmToken();
+  if (!token) {
+    console.warn('Failed to obtain FCM token');
+    return;
+  }
+
+  // Store token if UID is available
+  if (uid) {
+    await storeFcmToken(uid, token);
+  } else {
+    // Fallback: store in localStorage for later association
+    localStorage.setItem('fcm_token', token);
+  }
 };
