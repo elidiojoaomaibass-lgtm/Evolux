@@ -361,14 +361,14 @@ export const useTransactionsStore = () => {
                         const val = Number(payload.new.amount).toLocaleString('pt-PT');
                         const method = payload.new.method || 'Evolux Pay';
                         sendLocalNotification('Você recebeu um novo pedido! 🎉', {
-                            body: `Novo pedido de ${val} MZN via ${method}`,
+                            body: `Novo pedido de ${val} MZN - ${method}`,
                             icon: '/logo.png'
                         });
                     } else if (payload.eventType === 'UPDATE' && payload.new.type === 'payment' && payload.old?.status !== 'Concluído' && payload.new.status === 'Concluído') {
                         const val = Number(payload.new.amount).toLocaleString('pt-PT');
                         const method = payload.new.method || 'Evolux Pay';
                         sendLocalNotification('Você recebeu um novo pedido! 🎉', {
-                            body: `Novo pedido de ${val} MZN via ${method}`,
+                            body: `Novo pedido de ${val} MZN - ${method}`,
                             icon: '/logo.png'
                         });
                     }
