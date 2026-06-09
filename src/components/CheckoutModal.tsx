@@ -120,7 +120,6 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 email: email || '',
                 product: product.name || '',
                 amount: String(product.price),
-                method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
                 reference: reference,
                 deliveryLink: product.deliveryLink || '',
             });

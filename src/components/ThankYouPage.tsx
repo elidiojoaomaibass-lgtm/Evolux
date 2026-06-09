@@ -144,20 +144,31 @@ export const ThankYouPage = () => {
                         📧 Uma confirmação foi enviada para <strong className="text-slate-600">{details.email}</strong>
                     </motion.p>
                 )}
-                {/* Delivery Link */}
-                {details.deliveryLink && (
-                    <motion.a
-                        href={details.deliveryLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.7 }}
-                        className="inline-block mt-4 px-6 py-2 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition"
-                    >
-                        Acessar Produto
-                    </motion.a>
-                )}
+                    {/* Delivery Link */}
+                    {details.deliveryLink && (
+                        <>
+                            <motion.p
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.7 }}
+                                className="text-sm text-slate-700 mb-2"
+                            >
+                                🎉 Seu produto está pronto! Clique no botão abaixo para acessar o conteúdo e começar a desfrutar.
+                            </motion.p>
+                            <motion.a
+                                href={details.deliveryLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.8 }}
+                                className="inline-block mt-2 px-6 py-2 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition"
+                            >
+                                Acessar Produto
+                            </motion.a>
+                        </>
+                    )}
+
 
 
 
