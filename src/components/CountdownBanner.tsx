@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export const CountdownBanner = () => {
+export const CountdownBanner = ({ barColor }: { barColor?: string }) => {
     // 15 minutos em segundos
     const [timeLeft, setTimeLeft] = useState(15 * 60);
 
@@ -23,12 +23,13 @@ export const CountdownBanner = () => {
     return (
         <div 
             className="w-full bg-[#007BFF] text-white px-4 flex items-center justify-center gap-2 text-base md:text-lg font-black tracking-wide shadow-sm z-[100] relative"
-            style={{ 
+            style={{
+                backgroundColor: barColor || '#007BFF',
                 paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)',
                 paddingBottom: '0.75rem'
             }}
         >
-            <span>⚡ Oferta Exclusiva! Expira em ⏰ {formatTime(timeLeft)}</span>
+            <span style={{ color: (barColor?.toLowerCase() === '#ffffff') ? '#FFFFFF' : undefined }}>⚡ Oferta Exclusiva! Expira em ⏰ {formatTime(timeLeft)}</span>
         </div>
     );
 };

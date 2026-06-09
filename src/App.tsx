@@ -23,6 +23,16 @@ function App() {
   const [activeView, setActiveView] = useState<ViewType>(() => {
     return (localStorage.getItem('evolux_prod_active_view') as ViewType) || "Dashboard";
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const isThankYou = params.get('thankyou') === 'true' || window.location.pathname === '/obrigado';
+    if (isThankYou) {
+      setActiveView('ThankYou' as ViewType);
+      localStorage.setItem('evolux_prod_active_view', 'ThankYou');
+    }
+  }, []);
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return document.documentElement.classList.contains('dark');
   });
@@ -270,6 +280,11 @@ function App() {
         sidebarOpen ? "ml-64 opacity-50 blur-sm pointer-events-none lg:opacity-100 lg:blur-0 lg:pointer-events-auto" : "ml-0"
       )}>
         <div key={activeView} className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+          {/* Thank You page */}
+          {activeView === "ThankYou" && (
+            <Views.ThankYou />
+          )}
+          {/* Dashboard */}
           {activeView === "Dashboard" && (
             <Dashboard
               onLogout={handleLogout}

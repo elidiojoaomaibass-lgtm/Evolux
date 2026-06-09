@@ -160,39 +160,41 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
     if (status === 'success') {
         return (
-            <AnimatePresence>
-                {isOpen && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={onClose}
-                            className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
-                            className="relative w-full max-w-md bg-white rounded-3xl p-10 text-center shadow-2xl"
-                        >
-                            <div className="h-20 w-20 bg-emerald-500 rounded-full flex items-center justify-center text-white mx-auto mb-6 shadow-lg shadow-emerald-500/20">
-                                <Check size={40} strokeWidth={3} />
-                            </div>
-                            <h3 className="text-2xl font-black text-slate-900 mb-2">Pedido Realizado!</h3>
-                            <p className="text-sm text-slate-500 font-medium mb-8">
-                                O seu acesso foi enviado para <b>{email || 'seu e-mail'}</b>. Verifique também a pasta de spam.
-                            </p>
-                            <button 
-                                onClick={onClose}
-                                className="w-full h-14 bg-slate-900 text-white rounded-xl font-bold  tracking-widest hover:bg-slate-800 transition-all shadow-lg"
-                            >
-                                Fechar
-                            </button>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+          <AnimatePresence>
+            {isOpen && (
+              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={onClose}
+                  className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="relative w-full max-w-md bg-white rounded-3xl p-10 text-center shadow-2xl"
+                >
+                  <div className="h-20 w-20 bg-emerald-500 rounded-full flex items-center justify-center text-white mx-auto mb-6 shadow-lg shadow-emerald-500/20">
+                    <Check size={40} strokeWidth={3} />
+                  </div>
+                  <h3 className="text-2xl font-black text-slate-900 mb-2 flex items-center justify-center gap-2">
+                    <span>🎉</span> Pedido Realizado!
+                  </h3>
+                  <p className="text-sm text-slate-500 font-medium mb-8">
+                    O seu acesso foi enviado para <b>{email || 'seu e‑mail'}</b>. Verifique também a pasta de spam.
+                  </p>
+                  <button
+                    onClick={onClose}
+                    className="w-full h-14 bg-slate-900 text-white rounded-xl font-bold tracking-widest hover:bg-slate-800 transition-all shadow-lg"
+                  >
+                    Fechar
+                  </button>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
         );
     }
 
@@ -216,7 +218,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                         exit={{ opacity: 0, y: 100 }}
                         className="relative w-full max-w-[500px] bg-[#f8f9fa] md:rounded-[2rem] shadow-2xl overflow-hidden min-h-[100dvh] md:min-h-0 md:max-h-[95vh] flex flex-col"
                     >
-                        <CountdownBanner />
+                        {product.enableCountdown && <CountdownBanner />}
                         {/* Branding Header */}
                         <div className="bg-white px-6 py-4 md:py-6 flex items-center justify-between z-30 shadow-sm">
                             <Logo size={28} showText={true} textColor="text-slate-900" />
@@ -365,6 +367,19 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                             {/* Payment Section */}
                             <section className="space-y-4 pt-4 border-t border-slate-100 pb-2">
                                 <h3 className="text-lg font-bold text-slate-900">Pagamento</h3>
+                                {/* Product Creation Form */}
+                                <div className="space-y-4">
+                                    {/* Scarcity Notification Toggle */}
+                                    <label className="flex items-center space-x-2 text-sm text-slate-600">
+                                        <input
+                                            type="checkbox"
+                                            checked={product.enableScarcity ?? false}
+                                            onChange={e => { /* Assuming local state update, logic simplified for structure */ }}
+                                            className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                        />
+                                        <span>Ativar notificação de escassez (exibe nomes aleatórios moçambicanos)</span>
+                                    </label>
+                                </div>
                                 
                                 <div className="space-y-3">
                                     {/* M-Pesa */}

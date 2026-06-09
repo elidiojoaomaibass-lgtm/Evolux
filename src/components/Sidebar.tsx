@@ -9,6 +9,7 @@ import { cn } from '../lib/utils';
 import { Logo } from "./Logo";
 
 export type ViewType =
+    | "ThankYou"
     | "Dashboard" | "Vendas" | "Produtos" | "Afiliados"
     | "Mercado" | "Pagamentos" | "Saque" | "Premiações" | "Integrações"
     | "Análise" | "Configurações" | "Documentação";

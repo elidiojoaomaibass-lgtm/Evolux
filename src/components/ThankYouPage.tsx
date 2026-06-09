@@ -15,6 +15,8 @@ export const ThankYouPage = () => {
         deliveryLink?: string;
     }>({});
 
+    const [isAdmin, setIsAdmin] = useState(false);
+
     useEffect(() => {
         // Ler parâmetros da URL
         const params = new URLSearchParams(window.location.search);
@@ -27,6 +29,9 @@ export const ThankYouPage = () => {
             reference: params.get('reference') || '',
             deliveryLink: params.get('deliveryLink') || '',
         });
+
+        // Detect admin flag
+        setIsAdmin(params.get('admin') === 'true');
 
         // Confetti leve com emojis animados
         const emojis = ['🎉', '✅', '🙏', '💚', '⭐'];
@@ -67,30 +72,19 @@ export const ThankYouPage = () => {
                 transition={{ duration: 0.6, ease: 'easeOut' }}
                 className="relative z-10 bg-white rounded-3xl shadow-2xl shadow-emerald-100 p-8 md:p-12 max-w-md w-full text-center border border-emerald-50"
             >
-                {/* Success Icon */}
-                <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.3, type: 'spring', stiffness: 200, damping: 12 }}
-                    className="flex items-center justify-center mb-6"
-                >
-                    <div className="relative">
-                        <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-xl scale-150" />
-                        <CheckCircle2 size={80} className="text-emerald-500 relative" strokeWidth={1.5} />
-                    </div>
-                </motion.div>
-
                 {/* Title */}
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
+                    className="mb-8"
                 >
-                    <h1 className="text-3xl font-black text-slate-900 mb-2">
-                        Pagamento Confirmado!
+
+                    <h1 className="text-2xl md:text-3xl font-black text-slate-900 mb-4 whitespace-nowrap">
+                        Pagamento Confirmado! 🎉
                     </h1>
-                    <p className="text-slate-500 text-sm leading-relaxed mb-6">
-                        O seu pagamento foi processado com sucesso. Obrigado pela sua compra!
+                    <p className="text-slate-500 text-sm leading-relaxed max-w-sm mx-auto">
+                        {details.name ? <strong className="text-slate-700">{details.name.split(' ')[0]}</strong> : ""}{details.name ? ", o" : "O"} seu pedido foi processado com sucesso. Tudo está pronto para o seu acesso imediato.
                     </p>
                 </motion.div>
 
@@ -145,33 +139,43 @@ export const ThankYouPage = () => {
                     </motion.p>
                 )}
                     {/* Delivery Link */}
-                    {details.deliveryLink && (
-                        <>
-                            <motion.p
-                                initial={{ opacity: 0, y: 5 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.7 }}
-                                className="text-sm text-slate-700 mb-2"
-                            >
-                                🎉 Seu produto está pronto! Clique no botão abaixo para acessar o conteúdo e começar a desfrutar.
-                            </motion.p>
-                            <motion.a
-                                href={details.deliveryLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.8 }}
-                                className="inline-block mt-2 px-6 py-2 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition"
-                            >
-                                Acessar Produto
-                            </motion.a>
-                        </>
-                    )}
-
-
-
-
+                    {details.deliveryLink ? (
+  <>
+    <motion.p
+      initial={{ opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.7 }}
+      className="text-sm text-slate-700 mb-2"
+    >
+      🎉 Seu produto está pronto! Clique no botão abaixo para resgatar o que você adquiriu.
+    </motion.p>
+    <button onClick={() => window.open(details.deliveryLink, "_blank", "noopener,noreferrer")} className="inline-block mt-2 px-6 py-2 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition">Resgatar Produto</button>
+  </>
+) : (
+  <motion.p
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ delay: 0.7 }}
+    className="text-sm text-slate-600 mb-2"
+  >
+    Por favor, verifique seu e‑mail para obter instruções de acesso ao seu produto ou contacte o suporte.
+  </motion.p>
+)}
+            {isAdmin && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8 }}
+                    className="mt-4"
+                >
+                    <button
+                        onClick={() => window.location.href = '/admin/orders'}
+                        className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+                    >
+                        Ver Todos os Pedidos
+                    </button>
+                </motion.div>
+            )}
             </motion.div>
 
             {/* CSS para a animação de confetti */}

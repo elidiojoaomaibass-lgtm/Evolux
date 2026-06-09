@@ -9,6 +9,7 @@ import { cn } from '../lib/utils';
 import { useTransactionsStore } from '../lib/store';
 import { Logo } from './Logo';
 import { CountdownBanner } from './CountdownBanner';
+import { ScarcityNotification } from './ScarcityNotification';
 
 export const CheckoutPage = () => {
     const { addTransaction } = useTransactionsStore();
@@ -24,6 +25,9 @@ export const CheckoutPage = () => {
     const searchParams = new URLSearchParams(window.location.search);
     const rawPrice = Number(searchParams.get('price'));
     const productId = searchParams.get('id') || 'PRD-MOCK';
+    const enableCountdown = searchParams.get('enableCountdown') === 'true';
+    const enableScarcity = searchParams.get('enableScarcityNotification') === 'true';
+    const barColor = searchParams.get('barColor');
 
     // Attempt to load image from localStorage (for same-origin base64 preview) or URL parameter
     const storedImage = localStorage.getItem(`checkout_img_${productId}`) || '';
@@ -109,14 +113,26 @@ export const CheckoutPage = () => {
             setStatus('success');
 
             // Redirect to Thank You page
-            const params = new URLSearchParams({
+            const queryParams: any = {
                 name: name || '',
                 email: email || '',
                 product: product.name || '',
                 amount: String(product.price),
                 method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
                 reference: reference,
-            });
+            };
+
+            if (enableCountdown) {
+                queryParams.enableCountdown = 'true';
+            }
+            if (enableScarcity) {
+                queryParams.enableScarcityNotification = 'true';
+            }
+            if (barColor) {
+                queryParams.barColor = barColor;
+            }
+
+            const params = new URLSearchParams(queryParams);
             window.location.href = `/obrigado?${params.toString()}`;
 
         } catch (err: any) {
@@ -146,7 +162,8 @@ export const CheckoutPage = () => {
     return (
         <div className="min-h-[100dvh] bg-slate-50 flex flex-col">
             <div className="sticky top-0 z-50 shadow-sm">
-                <CountdownBanner />
+                {enableCountdown && <CountdownBanner barColor={barColor || undefined} />}
+                {enableScarcity && <ScarcityNotification />}
                 {/* Header */}
                 <header className="bg-white border-b border-slate-100 py-4 px-6">
                     <div className="max-w-4xl mx-auto flex items-center justify-start">

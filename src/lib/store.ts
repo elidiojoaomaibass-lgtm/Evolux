@@ -57,6 +57,7 @@ export interface Product {
     image?: string;
     deliveryLink?: string; // New field for product deliverable link
     enableCountdown?: boolean; // New field to activate countdown timer
+    enableScarcityNotification?: boolean; // New field to toggle scarcity notifications
     barColor?: string; // New field for countdown bar color (hex or preset)
     createdAt: string;
 }
@@ -375,7 +376,7 @@ export const useTransactionsStore = () => {
                         const val = Number(payload.new.amount).toLocaleString('pt-PT');
                         // const method = payload.new.method || 'Evolux Pay'; // removed unused variable
                         sendLocalNotification('Você recebeu um novo pedido! 🎉', {
-                            body: `Venda aprovada de ${val} MT via ${payload.new.method}`,
+                            body: `Venda aprovada de ${val} MT ${payload.new.method}`,
                             icon: '/logo.png'
                         });
                     }

@@ -137,6 +137,15 @@ export const ProdutosView = () => {
             name: product.name,
             price: String(product.price)
         };
+        if (product.deliveryLink) {
+            queryParams.deliveryLink = product.deliveryLink;
+        }
+        if (product.enableCountdown) {
+            queryParams.enableCountdown = 'true';
+        }
+        if (product.enableScarcityNotification) {
+            queryParams.enableScarcityNotification = 'true';
+        }
 
         setShorteningProductId(product.id);
 
@@ -203,6 +212,15 @@ export const ProdutosView = () => {
         if (product.deliveryLink) {
             queryParams.deliveryLink = product.deliveryLink;
         }
+        if (product.enableCountdown) {
+            queryParams.enableCountdown = 'true';
+        }
+        if (product.enableScarcityNotification) {
+            queryParams.enableScarcityNotification = 'true';
+        }
+        if (product.barColor) {
+            queryParams.barColor = product.barColor;
+        }
 
         if (product.image) {
             if (product.image.startsWith('data:')) {
@@ -250,7 +268,10 @@ export const ProdutosView = () => {
     const [newCommission, setNewCommission] = useState('50');
     const [newAffiliationType, setNewAffiliationType] = useState<'Automatica' | 'Manual'>('Automatica');
     const [newDeliveryLink, setNewDeliveryLink] = useState(''); // New field for product deliverable link
+    const [newEnableCountdown, setNewEnableCountdown] = useState(false);
+    const [newEnableScarcityNotification, setNewEnableScarcityNotification] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [newBarColor, setNewBarColor] = useState('#007BFF');
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -317,7 +338,10 @@ export const ProdutosView = () => {
                 commission: Number(newCommission),
                 affiliationType: newAffiliationType,
                 image: imagePreview || editingProduct.image,
-                deliveryLink: newDeliveryLink
+                deliveryLink: newDeliveryLink,
+                enableCountdown: newEnableCountdown,
+                enableScarcityNotification: newEnableScarcityNotification,
+                barColor: newBarColor
             });
         } else {
             const newProd: Product = {
@@ -338,6 +362,9 @@ export const ProdutosView = () => {
                 affiliationType: newAffiliationType,
                 image: imagePreview || undefined,
                 deliveryLink: newDeliveryLink,
+                enableCountdown: newEnableCountdown,
+                enableScarcityNotification: newEnableScarcityNotification,
+                barColor: newBarColor,
                 createdAt: new Date().toISOString().split('T')[0]
             };
             addProduct(newProd);
@@ -370,6 +397,9 @@ export const ProdutosView = () => {
         setNewCommission(product.commission.toString());
         setNewAffiliationType(product.affiliationType || 'Automatica');
         setNewDeliveryLink(product.deliveryLink || '');
+        setNewEnableCountdown(product.enableCountdown || false);
+        setNewEnableScarcityNotification(product.enableScarcityNotification || false);
+        setNewBarColor(product.barColor || '#007BFF');
         setImagePreview(product.image || null);
         setShowCreateModal(true);
     };
@@ -386,6 +416,11 @@ export const ProdutosView = () => {
         setIsMarketplaceEnabled(false);
         setNewCommission('50');
         setNewAffiliationType('Automatica');
+        setNewDeliveryLink('');
+        setNewEnableCountdown(false);
+        setNewBarColor('#007BFF');
+        // reset scarcity toggle
+        setNewEnableScarcityNotification(false);
         setImagePreview(null);
     };
 
@@ -671,6 +706,20 @@ export const ProdutosView = () => {
                                     </div>
 
                                     {/* Section 2: Parameters */}
+                <div className="flex items-center gap-3">
+                  <div className="h-4 w-1 bg-violet-600 rounded-full" />
+                  <h4 className="text-[9px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Parâmetros de Notificação</h4>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="scarcityNotif"
+                    checked={newEnableScarcityNotification}
+                    onChange={(e) => setNewEnableScarcityNotification(e.target.checked)}
+                    className="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
+                  />
+                  <label htmlFor="scarcityNotif" className="text-xs font-black text-slate-400 uppercase">Ativar Notificações de Escassez</label>
+                </div>
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-3">
                                             <div className="h-4 w-1 bg-violet-600 rounded-full" />
@@ -761,6 +810,62 @@ export const ProdutosView = () => {
                                                 />
                                             </div>
                                         </div>
+                                        <div className="flex items-center gap-4 mt-2 p-3 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50">
+                                            <div className="h-8 w-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0">
+                                                <Target size={16} />
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className="text-xs font-bold text-slate-900 dark:text-white">Ativar Escassez (Contagem Regressiva)</h4>
+                                                <p className="text-[9px] text-slate-500 dark:text-brand-400">Mostra um banner de contagem regressiva de 15 min no Checkout.</p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setNewEnableCountdown(!newEnableCountdown)}
+                                                className={cn(
+                                                    "w-10 h-5 rounded-full transition-all relative p-1 flex items-center",
+                                                    newEnableCountdown ? "bg-orange-500" : "bg-slate-300 dark:bg-brand-800"
+                                                )}
+                                            >
+                                                <motion.div
+                                                    animate={{ x: newEnableCountdown ? 20 : 0 }}
+                                                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                                    className="h-3 w-3 bg-white rounded-full shadow-md"
+                                                />
+                                            </button>
+                                        </div>
+                                        {newEnableCountdown && (
+                                            <div className="flex flex-col gap-2 mt-2">
+                                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-1">Cor da Barra</label>
+                                                <input
+                                                    type="color"
+                                                    value={newBarColor}
+                                                    onChange={(e) => setNewBarColor(e.target.value)}
+                                                    className="w-10 h-8 p-0 border rounded"
+                                                />
+                                                <div className="flex gap-2 mt-1">
+                                                    {/* Preset color buttons */}
+                                                    {[
+                                                        { name: 'Roxo', value: '#8B00FF' },
+                                                        { name: 'Azul', value: '#007BFF' },
+                                                        { name: 'Vermelho', value: '#E11D24' },
+                                                        { name: 'Preto', value: '#000000' },
+                                                        { name: 'Verde', value: '#28A745' }
+                                                    ].map(color => (
+                                                        <button
+                                                            key={color.name}
+                                                            type="button"
+                                                            onClick={() => setNewBarColor(color.value)}
+                                                            title={color.name}
+                                                            className="w-6 h-6 rounded-full border border-slate-300"
+                                                            style={{ backgroundColor: color.value }}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+{newBarColor === '#FFFFFF' && (
+    <p className="text-xs mt-1">Treto</p>
+)}
                                     </div>
 
                                     {/* Section 3: Global Expansion */}
