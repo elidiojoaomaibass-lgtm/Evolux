@@ -368,14 +368,14 @@ export const useTransactionsStore = () => {
                         const val = Number(payload.new.amount).toLocaleString('pt-PT');
                         // const method = payload.new.method || 'Evolux Pay'; // removed unused variable
                         sendLocalNotification('Você recebeu um novo pedido! 🎉', {
-                            body: `Venda aprovada de ${val} MT via ${payload.new.method}`,
+                            body: `Venda aprovada de ${val} MT ${payload.new.method}`,
                             icon: '/logo.png'
                         });
                     } else if (payload.eventType === 'UPDATE' && payload.new.type === 'payment' && payload.old?.status !== 'Concluído' && payload.new.status === 'Concluído') {
                         const val = Number(payload.new.amount).toLocaleString('pt-PT');
                         // const method = payload.new.method || 'Evolux Pay'; // removed unused variable
                         sendLocalNotification('Você recebeu um novo pedido! 🎉', {
-                            body: `Venda aprovada de ${val} MZN`,
+                            body: `Venda aprovada de ${val} MT via ${payload.new.method}`,
                             icon: '/logo.png'
                         });
                     }
