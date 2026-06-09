@@ -122,6 +122,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 amount: String(product.price),
                 method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
                 reference: reference,
+                deliveryLink: product.deliveryLink || '',
             });
             window.location.href = `/obrigado?${params.toString()}`;
             
@@ -267,7 +268,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                             </div>
                                             <div className="flex-1 min-w-0 space-y-1">
                                                 <div className="flex justify-between items-start gap-2">
-                                                    <p className="text-sm font-bold text-slate-900 leading-tight">{product.name}</p>
+                                                    <p className="text-sm font-bold text-slate-900 leading-tight">{product.description}</p>
                                                     <span className="text-sm font-black text-slate-900 shrink-0">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
@@ -345,7 +346,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                         <div className="h-12 w-12 rounded-lg overflow-hidden bg-slate-100 border border-slate-100 shadow-sm shrink-0">
                                             <img src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&fit=crop"} alt="" className="w-full h-full object-cover" />
                                         </div>
-                                        <span className="text-xs font-bold text-slate-600 flex-1 truncate">{product.name}</span>
+                                        <span className="text-xs font-bold text-slate-600 flex-1 truncate">{product.description}</span>
                                         <span className="text-xs font-black text-slate-900">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
                                     </div>
 

@@ -200,6 +200,9 @@ export const ProdutosView = () => {
             name: product.name,
             price: String(product.price)
         };
+        if (product.deliveryLink) {
+            queryParams.deliveryLink = product.deliveryLink;
+        }
 
         if (product.image) {
             if (product.image.startsWith('data:')) {
@@ -246,6 +249,7 @@ export const ProdutosView = () => {
     const [isMarketplaceEnabled, setIsMarketplaceEnabled] = useState(false);
     const [newCommission, setNewCommission] = useState('50');
     const [newAffiliationType, setNewAffiliationType] = useState<'Automatica' | 'Manual'>('Automatica');
+    const [newDeliveryLink, setNewDeliveryLink] = useState(''); // New field for product deliverable link
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -312,7 +316,8 @@ export const ProdutosView = () => {
                 isMarketplaceEnabled,
                 commission: Number(newCommission),
                 affiliationType: newAffiliationType,
-                image: imagePreview || editingProduct.image
+                image: imagePreview || editingProduct.image,
+                deliveryLink: newDeliveryLink
             });
         } else {
             const newProd: Product = {
@@ -332,6 +337,7 @@ export const ProdutosView = () => {
                 commission: Number(newCommission),
                 affiliationType: newAffiliationType,
                 image: imagePreview || undefined,
+                deliveryLink: newDeliveryLink,
                 createdAt: new Date().toISOString().split('T')[0]
             };
             addProduct(newProd);
@@ -363,6 +369,7 @@ export const ProdutosView = () => {
         setIsMarketplaceEnabled(product.isMarketplaceEnabled);
         setNewCommission(product.commission.toString());
         setNewAffiliationType(product.affiliationType || 'Automatica');
+        setNewDeliveryLink(product.deliveryLink || '');
         setImagePreview(product.image || null);
         setShowCreateModal(true);
     };
@@ -737,6 +744,18 @@ export const ProdutosView = () => {
                                                 <input
                                                     value={newSalesLink}
                                                     onChange={(e) => setNewSalesLink(e.target.value)}
+                                                    placeholder="https://..."
+                                                    className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[12px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-1">Link do Produto (Entregável)</label>
+                                            <div className="relative">
+                                                <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500" size={16} />
+                                                <input
+                                                    value={newDeliveryLink}
+                                                    onChange={(e) => setNewDeliveryLink(e.target.value)}
                                                     placeholder="https://..."
                                                     className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[12px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all"
                                                 />

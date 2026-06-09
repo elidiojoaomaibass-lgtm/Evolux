@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
 
+
+
 export const ThankYouPage = () => {
     const [details, setDetails] = useState<{
         name?: string;
@@ -10,6 +12,7 @@ export const ThankYouPage = () => {
         amount?: string;
         method?: string;
         reference?: string;
+        deliveryLink?: string;
     }>({});
 
     useEffect(() => {
@@ -22,6 +25,7 @@ export const ThankYouPage = () => {
             amount: params.get('amount') || '',
             method: params.get('method') || '',
             reference: params.get('reference') || '',
+            deliveryLink: params.get('deliveryLink') || '',
         });
 
         // Confetti leve com emojis animados
@@ -140,6 +144,21 @@ export const ThankYouPage = () => {
                         📧 Uma confirmação foi enviada para <strong className="text-slate-600">{details.email}</strong>
                     </motion.p>
                 )}
+                {/* Delivery Link */}
+                {details.deliveryLink && (
+                    <motion.a
+                        href={details.deliveryLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.7 }}
+                        className="inline-block mt-4 px-6 py-2 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition"
+                    >
+                        Acessar Produto
+                    </motion.a>
+                )}
+
 
 
             </motion.div>

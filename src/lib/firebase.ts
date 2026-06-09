@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
-// TODO: Replace with your actual Firebase config values or use environment variables.
+// TODO: Substitua pelos valores reais de configuração do Firebase ou use variáveis de ambiente.
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -15,8 +15,8 @@ const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
 /**
- * Retrieves the FCM token for the current device.
- * Call this after the user has granted Notification permission.
+ * Recupera o token FCM do dispositivo atual.
+ * Chame isso depois que o usuário conceder permissão de Notificação.
  */
 export const getFcmToken = async (registration?: ServiceWorkerRegistration): Promise<string | null> => {
   try {
@@ -26,18 +26,19 @@ export const getFcmToken = async (registration?: ServiceWorkerRegistration): Pro
     });
     return token;
   } catch (err) {
-    console.error('Error fetching FCM token', err);
+    console.error('Erro ao buscar token FCM', err);
     return null;
   }
 };
 
-// Optional: listen for foreground messages.
+// Opcional: escuta mensagens em primeiro plano.
 export const onFcmMessage = (callback: (payload: any) => void) => {
   onMessage(messaging, (payload) => {
-    console.log('FCM foreground message', payload);
+    console.log('Mensagem FCM em primeiro plano', payload);
     callback(payload);
   });
 };
+
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
 /**
@@ -48,36 +49,37 @@ export const storeFcmToken = async (uid: string, token: string) => {
   try {
     const db = getFirestore();
     await setDoc(doc(db, 'users', uid, 'tokens', 'device'), { token }, { merge: true });
-    console.log('FCM token stored for uid', uid);
+    console.log('Token FCM armazenado para uid', uid);
   } catch (err) {
-    console.error('Error storing FCM token', err);
+    console.error('Erro ao armazenar token FCM', err);
   }
 };
 
 /**
- * Requests browser notification permission, obtains the FCM token, and stores it in Firestore.
- * If a user ID is provided, the token is linked to that user. Otherwise it is stored locally.
+ * Solicita permissão de notificação ao navegador, obtém o token FCM e o armazena no Firestore.
+ * Se um ID de usuário for fornecido, o token será associado a esse usuário. Caso contrário, será armazenado localmente.
  */
 export const requestPermissionAndStoreToken = async (uid?: string): Promise<void> => {
-  // Request permission from the browser
+  // Solicita permissão ao navegador
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') {
-    console.warn('Notification permission not granted');
+    console.warn('Permissão de notificação não concedida');
     return;
   }
 
-  // Get the FCM token
+  // Obtém o token FCM
   const token = await getFcmToken();
   if (!token) {
-    console.warn('Failed to obtain FCM token');
+    console.warn('Falha ao obter token FCM');
     return;
   }
 
-  // Store token if UID is available
+  // Armazena o token se UID estiver disponível
   if (uid) {
     await storeFcmToken(uid, token);
   } else {
-    // Fallback: store in localStorage for later association
+    // Alternativa: armazena em localStorage para associação posterior
     localStorage.setItem('fcm_token', token);
   }
 };
+

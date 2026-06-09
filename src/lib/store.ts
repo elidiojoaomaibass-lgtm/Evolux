@@ -1,7 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from './supabase';
 import { toast } from 'sonner';
+
+
+
+
+
 
 export const sendLocalNotification = (title: string, options?: NotificationOptions) => {
     // Always show a toast in-app (styled by sonner)
@@ -58,6 +62,9 @@ export interface Product {
     commission: number; // Percentage (0-100)
     affiliationType: 'Automatica' | 'Manual';
     image?: string;
+    deliveryLink?: string; // New field for product deliverable link
+    enableCountdown?: boolean; // New field to activate countdown timer
+    barColor?: string; // New field for countdown bar color (hex or preset)
     createdAt: string;
 }
 
@@ -366,17 +373,16 @@ export const useTransactionsStore = () => {
                     // Trigger System Notification for Payments
                     if (payload.eventType === 'INSERT' && payload.new.type === 'payment' && payload.new.status === 'Concluído') {
                         const val = Number(payload.new.amount).toLocaleString('pt-PT');
-                        const method = payload.new.method || 'Evolux Pay';
+                        // const method = payload.new.method || 'Evolux Pay'; // removed unused variable
                         sendLocalNotification('Você recebeu um novo pedido! 🎉', {
-                            body: `from Evolux Prod\nVenda aprovada de ${val} MZN ${method}`,
-
+                            body: `Venda aprovada de ${val} MZN`,
                             icon: '/logo.png'
                         });
                     } else if (payload.eventType === 'UPDATE' && payload.new.type === 'payment' && payload.old?.status !== 'Concluído' && payload.new.status === 'Concluído') {
                         const val = Number(payload.new.amount).toLocaleString('pt-PT');
-                        const method = payload.new.method || 'Evolux Pay';
+                        // const method = payload.new.method || 'Evolux Pay'; // removed unused variable
                         sendLocalNotification('Você recebeu um novo pedido! 🎉', {
-                            body: `from Prod\nVenda aprovada de ${val} MZN ${method}`,
+                            body: `Venda aprovada de ${val} MZN`,
                             icon: '/logo.png'
                         });
                     }
