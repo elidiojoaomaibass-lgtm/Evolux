@@ -427,74 +427,78 @@ export const ProdutosView = () => {
     return (
         <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700">
             {/* Top Header */}
-            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-8">
+            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 xl:gap-16 relative">
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="space-y-3"
+                    className="space-y-1 md:space-y-3 mt-4 md:mt-2"
                 >
-                    <div className="flex flex-col md:flex-row items-baseline gap-3">
-                        <h2 className="pl-14 lg:pl-0 text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
-                            Meus <span className="text-gradient">Produtos</span> 💎
-                        </h2>
-                        <div className="flex items-center gap-2 bg-white/50 dark:bg-violet-950/20 backdrop-blur-md px-3 py-1.5 rounded-xl border border-violet-200/50 dark:border-violet-500/20 shadow-sm group/badge hover:border-violet-400 transition-all duration-300">
-                            <div className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                            </div>
-                            <span className="text-[10px] font-black text-violet-700 dark:text-violet-300 uppercase tracking-[0.15em] flex items-center gap-1.5">
-                                <Package size={12} className="text-violet-600 group-hover/badge:scale-110 transition-transform" />
-                                {products.length} Ativos
-                            </span>
-                        </div>
-                    </div>
-                    <p className="text-xs md:text-sm text-slate-400 dark:text-brand-400 font-medium tracking-tight max-w-2xl">Gestão e criação de ativos digitais.</p>
+                    <h2 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none pl-[3.5rem] md:pl-0 flex items-center min-h-[2rem] md:min-h-0">
+                        <span>Meus <span className="text-gradient">Produtos</span> 💎</span>
+                    </h2>
+                    <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight pl-[3.5rem] md:pl-0 leading-snug">Gestão e criação de ativos digitais.</p>
                 </motion.div>
 
-                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
+                {/* Ativos Badge - Absolute Top Right */}
+                <div className="absolute top-5 right-0 md:top-4 md:right-0 flex items-center justify-center gap-1.5 bg-white/50 dark:bg-violet-950/20 backdrop-blur-md px-2 py-1 rounded-lg border border-violet-200/50 dark:border-violet-500/20 shadow-sm group/badge hover:border-violet-400 transition-all duration-300 shrink-0 z-10">
+                    <div className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                    </div>
+                    <span className="text-[9px] font-black text-violet-700 dark:text-violet-300 uppercase tracking-[0.15em] flex items-center gap-1">
+                        <Package size={10} className="text-violet-600 group-hover/badge:scale-110 transition-transform" />
+                        {products.length} Ativos
+                    </span>
+                </div>
 
+                <div className="flex flex-col items-end gap-2 ml-auto mt-6 md:mt-0">
+                    <div className="flex flex-row flex-wrap items-center justify-end gap-2 md:gap-3 w-full md:w-auto shrink-0">
+                        <div className="flex items-center gap-1 p-0.5 bg-slate-100/50 dark:bg-brand-900/60 rounded-xl border border-white/10 backdrop-blur-3xl overflow-x-auto scrollbar-hide shrink-0">
+                            {['Todos', 'Ativo', 'Rascunho'].map((s) => (
+                                <button
+                                    key={s}
+                                    onClick={() => setFilterStatus(s as any)}
+                                    className={cn(
+                                        "px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
+                                        filterStatus === s
+                                            ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md"
+                                            : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"
+                                    )}
+                                >
+                                    {s}
+                                </button>
+                            ))}
+                        </div>
 
-                    <button
-                        onClick={() => setShowCreateModal(true)}
-                        className="h-12 px-8 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:scale-[1.05] active:scale-[0.98] transition-all flex items-center justify-center gap-3 group"
-                    >
-                        <Plus size={18} className="group-hover:rotate-90 transition-transform duration-500" />
-                        Criar Novo Produto
-                    </button>
+                        <div className="flex flex-row w-auto gap-1.5 shrink-0">
+                            <div className="relative w-[100px] md:w-[140px]">
+                                <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" size={10} />
+                                <input
+                                    type="text"
+                                    placeholder="Pesquisar..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full h-7 pl-6 pr-2 rounded-lg border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-[8px] md:text-[10px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/5 outline-none transition-all placeholder:text-slate-400 shadow-inner"
+                                />
+                            </div>
+
+                            <button
+                                onClick={() => setShowCreateModal(true)}
+                                className="h-7 px-2.5 md:px-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg font-black text-[7px] md:text-[8px] uppercase tracking-[0.15em] shadow-xl hover:scale-[1.05] active:scale-[0.98] transition-all flex items-center justify-center gap-1 group whitespace-nowrap"
+                            >
+                                <Plus size={10} className="group-hover:rotate-90 transition-transform duration-500" />
+                                <span className="hidden xs:inline">Criar </span>Produto
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
 
 
-            {/* Filters Row */}
-            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between px-1">
-                <div className="relative w-full lg:max-w-xs">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                    <input
-                        type="text"
-                        placeholder="Pesquisar..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full h-10 pl-10 pr-4 rounded-xl border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-xs font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/5 outline-none transition-all placeholder:text-slate-400 shadow-inner"
-                    />
-                </div>
-                <div className="flex items-center gap-1.5 p-1 bg-slate-100/50 dark:bg-brand-900/60 rounded-2xl border border-white/10 backdrop-blur-3xl overflow-x-auto w-full lg:w-auto scrollbar-hide">
-                    {['Todos', 'Ativo', 'Rascunho'].map((s) => (
-                        <button
-                            key={s}
-                            onClick={() => setFilterStatus(s as any)}
-                            className={cn(
-                                "px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
-                                filterStatus === s
-                                    ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg"
-                                    : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"
-                            )}
-                        >
-                            {s}
-                        </button>
-                    ))}
-                </div>
-            </div>
+
+
+
 
             {/* Product Cards Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-4">

@@ -44,16 +44,16 @@ export const MercadoView = () => {
     return (
         <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700">
             {/* Header */}
-            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-8">
+            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 xl:gap-16">
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="space-y-2 pl-14 lg:pl-0"
+                    className="space-y-1 md:space-y-3 mt-3 md:mt-2"
                 >
-                    <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
-                        Mercado <span className="text-gradient">Hub</span> 🌐
+                    <h2 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none pl-[3.5rem] md:pl-0 flex items-center min-h-[2rem] md:min-h-0">
+                        <span>Mercado <span className="text-gradient">Hub</span> 🌐</span>
                     </h2>
-                    <p className="text-xs md:text-sm text-slate-400 dark:text-brand-400 font-medium tracking-tight max-w-2xl">
+                    <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight pl-[3.5rem] md:pl-0 leading-snug">
                         Descubra ativos de alta performance e escale seus dividendos através da nossa rede global.
                     </p>
                 </motion.div>

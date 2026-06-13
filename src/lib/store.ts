@@ -38,7 +38,8 @@ export const sendLocalNotification = (title: string, options?: NotificationOptio
 export type ProductType = 'Digital' | 'Fisico' | 'Serviço';
 export type Category = 'Ebook' | 'Curso' | 'Mentoria' | 'Workshop' | 'Outro';
 
-export interface Product {
+
+    export interface Product {
     id: string;
     name: string;
     type: ProductType;
@@ -57,7 +58,8 @@ export interface Product {
     image?: string;
     deliveryLink?: string; // New field for product deliverable link
     enableCountdown?: boolean; // New field to activate countdown timer
-    enableScarcityNotification?: boolean; // New field to toggle scarcity notifications
+    enableScarcity?: boolean; // New field to toggle scarcity notifications
+    enableScarcityNotification?: boolean; // Legacy field
     barColor?: string; // New field for countdown bar color (hex or preset)
     createdAt: string;
 }
@@ -200,6 +202,8 @@ export const useAffiliatesStore = () => {
 // --- Marketing Store ---
 
 export interface Coupon {
+  // New flag to control scarcity notification toggle
+  enableScarcity?: boolean;
     id: string;
     code: string;
     discount: number;

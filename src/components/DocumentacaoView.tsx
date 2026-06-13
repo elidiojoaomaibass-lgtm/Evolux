@@ -70,22 +70,24 @@ async function cobrarCliente() {
     };
 
     return (
-        <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-8 md:space-y-12 max-w-5xl mx-auto w-full">
+        <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700">
             {/* Header */}
-            <header className="space-y-2">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="h-10 w-10 rounded-2xl bg-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
-                        <Zap size={22} />
+            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 xl:gap-16">
+                <div className="space-y-1 md:space-y-3 mt-3 md:mt-2">
+                    <div className="flex items-center gap-3 mb-1 pl-[3.5rem] md:pl-0">
+                        <div className="h-8 w-8 md:h-10 md:w-10 rounded-2xl bg-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                            <Zap size={18} className="md:w-[22px] md:h-[22px]" />
+                        </div>
+                        <span className="text-[9px] md:text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Oficial e2Payments Docs</span>
                     </div>
-                    <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Oficial e2Payments Docs</span>
+                    <h2 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none pl-[3.5rem] md:pl-0 flex items-center min-h-[2rem] md:min-h-0">
+                        <span>Integração <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">e2Payments</span></span>
+                    </h2>
+                    <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight pl-[3.5rem] md:pl-0 leading-snug max-w-2xl">
+                        Documentação oficial para integração de pagamentos M-Pesa e e-Mola via gateway <b className="text-slate-900 dark:text-white">e2Payments (Explicador Inc)</b>.
+                    </p>
                 </div>
-                <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-                    Integração <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">e2Payments</span>
-                </h1>
-                <p className="text-sm md:text-base text-slate-500 dark:text-brand-400 font-medium max-w-2xl">
-                    Documentação oficial para integração de pagamentos M-Pesa e e-Mola via gateway <b className="text-slate-900 dark:text-white">e2Payments (Explicador Inc)</b>.
-                </p>
-            </header>
+            </div>
 
             {/* API Credentials Alert */}
             <div className="p-4 rounded-3xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 flex items-start gap-4">

@@ -19,8 +19,8 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
     const [fullName, setFullName] = useState("");
     const [phone, setPhone] = useState("");
     const [documentId, setDocumentId] = useState("");
-    const [email, setEmail] = useState("kingleakds@gmail.com");
-    const [password, setPassword] = useState("Albertina198211");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -31,16 +31,6 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
         setError(null);
 
         try {
-            // Fallback for development/testing if Supabase is down or for the specific credentials
-            if (email === "kingleakds@gmail.com" && password === "Albertina198211") {
-                console.log("Acesso via credenciais de teste.");
-                onLogin({
-                    email: "kingleakds@gmail.com",
-                    user_metadata: { full_name: "" }
-                });
-                return;
-            }
-
             if (isSignUp) {
                 const { data, error: signUpError } = await supabase.auth.signUp({
                     email,
@@ -66,12 +56,6 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                     setIsSignUp(false);
                 }
             } else {
-                // Fallback de acesso para o usuário kingleakds
-                if (email === "kingleakds@gmail.com" && password === "Albertina198211") {
-                    onLogin();
-                    return;
-                }
-
                 const { error: signInError } = await supabase.auth.signInWithPassword({
                     email,
                     password,

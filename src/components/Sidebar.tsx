@@ -7,6 +7,7 @@ import {
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
 import { Logo } from "./Logo";
+import { useTransactionsStore } from '../lib/store';
 
 export type ViewType =
     | "ThankYou"
@@ -27,7 +28,7 @@ const menuGroups = [
     {
         label: "Principal",
         items: [
-            { icon: LayoutDashboard, label: "Painel", view: "Dashboard" as ViewType },
+            { icon: LayoutDashboard, label: "Dashboard" as ViewType },
             { icon: ShoppingCart, label: "Vendas" as ViewType },
             { icon: ShoppingBag, label: "Produtos" as ViewType },
             { icon: Wallet, label: "Pagamentos" as ViewType },
@@ -45,7 +46,6 @@ const menuGroups = [
     {
         label: "Finanças",
         items: [
-            { icon: BarChart2, label: "Análise" as ViewType },
             { icon: Banknote, label: "Saque" as ViewType },
         ],
     },
@@ -58,8 +58,30 @@ const menuGroups = [
 ];
 
 export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpen, onClose }: SidebarProps) => {
-    // User level mock
-    // const levelProgress = 68;
+    const { transactions } = useTransactionsStore();
+
+    const totalRevenue = transactions
+        .filter(t => t.type === 'payment' && t.status === 'Concluído')
+        .reduce((acc, curr) => acc + curr.amount, 0);
+
+    let rank = "Bronze";
+    let nextGoal = 10000;
+
+    if (totalRevenue >= 100000) {
+        rank = "Diamante";
+        nextGoal = 1000000;
+    } else if (totalRevenue >= 50000) {
+        rank = "Ouro";
+        nextGoal = 100000;
+    } else if (totalRevenue >= 10000) {
+        rank = "Prata";
+        nextGoal = 50000;
+    } else {
+        rank = "Bronze";
+        nextGoal = 10000;
+    }
+
+    const levelProgress = Math.min(100, Math.round((totalRevenue / nextGoal) * 100));
 
     return (
         <>
@@ -168,19 +190,19 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
                                 </div>
                                 <div>
                                     <p className="text-[8px] font-black text-violet-200 uppercase tracking-widest leading-none mb-1">Rank Atual</p>
-                                    <h4 className="text-sm font-black text-white uppercase tracking-tighter">Bronze</h4>
+                                    <h4 className="text-sm font-black text-white uppercase tracking-tighter">{rank}</h4>
                                 </div>
                             </div>
 
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between text-[9px] font-black text-white/50 uppercase tracking-widest">
                                     <span>Faturamento</span>
-                                    <span className="text-white">0 MZN</span>
+                                    <span className="text-white">{totalRevenue.toLocaleString('pt-MZ')} MZN</span>
                                 </div>
                                 <div className="h-1.5 w-full bg-black/30 rounded-full overflow-hidden p-0.5 border border-white/5">
                                     <motion.div
                                         initial={{ width: 0 }}
-                                        animate={{ width: `0%` }}
+                                        animate={{ width: `${levelProgress}%` }}
                                         transition={{ duration: 2, ease: "circOut" }}
                                         className="h-full rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.6)]"
                                     />

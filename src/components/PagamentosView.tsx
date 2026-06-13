@@ -83,12 +83,14 @@ export const PagamentosView = () => {
     };
 
     return (
-        <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 max-w-none mx-auto w-full">
+        <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700">
             {/* Header */}
-            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-8">
-                <div>
-                    <h2 className="pl-14 lg:pl-0 text-2xl md:text-3xl font-black text-violet-950 dark:text-white tracking-tight leading-none mb-2">Pagamentos</h2>
-                    <p className="text-xs md:text-sm text-slate-400 dark:text-brand-400 font-medium italic">Receba pagamentos dos clientes via M-Pesa ou e-Mola</p>
+            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 xl:gap-16">
+                <div className="space-y-1 md:space-y-3 mt-3 md:mt-2">
+                    <h2 className="text-xl md:text-3xl font-black text-violet-950 dark:text-white tracking-tighter leading-none pl-[3.5rem] md:pl-0 flex items-center min-h-[2rem] md:min-h-0">
+                        <span>Pagamentos</span>
+                    </h2>
+                    <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight pl-[3.5rem] md:pl-0 leading-snug">Receba pagamentos dos clientes via M-Pesa ou e-Mola.</p>
                 </div>
             </div>
 

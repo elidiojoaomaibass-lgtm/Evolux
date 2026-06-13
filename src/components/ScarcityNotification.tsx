@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Lista de nomes e apelidos típicos de Moçambique (amostra)
 const MOZ_NICKNAMES = [
@@ -47,7 +47,7 @@ export const ScarcityNotification = () => {
   if (!visible) return null;
 
   return (
-      <div className="fixed top-28 left-4 bg-black/70 text-white px-3 py-1 rounded-full border border-gray-600 shadow-md z-[102] flex items-center gap-2 text-xs animate-fade-in">
+      <div className="fixed top-28 left-4 bg-white/30 text-gray-800 px-3 py-1 rounded-full border border-gray-300 shadow-md z-[102] flex items-center gap-2 text-xs animate-fade-in">
         🎉 {displayName} acabou de finalizar o pagamento!
       </div>
   );

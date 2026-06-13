@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // List of Mozambican nicknames (common informal names)
 const MOZ_NICKNAMES = [

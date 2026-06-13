@@ -160,7 +160,7 @@ export const CheckoutPage = () => {
     };
 
     return (
-        <div className="min-h-[100dvh] bg-slate-50 flex flex-col">
+        <div className="min-h-[100dvh] bg-slate-50 flex flex-col ml-16 lg:ml-0">
             <div className="sticky top-0 z-50 shadow-sm">
                 {enableCountdown && <CountdownBanner barColor={barColor || undefined} />}
                 {enableScarcity && <ScarcityNotification />}

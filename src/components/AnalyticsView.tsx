@@ -189,21 +189,21 @@ export const AnalyticsView = () => {
     return (
         <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700">
             {/* Header */}
-            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8">
+            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 xl:gap-16">
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="space-y-1.5 pl-14 lg:pl-0"
+                    className="space-y-1 md:space-y-3 mt-3 md:mt-2"
                 >
-                    <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
-                        Relatório de <span className="text-gradient">Transações</span>
+                    <h2 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none pl-[3.5rem] md:pl-0 flex items-center min-h-[2rem] md:min-h-0">
+                        <span>Relatório de <span className="text-gradient">Transações</span></span>
                     </h2>
-                    <p className="text-[11px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight">Visão detalhada sobre volumes financeiros e estado de processamento.</p>
+                    <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight pl-[3.5rem] md:pl-0 leading-snug">
+                        Visão detalhada sobre volumes financeiros e estado de processamento.
+                    </p>
                 </motion.div>
 
-                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 bg-white dark:bg-brand-900 border border-slate-100 dark:border-white/5 p-1.5 rounded-3xl shadow-xl relative" ref={datePickerRef}>
-                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600/5 to-transparent pointer-events-none" />
-
+                <div className="flex flex-row items-center gap-2 bg-white dark:bg-brand-900 border border-slate-100 dark:border-white/5 p-1.5 rounded-3xl shadow-xl relative" ref={datePickerRef}>
                     <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1">
                         {['Hoje', 'Ontem', '7d', '30d', '90d', 'Todo'].map((p) => (
                             <button
@@ -213,9 +213,9 @@ export const AnalyticsView = () => {
                                     setShowDatePicker(false);
                                 }}
                                 className={cn(
-                                    "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
+                                    "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                                     period === p && !showDatePicker
-                                        ? "bg-violet-600 text-white shadow-lg shadow-violet-500/20"
+                                        ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
                                         : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"
                                 )}
                             >
@@ -223,8 +223,6 @@ export const AnalyticsView = () => {
                             </button>
                         ))}
                     </div>
-
-                    <div className="hidden md:block w-px bg-slate-200 dark:bg-white/10 h-6 mx-1 shrink-0" />
 
                     <button
                         onClick={() => {
@@ -235,7 +233,7 @@ export const AnalyticsView = () => {
                             }
                         }}
                         className={cn(
-                            "h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shrink-0 ring-1 ring-inset",
+                            "h-8 px-3.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 shrink-0 ring-1 ring-inset",
                             showDatePicker || period === 'custom'
                                 ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 ring-white/20"
                                 : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white ring-transparent"

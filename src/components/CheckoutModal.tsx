@@ -373,8 +373,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                     <label className="flex items-center space-x-2 text-sm text-slate-600">
                                         <input
                                             type="checkbox"
-                                            checked={product.enableScarcity ?? false}
-                                            onChange={e => { /* Assuming local state update, logic simplified for structure */ }}
+                                            onChange={() => { /* Assuming local state update, logic simplified for structure */ }}
                                             className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                         />
                                         <span>Ativar notificação de escassez (exibe nomes aleatórios moçambicanos)</span>

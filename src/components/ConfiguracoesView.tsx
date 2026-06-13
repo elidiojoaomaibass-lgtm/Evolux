@@ -78,38 +78,32 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
 
         const metadata = { full_name: fullName, nickname, phone_number: phoneNumber, document_id: documentId };
 
-        // Check if we are using a fake session
-        const fake = localStorage.getItem('evolux_prod_fake_session');
-        
-        if (fake) {
-            // Update fake session in localStorage
-            try {
-                const parsed = JSON.parse(fake);
-                parsed.user = { 
-                    ...parsed.user, 
-                    user_metadata: { 
-                        ...parsed.user?.user_metadata, 
-                        ...metadata 
-                    } 
-                };
-                localStorage.setItem('evolux_prod_fake_session', JSON.stringify(parsed));
-                
-                // Dispatch event and show success
-                window.dispatchEvent(new CustomEvent('user-profile-updated', { detail: metadata }));
-                setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
-            } catch (err) {
-                setMessage({ type: 'error', text: 'Erro ao processar sessão local.' });
-            } finally {
-                setLoading(false);
-            }
-            return;
-        }
-
-        // Real Supabase update
         try {
-            const { error } = await supabase.auth.updateUser({ data: metadata });
-            if (error) throw error;
+            // Priority: Check if there is a real Supabase session
+            const { data: sessionData } = await supabase.auth.getSession();
             
+            if (sessionData.session) {
+                // Real Supabase update to the database
+                const { error } = await supabase.auth.updateUser({ data: metadata });
+                if (error) throw error;
+            } else {
+                // Fallback to fake session
+                const fake = localStorage.getItem('evolux_prod_fake_session');
+                if (fake) {
+                    const parsed = JSON.parse(fake);
+                    parsed.user = { 
+                        ...parsed.user, 
+                        user_metadata: { 
+                            ...parsed.user?.user_metadata, 
+                            ...metadata 
+                        } 
+                    };
+                    localStorage.setItem('evolux_prod_fake_session', JSON.stringify(parsed));
+                } else {
+                    throw new Error('Nenhuma sessão ativa encontrada para salvar.');
+                }
+            }
+
             window.dispatchEvent(new CustomEvent('user-profile-updated', { detail: metadata }));
             setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
         } catch (err: any) {
@@ -157,10 +151,17 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
     };
 
     return (
-        <div className="px-4 md:px-6 pt-2 pb-20 space-y-3 md:space-y-4 w-full max-w-none mx-auto">
-            <div>
-                <h2 className="pl-14 lg:pl-0 text-xl md:text-2xl font-black text-violet-950 dark:text-white tracking-tight">Configurações</h2>
-                <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium">Gira as preferências da tua conta e segurança.</p>
+        <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700">
+            {/* Header */}
+            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 xl:gap-16">
+                <div className="space-y-1 md:space-y-3 mt-3 md:mt-2">
+                    <h2 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none pl-[3.5rem] md:pl-0 flex items-center min-h-[2rem] md:min-h-0">
+                        <span>Configurações</span>
+                    </h2>
+                    <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight pl-[3.5rem] md:pl-0 leading-snug">
+                        Gira as preferências da tua conta e segurança.
+                    </p>
+                </div>
             </div>
 
             {message && (
@@ -235,27 +236,30 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
 
 
 
-                                <form onSubmit={handleUpdateProfile} className="space-y-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome</label>
-                                        <input
-                                            type="text"
-                                            value={fullName}
-                                            onChange={(e) => setFullName(e.target.value)}
-                                            placeholder="João Pedro"
-                                            className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
-                                        />
+                                <form onSubmit={handleUpdateProfile} className="space-y-5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome</label>
+                                            <input
+                                                type="text"
+                                                value={fullName}
+                                                onChange={(e) => setFullName(e.target.value)}
+                                                placeholder="Ex: João Pedro"
+                                                className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Apelido</label>
+                                            <input
+                                                type="text"
+                                                value={nickname}
+                                                onChange={(e) => setNickname(e.target.value)}
+                                                placeholder="Ex: @joao_pedro"
+                                                className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Apelido (Username)</label>
-                                        <input
-                                            type="text"
-                                            value={nickname}
-                                            onChange={(e) => setNickname(e.target.value)}
-                                            placeholder="@joao_pedro"
-                                            className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
-                                        />
-                                    </div>
+
                                     <div className="space-y-1.5">
                                         <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Número de Telefone</label>
                                         <input
@@ -266,17 +270,8 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                             className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
                                         />
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">ID de Identidade (BI/NUIT)</label>
-                                        <input
-                                            type="text"
-                                            value={documentId}
-                                            onChange={(e) => setDocumentId(e.target.value)}
-                                            placeholder="Número do seu documento"
-                                            className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
-                                        />
-                                    </div>
-                                    <div className="space-y-1.5">
+
+                                    <div className="space-y-1.5 border-t border-slate-100 dark:border-brand-800 pt-4">
                                         <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email da Conta</label>
                                         <input
                                             type="email"
@@ -284,6 +279,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                             disabled
                                             className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-100 dark:bg-brand-950/50 text-slate-400 cursor-not-allowed outline-none text-xs"
                                         />
+                                        <p className="text-[9px] text-slate-400 italic ml-1">O e-mail não pode ser alterado por motivos de segurança.</p>
                                     </div>
 
                                     <button

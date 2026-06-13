@@ -145,15 +145,15 @@ export const SaqueView = () => {
     };
 
     return (
-        <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 w-full max-w-none mx-auto transition-all duration-500">
+        <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h2 className="pl-14 lg:pl-0 text-2xl md:text-3xl font-black text-violet-950 dark:text-white tracking-tight flex items-center gap-3">
-                        Centro Financeiro
+            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 xl:gap-16">
+                <div className="space-y-1 md:space-y-3 mt-3 md:mt-2">
+                    <h2 className="text-xl md:text-3xl font-black text-violet-950 dark:text-white tracking-tighter leading-none pl-[3.5rem] md:pl-0 flex items-center gap-3 min-h-[2rem] md:min-h-0">
+                        <span>Centro Financeiro</span>
                         <div className="h-2.5 w-2.5 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.4)] animate-pulse" />
                     </h2>
-                    <p className="text-xs md:text-sm text-slate-400 dark:text-brand-400 font-medium mt-1 flex items-center gap-2">
+                    <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight pl-[3.5rem] md:pl-0 leading-snug flex items-center gap-2">
                         <BadgeDollarSign size={16} className="text-violet-500" />
                         Gere as suas retiradas e acompanhe os seus lucros disponíveis.
                     </p>
