@@ -21,7 +21,16 @@ function App() {
     return saved ? JSON.parse(saved) : null;
   });
   const [activeView, setActiveView] = useState<ViewType>(() => {
-    return (localStorage.getItem('evolux_prod_active_view') as ViewType) || "Dashboard";
+    const saved = localStorage.getItem('evolux_prod_active_view');
+    // Redirecionamentos de segurança para rotas antigas que foram removidas
+    if (saved === 'Painel') return 'Dashboard';
+    if (saved === 'Análise' || saved === 'Análises') return 'Dashboard';
+    
+    const validViews = ["ThankYou", "Dashboard", "Vendas", "Produtos", "Afiliados", "Mercado", "Pagamentos", "Saque", "Premiações", "Integrações", "Configurações", "Documentação"];
+    if (saved && validViews.includes(saved)) {
+      return saved as ViewType;
+    }
+    return "Dashboard";
   });
 
   useEffect(() => {
