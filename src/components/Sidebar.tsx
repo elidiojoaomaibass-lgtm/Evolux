@@ -1,5 +1,5 @@
 import {
-    LayoutDashboard, ShoppingBag, BarChart2, Users,
+    LayoutDashboard, ShoppingBag, Users,
     Settings,
     Gift, Layers, ShoppingCart, Wallet,
     Wrench, Moon, Sun, Banknote, Trophy
@@ -109,7 +109,7 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
                                 <h3 className="px-3 text-[10px] font-black text-slate-400 dark:text-white/40 uppercase tracking-widest">{group.label}</h3>
                                 <div className="space-y-1">
                                     {group.items.map((item) => {
-                                        const viewTarget = 'view' in item && item.view ? item.view : (item.label as ViewType);
+                                        const viewTarget = item.label as ViewType;
                                         const isActive = activeView === viewTarget;
                                         return (
                                             <button
