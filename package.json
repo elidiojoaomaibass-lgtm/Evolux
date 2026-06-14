@@ -7,7 +7,8 @@
     "dev": "npx vite",
     "build": "node --max-old-space-size=8192 ./node_modules/typescript/bin/tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "clear-data": "node scripts/clear-data.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.97.0",

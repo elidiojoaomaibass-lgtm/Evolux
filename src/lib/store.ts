@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { clearLocalDataIfNotAdmin } from './lib/clearLocalData';
 import { supabase } from './supabase';
 import { toast } from 'sonner';
 
@@ -326,11 +327,15 @@ export const useTransactionsStore = () => {
 
         const fetchTransactions = async () => {
             try {
-                // Carrega todas as transações da tabela 'transactions' no Supabase
-                const { data, error } = await supabase
-                    .from('transactions')
-                    .select('*')
-                    .order('createdat', { ascending: false })
+                // Determine user email for scoping
+                const { data: sess } = await supabase.auth.getSession();
+                const userEmail = sess?.session?.user?.email;
+                const ADMIN_EMAIL = 'kingleakds@gmail.com';
+                let query = supabase.from('transactions').select('*').order('createdat', { ascending: false });
+                if (userEmail && userEmail !== ADMIN_EMAIL) {
+                    query = query.eq('customer_email', userEmail);
+                }
+                const { data, error } = await query;
                 console.log('Supabase fetch result:', { data, error });
                 
                 if (error) {
