@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { clearLocalDataIfNotAdmin } from './lib/clearLocalData';
+// import { clearLocalDataIfNotAdmin } from './clearLocalData'; // removed unused import
 import { supabase } from './supabase';
 import { toast } from 'sonner';
 

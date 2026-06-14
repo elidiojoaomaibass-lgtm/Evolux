@@ -6,6 +6,7 @@ import { Dashboard } from "./components/Dashboard";
 import { Views } from "./components/Views";
 import { LoginView } from "./components/LoginView";
 import { supabase } from "./lib/supabase";
+import { clearLocalDataIfNotAdmin } from "./lib/clearLocalData";
 import { getFcmToken } from "./lib/firebase";
 import type { Session } from "@supabase/supabase-js";
 import { Toaster } from 'sonner';
@@ -110,6 +111,12 @@ function App() {
     };
   }, []);
 
+  // Clear local data for non-admin accounts on app start
+  useEffect(() => {
+    if (session) {
+      clearLocalDataIfNotAdmin();
+    }
+  }, [session]);
 
   useEffect(() => {
     if (isDarkMode) {
