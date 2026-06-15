@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
-
-
-
 export const ThankYouPage = () => {
     const [details, setDetails] = useState<{
         name?: string;
@@ -33,7 +30,7 @@ export const ThankYouPage = () => {
         // Detect admin flag
         setIsAdmin(params.get('admin') === 'true');
 
-        // Confetti leve com emojis animados
+        // Light confetti with emojis
         const emojis = ['🎉', '✅', '🙏', '💚', '⭐'];
         const container = document.getElementById('confetti-container');
         if (container) {
@@ -52,8 +49,6 @@ export const ThankYouPage = () => {
             }
         }
     }, []);
-
-
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 flex items-center justify-center p-4 relative overflow-hidden">
@@ -79,12 +74,11 @@ export const ThankYouPage = () => {
                     transition={{ delay: 0.4 }}
                     className="mb-8"
                 >
-
                     <h1 className="text-2xl md:text-3xl font-black text-slate-900 mb-4 whitespace-nowrap">
-                        Pagamento Confirmado! 🎉
+                        Payment Confirmed! 🎉
                     </h1>
                     <p className="text-slate-500 text-sm leading-relaxed max-w-sm mx-auto">
-                        {details.name ? <strong className="text-slate-700">{details.name.split(' ')[0]}</strong> : ""}{details.name ? ", o" : "O"} seu pedido foi processado com sucesso. Tudo está pronto para o seu acesso imediato.
+                        {details.name ? <strong className="text-slate-700">{details.name.split(' ')[0]}</strong> : ''}{details.name ? ', ' : ''}your order has been successfully processed. Everything is ready for immediate access.
                     </p>
                 </motion.div>
 
@@ -96,17 +90,17 @@ export const ThankYouPage = () => {
                         transition={{ delay: 0.5 }}
                         className="bg-slate-50 rounded-2xl p-5 mb-6 text-left space-y-3 border border-slate-100"
                     >
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Detalhes do Pedido</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Order Details</p>
 
                         {details.product && (
                             <div className="flex justify-between items-center">
-                                <span className="text-xs text-slate-500 font-medium">Produto</span>
+                                <span className="text-xs text-slate-500 font-medium">Product</span>
                                 <span className="text-xs font-bold text-slate-800 max-w-[60%] text-right truncate">{details.product}</span>
                             </div>
                         )}
                         {details.amount && (
                             <div className="flex justify-between items-center">
-                                <span className="text-xs text-slate-500 font-medium">Valor pago</span>
+                                <span className="text-xs text-slate-500 font-medium">Amount Paid</span>
                                 <span className="text-sm font-black text-emerald-600">
                                     {(isNaN(Number(details.amount)) ? 0 : Number(details.amount)).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT
                                 </span>
@@ -114,13 +108,13 @@ export const ThankYouPage = () => {
                         )}
                         {details.method && (
                             <div className="flex justify-between items-center">
-                                <span className="text-xs text-slate-500 font-medium">Método</span>
+                                <span className="text-xs text-slate-500 font-medium">Method</span>
                                 <span className="text-xs font-bold text-slate-800">{details.method}</span>
                             </div>
                         )}
                         {details.reference && (
                             <div className="flex justify-between items-center pt-2 border-t border-slate-200">
-                                <span className="text-xs text-slate-400 font-medium">Referência</span>
+                                <span className="text-xs text-slate-400 font-medium">Reference</span>
                                 <span className="text-[10px] font-mono text-slate-400">{details.reference}</span>
                             </div>
                         )}
@@ -135,53 +129,54 @@ export const ThankYouPage = () => {
                         transition={{ delay: 0.6 }}
                         className="text-xs text-slate-400 mb-6"
                     >
-                        📧 Uma confirmação foi enviada para <strong className="text-slate-600">{details.email}</strong>
+                        📧 A confirmation has been sent to <strong className="text-slate-600">{details.email}</strong>
                     </motion.p>
                 )}
-{details.deliveryLink ? (
-  <>
-    <motion.p
-      initial={{ opacity: 0, y: 5 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.7 }}
-      className="text-sm text-slate-700 mb-2"
-    >
-      🎉 Seu produto está pronto! Clique no botão abaixo para resgatar o que você adquiriu.
-    </motion.p>
-    <button onClick={() => window.open(details.deliveryLink, "_blank", "noopener,noreferrer")}
-      className="inline-block mt-2 px-6 py-2 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition"
-    >
-      Resgatar Produto
-    </button>
-  </>
-) : (
-  <motion.p
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ delay: 0.7 }}
-    className="text-sm text-slate-600 mb-2"
-  >
-    Por favor, verifique seu e‑mail para obter instruções de acesso ao seu produto ou contacte o suporte.
-  </motion.p>
-)}
-            {isAdmin && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.8 }}
-                    className="mt-4"
-                >
-                    <button
-                        onClick={() => window.location.href = '/admin/orders'}
-                        className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+                {details.deliveryLink ? (
+                    <>
+                        <motion.p
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.7 }}
+                            className="text-sm text-slate-700 mb-2"
+                        >
+                            🎉 Your product is ready! Click the button below to claim what you purchased.
+                        </motion.p>
+                        <button
+                            onClick={() => window.open(details.deliveryLink, "_blank", "noopener,noreferrer")}
+                            className="inline-block mt-2 px-6 py-2 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition"
+                        >
+                            Claim Product
+                        </button>
+                    </>
+                ) : (
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.7 }}
+                        className="text-sm text-slate-600 mb-2"
                     >
-                        Ver Todos os Pedidos
-                    </button>
-                </motion.div>
-            )}
+                        Please check your email for instructions to access your product or contact support.
+                    </motion.p>
+                )}
+                {isAdmin && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.8 }}
+                        className="mt-4"
+                    >
+                        <button
+                            onClick={() => (window.location.href = '/admin/orders')}
+                            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+                        >
+                            View All Orders
+                        </button>
+                    </motion.div>
+                )}
             </motion.div>
 
-            {/* CSS para a animação de confetti */}
+            {/* CSS for confetti animation */}
             <style>{`
                 @keyframes fall {
                     0%   { transform: translateY(-30px) rotate(0deg); opacity: 1; }
