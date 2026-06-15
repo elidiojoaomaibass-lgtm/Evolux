@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npx vite",
+    "approve-pending": "ts-node scripts/approve_pending.ts",
     "build": "node --max-old-space-size=8192 ./node_modules/typescript/bin/tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",

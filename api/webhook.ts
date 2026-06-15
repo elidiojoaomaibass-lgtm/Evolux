@@ -77,66 +77,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Determine user ID from payload or the updated transaction
     const userId = payload.user_id || payload.userId || (updatedTx ? updatedTx.user_id : null);
 
-    if (!error) {
-      console.log('Sucesso ao atualizar o status da transação no Supabase por ID.');
-      // Send push notification to user if userId available
-      if (userId) {
-        try {
-          const tokens = await getUserTokens(userId);
-          const val = updatedTx?.amount ? Number(updatedTx.amount).toLocaleString('pt-PT') : '';
-          const method = updatedTx?.method || 'Evolux Pay';
-          
-          for (const token of tokens) {
-            await sendPushNotification(token, {
-              title: 'Você recebeu um novo pedido! 🎉',
-              body: `from Prod\nVenda aprovada de ${val} MZN ${method}`,
-            });
+      if (!error) {
+        console.log('Sucesso ao atualizar o status da transação no Supabase por ID.');
+        // Send response immediately
+        res.status(200).json({
+          message: 'Webhook processed successfully',
+          updated: { transaction_id, status: finalStatus, reference },
+        });
+        // Fire-and-forget notification handling
+        (async () => {
+          if (userId) {
+            try {
+              const tokens = await getUserTokens(userId);
+              const val = updatedTx?.amount ? Number(updatedTx.amount).toLocaleString('pt-PT') : '';
+              const method = updatedTx?.method || 'Evolux Pay';
+              for (const token of tokens) {
+                await sendPushNotification(token, {
+                  title: 'Você recebeu um novo pedido! 🎉',
+                  body: `from Prod\nVenda aprovada de ${val} MZN ${method}`,
+                });
+              }
+            } catch (e) { console.error('Erro ao enviar notificação push', e); }
           }
-          // Notify Lowtrak about the sale
+          // Lowtrak notification
           try {
             if (lowtrakEndpoint && lowtrakApiKey) {
               await fetch(lowtrakEndpoint, {
                 method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${lowtrakApiKey}`,
-                },
-                body: JSON.stringify({
-                  transaction_id,
-                  amount: updatedTx?.amount,
-                  status: finalStatus,
-                  user_id: userId,
-                }),
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${lowtrakApiKey}` },
+                body: JSON.stringify({ transaction_id, amount: updatedTx?.amount, status: finalStatus, user_id: userId }),
               });
             }
           } catch (lowErr) {
             console.error('Erro ao notificar Lowtrak', lowErr);
-            // Notify Pushcut about the sale
-            try {
-              if (pushcutEndpoint && pushcutApiKey) {
-                await fetch(pushcutEndpoint, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${pushcutApiKey}`,
-                  },
-                  body: JSON.stringify({
-                    transaction_id,
-                    amount: updatedTx?.amount,
-                    status: finalStatus,
-                    user_id: userId,
-                  }),
-                });
-              }
-            } catch (pcErr) {
-              console.error('Erro ao notificar Pushcut', pcErr);
-            }
           }
-        } catch (e) {
-          console.error('Erro ao enviar notificação push', e);
-        }
+          // Pushcut notification
+          try {
+            if (pushcutEndpoint && pushcutApiKey) {
+              await fetch(pushcutEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${pushcutApiKey}` },
+                body: JSON.stringify({ transaction_id, amount: updatedTx?.amount, status: finalStatus, user_id: userId }),
+              });
+            }
+          } catch (pcErr) {
+            console.error('Erro ao notificar Pushcut', pcErr);
+          }
+        })();
+        // End early; further code will not execute after response
+        return;
       }
-    }
     return res.status(200).json({
       message: 'Webhook processed successfully',
       updated: { transaction_id, status: finalStatus, reference }

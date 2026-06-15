@@ -42,9 +42,10 @@ async function getAccessToken(): Promise<string> {
 // ---------------------------------------------------------------
 //      Envio de notificação usando API HTTP v1
 // ---------------------------------------------------------------
+// Updated to accept optional background flag and send both notification and data
 export async function sendPushNotificationV1(
   token: string,
-  payload: { title: string; body: string; url?: string },
+  payload: { title: string; body: string; url?: string; background?: boolean }
 ): Promise<void> {
   const accessToken = await getAccessToken();
   const projectId = getProjectId();
@@ -54,15 +55,12 @@ export async function sendPushNotificationV1(
   const body = {
     message: {
       token,
-      notification: {
-        title: payload.title,
-        body: payload.body,
-      },
-      ...(payload.url && {
-        webpush: {
-          fcmOptions: { link: payload.url },
-        },
-      }),
+      ...(payload.url && { webpush: { fcmOptions: { link: payload.url } } }),
+      // For foreground notifications, use the notification field
+      ...(payload.background ? { data: { title: payload.title, body: payload.body } } : { notification: { title: payload.title, body: payload.body } }),
+      // Ensure high priority delivery for background messages
+      android: { priority: 'high' },
+      apns: { payload: { aps: { 'content-available': 1 } } },
     },
   };
 
