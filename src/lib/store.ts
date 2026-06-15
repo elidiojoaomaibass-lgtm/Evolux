@@ -66,7 +66,7 @@ export type Category = 'Ebook' | 'Curso' | 'Mentoria' | 'Workshop' | 'Outro';
 }
 
 // Initial Mock Data (Empty for production)
-const initialProducts: Product[] = [];
+
 
 // Simple Event Emitter with LocalStorage persistence
 const STORAGE_KEY = 'evolux_prod_products';
