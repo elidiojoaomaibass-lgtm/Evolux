@@ -126,30 +126,28 @@ export const useProductsStore = () => {
     };
 
     const addProduct = async (product: Product) => {
-        // Primeiro insere no Supabase e só depois atualiza o estado local
-        try {
-          const { data: sess } = await supabase.auth.getSession();
-          const userEmail = sess?.session?.user?.email;
-          const ADMIN_EMAIL = 'kingleakds@gmail.com';
-          await supabase.from('products').insert({
-            ...product,
-            user_email: userEmail ?? ADMIN_EMAIL
-          });
-          // Inserção bem-sucedida: atualiza o estado local e notifica
-          updateProducts([product, ...globalProducts]);
-          sendLocalNotification('📦 Novo Produto Submetido!', {
-            body: `O produto "${product.name}" foi enviado com sucesso.`,
+    // Insert product into Supabase with user email association
+    try {
+        const { data: sess } = await supabase.auth.getSession();
+        const userEmail = sess?.session?.user?.email;
+        const ADMIN_EMAIL = 'kingleakds@gmail.com';
+        const insertPayload = { ...product, user_email: userEmail ?? ADMIN_EMAIL };
+        const { data, error } = await supabase.from('products').insert(insertPayload).select();
+        if (error) throw error;
+        const insertedProduct = data && data.length > 0 ? (data[0] as Product) : product;
+        updateProducts([insertedProduct, ...globalProducts]);
+        sendLocalNotification('📦 Novo Produto Submetido!', {
+            body: `O produto "${insertedProduct.name}" foi enviado com sucesso.`,
             icon: '/logo.png'
-          });
-        } catch (e) {
-          console.warn('Failed to insert product into Supabase:', e);
-          // Opcional: notificar falha ao usuário
-          sendLocalNotification('⚠️ Falha ao salvar produto', {
+        });
+    } catch (e) {
+        console.warn('Failed to insert product into Supabase:', e);
+        sendLocalNotification('⚠️ Falha ao salvar produto', {
             body: `Não foi possível salvar o produto "${product.name}". Verifique sua conexão.`,
             icon: '/logo.png'
-          });
-        }
-    };
+        });
+    }
+};
 
     const deleteProduct = async (id: string) => {
         // Primeiro remove do Supabase e, se bem-sucedido, atualiza o estado local
