@@ -74,12 +74,17 @@ export const CheckoutPage = () => {
         const sanitizedPaymentPhone = cleanPhone(paymentPhone);
 
         try {
-            // Check credentials from URL or localStorage
-            const clientId = localStorage.getItem('evolux_e2_client_id');
-            const clientSecret = localStorage.getItem('evolux_e2_client_secret');
-            const walletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
-            const walletEmola = localStorage.getItem('evolux_e2_wallet_emola');
+            // Load E2Payments credentials from environment variables (Vite) or localStorage
+            const envClientId = (import.meta as any).env?.VITE_E2_CLIENT_ID;
+            const envClientSecret = (import.meta as any).env?.VITE_E2_CLIENT_SECRET;
+            const envWalletMpesa = (import.meta as any).env?.VITE_E2_WALLET_MPESA;
+            const envWalletEmola = (import.meta as any).env?.VITE_E2_WALLET_EMOLA;
+            const clientId = envClientId ?? localStorage.getItem('evolux_e2_client_id');
+            const clientSecret = envClientSecret ?? localStorage.getItem('evolux_e2_client_secret');
+            const walletMpesa = envWalletMpesa ?? localStorage.getItem('evolux_e2_wallet_mpesa');
+            const walletEmola = envWalletEmola ?? localStorage.getItem('evolux_e2_wallet_emola');
 
+            // Credentials are optional; proceed even if missing
             const response = await fetch('/api/e2payments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -160,7 +165,7 @@ export const CheckoutPage = () => {
     };
 
     return (
-        <div className="min-h-[100dvh] bg-slate-50 flex flex-col ml-16 lg:ml-0">
+        <div className="min-h-[100dvh] bg-slate-50 flex flex-col mx-auto">
             <div className="sticky top-0 z-50 shadow-sm">
                 {enableCountdown && <CountdownBanner barColor={barColor || undefined} />}
                 {enableScarcity && <ScarcityNotification />}

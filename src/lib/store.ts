@@ -80,7 +80,7 @@ const getInitialProducts = (): Product[] => {
             console.error('Failed to parse products from localStorage', e);
         }
     }
-    return initialProducts;
+    return [];
 };
 
 let globalProducts = getInitialProducts();
@@ -89,9 +89,48 @@ const listeners = new Set<(products: Product[]) => void>();
 export const useProductsStore = () => {
     const [products, setProducts] = useState<Product[]>(globalProducts);
 
+    // Fetch products from Supabase on mount and listen for changes
     useEffect(() => {
         const listener = (newProducts: Product[]) => setProducts(newProducts);
         listeners.add(listener);
+
+        const fetchProducts = async () => {
+            try {
+                const { data: sess } = await supabase.auth.getSession();
+                const userEmail = sess?.session?.user?.email;
+                const ADMIN_EMAIL = 'kingleakds@gmail.com';
+                let query = supabase.from('products').select('*');
+                if (userEmail && userEmail !== ADMIN_EMAIL) {
+                    query = query.eq('user_email', userEmail);
+                }
+                const { data, error } = await query;
+                if (error) throw error;
+                if (data && data.length > 0) {
+                    const productsData = data as Product[];
+                    // Update global and local storage
+                    globalProducts = productsData;
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(globalProducts));
+                    listeners.forEach(l => l(globalProducts));
+                } else {
+                    // Fallback to localStorage if remote empty
+                    const local = getInitialProducts();
+                    if (local.length > 0) {
+                        globalProducts = local;
+                        listeners.forEach(l => l(globalProducts));
+                    }
+                }
+            } catch (e) {
+                console.warn('Failed to fetch products from Supabase, using local storage:', e);
+                // Ensure local fallback
+                const local = getInitialProducts();
+                if (local.length > 0) {
+                    globalProducts = local;
+                    listeners.forEach(l => l(globalProducts));
+                }
+            }
+        };
+        fetchProducts();
+
         return () => {
             listeners.delete(listener);
         };
@@ -103,27 +142,47 @@ export const useProductsStore = () => {
         listeners.forEach(l => l(globalProducts));
     };
 
-    const addProduct = (product: Product) => {
+    const addProduct = async (product: Product) => {
         updateProducts([product, ...globalProducts]);
         sendLocalNotification('📦 Novo Produto Submetido!', {
             body: `O produto "${product.name}" foi enviado com sucesso.`,
             icon: '/logo.png'
         });
+        try {
+            const { data: sess } = await supabase.auth.getSession();
+            const userEmail = sess?.session?.user?.email;
+            const ADMIN_EMAIL = 'kingleakds@gmail.com';
+            await supabase.from('products').insert({
+                ...product,
+                user_email: userEmail ?? ADMIN_EMAIL
+            });
+        } catch (e) {
+            console.warn('Failed to insert product into Supabase:', e);
+        }
     };
 
-    const deleteProduct = (id: string) => {
+    const deleteProduct = async (id: string) => {
         updateProducts(globalProducts.filter(p => p.id !== id));
+        try {
+            await supabase.from('products').delete().eq('id', id);
+        } catch (e) {
+            console.warn('Failed to delete product from Supabase:', e);
+        }
     };
 
-    const editProduct = (updatedProduct: Product) => {
+    const editProduct = async (updatedProduct: Product) => {
         const oldProduct = globalProducts.find(p => p.id === updatedProduct.id);
-        updateProducts(globalProducts.map(p => p.id === updatedProduct.id ? updatedProduct : p));
-        
+        updateProducts(globalProducts.map(p => (p.id === updatedProduct.id ? updatedProduct : p)));
         if (oldProduct && oldProduct.status !== 'Ativo' && updatedProduct.status === 'Ativo') {
             sendLocalNotification('✅ Produto Aprovado!', {
                 body: `O produto "${updatedProduct.name}" agora está Ativo.`,
                 icon: '/logo.png'
             });
+        }
+        try {
+            await supabase.from('products').update(updatedProduct).eq('id', updatedProduct.id);
+        } catch (e) {
+            console.warn('Failed to update product in Supabase:', e);
         }
     };
 
