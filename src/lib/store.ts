@@ -143,30 +143,43 @@ export const useProductsStore = () => {
     };
 
     const addProduct = async (product: Product) => {
-        updateProducts([product, ...globalProducts]);
-        sendLocalNotification('📦 Novo Produto Submetido!', {
+        // Primeiro insere no Supabase e só depois atualiza o estado local
+        try {
+          const { data: sess } = await supabase.auth.getSession();
+          const userEmail = sess?.session?.user?.email;
+          const ADMIN_EMAIL = 'kingleakds@gmail.com';
+          await supabase.from('products').insert({
+            ...product,
+            user_email: userEmail ?? ADMIN_EMAIL
+          });
+          // Inserção bem-sucedida: atualiza o estado local e notifica
+          updateProducts([product, ...globalProducts]);
+          sendLocalNotification('📦 Novo Produto Submetido!', {
             body: `O produto "${product.name}" foi enviado com sucesso.`,
             icon: '/logo.png'
-        });
-        try {
-            const { data: sess } = await supabase.auth.getSession();
-            const userEmail = sess?.session?.user?.email;
-            const ADMIN_EMAIL = 'kingleakds@gmail.com';
-            await supabase.from('products').insert({
-                ...product,
-                user_email: userEmail ?? ADMIN_EMAIL
-            });
+          });
         } catch (e) {
-            console.warn('Failed to insert product into Supabase:', e);
+          console.warn('Failed to insert product into Supabase:', e);
+          // Opcional: notificar falha ao usuário
+          sendLocalNotification('⚠️ Falha ao salvar produto', {
+            body: `Não foi possível salvar o produto "${product.name}". Verifique sua conexão.`,
+            icon: '/logo.png'
+          });
         }
     };
 
     const deleteProduct = async (id: string) => {
-        updateProducts(globalProducts.filter(p => p.id !== id));
+        // Primeiro remove do Supabase e, se bem-sucedido, atualiza o estado local
         try {
-            await supabase.from('products').delete().eq('id', id);
+          await supabase.from('products').delete().eq('id', id);
+          // Remoção bem-sucedida: atualiza local
+          updateProducts(globalProducts.filter(p => p.id !== id));
         } catch (e) {
-            console.warn('Failed to delete product from Supabase:', e);
+          console.warn('Failed to delete product from Supabase:', e);
+          sendLocalNotification('⚠️ Falha ao remover produto', {
+            body: `Não foi possível remover o produto.`,
+            icon: '/logo.png'
+          });
         }
     };
 
@@ -179,12 +192,24 @@ export const useProductsStore = () => {
                 icon: '/logo.png'
             });
         }
+        // Primeiro atualiza no Supabase e, se bem-sucedido, sincroniza estado local
         try {
-            await supabase.from('products').update(updatedProduct).eq('id', updatedProduct.id);
+          await supabase.from('products').update(updatedProduct).eq('id', updatedProduct.id);
+          // Atualização bem-sucedida: sincroniza local
+          updateProducts(globalProducts.map(p => (p.id === updatedProduct.id ? updatedProduct : p)));
+          if (oldProduct && oldProduct.status !== 'Ativo' && updatedProduct.status === 'Ativo') {
+            sendLocalNotification('✅ Produto Aprovado!', {
+              body: `O produto "${updatedProduct.name}" agora está Ativo.`,
+              icon: '/logo.png'
+            });
+          }
         } catch (e) {
-            console.warn('Failed to update product in Supabase:', e);
-        }
-    };
+          console.warn('Failed to update product in Supabase:', e);
+          sendLocalNotification('⚠️ Falha ao editar produto', {
+            body: `Não foi possível atualizar o produto "${updatedProduct.name}".`,
+            icon: '/logo.png'
+          });
+        }    };
 
     return { products, addProduct, deleteProduct, editProduct, updateProducts };
 };
