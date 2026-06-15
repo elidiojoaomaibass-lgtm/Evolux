@@ -68,18 +68,8 @@ export type Category = 'Ebook' | 'Curso' | 'Mentoria' | 'Workshop' | 'Outro';
 // Initial Mock Data (Empty for production)
 
 
-// Simple Event Emitter with LocalStorage persistence
-const STORAGE_KEY = 'evolux_prod_products';
-
+// Simple Event Emitter
 const getInitialProducts = (): Product[] => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-        try {
-            return JSON.parse(stored);
-        } catch (e) {
-            console.error('Failed to parse products from localStorage', e);
-        }
-    }
     return [];
 };
 
@@ -107,26 +97,19 @@ export const useProductsStore = () => {
                 if (error) throw error;
                 if (data && data.length > 0) {
                     const productsData = data as Product[];
-                    // Update global and local storage
+                    // Update global store only; no localStorage persistence
                     globalProducts = productsData;
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(globalProducts));
                     listeners.forEach(l => l(globalProducts));
                 } else {
-                    // Fallback to localStorage if remote empty
-                    const local = getInitialProducts();
-                    if (local.length > 0) {
-                        globalProducts = local;
-                        listeners.forEach(l => l(globalProducts));
-                    }
-                }
-            } catch (e) {
-                console.warn('Failed to fetch products from Supabase, using local storage:', e);
-                // Ensure local fallback
-                const local = getInitialProducts();
-                if (local.length > 0) {
-                    globalProducts = local;
+                    // No remote products; keep store empty
+                    globalProducts = [];
                     listeners.forEach(l => l(globalProducts));
                 }
+            } catch (e) {
+                console.warn('Failed to fetch products from Supabase:', e);
+                // Keep store empty on failure
+                globalProducts = [];
+                listeners.forEach(l => l(globalProducts));
             }
         };
         fetchProducts();
@@ -138,7 +121,7 @@ export const useProductsStore = () => {
 
     const updateProducts = (newProducts: Product[]) => {
         globalProducts = newProducts;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(globalProducts));
+        // No localStorage persistence for products; rely on Supabase.
         listeners.forEach(l => l(globalProducts));
     };
 

@@ -138,8 +138,7 @@ export const ThankYouPage = () => {
                         📧 Uma confirmação foi enviada para <strong className="text-slate-600">{details.email}</strong>
                     </motion.p>
                 )}
-                    {/* Delivery Link */}
-                    {details.deliveryLink ? (
+{details.deliveryLink ? (
   <>
     <motion.p
       initial={{ opacity: 0, y: 5 }}
@@ -149,7 +148,11 @@ export const ThankYouPage = () => {
     >
       🎉 Seu produto está pronto! Clique no botão abaixo para resgatar o que você adquiriu.
     </motion.p>
-    <button onClick={() => window.open(details.deliveryLink, "_blank", "noopener,noreferrer")} className="inline-block mt-2 px-6 py-2 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition">Resgatar Produto</button>
+    <button onClick={() => window.open(details.deliveryLink, "_blank", "noopener,noreferrer")}
+      className="inline-block mt-2 px-6 py-2 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition"
+    >
+      Resgatar Produto
+    </button>
   </>
 ) : (
   <motion.p

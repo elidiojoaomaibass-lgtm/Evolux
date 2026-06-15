@@ -1,9 +1,20 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
+// Enable CORS for any origin (adjust as needed)
+export const config = {
+  api: {
+    bodyParser: true,
+    externalResolver: true,
+  },
+};
 import { createClient } from '@supabase/supabase-js';
 import { sendPushNotificationV1 as sendPushNotification, getUserTokens } from '../src/lib/push_v1';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+// Lowtrak integration env vars
+const lowtrakEndpoint = process.env.VITE_LOWTRAK_ENDPOINT || process.env.LOWTRAK_ENDPOINT || '';
+const lowtrakApiKey = process.env.VITE_LOWTRAK_API_KEY || process.env.LOWTRAK_API_KEY || '';
+const pushcutEndpoint = process.env.VITE_PUSHCUT_ENDPOINT || process.env.PUSHCUT_ENDPOINT || '';
+const pushcutApiKey = process.env.VITE_PUSHCUT_API_KEY || process.env.PUSHCUT_API_KEY || '';
 
 let supabase: any = null;
 if (supabaseUrl && supabaseAnonKey) {
@@ -20,7 +31,7 @@ if (supabaseUrl && supabaseAnonKey) {
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+    return res.status(405).setHeader('Access-Control-Allow-Origin', '*').json({ error: 'Method Not Allowed' });
   }
 
   if (!supabase) {
@@ -29,7 +40,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const payload = req.body;
+    // Ensure JSON payload (Vercel may provide raw string)
+    let payload = req.body;
+    if (typeof payload === 'string') {
+      try {
+        payload = JSON.parse(payload);
+      } catch (e) {
+        console.error('Invalid JSON payload', e);
+        return res.status(400).setHeader('Access-Control-Allow-Origin', '*').json({ error: 'Invalid JSON payload' });
+      }
+    }
     console.log('E2Payments Webhook Received:', JSON.stringify(payload, null, 2));
 
     const { status, reference } = payload;
@@ -71,6 +91,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               title: 'Você recebeu um novo pedido! 🎉',
               body: `from Prod\nVenda aprovada de ${val} MZN ${method}`,
             });
+          }
+          // Notify Lowtrak about the sale
+          try {
+            if (lowtrakEndpoint && lowtrakApiKey) {
+              await fetch(lowtrakEndpoint, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${lowtrakApiKey}`,
+                },
+                body: JSON.stringify({
+                  transaction_id,
+                  amount: updatedTx?.amount,
+                  status: finalStatus,
+                  user_id: userId,
+                }),
+              });
+            }
+          } catch (lowErr) {
+            console.error('Erro ao notificar Lowtrak', lowErr);
+            // Notify Pushcut about the sale
+            try {
+              if (pushcutEndpoint && pushcutApiKey) {
+                await fetch(pushcutEndpoint, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${pushcutApiKey}`,
+                  },
+                  body: JSON.stringify({
+                    transaction_id,
+                    amount: updatedTx?.amount,
+                    status: finalStatus,
+                    user_id: userId,
+                  }),
+                });
+              }
+            } catch (pcErr) {
+              console.error('Erro ao notificar Pushcut', pcErr);
+            }
           }
         } catch (e) {
           console.error('Erro ao enviar notificação push', e);
