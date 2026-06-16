@@ -167,13 +167,7 @@ export const ProdutosView = () => {
                         throw new Error('Server upload failed');
                     }
                 } catch (e) {
-                    console.warn('Failed to upload image, falling back to local compression...', e);
-                    try {
-                        const tinyImage = await compressImageForUrl(product.image);
-                        queryParams.image = tinyImage;
-                    } catch (err) {
-                        queryParams.image = product.image;
-                    }
+                    console.warn('Failed to upload image, ignoring image in link to keep it short.', e);
                 }
             } else {
                 queryParams.image = product.image;
@@ -239,12 +233,7 @@ export const ProdutosView = () => {
                         throw new Error('Server upload failed');
                     }
                 } catch (e) {
-                    try {
-                        const tinyImage = await compressImageForUrl(product.image);
-                        queryParams.image = tinyImage;
-                    } catch (err) {
-                        queryParams.image = product.image;
-                    }
+                    console.warn('Failed to upload image, ignoring image in link to keep it short.', e);
                 }
             } else {
                 queryParams.image = product.image;
