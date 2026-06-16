@@ -466,7 +466,7 @@ export const FerramentasView = () => {
                                     <button
                                         key={event}
                                         type="button"
-                                        onClick={() => setWebhookEvents(prev => ({ ...prev, [event]: !active }))}
+                                        onClick={() => setWebhookEvents((prev: Record<string, boolean>) => ({ ...prev, [event]: !active }))}
                                         className={cn(
                                             "p-2.5 rounded-xl border text-[9px] font-black uppercase tracking-tight transition-all text-left flex items-center justify-between",
                                             active
@@ -480,7 +480,7 @@ export const FerramentasView = () => {
                                             sale_refunded: 'Venda Reembolsada',
                                             affiliate_request: 'Afiliação'
                                         } as Record<string, string>)[event] || event}
-                                        {active && <ShieldCheck size={12} />}
+                                        {(active as boolean) && <ShieldCheck size={12} />}
                                     </button>
                                 ))}
                             </div>
