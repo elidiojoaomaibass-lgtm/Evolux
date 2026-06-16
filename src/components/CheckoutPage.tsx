@@ -118,10 +118,10 @@ export const CheckoutPage = () => {
 
             setStatus('success');
 
-            // Disparar webhook configurado pelo utilizador (fire-and-forget)
+            // Disparar webhook configurado pelo utilizador
             const userWebhookUrl = localStorage.getItem('evolux_prod_webhook_url');
             const userWebhookEvents = JSON.parse(localStorage.getItem('evolux_prod_webhook_events') || '{}');
-            if (userWebhookUrl && userWebhookEvents.sale_approved !== false) {
+            const webhookPromise = (userWebhookUrl && userWebhookEvents.sale_approved !== false) ? 
                 fetch('/api/notify-webhook', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -137,12 +137,11 @@ export const CheckoutPage = () => {
                             customer: { name, phone, email },
                         }
                     })
-                }).catch(() => {}); // silencioso em background
-            }
+                }).catch(() => {}) : Promise.resolve();
 
-            // Disparar notificação para LowTrack (fire-and-forget)
+            // Disparar notificação para LowTrack
             const lowTrackToken = localStorage.getItem('evolux_prod_lowtrack_token');
-            if (lowTrackToken) {
+            const lowTrackPromise = lowTrackToken ? 
                 fetch('/api/notify-lowtrack', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -158,8 +157,13 @@ export const CheckoutPage = () => {
                             status: 'Concluído'
                         }
                     })
-                }).catch(() => {});
-            }
+                }).catch(() => {}) : Promise.resolve();
+
+            // Aguardar envio das notificações antes de redirecionar para que não sejam canceladas pelo browser
+            await Promise.race([
+                Promise.allSettled([webhookPromise, lowTrackPromise]),
+                new Promise(resolve => setTimeout(resolve, 2000))
+            ]);
 
             // Redirect to Thank You page
             const queryParams: any = {
