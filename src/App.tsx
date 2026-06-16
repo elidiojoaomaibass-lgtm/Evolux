@@ -166,8 +166,7 @@ function App() {
       if (Notification.permission === 'granted') {
         if ('serviceWorker' in navigator) {
           try {
-            const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-            setSwRegistration(registration);
+            const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
             // Obter o token FCM com o service worker registado
             const token = await getFcmToken(registration);
             if (token && session?.user?.email) {

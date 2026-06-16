@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export const ThankYouPage = () => {
     const [details, setDetails] = useState<{
@@ -12,7 +12,7 @@ export const ThankYouPage = () => {
         deliveryLink?: string;
     }>({});
 
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const [clicked, setClicked] = useState(false);
 
     useEffect(() => {

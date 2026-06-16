@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { useTransactionsStore } from '../lib/store';
 
 export const PagamentosView = () => {
-    const { transactions, addTransaction } = useTransactionsStore();
+    const { addTransaction } = useTransactionsStore();
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
     const [amount, setAmount] = useState('');
     const [phone, setPhone] = useState('');

@@ -5,7 +5,7 @@ import {
     Link as LinkIcon,
     Send, ShieldCheck,
     Info, Save,
-    Settings2, Code2, Target,
+    Code2, Target,
     Search, MessageCircle, Mail
 } from 'lucide-react';
 import { cn } from '../lib/utils';
