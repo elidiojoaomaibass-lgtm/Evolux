@@ -38,7 +38,8 @@ export const CheckoutPage = () => {
         id: productId,
         name: searchParams.get('name') || 'Produto sem Nome',
         price: isNaN(rawPrice) ? 0 : rawPrice,
-        image: productImage
+        image: productImage,
+        deliveryLink: searchParams.get('deliveryLink') || ''
     };
 
     const handlePurchase = async (e: React.FormEvent) => {
@@ -126,6 +127,10 @@ export const CheckoutPage = () => {
                 method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
                 reference: reference,
             };
+
+            if (product.deliveryLink) {
+                queryParams.deliveryLink = product.deliveryLink;
+            }
 
             if (enableCountdown) {
                 queryParams.enableCountdown = 'true';
