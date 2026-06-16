@@ -275,9 +275,9 @@ export const CheckoutPage = () => {
                             {/* Image and Basic Info */}
                             {/* Image and Basic Info */}
 <div className="flex gap-4 pt-2">
-    <div className="h-16 w-16 rounded-xl overflow-hidden bg-slate-150 border border-slate-200 shrink-0 shadow-sm">
+                        <div className="h-20 w-20 md:h-24 md:w-24 rounded-xl overflow-hidden bg-slate-150 border border-slate-200 shrink-0 shadow-sm">
         <img
-            src={product.image || '/placeholder_product.png'}
+            src={product.image || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO4K6r8AAAAASUVORK5CYII='}
             alt={product.name || 'Product Image'}
             className="w-full h-full object-cover"
         />
@@ -290,6 +290,8 @@ export const CheckoutPage = () => {
             <span className="px-2 py-0.5 bg-violet-100 text-violet-750 rounded text-[10px] font-black  tracking-wider">Acesso Imediato</span>
         </div>
     </div>
+</div>
+    
 </div>
             {/* duplicate product info block removed */}
 
