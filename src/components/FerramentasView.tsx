@@ -69,16 +69,20 @@ export const FerramentasView = () => {
         }
 
         toast.promise(
-            new Promise<void>((resolve, reject) => {
-                setTimeout(() => {
-                    const isValid = lowTrackToken.startsWith('lt_') && lowTrackToken.length > 10;
-                    if (isValid) resolve();
-                    else reject(new Error('Token inválido'));
-                }, 1800);
+            fetch('/api/test-lowtrack', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: lowTrackToken })
+            }).then(async (res) => {
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    throw new Error(errorData.error || 'Erro na comunicação com LowTrack');
+                }
+                return res.json();
             }),
             {
                 loading: 'A enviar evento de teste para LowTrack...',
-                success: 'Evento de teste enviado com sucesso! (200 OK)',
+                success: 'Evento de teste recebido pelo LowTrack com sucesso!',
                 error: (err: any) => err.message || 'Falha no envio. Verifique o Token.',
             }
         );
