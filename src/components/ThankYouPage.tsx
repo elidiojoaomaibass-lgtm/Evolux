@@ -28,7 +28,7 @@ export const ThankYouPage = () => {
         });
         setIsAdmin(params.get('admin') === 'true');
 
-        const emojis = ['🎉', '✅', '🙏', '💚', '⭐', '🚀'];
+        const emojis = ['🎉', '✅', '🙏', '💜', '⭐', '🚀'];
         const container = document.getElementById('confetti-container');
         if (container) {
             for (let i = 0; i < 22; i++) {
@@ -50,15 +50,15 @@ export const ThankYouPage = () => {
     const firstName = details.name ? details.name.split(' ')[0] : 'Cliente';
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-violet-950 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
             {/* Confetti */}
             <div id="confetti-container" className="fixed inset-0 pointer-events-none z-0" />
 
             {/* Animated glows */}
             <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute top-[-15%] left-[-15%] w-[50%] h-[50%] bg-emerald-500/10 rounded-full blur-[140px] animate-pulse" />
-                <div className="absolute bottom-[-15%] right-[-15%] w-[50%] h-[50%] bg-green-400/10 rounded-full blur-[140px] animate-pulse" style={{ animationDelay: '1s' }} />
-                <div className="absolute top-[40%] left-[40%] w-[20%] h-[20%] bg-teal-400/5 rounded-full blur-[80px]" />
+                <div className="absolute top-[-15%] left-[-15%] w-[50%] h-[50%] bg-violet-500/10 rounded-full blur-[140px] animate-pulse" />
+                <div className="absolute bottom-[-15%] right-[-15%] w-[50%] h-[50%] bg-fuchsia-400/10 rounded-full blur-[140px] animate-pulse" style={{ animationDelay: '1s' }} />
+                <div className="absolute top-[40%] left-[40%] w-[20%] h-[20%] bg-purple-400/5 rounded-full blur-[80px]" />
             </div>
 
             <motion.div
@@ -68,10 +68,10 @@ export const ThankYouPage = () => {
                 className="relative z-10 w-full max-w-lg"
             >
                 {/* Main Card */}
-                <div className="bg-white/5 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-[0_0_80px_rgba(16,185,129,0.15)] overflow-hidden">
+                <div className="bg-white/5 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-[0_0_80px_rgba(139,92,246,0.15)] overflow-hidden">
 
                     {/* Header */}
-                    <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 px-8 pt-10 pb-6 text-center border-b border-white/5">
+                    <div className="bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 px-8 pt-10 pb-6 text-center border-b border-white/5">
                         <motion.div
                             initial={{ scale: 0, rotate: -15 }}
                             animate={{ scale: 1, rotate: 0 }}
@@ -92,7 +92,7 @@ export const ThankYouPage = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.55 }}
-                            className="text-emerald-300 text-sm font-medium"
+                            className="text-violet-300 text-sm font-medium"
                         >
                             Obrigado pela sua compra, <span className="text-white font-bold">{firstName}</span>! 🎉
                         </motion.p>
@@ -107,7 +107,7 @@ export const ThankYouPage = () => {
                                 transition={{ delay: 0.55 }}
                                 className="bg-white/5 rounded-2xl p-5 space-y-3 border border-white/5"
                             >
-                                <p className="text-[9px] font-black text-emerald-400/70 uppercase tracking-[0.2em] mb-1">Resumo da Compra</p>
+                                <p className="text-[9px] font-black text-violet-400/70 uppercase tracking-[0.2em] mb-1">Resumo da Compra</p>
                                 {details.product && (
                                     <div className="flex justify-between items-center">
                                         <span className="text-xs text-white/50 font-medium">Produto</span>
@@ -117,7 +117,7 @@ export const ThankYouPage = () => {
                                 {details.amount && (
                                     <div className="flex justify-between items-center">
                                         <span className="text-xs text-white/50 font-medium">Valor Pago</span>
-                                        <span className="text-sm font-black text-emerald-400">
+                                        <span className="text-sm font-black text-violet-400">
                                             {(isNaN(Number(details.amount)) ? 0 : Number(details.amount)).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT
                                         </span>
                                     </div>
@@ -146,10 +146,10 @@ export const ThankYouPage = () => {
                             {details.deliveryLink ? (
                                 <div className="space-y-3">
                                     {/* Message to client */}
-                                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-5 py-4 text-center">
-                                        <p className="text-emerald-300 text-sm font-medium leading-relaxed">
+                                    <div className="bg-violet-500/10 border border-violet-500/20 rounded-2xl px-5 py-4 text-center">
+                                        <p className="text-violet-300 text-sm font-medium leading-relaxed">
                                             🎁 <span className="font-bold text-white">{firstName}</span>, o seu produto está pronto!<br />
-                                            <span className="text-emerald-400/80 text-xs">Clique no botão abaixo para aceder ao que adquiriu.</span>
+                                            <span className="text-violet-400/80 text-xs">Clique no botão abaixo para aceder ao que adquiriu.</span>
                                         </p>
                                     </div>
 
@@ -163,13 +163,13 @@ export const ThankYouPage = () => {
                                         }}
                                         className="w-full relative overflow-hidden group rounded-2xl"
                                     >
-                                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-2xl" />
-                                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-green-400 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-fuchsia-500 rounded-2xl" />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-400 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                         <div className="relative flex items-center justify-center gap-3 px-6 py-4">
                                             <span className="text-2xl">{clicked ? '🚀' : '🔓'}</span>
                                             <div className="text-left">
                                                 <p className="text-white font-black text-base leading-tight">Aceder ao Produto</p>
-                                                <p className="text-emerald-100/80 text-xs font-medium">Clique para abrir o seu conteúdo</p>
+                                                <p className="text-violet-100/80 text-xs font-medium">Clique para abrir o seu conteúdo</p>
                                             </div>
                                             <div className="ml-auto text-white/60 group-hover:translate-x-1 transition-transform duration-200">→</div>
                                         </div>
