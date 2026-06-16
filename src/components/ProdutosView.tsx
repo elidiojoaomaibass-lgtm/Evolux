@@ -273,6 +273,7 @@ export const ProdutosView = () => {
         // Check size limit (e.g. 4.5MB for Vercel Serverless payload)
         if (file.size > 4.5 * 1024 * 1024) {
             alert('O ficheiro excede o tamanho máximo de 4.5MB. Para ficheiros maiores, coloque o link do Google Drive/Dropbox.');
+            e.target.value = '';
             return;
         }
 
@@ -281,27 +282,37 @@ export const ProdutosView = () => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onloadend = async () => {
-                const base64data = reader.result as string;
-                const response = await fetch('/api/upload', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: base64data }) // /api/upload usa 'image' no payload, mas aceita qualquer ficheiro
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.url) {
-                        setNewDeliveryLink(data.url);
+                try {
+                    const base64data = reader.result as string;
+                    const response = await fetch('/api/upload', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: base64data })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.url) {
+                            setNewDeliveryLink(data.url);
+                        } else {
+                            alert('Erro: O servidor não retornou a hiperligação.');
+                        }
+                    } else {
+                        alert('Erro ao carregar ficheiro. Tente novamente.');
                     }
-                } else {
-                    alert('Erro ao carregar ficheiro. Tente novamente.');
+                } catch (innerErr) {
+                    console.error('Erro no upload:', innerErr);
+                    alert('Falha de comunicação com o servidor durante o carregamento.');
+                } finally {
+                    setIsUploadingFile(false);
+                    e.target.value = '';
                 }
-                setIsUploadingFile(false);
             };
         } catch (error) {
             console.error('Upload error:', error);
-            alert('Ocorreu um erro no carregamento.');
+            alert('Ocorreu um erro no carregamento do ficheiro local.');
             setIsUploadingFile(false);
+            e.target.value = '';
         }
     };
     const [newPixel, setNewPixel] = useState('');
@@ -843,7 +854,7 @@ export const ProdutosView = () => {
                                             </div>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-1">Acesso ao Produto (Link ou Arquivo)</label>
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-1">ENTREGÁVEL</label>
                                             <div className="flex gap-2">
                                                 <div className="relative flex-1">
                                                     <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500" size={16} />
