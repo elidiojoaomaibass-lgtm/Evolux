@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Search, Edit2,
@@ -266,6 +266,7 @@ export const ProdutosView = () => {
     const [newDeliveryLink, setNewDeliveryLink] = useState('');
     const [isUploadingFile, setIsUploadingFile] = useState(false);
     
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -287,6 +288,7 @@ export const ProdutosView = () => {
                         const data = await response.json();
                         if (data.url) {
                             setNewDeliveryLink(data.url);
+                            alert('Arquivo carregado com sucesso!');
                         } else {
                             alert('Erro: O servidor não retornou a hiperligação.');
                         }
@@ -298,14 +300,18 @@ export const ProdutosView = () => {
                     alert('Falha de comunicação com o servidor durante o carregamento.');
                 } finally {
                     setIsUploadingFile(false);
-                    e.target.value = '';
+                    if (fileInputRef.current) {
+                        fileInputRef.current.value = '';
+                    }
                 }
             };
         } catch (error) {
             console.error('Upload error:', error);
             alert('Ocorreu um erro no carregamento do ficheiro local.');
             setIsUploadingFile(false);
-            e.target.value = '';
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
         }
     };
     const [newPixel, setNewPixel] = useState('');
@@ -871,6 +877,7 @@ export const ProdutosView = () => {
                                                     )}
                                                     <span className="text-[11px] font-bold">Carregar</span>
                                                     <input 
+                                                        ref={fileInputRef}
                                                         type="file" 
                                                         className="hidden" 
                                                         disabled={isUploadingFile}
