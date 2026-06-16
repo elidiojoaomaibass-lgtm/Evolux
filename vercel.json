@@ -5,6 +5,10 @@
             "destination": "https://catbox.moe/user/api.php"
         },
         {
+            "source": "/api/lowtrack-proxy",
+            "destination": "https://api.lowtrak.com/sales"
+        },
+        {
             "source": "/((?!api/).*)",
             "destination": "/index.html"
         }

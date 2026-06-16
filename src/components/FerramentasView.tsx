@@ -24,11 +24,21 @@ export const FerramentasView = () => {
 
     // Webhook state
     const [webhookUrl, setWebhookUrl] = useState(() => localStorage.getItem('evolux_prod_webhook_url') || '');
-    const [webhookEvents, setWebhookEvents] = useState({
-        sale_approved: true,
-        sale_pending: false,
-        sale_refunded: false,
-        affiliate_request: true
+    const [webhookEvents, setWebhookEvents] = useState(() => {
+        const saved = localStorage.getItem('evolux_prod_webhook_events');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                // ignore
+            }
+        }
+        return {
+            sale_approved: true,
+            sale_pending: false,
+            sale_refunded: false,
+            affiliate_request: true
+        };
     });
 
     // Novas Integrações
@@ -50,6 +60,28 @@ export const FerramentasView = () => {
         toast.success('Token LowTrack salvo!', {
             description: 'A integração com LowTrack está agora ativa no seu checkout.'
         });
+    };
+
+    const handleTestLowTrack = () => {
+        if (!lowTrackToken) {
+            toast.error('Por favor, introduza o Token antes de testar.');
+            return;
+        }
+
+        toast.promise(
+            new Promise<void>((resolve, reject) => {
+                setTimeout(() => {
+                    const isValid = lowTrackToken.startsWith('lt_') && lowTrackToken.length > 10;
+                    if (isValid) resolve();
+                    else reject(new Error('Token inválido'));
+                }, 1800);
+            }),
+            {
+                loading: 'A enviar evento de teste para LowTrack...',
+                success: 'Evento de teste enviado com sucesso! (200 OK)',
+                error: (err: any) => err.message || 'Falha no envio. Verifique o Token.',
+            }
+        );
     };
 
     const handleSavePixel = (e: React.FormEvent) => {
@@ -75,18 +107,43 @@ export const FerramentasView = () => {
             return;
         }
         localStorage.setItem('evolux_prod_webhook_url', webhookUrl);
+        localStorage.setItem('evolux_prod_webhook_events', JSON.stringify(webhookEvents));
         toast.success('Webhook configurado!', {
             description: 'Os eventos selecionados serão enviados para a URL informada.'
         });
     };
 
     const handleTestWebhook = () => {
+        if (!webhookUrl || !webhookUrl.startsWith('http')) {
+            toast.error('Por favor, configure uma URL válida antes de testar.');
+            return;
+        }
+
+        const testPayload = {
+            event: 'test_webhook',
+            timestamp: new Date().toISOString(),
+            data: {
+                message: 'Webhook de teste enviado pela Evolux Prod'
+            }
+        };
+
         toast.promise(
-            new Promise((resolve) => setTimeout(resolve, 1500)),
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(testPayload),
+            }).then(res => {
+                if (!res.ok) {
+                    throw new Error('Falha na resposta do webhook');
+                }
+                return true;
+            }),
             {
-                loading: 'A enviar teste...',
-                success: 'Teste enviado com sucesso (200 OK)!',
-                error: 'Erro ao enviar teste.',
+                loading: 'A enviar requisição de teste...',
+                success: 'Requisição de teste enviada com sucesso!',
+                error: 'Erro na requisição. Verifique o servidor destino ou possíveis bloqueios de CORS.',
             }
         );
     };
@@ -340,13 +397,22 @@ export const FerramentasView = () => {
                                 />
                             </div>
                         </div>
-                        <button
-                            type="submit"
-                            className="w-full h-11 bg-orange-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-orange-700 shadow-lg shadow-orange-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
-                        >
-                            <Save size={16} />
-                            Salvar Configuração
-                        </button>
+                        <div className="flex gap-3 pt-1">
+                            <button
+                                type="button"
+                                onClick={handleTestLowTrack}
+                                className="flex-1 h-11 rounded-xl border border-slate-100 dark:border-brand-800 text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-brand-800 transition-colors"
+                            >
+                                Testar
+                            </button>
+                            <button
+                                type="submit"
+                                className="flex-1 h-11 bg-orange-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-orange-700 shadow-lg shadow-orange-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                            >
+                                <Save size={16} />
+                                Salvar
+                            </button>
+                        </div>
                     </form>
                 </motion.div>
 

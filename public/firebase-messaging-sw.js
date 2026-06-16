@@ -1,16 +1,15 @@
 // firebase-messaging-sw.js
 // Service Worker for handling background Firebase Cloud Messaging notifications
-// NOTE: Replace the placeholder config values with your actual Firebase project settings.
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
 
 const firebaseConfig = {
-  apiKey: 'YOUR_FIREBASE_API_KEY',
-  authDomain: 'YOUR_FIREBASE_AUTH_DOMAIN',
-  projectId: 'YOUR_FIREBASE_PROJECT_ID',
-  storageBucket: 'YOUR_FIREBASE_STORAGE_BUCKET',
-  messagingSenderId: 'YOUR_FIREBASE_MESSAGING_SENDER_ID',
-  appId: 'YOUR_FIREBASE_APP_ID'
+  apiKey: 'AIzaSyDhIwBjlR_YEqbsZTx_TT64tO_c8-bhR6M',
+  authDomain: 'evolux-b9300.firebaseapp.com',
+  projectId: 'evolux-b9300',
+  storageBucket: 'evolux-b9300.firebasestorage.app',
+  messagingSenderId: '414354486042',
+  appId: '1:414354486042:web:53f0d264b1f059570532a3'
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -22,7 +21,8 @@ messaging.onBackgroundMessage(function(payload) {
   const title = payload.notification?.title || 'Nova notificação';
   const options = {
     body: payload.notification?.body || '',
-    icon: '/icons/icon-192.png',
+    icon: '/logo.png',
+    badge: '/logo.png',
     data: payload.data || {}
   };
   self.registration.showNotification(title, options);
@@ -30,7 +30,6 @@ messaging.onBackgroundMessage(function(payload) {
 
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
-  // Focus or open a relevant window
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
       if (clientList.length > 0) {

@@ -10,6 +10,11 @@ export default defineConfig({
         target: 'https://catbox.moe',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/catbox/, '/user/api.php')
+      },
+      '/api/lowtrack-proxy': {
+        target: 'https://api.lowtrak.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/lowtrack-proxy/, '/sales')
       }
     }
   },
