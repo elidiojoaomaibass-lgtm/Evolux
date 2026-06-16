@@ -1,6 +1,10 @@
 {
     "rewrites": [
         {
+            "source": "/api/catbox",
+            "destination": "https://catbox.moe/user/api.php"
+        },
+        {
             "source": "/((?!api/).*)",
             "destination": "/index.html"
         }

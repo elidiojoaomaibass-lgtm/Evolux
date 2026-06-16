@@ -273,41 +273,30 @@ export const ProdutosView = () => {
 
         setIsUploadingFile(true);
         try {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onloadend = async () => {
-                try {
-                    const base64data = reader.result as string;
-                    const response = await fetch('/api/upload', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ image: base64data })
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.url) {
-                            setNewDeliveryLink(data.url);
-                            alert('Arquivo carregado com sucesso!');
-                        } else {
-                            alert('Erro: O servidor não retornou a hiperligação.');
-                        }
-                    } else {
-                        alert('Erro ao carregar ficheiro. Tente novamente.');
-                    }
-                } catch (innerErr) {
-                    console.error('Erro no upload:', innerErr);
-                    alert('Falha de comunicação com o servidor durante o carregamento.');
-                } finally {
-                    setIsUploadingFile(false);
-                    if (fileInputRef.current) {
-                        fileInputRef.current.value = '';
-                    }
+            const formData = new FormData();
+            formData.append('reqtype', 'fileupload');
+            formData.append('fileToUpload', file);
+
+            const response = await fetch('/api/catbox', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                const url = await response.text();
+                if (url && url.startsWith('http')) {
+                    setNewDeliveryLink(url.trim());
+                    alert('Arquivo carregado com sucesso!');
+                } else {
+                    alert('Erro: O servidor não retornou a hiperligação correta.');
                 }
-            };
+            } else {
+                alert('Erro ao carregar ficheiro. Tente novamente.');
+            }
         } catch (error) {
             console.error('Upload error:', error);
-            alert('Ocorreu um erro no carregamento do ficheiro local.');
+            alert('Ocorreu um erro no carregamento do ficheiro.');
+        } finally {
             setIsUploadingFile(false);
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
