@@ -169,7 +169,7 @@ export const useProductsStore = () => {
 // localStorage.setItem(offlineKey, JSON.stringify(arr));
 // updateProducts([product, ...globalProducts]);
                 sendLocalNotification('⚠️ Falha ao salvar produto', {
-                    body: `Erro do banco: ${e2?.message || e2}. Não foi possível salvar o produto no servidor.`,
+                    body: `Erro do banco: ${(e2 as any)?.message || String(e2)}. Não foi possível salvar o produto no servidor.`,
                     icon: '/logo.png'
                 });
             }
