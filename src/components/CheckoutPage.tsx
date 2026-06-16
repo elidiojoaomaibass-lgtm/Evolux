@@ -118,6 +118,28 @@ export const CheckoutPage = () => {
 
             setStatus('success');
 
+            // Disparar webhook configurado pelo utilizador (fire-and-forget)
+            const userWebhookUrl = localStorage.getItem('evolux_prod_webhook_url');
+            const userWebhookEvents = JSON.parse(localStorage.getItem('evolux_prod_webhook_events') || '{}');
+            if (userWebhookUrl && userWebhookEvents.sale_approved !== false) {
+                fetch('/api/notify-webhook', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        webhookUrl: userWebhookUrl,
+                        payload: {
+                            event: 'sale_approved',
+                            timestamp: new Date().toISOString(),
+                            reference,
+                            product: product.name,
+                            amount: product.price,
+                            method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                            customer: { name, phone, email },
+                        }
+                    })
+                }).catch(() => {}); // silencioso em background
+            }
+
             // Redirect to Thank You page
             const queryParams: any = {
                 name: name || '',
