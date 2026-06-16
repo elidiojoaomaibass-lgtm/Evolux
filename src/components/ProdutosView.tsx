@@ -40,33 +40,41 @@ const shortenUrl = async (longUrl: string): Promise<string> => {
     return longUrl;
 };
 
-const compressImageForUrl = (base64Str: string): Promise<string> => {
+// Compress to a very small base64 (40x40 JPEG quality 30 = ~900 chars), small enough for URL shorteners
+const compressTinyForUrl = (base64Str: string): Promise<string> => {
     return new Promise((resolve) => {
-        if (!base64Str || !base64Str.startsWith('data:')) {
-            resolve(base64Str);
-            return;
-        }
+        if (!base64Str || !base64Str.startsWith('data:')) { resolve(base64Str); return; }
         const img = new Image();
         img.src = base64Str;
         img.onload = () => {
             const canvas = document.createElement('canvas');
-            const SIZE = 60; // 60x60 pixels is ideal for the checkout cover/thumbnail
-            canvas.width = SIZE;
-            canvas.height = SIZE;
+            canvas.width = 40;
+            canvas.height = 40;
             const ctx = canvas.getContext('2d');
             if (ctx) {
-                ctx.drawImage(img, 0, 0, SIZE, SIZE);
-                // Compress to Keep character length very low
-                const tinyBase64 = canvas.toDataURL('image/jpeg', 0.4);
-                resolve(tinyBase64);
-            } else {
-                resolve(base64Str);
-            }
+                ctx.drawImage(img, 0, 0, 40, 40);
+                resolve(canvas.toDataURL('image/jpeg', 0.25));
+            } else { resolve(base64Str); }
         };
-        img.onerror = () => {
-            resolve(base64Str);
-        };
+        img.onerror = () => resolve(base64Str);
     });
+};
+
+// Upload image to catbox.moe via serverless proxy and return a short https URL
+const uploadImageToCloud = async (base64Image: string): Promise<string | null> => {
+    try {
+        const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: base64Image })
+        });
+        if (!uploadResponse.ok) return null;
+        const uploadData = await uploadResponse.json();
+        return uploadData.url || null;
+    } catch (e) {
+        console.warn('Image upload to cloud failed:', e);
+        return null;
+    }
 };
 
 export const ProdutosView = () => {
@@ -125,7 +133,7 @@ export const ProdutosView = () => {
     const handleCopyLink = async (product: Product) => {
         const origin = window.location.origin;
         
-        // Save image to localStorage for same-origin preview
+        // Save full image to localStorage for same-origin preview (so checkout always shows the image)
         if (product.image) {
             localStorage.setItem(`checkout_img_${product.id}`, product.image);
         } else {
@@ -137,39 +145,28 @@ export const ProdutosView = () => {
             name: product.name,
             price: String(product.price)
         };
-        if (product.deliveryLink) {
-            queryParams.deliveryLink = product.deliveryLink;
-        }
-        if (product.enableCountdown) {
-            queryParams.enableCountdown = 'true';
-        }
-        if (product.enableScarcityNotification) {
-            queryParams.enableScarcityNotification = 'true';
-        }
+        if (product.deliveryLink) queryParams.deliveryLink = product.deliveryLink;
+        if (product.enableCountdown) queryParams.enableCountdown = 'true';
+        if (product.enableScarcityNotification) queryParams.enableScarcityNotification = 'true';
+        if (product.barColor) queryParams.barColor = product.barColor;
 
         setShorteningProductId(product.id);
 
         if (product.image) {
             if (product.image.startsWith('data:')) {
-                try {
-                    // Upload base64 image to serverless endpoint to get a short permanent URL
-                    const uploadResponse = await fetch('/api/upload', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ image: product.image })
-                    });
-                    if (uploadResponse.ok) {
-                        const uploadData = await uploadResponse.json();
-                        if (uploadData.url) {
-                            queryParams.image = uploadData.url;
-                        }
-                    } else {
-                        throw new Error('Server upload failed');
-                    }
-                } catch (e) {
-                    console.warn('Failed to upload image, ignoring image in link to keep it short.', e);
+                // Try to upload to cloud for a short permanent URL
+                const cloudUrl = await uploadImageToCloud(product.image);
+                if (cloudUrl) {
+                    queryParams.image = cloudUrl;
+                    // Cache the cloud URL back into the product so next copies are instant
+                    editProduct({ ...product, image: cloudUrl });
+                } else {
+                    // Fallback: compress to 40x40 thumbnail (~900 chars, fits in URL shortener)
+                    const tinyImg = await compressTinyForUrl(product.image);
+                    queryParams.image = tinyImg;
                 }
             } else {
+                // Already a short URL (https://...) — use directly
                 queryParams.image = product.image;
             }
         }
@@ -182,16 +179,14 @@ export const ProdutosView = () => {
         
         navigator.clipboard.writeText(shortLink).then(() => {
             setCopiedProductId(product.id);
-            setTimeout(() => {
-                setCopiedProductId(null);
-            }, 2000);
+            setTimeout(() => { setCopiedProductId(null); }, 2000);
         });
     };
 
     const handleOpenCheckout = async (product: Product) => {
         const origin = window.location.origin;
 
-        // Save image to localStorage for same-origin preview
+        // Save full image to localStorage for same-origin preview
         if (product.image) {
             localStorage.setItem(`checkout_img_${product.id}`, product.image);
         } else {
@@ -203,37 +198,22 @@ export const ProdutosView = () => {
             name: product.name,
             price: String(product.price)
         };
-        if (product.deliveryLink) {
-            queryParams.deliveryLink = product.deliveryLink;
-        }
-        if (product.enableCountdown) {
-            queryParams.enableCountdown = 'true';
-        }
-        if (product.enableScarcityNotification) {
-            queryParams.enableScarcityNotification = 'true';
-        }
-        if (product.barColor) {
-            queryParams.barColor = product.barColor;
-        }
+        if (product.deliveryLink) queryParams.deliveryLink = product.deliveryLink;
+        if (product.enableCountdown) queryParams.enableCountdown = 'true';
+        if (product.enableScarcityNotification) queryParams.enableScarcityNotification = 'true';
+        if (product.barColor) queryParams.barColor = product.barColor;
 
         if (product.image) {
             if (product.image.startsWith('data:')) {
-                try {
-                    const uploadResponse = await fetch('/api/upload', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ image: product.image })
-                    });
-                    if (uploadResponse.ok) {
-                        const uploadData = await uploadResponse.json();
-                        if (uploadData.url) {
-                            queryParams.image = uploadData.url;
-                        }
-                    } else {
-                        throw new Error('Server upload failed');
-                    }
-                } catch (e) {
-                    console.warn('Failed to upload image, ignoring image in link to keep it short.', e);
+                // Try cloud upload for a short URL
+                const cloudUrl = await uploadImageToCloud(product.image);
+                if (cloudUrl) {
+                    queryParams.image = cloudUrl;
+                    editProduct({ ...product, image: cloudUrl });
+                } else {
+                    // Fallback: tiny 40x40 thumbnail
+                    const tinyImg = await compressTinyForUrl(product.image);
+                    queryParams.image = tinyImg;
                 }
             } else {
                 queryParams.image = product.image;

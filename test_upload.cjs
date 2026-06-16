@@ -6,10 +6,9 @@ async function testUpload() {
     
     const blob = new Blob([buffer], { type: 'image/png' });
     const formData = new FormData();
-    formData.append('reqtype', 'fileupload');
-    formData.append('fileToUpload', blob, 'product.png');
+    formData.append('file', blob, 'product.png');
 
-    const response = await fetch('https://catbox.moe/user/api.php', {
+    const response = await fetch('https://telegra.ph/upload', {
         method: 'POST',
         body: formData
     });
