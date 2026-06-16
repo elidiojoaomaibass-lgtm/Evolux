@@ -270,13 +270,6 @@ export const ProdutosView = () => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Check size limit (e.g. 4.5MB for Vercel Serverless payload)
-        if (file.size > 4.5 * 1024 * 1024) {
-            alert('O ficheiro excede o tamanho máximo de 4.5MB. Para ficheiros maiores, coloque o link do Google Drive/Dropbox.');
-            e.target.value = '';
-            return;
-        }
-
         setIsUploadingFile(true);
         try {
             const reader = new FileReader();
