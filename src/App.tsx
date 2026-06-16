@@ -155,8 +155,6 @@ function App() {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  // Request Notification Permission and obtain FCM token
-  const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
 
   useEffect(() => {
     const setupPush = async () => {

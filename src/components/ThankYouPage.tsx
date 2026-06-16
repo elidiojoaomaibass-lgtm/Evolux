@@ -12,7 +12,6 @@ export const ThankYouPage = () => {
         deliveryLink?: string;
     }>({});
 
-    const [isMobile, setIsMobile] = useState(false);
     const [clicked, setClicked] = useState(false);
 
     useEffect(() => {
@@ -26,8 +25,6 @@ export const ThankYouPage = () => {
             reference: params.get('reference') || '',
             deliveryLink: params.get('deliveryLink') || '',
         });
-        setIsAdmin(params.get('admin') === 'true');
-
         const emojis = ['🎉', '✅', '🙏', '💜', '⭐', '🚀'];
         const container = document.getElementById('confetti-container');
         if (container) {
