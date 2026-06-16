@@ -26,11 +26,12 @@ export default async function handler(req: any, res: any) {
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
+        ...payload,
+        event: payload.event === 'sale_approved' ? 'sale.approved' : payload.event,
         transaction_id: payload.reference,
         amount: payload.amount,
         status: payload.status || 'Concluído',
         user_id: payload.customer?.email || payload.customer?.phone || 'unknown_user',
-        ...payload
       })
     });
 

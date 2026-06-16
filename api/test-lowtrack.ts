@@ -33,6 +33,7 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
+        event: 'sale.approved',
         transaction_id: 'test_lt_' + Date.now(),
         amount: 1500,
         status: 'Concluído',
