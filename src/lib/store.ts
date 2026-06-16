@@ -503,7 +503,7 @@ export const useTransactionsStore = () => {
             for (const tx of pending) {
                 const created = new Date(tx.createdAt);
                 const diffMs = now.getTime() - created.getTime();
-                if (diffMs >= 2 * 60 * 1000) { // 2 minutos
+                if (diffMs >= 30 * 1000) { // 30 segundos
                     // Atualiza localmente
                     const updated = globalTransactions.map(t =>
                         t.id === tx.id ? { ...t, status: 'Concluído' as const } : t
@@ -525,7 +525,7 @@ export const useTransactionsStore = () => {
         // Roda imediatamente ao carregar (resolve pendentes antigas)
         autoApprove();
         // Depois roda a cada 30 segundos
-        const approvalInterval = setInterval(autoApprove, 30 * 1000);
+        const approvalInterval = setInterval(autoApprove, 10 * 1000);
 
         // Recarrega transações ao voltar ao aplicativo (ex: no celular quando sai de segundo plano)
         const handleVisibilityChange = () => {
