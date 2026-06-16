@@ -12,7 +12,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/catbox/, '/user/api.php')
       },
       '/api/lowtrack-proxy': {
-        target: 'https://api.lowtrak.com',
+        target: 'https://lowtrack.com.br',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/lowtrack-proxy/, '/sales')
       }

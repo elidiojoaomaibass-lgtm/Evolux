@@ -6,7 +6,7 @@
         },
         {
             "source": "/api/lowtrack-proxy",
-            "destination": "https://api.lowtrak.com/sales"
+            "destination": "https://lowtrack.com.br/api/webhook"
         },
         {
             "source": "/((?!api/).*)",
