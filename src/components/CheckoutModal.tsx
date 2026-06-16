@@ -135,6 +135,27 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                     })
                 }).catch(() => {}); // silencioso em background
             }
+
+            // Disparar notificação para LowTrack (fire-and-forget)
+            const lowTrackToken = localStorage.getItem('evolux_prod_lowtrack_token');
+            if (lowTrackToken) {
+                fetch('/api/notify-lowtrack', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token: lowTrackToken,
+                        payload: {
+                            event: 'sale_approved',
+                            reference,
+                            product: product.name,
+                            amount: product.price,
+                            method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                            customer: { name, phone, email },
+                            status: 'Concluído'
+                        }
+                    })
+                }).catch(() => {});
+            }
             // Redirecionar para a página de obrigado com detalhes da compra
             const params = new URLSearchParams({
                 name: name || '',
