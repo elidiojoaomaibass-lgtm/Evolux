@@ -104,7 +104,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             if (lowtrakEndpoint && lowtrakApiKey) {
               await fetch(lowtrakEndpoint, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${lowtrakApiKey}` },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${lowtrakApiKey}`, 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
                 body: JSON.stringify({ transaction_id, amount: updatedTx?.amount, status: finalStatus, user_id: userId }),
               });
             }
