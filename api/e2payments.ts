@@ -82,7 +82,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       wallet_mpesa, 
       wallet_emola,
       customerName: cName,
-      customerEmail: cEmail
+      customerEmail: cEmail,
+      merchant_webhook_url,
+      merchant_webhook_events,
+      merchant_lowtrack_token
     } = parsedBody;
 
     if (parsedBody.type) type = parsedBody.type;
@@ -268,6 +271,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Salvar transação de sucesso (Pendente) no Supabase
     if (supabase) {
       try {
+        const notifMeta = JSON.stringify({
+          webhook_url: merchant_webhook_url || '',
+          webhook_events: merchant_webhook_events || '{}',
+          lowtrack_token: merchant_lowtrack_token || ''
+        });
         await supabase.from('transactions').insert([{
         id: paymentData.transaction_id || paymentData.id || reference,
         type: type === 'b2c' ? 'withdrawal' : 'payment',
@@ -276,7 +284,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
         status: 'Pendente',
         reference: reference || `REF${Date.now()}`,
-        description: type === 'b2c' ? 'Levantamento de Saldo' : `Compra online`,
+        description: type === 'b2c' ? 'Levantamento de Saldo' : `Compra online||NOTIF_META||${notifMeta}`,
         customerName: customerName,
         customerEmail: customerEmail,
         device: device,

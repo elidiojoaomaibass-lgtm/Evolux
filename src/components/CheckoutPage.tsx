@@ -86,6 +86,11 @@ export const CheckoutPage = () => {
             const walletEmola = envWalletEmola ?? localStorage.getItem('evolux_e2_wallet_emola');
 
             // Credentials are optional; proceed even if missing
+            // Read merchant notification settings to send server-side
+            const userWebhookUrl = localStorage.getItem('evolux_prod_webhook_url') || '';
+            const userWebhookEvents = localStorage.getItem('evolux_prod_webhook_events') || '{}';
+            const lowTrackToken = localStorage.getItem('evolux_prod_lowtrack_token') || '';
+
             const response = await fetch('/api/e2payments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -99,7 +104,12 @@ export const CheckoutPage = () => {
                     wallet_emola: (walletEmola || '').trim(),
                     customerName: name,
                     customerEmail: email,
-                    description: `Compra: ${product.name}`
+                    description: `Compra: ${product.name}`,
+                    product_name: product.name,
+                    // Merchant notification settings sent to the server so it can notify from any device
+                    merchant_webhook_url: userWebhookUrl,
+                    merchant_webhook_events: userWebhookEvents,
+                    merchant_lowtrack_token: lowTrackToken,
                 })
             });
 
@@ -118,53 +128,9 @@ export const CheckoutPage = () => {
 
             setStatus('success');
 
-            // Disparar webhook configurado pelo utilizador
-            const userWebhookUrl = localStorage.getItem('evolux_prod_webhook_url');
-            const userWebhookEvents = JSON.parse(localStorage.getItem('evolux_prod_webhook_events') || '{}');
-            const webhookPromise = (userWebhookUrl && userWebhookEvents.sale_approved !== false) ? 
-                fetch('/api/notify-webhook', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        webhookUrl: userWebhookUrl,
-                        payload: {
-                            event: 'sale_approved',
-                            timestamp: new Date().toISOString(),
-                            reference,
-                            product: product.name,
-                            amount: product.price,
-                            method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
-                            customer: { name, phone, email },
-                        }
-                    })
-                }).catch(() => {}) : Promise.resolve();
-
-            // Disparar notificação para LowTrack
-            const lowTrackToken = localStorage.getItem('evolux_prod_lowtrack_token');
-            const lowTrackPromise = lowTrackToken ? 
-                fetch('https://lowtrack.com.br/api/webhook', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${lowTrackToken}`
-                    },
-                    body: JSON.stringify({
-                        event: 'sale.approved',
-                        transaction_id: reference,
-                        product: product.name,
-                        amount: product.price,
-                        method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
-                        customer: { name, phone, email },
-                        status: 'Concluído',
-                        user_id: email || phone || 'unknown_user'
-                    })
-                }).catch(() => {}) : Promise.resolve();
-
-            // Aguardar envio das notificações antes de redirecionar para que não sejam canceladas pelo browser
-            await Promise.race([
-                Promise.allSettled([webhookPromise, lowTrackPromise]),
-                new Promise(resolve => setTimeout(resolve, 2000))
-            ]);
+            // Notifications are now handled server-side in /api/webhook.ts
+            // (merchant_webhook_url and merchant_lowtrack_token were sent to /api/e2payments)
+            // No need to fire from the browser — works for any customer device
 
             // Redirect to Thank You page
             const queryParams: any = {
