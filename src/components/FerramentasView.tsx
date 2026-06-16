@@ -69,10 +69,19 @@ export const FerramentasView = () => {
         }
 
         toast.promise(
-            fetch('/api/test-lowtrack', {
+            fetch('https://lowtrack.com.br/api/webhook', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: lowTrackToken })
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${lowTrackToken}`
+                },
+                body: JSON.stringify({
+                    event: 'sale.approved',
+                    transaction_id: 'test_lt_' + Date.now(),
+                    amount: 1500,
+                    status: 'Concluído',
+                    user_id: 'user_test'
+                })
             }).then(async (res) => {
                 if (!res.ok) {
                     const errorData = await res.json().catch(() => ({}));

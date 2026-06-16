@@ -142,20 +142,21 @@ export const CheckoutPage = () => {
             // Disparar notificação para LowTrack
             const lowTrackToken = localStorage.getItem('evolux_prod_lowtrack_token');
             const lowTrackPromise = lowTrackToken ? 
-                fetch('/api/notify-lowtrack', {
+                fetch('https://lowtrack.com.br/api/webhook', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${lowTrackToken}`
+                    },
                     body: JSON.stringify({
-                        token: lowTrackToken,
-                        payload: {
-                            event: 'sale_approved',
-                            reference,
-                            product: product.name,
-                            amount: product.price,
-                            method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
-                            customer: { name, phone, email },
-                            status: 'Concluído'
-                        }
+                        event: 'sale.approved',
+                        transaction_id: reference,
+                        product: product.name,
+                        amount: product.price,
+                        method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                        customer: { name, phone, email },
+                        status: 'Concluído',
+                        user_id: email || phone || 'unknown_user'
                     })
                 }).catch(() => {}) : Promise.resolve();
 
