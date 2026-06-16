@@ -263,11 +263,51 @@ export const ProdutosView = () => {
     const [newDescription, setNewDescription] = useState('');
     const [newPhone, setNewPhone] = useState('');
     const [newSalesLink, setNewSalesLink] = useState('');
+    const [newDeliveryLink, setNewDeliveryLink] = useState('');
+    const [isUploadingFile, setIsUploadingFile] = useState(false);
+    
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Check size limit (e.g. 4.5MB for Vercel Serverless payload)
+        if (file.size > 4.5 * 1024 * 1024) {
+            alert('O ficheiro excede o tamanho máximo de 4.5MB. Para ficheiros maiores, coloque o link do Google Drive/Dropbox.');
+            return;
+        }
+
+        setIsUploadingFile(true);
+        try {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = async () => {
+                const base64data = reader.result as string;
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64data }) // /api/upload usa 'image' no payload, mas aceita qualquer ficheiro
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.url) {
+                        setNewDeliveryLink(data.url);
+                    }
+                } else {
+                    alert('Erro ao carregar ficheiro. Tente novamente.');
+                }
+                setIsUploadingFile(false);
+            };
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Ocorreu um erro no carregamento.');
+            setIsUploadingFile(false);
+        }
+    };
     const [newPixel, setNewPixel] = useState('');
     const [isMarketplaceEnabled, setIsMarketplaceEnabled] = useState(false);
     const [newCommission, setNewCommission] = useState('50');
     const [newAffiliationType, setNewAffiliationType] = useState<'Automatica' | 'Manual'>('Automatica');
-    const [newDeliveryLink, setNewDeliveryLink] = useState(''); // New field for product deliverable link
     const [newEnableCountdown, setNewEnableCountdown] = useState(false);
     const [newEnableScarcityNotification, setNewEnableScarcityNotification] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -803,16 +843,40 @@ export const ProdutosView = () => {
                                             </div>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-1">Link do Produto (Entregável)</label>
-                                            <div className="relative">
-                                                <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500" size={16} />
-                                                <input
-                                                    value={newDeliveryLink}
-                                                    onChange={(e) => setNewDeliveryLink(e.target.value)}
-                                                    placeholder="https://..."
-                                                    className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[12px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all"
-                                                />
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-1">Acesso ao Produto (Link ou Arquivo)</label>
+                                            <div className="flex gap-2">
+                                                <div className="relative flex-1">
+                                                    <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500" size={16} />
+                                                    <input
+                                                        value={newDeliveryLink}
+                                                        onChange={(e) => setNewDeliveryLink(e.target.value)}
+                                                        placeholder="Cole o link ou carregue um arquivo"
+                                                        className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[12px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all"
+                                                    />
+                                                </div>
+                                                <label className={cn(
+                                                    "h-10 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all border border-slate-100 dark:border-white/10 shrink-0",
+                                                    isUploadingFile 
+                                                        ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
+                                                        : "bg-white dark:bg-brand-900 text-slate-700 dark:text-white hover:bg-slate-50 hover:border-violet-200"
+                                                )}>
+                                                    {isUploadingFile ? (
+                                                        <Loader2 size={16} className="animate-spin text-violet-500" />
+                                                    ) : (
+                                                        <Upload size={16} className="text-violet-500" />
+                                                    )}
+                                                    <span className="text-[11px] font-bold">Carregar</span>
+                                                    <input 
+                                                        type="file" 
+                                                        className="hidden" 
+                                                        disabled={isUploadingFile}
+                                                        onChange={handleFileUpload} 
+                                                    />
+                                                </label>
                                             </div>
+                                            <p className="text-[9px] text-slate-400 px-1 pt-1">
+                                                Adicione o link do Google Drive/Dropbox ou carregue diretamente arquivos até 4MB (PDFs, ZIPs, etc).
+                                            </p>
                                         </div>
                                         <div className="flex items-center gap-4 mt-2 p-3 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50">
                                             <div className="h-8 w-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0">
