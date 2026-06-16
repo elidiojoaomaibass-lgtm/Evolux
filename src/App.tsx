@@ -31,7 +31,7 @@ function App() {
     if (saved && lastActive) {
       const elapsed = Date.now() - parseInt(lastActive, 10);
       if (elapsed < SESSION_TIMEOUT_MS) {
-        const validViews = ["ThankYou", "Dashboard", "Vendas", "Produtos", "Afiliados", "Mercado", "Pagamentos", "Saque", "Premiações", "Integrações", "Configurações", "Documentação"];
+        const validViews = ["ThankYou", "Dashboard", "Vendas", "Produtos", "Afiliados", "Mercado", "Pagamentos", "Levantamentos", "Premiações", "Integrações", "Configurações", "Documentação"];
         if (validViews.includes(saved)) return saved as ViewType;
       }
     }
@@ -346,7 +346,7 @@ function App() {
           {activeView === "Afiliados" && <Views.Afiliados />}
           {activeView === "Mercado" && <Views.Mercado />}
           {activeView === "Pagamentos" && <Views.Pagamentos />}
-          {activeView === "Saque" && <Views.Saque />}
+          {activeView === "Levantamentos" && <Views.Levantamentos />}
           {activeView === "Premiações" && <Views.Premiações />}
           {activeView === "Integrações" && <Views.Ferramentas />}
           {activeView === "Análise" && <Views.Análise />}

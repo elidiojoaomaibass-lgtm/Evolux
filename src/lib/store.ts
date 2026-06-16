@@ -485,7 +485,7 @@ export const useTransactionsStore = () => {
                     // Trigger System Notification for Withdrawals
                     if (payload.eventType === 'UPDATE' && payload.new.type === 'withdrawal' && payload.old.status !== 'Concluído' && payload.new.status === 'Concluído') {
                         const val = Number(payload.new.amount).toLocaleString('pt-PT');
-                        sendLocalNotification('💸 Saque Aprovado!', {
+                        sendLocalNotification('💸 Levantamento Aprovado!', {
                             body: `O seu saque de ${val} MZN foi concluído com sucesso.`,
                             icon: '/logo.png'
                         });
@@ -562,7 +562,7 @@ export const useTransactionsStore = () => {
         // Notifications
         if (newTx.type === 'withdrawal') {
             const val = Number(newTx.amount).toLocaleString('pt-PT');
-            sendLocalNotification('🏦 Saque Solicitado!', {
+            sendLocalNotification('🏦 Levantamento Solicitado!', {
                 body: `Sua solicitação de saque de ${val} MZN foi enviada.`,
                 icon: '/logo.png'
             });
@@ -604,7 +604,7 @@ export const useTransactionsStore = () => {
         // Local Notification for withdrawal approval if not coming from realtime
         if (tx && tx.type === 'withdrawal' && tx.status !== 'Concluído' && status === 'Concluído') {
             const val = Number(tx.amount).toLocaleString('pt-PT');
-            sendLocalNotification('💸 Saque Aprovado!', {
+            sendLocalNotification('💸 Levantamento Aprovado!', {
                 body: `O seu saque de ${val} MZN foi concluído com sucesso.`,
                 icon: '/logo.png'
             });

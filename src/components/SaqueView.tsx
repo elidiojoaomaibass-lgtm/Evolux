@@ -21,7 +21,7 @@ export const SaqueView = () => {
     const [loading, setLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
 
-    // Filtrar apenas saques para o histórico desta view
+    // Filtrar apenas levantamentos para o histórico desta view
     const withdrawalHistory = transactions.filter(t => t.type === 'withdrawal');
 
     // Mock balances separated by wallet with "Total Coletado"
@@ -68,7 +68,7 @@ export const SaqueView = () => {
         const numAmount = parseFloat(amount);
 
         if (!amount || numAmount <= 0) {
-            toast.error("Insira um valor válido para o saque.");
+            toast.error("Insira um valor válido para o levantamento.");
             return;
         }
 
@@ -83,12 +83,12 @@ export const SaqueView = () => {
         }
 
         if (numAmount < 500) {
-            toast.error("O valor mínimo para saque é de 500 MZN.");
+            toast.error("O valor mínimo para levantamento é de 500 MZN.");
             return;
         }
 
         if (pendingByWallet[method]) {
-            toast.error(`Você já possui um saque pendente para ${method}. Aguarde a aprovação.`);
+            toast.error(`Você já possui um levantamento pendente para ${method}. Aguarde a aprovação.`);
             return;
         }
 
@@ -120,7 +120,7 @@ export const SaqueView = () => {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Erro ao processar saque');
+                throw new Error(data.error || 'Erro ao processar levantamento');
             }
 
             // Registrar no histórico local
@@ -135,7 +135,7 @@ export const SaqueView = () => {
             });
 
             setShowSuccess(true);
-            toast.success(data.message || `Solicitação de saque via ${method} enviada!`);
+            toast.success(data.message || `Solicitação de levantamento via ${method} enviada!`);
             setAmount('');
         } catch (err: any) {
             toast.error(err.message);
@@ -180,7 +180,7 @@ export const SaqueView = () => {
                         <thead>
                             <tr className="bg-slate-50/50 dark:bg-brand-950/50 border-b border-slate-100 dark:border-brand-800">
                                 <th className="px-6 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Carteira Móvel</th>
-                                <th className="px-6 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Status de Saque</th>
+                                <th className="px-6 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Status de Levantamento</th>
                                 <th className="px-6 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Saldo Retido</th>
                                 <th className="px-6 py-2.5 text-[9px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest text-right">Saldo Coletado</th>
                                 <th className="px-6 py-2.5 text-[9px] font-black text-violet-500 uppercase tracking-widest text-right bg-violet-50/30">Saldo Disponível</th>
@@ -211,7 +211,7 @@ export const SaqueView = () => {
                                         <div className="flex justify-center">
                                             {pendingByWallet[wallet.id as 'M-Pesa' | 'e-Mola'] ? (
                                                 <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 text-[8px] font-black uppercase tracking-wider animate-pulse">
-                                                    <Clock size={10} /> Saque Pendente
+                                                    <Clock size={10} /> Levantamento Pendente
                                                 </span>
                                             ) : (
                                                 <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 text-[8px] font-black uppercase tracking-wider">
@@ -257,7 +257,7 @@ export const SaqueView = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Form Saque */}
+                {/* Form Levantamento */}
                 <div className="lg:col-span-1">
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
@@ -337,7 +337,7 @@ export const SaqueView = () => {
                                 <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/20 flex gap-3 animate-in slide-in-from-top duration-300">
                                     <ShieldAlert size={16} className="text-amber-600 shrink-0 mt-0.5" />
                                     <p className="text-[10px] font-bold text-amber-700 dark:text-amber-300 leading-relaxed italic">
-                                        Limitação ativa: Você já possui um saque em análise para **{method}**.
+                                        Limitação ativa: Você já possui um levantamento em análise para **{method}**.
                                     </p>
                                 </div>
                             ) : (
@@ -366,7 +366,7 @@ export const SaqueView = () => {
                                 )}
                             >
                                 {loading ? <Loader2 className="animate-spin" size={20} /> : <CheckCircle2 size={20} />}
-                                {pendingByWallet[method] ? "Aguardando" : "Solicitar Transferência"}
+                                {pendingByWallet[method] ? "Aguardando" : "Solicitar Saque"}
                             </button>
                         </form>
                     </motion.div>

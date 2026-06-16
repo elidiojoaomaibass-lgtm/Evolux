@@ -17,10 +17,10 @@ const levelsConfig = [
 ];
 
 const rewardsConfig = [
-    { target: 50000, label: 'FATURADOS', title: 'Pulseira Evolux', image: '/awards/50k.png' },
-    { target: 100000, label: 'FATURADOS', title: 'Placa de Prata', image: '/awards/100k.jpg' },
-    { target: 500000, label: 'FATURADOS', title: 'Placa de Ouro', image: '/awards/1m.jpg' },
-    { target: 1000000, label: 'FATURADOS', title: 'Placa de Diamante', image: '/awards/500k.jpg' },
+    { target: 10000, label: 'FATURADOS', title: 'Pulseira Evolux de 10K', image: '/awards/10K.png' },
+    { target: 100000, label: 'FATURADOS', title: 'Placa de Prata de 100K', image: '/awards/100k.jpg' },
+    { target: 500000, label: 'FATURADOS', title: 'Placa de Ouro de 500K', image: '/awards/500K.jpg' },
+    { target: 1000000, label: 'FATURADOS', title: 'Placa de Diamante de 1M', image: '/awards/1M.jpg' },
 ];
 
 const achievementsConfig = [
@@ -151,7 +151,7 @@ export const PremiacoesView = () => {
                                 <div className="relative">
                                     <div className={cn(
                                         "relative aspect-[4/3] w-full rounded-2xl md:rounded-3xl bg-slate-950 border shadow-xl overflow-hidden flex items-center justify-center transition-all duration-500",
-                                        unlocked ? "border-emerald-500/50 shadow-emerald-500/10" : "border-violet-900/30 grayscale opacity-60"
+                                        unlocked ? "border-emerald-500/50 shadow-emerald-500/10" : "border-violet-900/30 grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100"
                                     )}>
                                         <img
                                             src={r.image}

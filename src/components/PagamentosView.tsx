@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import {
-    Wallet, CreditCard,
     Plus, Send, Clock,
     ArrowRight, Loader2
 } from 'lucide-react';
@@ -18,10 +17,6 @@ export const PagamentosView = () => {
     const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Calculate real stats
-    const paymentTxs = transactions.filter(t => t.type === 'payment' && t.status === 'Concluído');
-    const totalReceived = paymentTxs.reduce((acc, curr) => acc + curr.amount, 0);
-    const countReceived = paymentTxs.length;
 
     const handleSendRequest = async () => {
         if (!amount || !phone) {
@@ -94,37 +89,6 @@ export const PagamentosView = () => {
                 </div>
             </div>
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-3 md:gap-4 p-4 md:p-5 rounded-2xl md:rounded-3xl bg-green-50/50 dark:bg-green-950/10 border border-green-100/50 dark:border-green-800/20"
-                >
-                    <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600">
-                        <Wallet size={22} className="md:w-6 md:h-6" />
-                    </div>
-                    <div>
-                        <p className="text-[9px] md:text-[10px] font-black text-green-600/60 uppercase tracking-widest mb-0.5">Total Recebido</p>
-                        <h3 className="text-xl md:text-2xl font-black text-green-700 dark:text-green-400 leading-tight">{totalReceived.toLocaleString('pt-PT')} MZN</h3>
-                    </div>
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="flex items-center gap-3 md:gap-4 p-4 md:p-5 rounded-2xl md:rounded-3xl bg-violet-50/50 dark:bg-brand-950/10 border border-violet-100/50 dark:border-brand-800/20"
-                >
-                    <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl bg-violet-100 dark:bg-brand-800 flex items-center justify-center text-violet-600">
-                        <CreditCard size={22} className="md:w-6 md:h-6" />
-                    </div>
-                    <div>
-                        <p className="text-[9px] md:text-[10px] font-black text-violet-600/60 uppercase tracking-widest mb-0.5">Pagamentos Recebidos</p>
-                        <h3 className="text-xl md:text-2xl font-black text-violet-700 dark:text-brand-300 leading-tight">{countReceived}</h3>
-                    </div>
-                </motion.div>
-            </div>
 
             {/* Payment Form */}
             <motion.div

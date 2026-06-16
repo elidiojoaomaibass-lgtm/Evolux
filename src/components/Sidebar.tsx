@@ -12,7 +12,7 @@ import { useTransactionsStore } from '../lib/store';
 export type ViewType =
     | "ThankYou"
     | "Dashboard" | "Vendas" | "Produtos" | "Afiliados"
-    | "Mercado" | "Pagamentos" | "Saque" | "Premiações" | "Integrações"
+    | "Mercado" | "Pagamentos" | "Levantamentos" | "Premiações" | "Integrações"
     | "Análise" | "Configurações" | "Documentação";
 
 interface SidebarProps {
@@ -46,7 +46,7 @@ const menuGroups = [
     {
         label: "Finanças",
         items: [
-            { icon: Banknote, label: "Saque" as ViewType },
+            { icon: Banknote, label: "Levantamentos" as ViewType },
         ],
     },
     {

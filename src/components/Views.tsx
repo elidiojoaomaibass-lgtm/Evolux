@@ -20,7 +20,7 @@ export const Views = {
     Mercado: () => <MercadoView />,
 
     Pagamentos: () => <PagamentosView />,
-    Saque: () => <SaqueView />,
+    Levantamentos: () => <SaqueView />,
     Premiações: () => <PremiacoesView />,
     Ferramentas: () => <FerramentasView />,
     Análise: () => <AnalyticsView />,

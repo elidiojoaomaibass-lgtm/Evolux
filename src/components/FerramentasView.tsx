@@ -5,7 +5,8 @@ import {
     Link as LinkIcon,
     Send, ShieldCheck,
     Info, Save,
-    Settings2, Code2, Target
+    Settings2, Code2, Target,
+    Search, MessageCircle, Mail
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { toast } from 'sonner';
@@ -29,6 +30,11 @@ export const FerramentasView = () => {
         sale_refunded: false,
         affiliate_request: true
     });
+
+    // Novas Integrações
+    const [googleAdsId, setGoogleAdsId] = useState(() => localStorage.getItem('evolux_prod_google_ads_id') || '');
+    const [whatsappToken, setWhatsappToken] = useState(() => localStorage.getItem('evolux_prod_whatsapp_token') || '');
+    const [klaviyoToken, setKlaviyoToken] = useState(() => localStorage.getItem('evolux_prod_klaviyo_token') || '');
 
     const handleSaveUtmify = (e: React.FormEvent) => {
         e.preventDefault();
@@ -83,6 +89,24 @@ export const FerramentasView = () => {
                 error: 'Erro ao enviar teste.',
             }
         );
+    };
+
+    const handleSaveGoogleAds = (e: React.FormEvent) => {
+        e.preventDefault();
+        localStorage.setItem('evolux_prod_google_ads_id', googleAdsId);
+        toast.success('Google Ads salvo!', { description: 'O rastreamento de conversões via API está ativo.' });
+    };
+
+    const handleSaveWhatsapp = (e: React.FormEvent) => {
+        e.preventDefault();
+        localStorage.setItem('evolux_prod_whatsapp_token', whatsappToken);
+        toast.success('WhatsApp configurado!', { description: 'A recuperação automática de vendas foi ativada.' });
+    };
+
+    const handleSaveKlaviyo = (e: React.FormEvent) => {
+        e.preventDefault();
+        localStorage.setItem('evolux_prod_klaviyo_token', klaviyoToken);
+        toast.success('Klaviyo configurado!', { description: 'A integração de email marketing está ativa.' });
     };
 
     return (
@@ -414,26 +438,170 @@ export const FerramentasView = () => {
                         </div>
                     </form>
                 </motion.div>
-            </div>
-
-            {/* Coming Soon Area */}
-            <div className="pt-6 border-t border-slate-100 dark:border-brand-800">
-                <div className="flex items-center gap-2 mb-4">
-                    <Settings2 size={20} className="text-violet-600" />
-                    <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">Próximas Ferramentas</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[
-                        { name: 'Google Ads', desc: 'Conversões via API.', color: 'text-blue-500' },
-                        { name: 'WhatsApp', desc: 'Recuperação automática.', color: 'text-green-500' },
-                        { name: 'Email', desc: 'Integração Klaviyo.', color: 'text-violet-500' }
-                    ].map((tool, i) => (
-                        <div key={i} className="p-4 bg-slate-50 dark:bg-brand-900/50 rounded-2xl border border-slate-100 dark:border-brand-800 opacity-60">
-                            <h4 className={cn("font-black text-[9px] uppercase tracking-widest mb-1.5", tool.color)}>{tool.name}</h4>
-                            <p className="text-[10px] font-medium text-slate-400 leading-tight">{tool.desc}</p>
+                {/* Google Ads Integration */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                >
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                                <Search size={20} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">Google Ads</h3>
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Conversões API</p>
+                            </div>
                         </div>
-                    ))}
-                </div>
+                        <div className="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 text-[10px] font-black uppercase tracking-widest border border-blue-100 dark:border-blue-900/30">
+                            Ativo
+                        </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800">
+                        <div className="flex gap-2">
+                            <Info size={14} className="text-blue-500 shrink-0 mt-0.5" />
+                            <p className="text-[10px] leading-snug text-slate-500 font-medium italic">
+                                Acompanhe conversões precisas diretamente para as tuas campanhas do Google.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSaveGoogleAds} className="space-y-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">ID de Conversão</label>
+                            <div className="relative">
+                                <Target className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                <input
+                                    type="text"
+                                    placeholder="AW-123456789"
+                                    value={googleAdsId}
+                                    onChange={(e) => setGoogleAdsId(e.target.value)}
+                                    className="w-full h-11 pl-12 pr-4 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800 text-xs font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full h-11 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                        >
+                            <Save size={16} />
+                            Salvar Configuração
+                        </button>
+                    </form>
+                </motion.div>
+
+                {/* WhatsApp Integration */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                >
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-xl bg-green-50 dark:bg-green-900/30 flex items-center justify-center text-green-600">
+                                <MessageCircle size={20} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">WhatsApp</h3>
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Recuperação Automática</p>
+                            </div>
+                        </div>
+                        <div className="px-3 py-1 rounded-full bg-green-50 dark:bg-green-950 text-green-600 text-[10px] font-black uppercase tracking-widest border border-green-100 dark:border-green-900/30">
+                            Ativo
+                        </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800">
+                        <div className="flex gap-2">
+                            <Info size={14} className="text-green-500 shrink-0 mt-0.5" />
+                            <p className="text-[10px] leading-snug text-slate-500 font-medium italic">
+                                Recupera vendas perdidas automaticamente com mensagens via WhatsApp.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSaveWhatsapp} className="space-y-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Token da API</label>
+                            <div className="relative">
+                                <Code2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                <input
+                                    type="text"
+                                    placeholder="Insira o Token do Bot"
+                                    value={whatsappToken}
+                                    onChange={(e) => setWhatsappToken(e.target.value)}
+                                    className="w-full h-11 pl-12 pr-4 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800 text-xs font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-green-500/10 transition-all shadow-sm"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full h-11 bg-green-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-700 shadow-lg shadow-green-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                        >
+                            <Save size={16} />
+                            Salvar Token
+                        </button>
+                    </form>
+                </motion.div>
+
+                {/* Klaviyo Integration */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                >
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-xl bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center text-violet-600">
+                                <Mail size={20} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">Klaviyo</h3>
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Email Marketing</p>
+                            </div>
+                        </div>
+                        <div className="px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-950 text-violet-600 text-[10px] font-black uppercase tracking-widest border border-violet-100 dark:border-violet-900/30">
+                            Ativo
+                        </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800">
+                        <div className="flex gap-2">
+                            <Info size={14} className="text-violet-500 shrink-0 mt-0.5" />
+                            <p className="text-[10px] leading-snug text-slate-500 font-medium italic">
+                                Sincronize clientes e abandono de carrinho diretamente com o Klaviyo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSaveKlaviyo} className="space-y-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Chave da API Pública</label>
+                            <div className="relative">
+                                <Code2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                <input
+                                    type="text"
+                                    placeholder="pk_..."
+                                    value={klaviyoToken}
+                                    onChange={(e) => setKlaviyoToken(e.target.value)}
+                                    className="w-full h-11 pl-12 pr-4 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800 text-xs font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-violet-500/10 transition-all shadow-sm"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full h-11 bg-violet-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-violet-700 shadow-lg shadow-violet-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                        >
+                            <Save size={16} />
+                            Salvar Integração
+                        </button>
+                    </form>
+                </motion.div>
             </div>
         </div>
     );

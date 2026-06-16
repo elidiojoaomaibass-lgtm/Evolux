@@ -298,7 +298,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                                         </div>
                                                         <div className="flex flex-col">
                                                             <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                                                                {notif.type === 'payment' ? 'Nova Venda' : 'Saque Aprovado'}
+                                                                {notif.type === 'payment' ? 'Nova Venda' : 'Levantamento Aprovado'}
                                                             </span>
                                                             <span className="text-[10px] text-slate-500 dark:text-brand-400 mt-0.5 leading-tight">
                                                                 {notif.type === 'payment' ? `Recebeu ${notif.amount.toLocaleString('pt-PT')} MZN de ${notif.customerName || 'Cliente'}` : `O seu saque de ${notif.amount.toLocaleString('pt-PT')} MZN foi efetuado.`}

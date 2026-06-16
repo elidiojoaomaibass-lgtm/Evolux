@@ -5,7 +5,7 @@ import {
     Plus, Search, Edit2,
     Trash2, Package, Globe,
     ChevronDown, Phone, Link2, Target,
-    Upload, X, DollarSign, XCircle, Check
+    Upload, X, DollarSign, XCircle, Check, Loader2
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useProductsStore, type Product, type Category } from '../lib/store';
@@ -265,6 +265,8 @@ export const ProdutosView = () => {
     const [newSalesLink, setNewSalesLink] = useState('');
     const [newDeliveryLink, setNewDeliveryLink] = useState('');
     const [isUploadingFile, setIsUploadingFile] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [uploadedFileName, setUploadedFileName] = useState('');
     
     const fileInputRef = useRef<HTMLInputElement>(null);
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -272,6 +274,9 @@ export const ProdutosView = () => {
         if (!file) return;
 
         setIsUploadingFile(true);
+        setUploadStatus('idle');
+        setUploadedFileName(file.name);
+
         try {
             const formData = new FormData();
             formData.append('reqtype', 'fileupload');
@@ -284,18 +289,18 @@ export const ProdutosView = () => {
             
             if (response.ok) {
                 const url = await response.text();
-                if (url && url.startsWith('http')) {
+                if (url && url.trim().startsWith('http')) {
                     setNewDeliveryLink(url.trim());
-                    alert('Arquivo carregado com sucesso!');
+                    setUploadStatus('success');
                 } else {
-                    alert('Erro: O servidor não retornou a hiperligação correta.');
+                    setUploadStatus('error');
                 }
             } else {
-                alert('Erro ao carregar ficheiro. Tente novamente.');
+                setUploadStatus('error');
             }
         } catch (error) {
             console.error('Upload error:', error);
-            alert('Ocorreu um erro no carregamento do ficheiro.');
+            setUploadStatus('error');
         } finally {
             setIsUploadingFile(false);
             if (fileInputRef.current) {
@@ -461,6 +466,8 @@ export const ProdutosView = () => {
         // reset scarcity toggle
         setNewEnableScarcityNotification(false);
         setImagePreview(null);
+        setUploadStatus('idle');
+        setUploadedFileName('');
     };
 
     return (
@@ -843,37 +850,63 @@ export const ProdutosView = () => {
                                         </div>
                                         <div className="space-y-1.5">
                                             <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-1">ENTREGÁVEL</label>
-                                            <div className="flex gap-2">
-                                                <div className="relative flex-1">
+                                            <div className="space-y-2">
+                                                {/* Link input */}
+                                                <div className="relative">
                                                     <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500" size={16} />
                                                     <input
                                                         value={newDeliveryLink}
                                                         onChange={(e) => setNewDeliveryLink(e.target.value)}
-                                                        placeholder="Cole o link ou carregue um arquivo"
+                                                        placeholder="Link do Entregável"
                                                         className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[12px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all"
                                                     />
                                                 </div>
+                                                {/* Upload button - full width, larger */}
                                                 <label className={cn(
-                                                    "h-10 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all border border-slate-100 dark:border-white/10 shrink-0",
-                                                    isUploadingFile 
-                                                        ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
-                                                        : "bg-white dark:bg-brand-900 text-slate-700 dark:text-white hover:bg-slate-50 hover:border-violet-200"
+                                                    "w-full h-12 rounded-xl flex items-center justify-center gap-3 cursor-pointer transition-all border-2 font-bold text-[13px]",
+                                                    isUploadingFile
+                                                        ? "border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-brand-950/50 text-slate-400 cursor-not-allowed"
+                                                        : "border-dashed border-violet-300 dark:border-violet-500/40 bg-violet-50/50 dark:bg-violet-900/10 text-violet-600 dark:text-violet-400 hover:border-violet-500 hover:bg-violet-100/50 dark:hover:bg-violet-900/20"
                                                 )}>
                                                     {isUploadingFile ? (
-                                                        <Loader2 size={16} className="animate-spin text-violet-500" />
+                                                        <Loader2 size={18} className="animate-spin text-violet-500" />
                                                     ) : (
-                                                        <Upload size={16} className="text-violet-500" />
+                                                        <Upload size={18} className="text-violet-500" />
                                                     )}
-                                                    <span className="text-[11px] font-bold">Carregar</span>
-                                                    <input 
+                                                    <span>{isUploadingFile ? 'A carregar...' : 'Carregar Arquivo do Entregável'}</span>
+                                                    <input
                                                         ref={fileInputRef}
-                                                        type="file" 
-                                                        className="hidden" 
+                                                        type="file"
+                                                        className="hidden"
                                                         disabled={isUploadingFile}
-                                                        onChange={handleFileUpload} 
+                                                        onChange={handleFileUpload}
                                                     />
                                                 </label>
                                             </div>
+                                            {/* Upload status feedback - replaces alert() to prevent white screen */}
+                                            {uploadStatus === 'success' && (
+                                                <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-500/20">
+                                                    <div className="h-4 w-4 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+                                                        <Check size={10} className="text-white" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">Arquivo carregado com sucesso!</p>
+                                                        {uploadedFileName && <p className="text-[9px] text-emerald-600/70 dark:text-emerald-500/70 truncate">{uploadedFileName}</p>}
+                                                    </div>
+                                                    <button type="button" onClick={() => setUploadStatus('idle')} className="text-emerald-400 hover:text-emerald-600 transition-colors">
+                                                        <X size={12} />
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {uploadStatus === 'error' && (
+                                                <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-500/20">
+                                                    <XCircle size={14} className="text-rose-500 shrink-0" />
+                                                    <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400">Falha ao carregar. Tente novamente.</p>
+                                                    <button type="button" onClick={() => setUploadStatus('idle')} className="ml-auto text-rose-400 hover:text-rose-600 transition-colors">
+                                                        <X size={12} />
+                                                    </button>
+                                                </div>
+                                            )}
                                             <p className="text-[9px] text-slate-400 px-1 pt-1">
                                                 Adicione o link do Google Drive/Dropbox ou carregue diretamente arquivos até 4MB (PDFs, ZIPs, etc).
                                             </p>
