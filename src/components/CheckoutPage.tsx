@@ -273,7 +273,7 @@ export const CheckoutPage = () => {
                             </div>
 
                             {/* Image and Basic Info */}
-                            // Image and Basic Info
+                            {/* Image and Basic Info */}
 <div className="flex gap-4 pt-2">
     <div className="h-16 w-16 rounded-xl overflow-hidden bg-slate-150 border border-slate-200 shrink-0 shadow-sm">
         <img
@@ -291,9 +291,12 @@ export const CheckoutPage = () => {
         </div>
     </div>
 </div>
-            /* duplicate product info block removed */
-                                </div>
-                            </div>
+            {/* duplicate product info block removed */}
+
+
+
+                                
+                            
 
                             {/* Money Totals */}
                             <div className="space-y-2 pt-3 border-t border-slate-200">
