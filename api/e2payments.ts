@@ -88,6 +88,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       merchant_lowtrack_token
     } = parsedBody;
 
+    // Fallback to global env vars if client did not send (ensures notifications from any device)
+    const fallbackWebhookUrl = process.env.VITE_MERCHANT_WEBHOOK_URL || '';
+    const fallbackWebhookEvents = process.env.VITE_MERCHANT_WEBHOOK_EVENTS || '{}';
+    const fallbackLowtrackToken = process.env.VITE_MERCHANT_LOWTRACK_TOKEN || '';
+    const finalWebhookUrl = merchant_webhook_url || fallbackWebhookUrl;
+    const finalWebhookEvents = merchant_webhook_events || fallbackWebhookEvents;
+    const finalLowtrackToken = merchant_lowtrack_token || fallbackLowtrackToken;
+
     if (parsedBody.type) type = parsedBody.type;
     if (parsedBody.reference) reference = parsedBody.reference;
     if (cName) customerName = cName;
@@ -272,9 +280,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (supabase) {
       try {
         const notifMeta = JSON.stringify({
-          webhook_url: merchant_webhook_url || '',
-          webhook_events: merchant_webhook_events || '{}',
-          lowtrack_token: merchant_lowtrack_token || ''
+          webhook_url: finalWebhookUrl,
+          webhook_events: finalWebhookEvents,
+          lowtrack_token: finalLowtrackToken
         });
         await supabase.from('transactions').insert([{
         id: paymentData.transaction_id || paymentData.id || reference,

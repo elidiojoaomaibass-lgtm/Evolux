@@ -1,64 +1,57 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 /**
- * Serverless Upload Handler
- * Receives a base64 image and uploads it anonymously to catbox.moe for permanent hosting.
- * This yields a tiny image URL (around 30 characters) that can be safely put into shortened checkout links.
+ * API endpoint to receive a base64‑encoded image, upload it to Catbox (or any image host),
+ * and return the public URL. This endpoint is used by the product image upload flow
+ * in `ProdutosView.tsx` when a product image is a data URL that cannot be safely
+ * passed via a query string.
  */
+export const config = {
+  api: {
+    bodyParser: true,
+    externalResolver: true,
+  },
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method Not Allowed' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  const { image } = req.body as { image?: string };
+  if (!image || typeof image !== 'string') {
+    return res.status(400).json({ error: 'Missing or invalid image payload' });
+  }
+
+  try {
+    // Strip the data URL prefix if present
+    const base64 = image.replace(/^data:image\/[a-z]+;base64,/, '');
+    const buffer = Buffer.from(base64, 'base64');
+
+    const formData = new FormData();
+    formData.append('reqtype', 'fileupload');
+    formData.append('userhash', ''); // anonymous upload
+    formData.append('fileToUpload', new Blob([buffer]), 'upload.jpg');
+
+    const uploadRes = await fetch('https://catbox.moe/userapi.php', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!uploadRes.ok) {
+      console.error('Catbox upload failed', uploadRes.status);
+      return res.status(502).json({ error: 'Failed to upload image' });
     }
 
-    try {
-        const { image } = req.body;
-        if (!image) {
-            return res.status(400).json({ error: 'Missing image payload' });
-        }
-
-        // Parse base64 string
-        if (!image.startsWith('data:')) {
-            return res.status(400).json({ error: 'Invalid base64 image format' });
-        }
-
-        const base64Data = image.split(',')[1];
-        const mimeType = image.split(';')[0].split(':')[1];
-        const extension = mimeType.split('/')[1] || 'jpg';
-        
-        // Convert to binary buffer
-        const buffer = Buffer.from(base64Data, 'base64');
-
-        // Create Blob object
-        const blob = new Blob([buffer], { type: mimeType });
-
-        // Build multipart/form-data request
-        const formData = new FormData();
-        formData.append('reqtype', 'fileupload');
-        formData.append('fileToUpload', blob, `product.${extension}`);
-
-        // Upload to catbox.moe (free permanent file sharing API)
-        const response = await fetch('https://catbox.moe/user/api.php', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Catbox API error: ${errorText}`);
-        }
-
-        const fileUrl = await response.text();
-        
-        return res.status(200).json({ 
-            success: true, 
-            url: fileUrl.trim() 
-        });
-
-    } catch (error: any) {
-        console.error('Serverless Upload Error:', error.message);
-        return res.status(500).json({ 
-            success: false, 
-            error: error.message || 'Internal Server Error' 
-        });
+    const url = await uploadRes.text();
+    // Catbox returns the URL as plain text
+    if (url && url.startsWith('http')) {
+      return res.status(200).json({ url: url.trim() });
     }
+    console.error('Unexpected Catbox response', url);
+    return res.status(502).json({ error: 'Invalid response from image host' });
+  } catch (err) {
+    console.error('Image upload error', err);
+    return res.status(500).json({ error: 'Server error while uploading image' });
+  }
 }

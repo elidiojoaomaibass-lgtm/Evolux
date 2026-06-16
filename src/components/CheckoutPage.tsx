@@ -30,8 +30,13 @@ export const CheckoutPage = () => {
     const barColor = searchParams.get('barColor');
 
     // Attempt to load image from localStorage (for same-origin base64 preview) or URL parameter
-    const storedImage = localStorage.getItem(`checkout_img_${productId}`) || '';
+    let storedImage = localStorage.getItem(`checkout_img_${productId}`) || '';
     const urlImage = searchParams.get('image') || '';
+    // If the URL image is a direct http link, cache it for future loads
+    if (urlImage && urlImage.startsWith('http')) {
+      localStorage.setItem(`checkout_img_${productId}`, urlImage);
+      storedImage = urlImage;
+    }
     const productImage = storedImage || urlImage;
 
     const product = {
@@ -268,27 +273,25 @@ export const CheckoutPage = () => {
                             </div>
 
                             {/* Image and Basic Info */}
-                            <div className="flex gap-4 pt-2">
-                                {product.image ? (
-                                    <div className="h-16 w-16 rounded-xl overflow-hidden bg-slate-150 border border-slate-200 shrink-0 shadow-sm">
-                                        <img 
-                                            src={product.image} 
-                                            alt="" 
-                                            className="w-full h-full object-cover" 
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-violet-600 to-pink-500 flex items-center justify-center text-white text-xl font-black shadow-md shrink-0 border border-white/20 select-none">
-                                        {product.name ? product.name.charAt(0).toUpperCase() : 'P'}
-                                    </div>
-                                )}
-                                <div className="flex-1 min-w-0 space-y-1">
-                                    <div className="flex justify-between items-start gap-2">
-                                        <p className="text-base font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="px-2 py-0.5 bg-violet-100 text-violet-750 rounded text-[10px] font-black  tracking-wider">Acesso Imediato</span>
-                                    </div>
+                            // Image and Basic Info
+<div className="flex gap-4 pt-2">
+    <div className="h-16 w-16 rounded-xl overflow-hidden bg-slate-150 border border-slate-200 shrink-0 shadow-sm">
+        <img
+            src={product.image || '/placeholder_product.png'}
+            alt={product.name || 'Product Image'}
+            className="w-full h-full object-cover"
+        />
+    </div>
+    <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex justify-between items-start gap-2">
+            <p className="text-base font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
+        </div>
+        <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 bg-violet-100 text-violet-750 rounded text-[10px] font-black  tracking-wider">Acesso Imediato</span>
+        </div>
+    </div>
+</div>
+            /* duplicate product info block removed */
                                 </div>
                             </div>
 
@@ -332,7 +335,11 @@ export const CheckoutPage = () => {
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 p-1 bg-white rounded-xl border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                                                <img src="/mpesa_logo.png" alt="M-Pesa" className="w-full h-full object-cover" />
+                                                <img
+                                                    src="/mpesa_logo.png"
+                                                    alt="M-Pesa"
+                                                    className="w-full h-full object-cover"
+                                                />
                                             </div>
                                             <div>
                                                 <h4 className="text-sm font-black text-slate-950  tracking-wider">M-Pesa</h4>

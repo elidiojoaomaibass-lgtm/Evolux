@@ -13,8 +13,8 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL ||
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
 // Lowtrak integration env vars (global fallback if merchant hasn't configured individually)
 const globalLowtrakApiKey = process.env.VITE_LOWTRAK_API_KEY || process.env.LOWTRAK_API_KEY || '';
-const pushcutEndpoint = process.env.VITE_PUSHCUT_ENDPOINT || process.env.PUSHCUT_ENDPOINT || '';
-const pushcutApiKey = process.env.VITE_PUSHCUT_API_KEY || process.env.PUSHCUT_API_KEY || '';
+const defaultMerchantWebhookUrl = process.env.VITE_MERCHANT_WEBHOOK_URL || '';
+const defaultMerchantWebhookEvents = process.env.VITE_MERCHANT_WEBHOOK_EVENTS || '{}';
 
 let supabase: any = null;
 if (supabaseUrl && supabaseAnonKey) {
@@ -140,11 +140,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const payMethod = updatedTx?.method || 'M-Pesa';
 
         // 3. Merchant Webhook notification (server-side — works for any customer device)
-        const merchantWebhookUrl = notifMeta?.webhook_url || '';
+        const merchantWebhookUrl = notifMeta?.webhook_url || defaultMerchantWebhookUrl;
         if (merchantWebhookUrl && merchantWebhookUrl.startsWith('http')) {
           try {
             let webhookEvents: Record<string, boolean> = { sale_approved: true };
-            try { webhookEvents = JSON.parse(notifMeta?.webhook_events || '{}'); } catch {}
+            try {
+              const eventsStr = notifMeta?.webhook_events || defaultMerchantWebhookEvents;
+              webhookEvents = JSON.parse(eventsStr);
+            } catch {}
             if (webhookEvents.sale_approved !== false) {
               await fetch(merchantWebhookUrl, {
                 method: 'POST',
