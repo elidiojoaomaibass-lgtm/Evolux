@@ -4,7 +4,8 @@ import { supabase } from './supabase';
 import { toast } from 'sonner';
 
 // Key for offline product storage
-const OFFLINE_PRODUCTS_KEY = 'evolux_offline_products';
+// Removed offline storage key; products are now persisted solely in Supabase.
+// const OFFLINE_PRODUCTS_KEY = 'evolux_offline_products';
 
 
 
@@ -67,17 +68,28 @@ export type Category = 'Ebook' | 'Curso' | 'Mentoria' | 'Workshop' | 'Outro';
     barColor?: string; // New field for countdown bar color (hex or preset)
     createdAt: string;
 }
-
-// Initial Mock Data (Empty for production)
-
-
-// Simple Event Emitter
-const getInitialProducts = (): Product[] => {
-    const stored = localStorage.getItem(OFFLINE_PRODUCTS_KEY);
-    return stored ? JSON.parse(stored) : [];
+// Fetch initial products directly from Supabase; no offline fallback.
+const getInitialProducts = async (): Promise<Product[]> => {
+  try {
+    const { data: sess } = await supabase.auth.getSession();
+    const userEmail = sess?.session?.user?.email;
+    const ADMIN_EMAIL = 'kingleakds@gmail.com';
+    let query = supabase.from('products').select('*');
+    if (userEmail && userEmail !== ADMIN_EMAIL) {
+      query = query.eq('user_email', userEmail);
+    }
+    const { data, error } = await query;
+    if (error) throw error;
+    return (data as Product[]) ?? [];
+  } catch (e) {
+    console.warn('Failed to fetch products from Supabase:', e);
+    return [];
+  }
 };
 
-let globalProducts = getInitialProducts();
+let globalProducts: Product[] = []; 
+
+
 const listeners = new Set<(products: Product[]) => void>();
 
 export const useProductsStore = () => {
@@ -89,38 +101,9 @@ export const useProductsStore = () => {
         listeners.add(listener);
 
         const fetchProducts = async () => {
-            try {
-                const { data: sess } = await supabase.auth.getSession();
-                const userEmail = sess?.session?.user?.email;
-                const ADMIN_EMAIL = 'kingleakds@gmail.com';
-                let query = supabase.from('products').select('*');
-                if (userEmail && userEmail !== ADMIN_EMAIL) {
-                    query = query.eq('user_email', userEmail);
-                }
-                const { data, error } = await query;
-        console.log('Supabase fetch result:', { data, error });
-        if (error) {
-          throw error;
-        }
-        if (data && data.length > 0) {
-          const productsData = data as Product[];
-          // Update global store only; no localStorage persistence
-          globalProducts = productsData;
+          const data = await getInitialProducts();
+          globalProducts = data;
           listeners.forEach(l => l(globalProducts));
-        } else {
-          // Attempt to load offline stored products
-          const stored = localStorage.getItem(OFFLINE_PRODUCTS_KEY);
-          const offlineProducts: Product[] = stored ? JSON.parse(stored) : [];
-          globalProducts = offlineProducts;
-          listeners.forEach(l => l(globalProducts));
-        }        } catch (e) {
-                console.warn('Failed to fetch products from Supabase:', e);
-                // Load offline products on failure
-                const stored = localStorage.getItem(OFFLINE_PRODUCTS_KEY);
-                const offlineProducts: Product[] = stored ? JSON.parse(stored) : [];
-                globalProducts = offlineProducts;
-                listeners.forEach(l => l(globalProducts));
-            }
         };
         fetchProducts();
 
@@ -143,59 +126,50 @@ export const useProductsStore = () => {
             const userEmail = sess?.session?.user?.email;
             const ADMIN_EMAIL = 'kingleakds@gmail.com';
             const payload = { ...cleanProduct, user_email: userEmail ?? ADMIN_EMAIL };
-            const { data, error } = await supabase.from('products').insert(payload).select();
+            const { error } = await supabase.from('products').insert(payload);
             if (error) throw error;
-            return data;
+            return payload;
         };
         const insertWithoutUser = async () => {
             const { enableScarcity, enableScarcityNotification, ...cleanProduct } = product as any;
-            const { data, error } = await supabase.from('products').insert(cleanProduct).select();
+            const { error } = await supabase.from('products').insert(cleanProduct);
             if (error) throw error;
-            return data;
+            return cleanProduct;
         };
         try {
-            const data = await insertWithUser();
-            const insertedProduct = data && data.length > 0 ? (data[0] as Product) : product;
-            updateProducts([insertedProduct, ...globalProducts]);
+            await insertWithUser();
+            updateProducts([product, ...globalProducts]);
           // Save to offline storage as backup
           try {
-            const stored = localStorage.getItem(OFFLINE_PRODUCTS_KEY);
-            const arr: Product[] = stored ? JSON.parse(stored) : [];
-            arr.unshift(insertedProduct);
-            localStorage.setItem(OFFLINE_PRODUCTS_KEY, JSON.stringify(arr));
+            // Removed offline storage backup after successful insert.
           } catch (e) {
             console.warn('Failed to store product offline after successful insert:', e);
           }
           sendLocalNotification('📦 Novo Produto Submetido!', {
-            body: `O produto "${insertedProduct.name}" foi enviado com sucesso.`,
+            body: `O produto "${product.name}" foi enviado com sucesso.`,
             icon: '/logo.png'
           });
         } catch (e: any) {
             console.warn('Primary insert failed (maybe missing user_email column):', e);
             // Attempt fallback without user_email
             try {
-                const data = await insertWithoutUser();
-                const insertedProduct = data && data.length > 0 ? (data[0] as Product) : product;
-                updateProducts([insertedProduct, ...globalProducts]);
+                await insertWithoutUser();
+                updateProducts([product, ...globalProducts]);
                 sendLocalNotification('📦 Novo Produto Submetido!', {
-                    body: `O produto "${insertedProduct.name}" foi enviado com sucesso.`,
+                    body: `O produto "${product.name}" foi enviado com sucesso.`,
                     icon: '/logo.png'
                 });
             } catch (e2) {
                 // Both DB attempts failed – store product locally as offline backup
-                const offlineKey = 'evolux_offline_products';
-                try {
-                    const stored = localStorage.getItem(offlineKey);
-                    const arr: Product[] = stored ? JSON.parse(stored) : [];
-                    arr.unshift(product);
-                    localStorage.setItem(offlineKey, JSON.stringify(arr));
-                    // Update UI with the offline product
-                    updateProducts([product, ...globalProducts]);
-                } catch (e3) {
-                    console.warn('Failed to store product offline:', e3);
-                }
+                // Removed offline fallback storage when DB insert fails.
+// const offlineKey = 'evolux_offline_products';
+// const stored = localStorage.getItem(offlineKey);
+// const arr: Product[] = stored ? JSON.parse(stored) : [];
+// arr.unshift(product);
+// localStorage.setItem(offlineKey, JSON.stringify(arr));
+// updateProducts([product, ...globalProducts]);
                 sendLocalNotification('⚠️ Falha ao salvar produto', {
-                    body: `Não foi possível salvar o produto "${product.name}" no servidor. Foi salvo localmente e será sincronizado quando a conexão voltar.`,
+                    body: `Erro do banco: ${e2?.message || e2}. Não foi possível salvar o produto no servidor.`,
                     icon: '/logo.png'
                 });
             }

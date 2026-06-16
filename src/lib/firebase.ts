@@ -39,17 +39,19 @@ export const onFcmMessage = (callback: (payload: any) => void) => {
   });
 };
 
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { supabase } from './supabase';
 
 /**
- * Persiste o token FCM no Firestore sob users/{uid}/tokens.
+ * Persiste o token FCM no Supabase na tabela push_subscriptions.
  * Chame após getFcmToken quando o usuário estiver autenticado.
  */
 export const storeFcmToken = async (uid: string, token: string) => {
   try {
-    const db = getFirestore();
-    await setDoc(doc(db, 'users', uid, 'tokens', 'device'), { token }, { merge: true });
-    console.log('Token FCM armazenado para uid', uid);
+    const { error } = await supabase
+      .from('push_subscriptions')
+      .upsert({ user_email: uid, token }, { onConflict: 'user_email' });
+    if (error) throw error;
+    console.log('Token FCM armazenado no Supabase para email', uid);
   } catch (err) {
     console.error('Erro ao armazenar token FCM', err);
   }
