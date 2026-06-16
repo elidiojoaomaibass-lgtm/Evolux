@@ -22,14 +22,18 @@ function App() {
     return saved ? JSON.parse(saved) : null;
   });
   const [activeView, setActiveView] = useState<ViewType>(() => {
-    const saved = localStorage.getItem('evolux_prod_active_view');
-    // Redirecionamentos de segurança para rotas antigas que foram removidas
-    if (saved === 'Painel') return 'Dashboard';
-    if (saved === 'Análise' || saved === 'Análises') return 'Dashboard';
+    // Use sessionStorage: persiste enquanto a aba está aberta (minimizar mantém), mas reseta ao fechar o browser
+    // Também verificamos um timestamp para resetar após 30 minutos de inatividade
+    const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutos
+    const saved = sessionStorage.getItem('evolux_active_view');
+    const lastActive = sessionStorage.getItem('evolux_last_active');
     
-    const validViews = ["ThankYou", "Dashboard", "Vendas", "Produtos", "Afiliados", "Mercado", "Pagamentos", "Saque", "Premiações", "Integrações", "Configurações", "Documentação"];
-    if (saved && validViews.includes(saved)) {
-      return saved as ViewType;
+    if (saved && lastActive) {
+      const elapsed = Date.now() - parseInt(lastActive, 10);
+      if (elapsed < SESSION_TIMEOUT_MS) {
+        const validViews = ["ThankYou", "Dashboard", "Vendas", "Produtos", "Afiliados", "Mercado", "Pagamentos", "Saque", "Premiações", "Integrações", "Configurações", "Documentação"];
+        if (validViews.includes(saved)) return saved as ViewType;
+      }
     }
     return "Dashboard";
   });
@@ -48,8 +52,31 @@ function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('evolux_prod_active_view', activeView);
+    // Guarda a aba atual e o timestamp na sessionStorage (reset automático ao fechar o browser)
+    sessionStorage.setItem('evolux_active_view', activeView);
+    sessionStorage.setItem('evolux_last_active', Date.now().toString());
   }, [activeView]);
+
+  // Atualiza o timestamp de atividade ao focar a janela (para detetar inatividade longa)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
+        const lastActive = sessionStorage.getItem('evolux_last_active');
+        if (lastActive) {
+          const elapsed = Date.now() - parseInt(lastActive, 10);
+          if (elapsed >= SESSION_TIMEOUT_MS) {
+            // Mais de 30 minutos inativo → volta ao Dashboard
+            setActiveView('Dashboard');
+            sessionStorage.setItem('evolux_active_view', 'Dashboard');
+          }
+        }
+        sessionStorage.setItem('evolux_last_active', Date.now().toString());
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -230,6 +257,10 @@ function App() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     localStorage.removeItem('evolux_prod_fake_session');
+    // Ao fazer logout, apaga a aba guardada → próximo login sempre começa no Dashboard
+    sessionStorage.removeItem('evolux_active_view');
+    sessionStorage.removeItem('evolux_last_active');
+    setActiveView('Dashboard');
     setSession(null);
   };
 
