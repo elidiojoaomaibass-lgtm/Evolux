@@ -167,24 +167,25 @@ function App() {
         if ('serviceWorker' in navigator) {
           try {
             const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-            console.log('Service Worker registered', registration);
             setSwRegistration(registration);
-            // Get FCM token with the newly registered service worker
+            // Obter o token FCM com o service worker registado
             const token = await getFcmToken(registration);
-            // Send FCM token to backend regardless of login state
-            await fetch('/api/push/subscribe', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ token, userId: session?.user?.id ?? null })
-            });
-            console.log('FCM token sent to backend');
+            if (token && session?.user?.email) {
+              // Guardar o token directamente no Supabase (tabela push_subscriptions)
+              const { supabase } = await import('./lib/supabase');
+              await supabase
+                .from('push_subscriptions')
+                .upsert({ user_email: session.user.email, token }, { onConflict: 'user_email' });
+              console.log('✅ FCM token guardado no Supabase para:', session.user.email);
+            }
           } catch (e) {
-            console.error('Service Worker registration failed', e);
+            console.error('Erro ao configurar push notifications:', e);
           }
         }
       }
-    };    setupPush();
-  }, [session, swRegistration]);
+    };
+    if (session) setupPush();
+  }, [session]);
 
   // Meta Ads Pixel Injection
   useEffect(() => {
