@@ -19,7 +19,15 @@ function App() {
   console.log('App rendered');
   const [session, setSession] = useState<Session | null>(() => {
     const saved = localStorage.getItem('evolux_prod_fake_session');
-    return saved ? JSON.parse(saved) : null;
+    if (!saved) return null;
+    try {
+      const parsed = JSON.parse(saved);
+      // Ensure the parsed object has a user property
+      return (parsed && parsed.user) ? parsed : null;
+    } catch (e) {
+      localStorage.removeItem('evolux_prod_fake_session');
+      return null;
+    }
   });
   const [activeView, setActiveView] = useState<ViewType>(() => {
     // Use sessionStorage: persiste enquanto a aba está aberta (minimizar mantém), mas reseta ao fechar o browser
