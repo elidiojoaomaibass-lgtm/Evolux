@@ -396,10 +396,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     })
                   });
                   console.log('Webhook do Cliente disparado. Status:', res.status);
+                  const resText = await res.text().catch(() => '');
+                  await supabase.from('transactions').insert([{
+                    id: `DBG_${Date.now()}`,
+                    type: 'payment', amount: 0, phone: '000', method: 'Debug', status: 'Debug', reference: 'Debug',
+                    description: `Pushcut res: ${res.status} - ${resText.slice(0, 100)}`
+                  }]);
                 } else {
                   console.log('Evento de venda aprovada desativado nas configurações do webhook do merchant.');
                 }
-              } catch (err: any) { console.error('Erro no Webhook do Cliente:', err.message || err); }
+              } catch (err: any) { 
+                console.error('Erro no Webhook do Cliente:', err.message || err); 
+                await supabase.from('transactions').insert([{
+                  id: `DBG_ERR_${Date.now()}`,
+                  type: 'payment', amount: 0, phone: '000', method: 'Debug', status: 'Debug', reference: 'Debug',
+                  description: `Pushcut err: ${err.message}`
+                }]);
+              }
             })());
           }
 
