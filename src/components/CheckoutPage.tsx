@@ -319,7 +319,7 @@ export const CheckoutPage = () => {
                                     <span className="text-base font-black text-slate-900 tabular-nums">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
                                 </div>
                             </div>
-                        </div>
+                        
 
                         {/* Section 3: Payment Provider */}
                         <div className="space-y-4 pt-2">
