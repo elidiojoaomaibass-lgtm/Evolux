@@ -15,6 +15,8 @@ const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABA
 const globalLowtrakApiKey = process.env.VITE_LOWTRAK_API_KEY || process.env.LOWTRAK_API_KEY || '';
 const defaultMerchantWebhookUrl = process.env.VITE_MERCHANT_WEBHOOK_URL || '';
 const defaultMerchantWebhookEvents = process.env.VITE_MERCHANT_WEBHOOK_EVENTS || '{}';
+const pushcutEndpoint = process.env.VITE_PUSHCUT_ENDPOINT || process.env.PUSHCUT_ENDPOINT || '';
+const pushcutApiKey = process.env.VITE_PUSHCUT_API_KEY || process.env.PUSHCUT_API_KEY || '';
 
 let supabase: any = null;
 if (supabaseUrl && supabaseAnonKey) {
@@ -96,14 +98,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!error) {
       console.log('Sucesso ao atualizar o status da transação no Supabase por ID.');
 
-      // Send response immediately so E2Payments doesn't time out
-      res.status(200).json({
-        message: 'Webhook processed successfully',
-        updated: { transaction_id, status: finalStatus, reference },
-      });
-
-      // Fire-and-forget: all notifications run after response is sent
-      (async () => {
+      // Wait for all notifications to complete before sending the response
+      // Vercel serverless functions freeze execution as soon as res.send is called.
+      await (async () => {
         // 1. Push notification (Pushcut/FCM)
         if (userId) {
           try {
@@ -203,7 +200,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       })();
 
-      return;
+      return res.status(200).json({
+        message: 'Webhook processed successfully',
+        updated: { transaction_id, status: finalStatus, reference }
+      });
     }
 
     return res.status(200).json({
