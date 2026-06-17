@@ -27,7 +27,7 @@ function App() {
     const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutos
     const saved = sessionStorage.getItem('evolux_active_view');
     const lastActive = sessionStorage.getItem('evolux_last_active');
-    
+
     if (saved && lastActive) {
       const elapsed = Date.now() - parseInt(lastActive, 10);
       if (elapsed < SESSION_TIMEOUT_MS) {
@@ -192,7 +192,7 @@ function App() {
     const w = window as any;
     if (w.fbq) return;
 
-    w.fbq = function() {
+    w.fbq = function () {
       w.fbq.callMethod ? w.fbq.callMethod.apply(w.fbq, arguments) : w.fbq.queue.push(arguments);
     };
     if (!w._fbq) w._fbq = w.fbq;
@@ -221,31 +221,31 @@ function App() {
 
     w.ttq = w.ttq || [];
     w.ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie"];
-    w.ttq.setAndDefer = function(t: any, e: any) {
-        t[e] = function() {
-            t.push([e].concat(Array.prototype.slice.call(arguments, 0)))
-        }
+    w.ttq.setAndDefer = function (t: any, e: any) {
+      t[e] = function () {
+        t.push([e].concat(Array.prototype.slice.call(arguments, 0)))
+      }
     };
     for (var i = 0; i < w.ttq.methods.length; i++) w.ttq.setAndDefer(w.ttq, w.ttq.methods[i]);
-    w.ttq.instance = function(t: any) {
-        for (var e = w.ttq._i[t] || [], n = 0; n < w.ttq.methods.length; n++) w.ttq.setAndDefer(e, w.ttq.methods[n]);
-        return e
+    w.ttq.instance = function (t: any) {
+      for (var e = w.ttq._i[t] || [], n = 0; n < w.ttq.methods.length; n++) w.ttq.setAndDefer(e, w.ttq.methods[n]);
+      return e
     };
-    w.ttq.load = function(e: any, n: any) {
-        var i = "https://analytics.tiktok.com/i18n/pixel/events.js";
-        w.ttq._i = w.ttq._i || {};
-        w.ttq._i[e] = [];
-        w.ttq._i[e]._u = i;
-        w.ttq._t = w.ttq._t || {};
-        w.ttq._t[e] = +new Date;
-        w.ttq._o = w.ttq._o || {};
-        w.ttq._o[e] = n || {};
-        var o = document.createElement("script");
-        o.type = "text/javascript";
-        o.async = !0;
-        o.src = i + "?sdkid=" + e + "&lib=ttq";
-        var a = document.getElementsByTagName("script")[0];
-        a.parentNode?.insertBefore(o, a)
+    w.ttq.load = function (e: any, n: any) {
+      var i = "https://analytics.tiktok.com/i18n/pixel/events.js";
+      w.ttq._i = w.ttq._i || {};
+      w.ttq._i[e] = [];
+      w.ttq._i[e]._u = i;
+      w.ttq._t = w.ttq._t || {};
+      w.ttq._t[e] = +new Date;
+      w.ttq._o = w.ttq._o || {};
+      w.ttq._o[e] = n || {};
+      var o = document.createElement("script");
+      o.type = "text/javascript";
+      o.async = !0;
+      o.src = i + "?sdkid=" + e + "&lib=ttq";
+      var a = document.getElementsByTagName("script")[0];
+      a.parentNode?.insertBefore(o, a)
     };
 
     w.ttq.load(pixelId);
@@ -271,17 +271,17 @@ function App() {
         setSession(fakeSession as any);
         return;
       }
-      
+
       supabase.auth.getSession().then(({ data: { session } }: any) => {
         if (session) {
           setSession(session);
         } else {
           // Final fallback
-          const fakeSession = { 
-            user: { 
+          const fakeSession = {
+            user: {
               email: 'admin@evolux.com',
               user_metadata: { full_name: 'Administrador' }
-            } 
+            }
           };
           localStorage.setItem('evolux_prod_fake_session', JSON.stringify(fakeSession));
           setSession(fakeSession as any);

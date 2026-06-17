@@ -1,5 +1,5 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 import {
     Link as LinkIcon,
@@ -46,6 +46,34 @@ export const FerramentasView = () => {
     const [whatsappToken, setWhatsappToken] = useState(() => localStorage.getItem('evolux_prod_whatsapp_token') || '');
     const [klaviyoToken, setKlaviyoToken] = useState(() => localStorage.getItem('evolux_prod_klaviyo_token') || '');
 
+    const [userEmail, setUserEmail] = useState<string>('');
+
+    useEffect(() => {
+        const loadSettings = async () => {
+            const { data: sess } = await supabase.auth.getSession();
+            const email = sess?.session?.user?.email;
+            if (email) {
+                setUserEmail(email);
+                const { data, error } = await supabase.from('user_settings').select('*').eq('user_email', email).single();
+                if (data) {
+                    if (data.webhook_url) setWebhookUrl(data.webhook_url);
+                    if (data.webhook_events) setWebhookEvents(data.webhook_events);
+                    if (data.lowtrack_token) setLowTrackToken(data.lowtrack_token);
+                }
+            }
+        };
+        loadSettings();
+    }, []);
+
+    const saveSettingToDB = async (updates: any) => {
+        if (!userEmail) return;
+        try {
+            await supabase.from('user_settings').upsert({ user_email: userEmail, ...updates }, { onConflict: 'user_email' });
+        } catch(e) {
+            console.error('Failed to save to DB', e);
+        }
+    };
+
     const handleSaveUtmify = (e: React.FormEvent) => {
         e.preventDefault();
         localStorage.setItem('evolux_prod_utmify_token', utmifyToken);
@@ -54,11 +82,12 @@ export const FerramentasView = () => {
         });
     };
 
-    const handleSaveLowTrack = (e: React.FormEvent) => {
+    const handleSaveLowTrack = async (e: React.FormEvent) => {
         e.preventDefault();
         localStorage.setItem('evolux_prod_lowtrack_token', lowTrackToken);
+        await saveSettingToDB({ lowtrack_token: lowTrackToken });
         toast.success('Token LowTrack salvo!', {
-            description: 'A integração com LowTrack está agora ativa no seu checkout.'
+            description: 'A integração com LowTrack está agora ativa no seu checkout e foi guardada na sua conta.'
         });
     };
 
@@ -113,7 +142,7 @@ export const FerramentasView = () => {
         });
     };
 
-    const handleSaveWebhook = (e: React.FormEvent) => {
+    const handleSaveWebhook = async (e: React.FormEvent) => {
         e.preventDefault();
         if (webhookUrl && !webhookUrl.startsWith('http')) {
             toast.error('URL do Webhook inválida');
@@ -121,8 +150,9 @@ export const FerramentasView = () => {
         }
         localStorage.setItem('evolux_prod_webhook_url', webhookUrl);
         localStorage.setItem('evolux_prod_webhook_events', JSON.stringify(webhookEvents));
+        await saveSettingToDB({ webhook_url: webhookUrl, webhook_events: webhookEvents });
         toast.success('Webhook configurado!', {
-            description: 'Os eventos selecionados serão enviados para a URL informada.'
+            description: 'Os eventos selecionados serão enviados para a URL informada e as configurações foram guardadas na sua conta.'
         });
     };
 

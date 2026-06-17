@@ -8,6 +8,7 @@ import {
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { useTransactionsStore, type Product } from '../lib/store';
+import { supabase } from '../lib/supabase';
 import { Logo } from './Logo';
 import { CountdownBanner } from './CountdownBanner';
 
@@ -79,10 +80,19 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 console.log('Credenciais E2Payments não encontradas no localStorage. As variáveis de ambiente do backend (.env) serão usadas.');
             }
 
-            // Read merchant notification settings to send server-side
-            const userWebhookUrl = localStorage.getItem('evolux_prod_webhook_url') || '';
-            const userWebhookEvents = localStorage.getItem('evolux_prod_webhook_events') || '{}';
-            const lowTrackToken = localStorage.getItem('evolux_prod_lowtrack_token') || '';
+            // Read merchant notification settings from Supabase user_settings
+            let userWebhookUrl = localStorage.getItem('evolux_prod_webhook_url') || '';
+            let userWebhookEvents = localStorage.getItem('evolux_prod_webhook_events') || '{}';
+            let lowTrackToken = localStorage.getItem('evolux_prod_lowtrack_token') || '';
+
+            if (product.user_email) {
+                const { data: userSettings } = await supabase.from('user_settings').select('webhook_url, webhook_events, lowtrack_token').eq('user_email', product.user_email).single();
+                if (userSettings) {
+                    if (userSettings.webhook_url) userWebhookUrl = userSettings.webhook_url;
+                    if (userSettings.webhook_events) userWebhookEvents = typeof userSettings.webhook_events === 'string' ? userSettings.webhook_events : JSON.stringify(userSettings.webhook_events);
+                    if (userSettings.lowtrack_token) lowTrackToken = userSettings.lowtrack_token;
+                }
+            }
 
             const response = await fetch('/api/e2payments', {
                 method: 'POST',

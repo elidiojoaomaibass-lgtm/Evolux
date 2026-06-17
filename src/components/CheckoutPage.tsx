@@ -8,6 +8,7 @@ import { useState } from 'react';
 
 import { cn } from '../lib/utils';
 import { useTransactionsStore } from '../lib/store';
+import { supabase } from '../lib/supabase';
 import { Logo } from './Logo';
 import { CountdownBanner } from './CountdownBanner';
 import { ScarcityNotification } from './ScarcityNotification';
@@ -92,10 +93,19 @@ export const CheckoutPage = () => {
             const walletEmola = envWalletEmola ?? localStorage.getItem('evolux_e2_wallet_emola');
 
             // Credentials are optional; proceed even if missing
-            // Read merchant notification settings to send server-side
-            const userWebhookUrl = localStorage.getItem('evolux_prod_webhook_url') || '';
-            const userWebhookEvents = localStorage.getItem('evolux_prod_webhook_events') || '{}';
-            const lowTrackToken = localStorage.getItem('evolux_prod_lowtrack_token') || '';
+            // Read merchant notification settings from Supabase user_settings
+            let userWebhookUrl = localStorage.getItem('evolux_prod_webhook_url') || '';
+            let userWebhookEvents = localStorage.getItem('evolux_prod_webhook_events') || '{}';
+            let lowTrackToken = localStorage.getItem('evolux_prod_lowtrack_token') || '';
+
+            if (product.user_email) {
+                const { data: userSettings } = await supabase.from('user_settings').select('webhook_url, webhook_events, lowtrack_token').eq('user_email', product.user_email).single();
+                if (userSettings) {
+                    if (userSettings.webhook_url) userWebhookUrl = userSettings.webhook_url;
+                    if (userSettings.webhook_events) userWebhookEvents = typeof userSettings.webhook_events === 'string' ? userSettings.webhook_events : JSON.stringify(userSettings.webhook_events);
+                    if (userSettings.lowtrack_token) lowTrackToken = userSettings.lowtrack_token;
+                }
+            }
 
             const response = await fetch('/api/e2payments', {
                 method: 'POST',
@@ -289,6 +299,7 @@ export const CheckoutPage = () => {
                                     />
                                     )}
                                 </div>
+                                
                                 <div className="flex-1 min-w-0 space-y-1 text-center sm:text-left">
                                     <div className="flex justify-center sm:justify-between items-start gap-2">
                                     <p className="text-base font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
@@ -298,7 +309,7 @@ export const CheckoutPage = () => {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        
     
                             
 
@@ -317,6 +328,9 @@ export const CheckoutPage = () => {
                                     <span className="text-base font-black text-slate-900 tabular-nums">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
                                 </div>
                             </div>
+                        </div>
+
+
 
                         
 
@@ -506,10 +520,7 @@ export const CheckoutPage = () => {
                         </div>
                     </form>
                 </div>
-
             </main>
-
-
         </div>
-    );
+        );
 };
