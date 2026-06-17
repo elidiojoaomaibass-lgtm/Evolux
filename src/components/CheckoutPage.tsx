@@ -46,7 +46,8 @@ export const CheckoutPage = () => {
         name: searchParams.get('name') || 'Produto sem Nome',
         price: isNaN(rawPrice) ? 0 : rawPrice,
         image: productImage,
-        deliveryLink: searchParams.get('deliveryLink') || ''
+        deliveryLink: searchParams.get('deliveryLink') || '',
+        user_email: searchParams.get('user_email') || ''
     };
 
     const handlePurchase = async (e: React.FormEvent) => {

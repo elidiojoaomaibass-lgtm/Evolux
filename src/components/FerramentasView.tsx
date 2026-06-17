@@ -54,7 +54,7 @@ export const FerramentasView = () => {
             const email = sess?.session?.user?.email;
             if (email) {
                 setUserEmail(email);
-                const { data, error } = await supabase.from('user_settings').select('*').eq('user_email', email).single();
+                const { data } = await supabase.from('user_settings').select('*').eq('user_email', email).single();
                 if (data) {
                     if (data.webhook_url) setWebhookUrl(data.webhook_url);
                     if (data.webhook_events) setWebhookEvents(data.webhook_events);

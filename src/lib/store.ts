@@ -63,6 +63,7 @@ export type Category = 'Ebook' | 'Curso' | 'Mentoria' | 'Workshop' | 'Outro';
     image?: string;
     deliveryLink?: string; // New field for product deliverable link
     enableCountdown?: boolean; // New field to activate countdown timer
+    user_email?: string; // Added to associate product with a specific user
     enableScarcity?: boolean; // New field to toggle scarcity notifications
     enableScarcityNotification?: boolean; // Legacy field
     barColor?: string; // New field for countdown bar color (hex or preset)
