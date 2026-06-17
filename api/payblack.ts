@@ -41,10 +41,10 @@ async function logFailure(
       amount: Number(amount || 0),
       phone: msisdn || '000000000',
       method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
-      status: 'Falhou',
+      status: 'Failed',
       reference: reference || `REF${Date.now()}`,
-      description: `Compra recusada: ${message}`,
-      customerName: customerName || 'Cliente',
+      description: `Purchase rejected: ${message}`,
+      customerName: customerName || 'Customer',
       customerEmail: customerEmail || '',
       device: device || 'Desktop',
       createdat: new Date().toISOString(),
@@ -56,23 +56,24 @@ async function logFailure(
 
 // ─── Friendly error messages per PayBlack code ────────────────────────────────
 const ERROR_MESSAGES: Record<string, string> = {
-  'INS-2000': 'Saldo insuficiente. Por favor, recarregue a sua conta e tente novamente.',
-  'INS-2001': 'Conta não encontrada. Verifique o número de telemóvel introduzido.',
-  'INS-2049': 'Erro interno do M-Pesa. Por favor, tente novamente em instantes.',
-  'INT-2000': 'Erro temporário no sistema de pagamentos. Tente novamente.',
-  'INT-2001': 'Dados de pagamento inválidos. Verifique os dados e tente novamente.',
-  'INT-2002': 'Falha de autenticação com o gateway. Contacte o suporte.',
-  'INT-2003': 'Transação não encontrada. Tente novamente.',
-  'INT-2004': 'Transação duplicada. Aguarde alguns minutos antes de tentar novamente.',
-  'INT-2005': 'Tempo esgotado. Não confirmou o PIN a tempo. Por favor, tente novamente.',
-  'INT-2006': 'Valor inválido. O valor mínimo é 1 MT e o máximo é 500.000 MT.',
-  'INT-2007': 'Número de telemóvel inválido. Certifique-se de que inclui o prefixo 258.',
+  'INS-2000': 'Insufficient balance. Please top up your account and try again.',
+  'INS-2001': 'Account not found. Verify the phone number provided.',
+  'INS-2049': 'Internal M-Pesa error. Please try again in a few moments.',
+  'INT-2000': 'Temporary payment system error. Please try again.',
+  'INT-2001': 'Invalid payment data. Verify the details and try again.',
+  'INT-2002': 'Authentication failure with the gateway. Contact support.',
+  'INT-2003': 'Transaction not found. Please try again.',
+  'INT-2004': 'Duplicate transaction. Please wait a few minutes before trying again.',
+  'INT-2005': 'Timeout. You did not confirm the PIN in time. Please try again.',
+  'INT-2006': 'Invalid amount. The minimum is 1 MT and the maximum is 500,000 MT.',
+  'INT-2007': 'Invalid phone number. Ensure you include the 258 prefix.',
+
 };
 
 // ─── Main Handler ─────────────────────────────────────────────────────────────
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método não permitido.' });
+    return res.status(405).json({ error: 'Method not allowed.' });
   }
 
   let msisdn = '';
@@ -108,7 +109,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (amount) amountNum = Number(amount);
 
     if (!phone || !amount) {
-      return res.status(400).json({ error: 'Telefone e valor são obrigatórios.' });
+      return res.status(400).json({ error: 'Phone number and amount are required.' });
     }
 
     // ── Sanitize phone → always send as 258XXXXXXXXX (12 digits) ──────────────
@@ -130,7 +131,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       process.env.VITE_PAYBLACK_API_KEY || '';
 
     if (!apiKey) {
-      const msg = 'PayBlack API Key não configurada no servidor.';
+      const msg = 'PayBlack API Key not configured on the server.';
       await logFailure(msisdn, amountNum, provider, reference, msg, customerName, customerEmail, device);
       return res.status(400).json({ error: msg });
     }
@@ -203,15 +204,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const msg = `Erro de rede ao contactar PayBlack: ${fetchErr.message}`;
       console.error(msg);
       await logFailure(msisdn, amountNum, provider, reference, msg, customerName, customerEmail, device);
-      return res.status(500).json({ error: 'Erro de rede ao processar pagamento. Tente novamente.' });
+      return res.status(500).json({ error: 'Network error processing payment. Please try again.' });
     }
 
     // ── Parse response ────────────────────────────────────────────────────────
     const contentType = payResponse.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       const raw = await payResponse.text();
-      console.error('Resposta não-JSON do PayBlack:', raw);
-      const msg = 'Gateway respondeu com formato inválido.';
+      console.error('Non-JSON response from PayBlack:', raw);
+      const msg = 'Gateway responded with an invalid format.';
       await logFailure(msisdn, amountNum, provider, reference, msg, customerName, customerEmail, device);
       return res.status(500).json({ error: msg, details: raw.slice(0, 300) });
     }
@@ -225,7 +226,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const friendlyMessage =
         ERROR_MESSAGES[code] ||
         payData.message ||
-        'Pagamento não processado. Verifique os seus dados e tente novamente.';
+        'Payment not processed. Verify your data and try again.';
 
       await logFailure(msisdn, amountNum, provider, reference, friendlyMessage, customerName, customerEmail, device);
 
@@ -260,7 +261,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
           status: 'Concluído',
           reference,
-          description: `Compra online||NOTIF_META||${notifMeta}`,
+          description: `Online purchase||NOTIF_META||${notifMeta}`,
           customerName,
           customerEmail,
           device,
@@ -371,14 +372,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       transactionId: finalTxId,
       mpesa_transaction_id: payData.mpesa_transaction_id || null,
       emola_txid: payData.emola_txid || null,
-      message: 'Pagamento processado com sucesso!',
+      message: 'Payment processed successfully!',
     });
 
   } catch (error: any) {
     console.error('Erro Fatal PayBlack:', error);
     await logFailure(msisdn, amountNum, provider, reference, `Erro crítico: ${error.message}`, customerName, customerEmail, device);
     return res.status(500).json({
-      error: 'Erro fatal no servidor de pagamento.',
+      error: 'Fatal error in payment server.',
       message: error.message,
     });
   }
