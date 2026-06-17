@@ -5,6 +5,7 @@ import {
     AlertCircle
 } from 'lucide-react';
 import { useState } from 'react';
+import Image from "next/image";
 import { cn } from '../lib/utils';
 import { useTransactionsStore } from '../lib/store';
 import { Logo } from './Logo';
@@ -272,25 +273,34 @@ export const CheckoutPage = () => {
                                 <h3 className="text-base font-bold text-slate-900  tracking-wider">Resumo do pedido</h3>
                             </div>
 
-                            {/* Image and Basic Info */}
-                            {/* Image and Basic Info */}
-<div className="flex gap-4 pt-2">
-                        <div className="h-20 w-20 md:h-24 md:w-24 rounded-xl overflow-hidden bg-slate-150 border border-slate-200 shrink-0 shadow-sm">
-        <img
-            src={product.image || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO4K6r8AAAAASUVORK5CYII='}
-            alt={product.name || 'Product Image'}
-            className="w-full h-full object-cover"
-        />
-    </div>
-    <div className="flex-1 min-w-0 space-y-1">
-        <div className="flex justify-between items-start gap-2">
-            <p className="text-base font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
-        </div>
-        <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 bg-violet-100 text-violet-750 rounded text-[10px] font-black  tracking-wider">Acesso Imediato</span>
-        </div>
-    </div>
-</div>
+                            <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                                <div className="h-20 w-20 md:h-24 md:w-24 rounded-xl overflow-hidden bg-slate-150 border border-slate-200 shrink-0 shadow-sm mx-auto sm:mx-0">
+                                    {product.image && product.image.startsWith('http') ? (
+                                    <Image
+                                        src={product.image}
+                                        alt={product.name || 'Product Image'}
+                                        width={96}
+                                        height={96}
+                                        className="w-full h-full object-cover"
+                                        unoptimized={true}
+                                    />
+                                    ) : (
+                                    <img
+                                        src={product.image || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO4K6r8AAAAASUVORK5CYII='}
+                                        alt={product.name || 'Product Image'}
+                                        className="w-full h-full object-cover"
+                                    />
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0 space-y-1 text-center sm:text-left">
+                                    <div className="flex justify-center sm:justify-between items-start gap-2">
+                                    <p className="text-base font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
+                                    </div>
+                                    <div className="flex justify-center sm:justify-start items-center gap-2">
+                                    <span className="px-2 py-0.5 bg-violet-100 text-violet-750 rounded text-[10px] font-black  tracking-wider">Acesso Imediato</span>
+                                    </div>
+                                </div>
+                            </div>
     
                             
 
