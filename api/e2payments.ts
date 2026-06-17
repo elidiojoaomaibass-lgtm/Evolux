@@ -3,6 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+// Service Role Key bypasses RLS — required for backend to read any user's settings
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey;
 
 let supabase: any = null;
 if (supabaseUrl && supabaseAnonKey) {
@@ -10,6 +12,16 @@ if (supabaseUrl && supabaseAnonKey) {
     supabase = createClient(supabaseUrl, supabaseAnonKey);
   } catch (e) {
     console.error('Erro ao inicializar Supabase no e2payments:', e);
+  }
+}
+
+// Admin client with Service Role Key to bypass RLS when reading merchant settings
+let supabaseAdmin: any = null;
+if (supabaseUrl && supabaseServiceKey) {
+  try {
+    supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+  } catch (e) {
+    console.error('Erro ao inicializar Supabase Admin:', e);
   }
 }
 
@@ -89,22 +101,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       merchant_user_email
     } = parsedBody;
 
-    // Priority 1: Try to load merchant settings from Supabase (server-side, device-independent)
+    // Priority 1: Try to load merchant settings from Supabase using admin client (bypasses RLS)
     let supabaseWebhookUrl = '';
     let supabaseWebhookEvents = '{}';
     let supabaseLowtrackToken = '';
-    if (supabase && merchant_user_email) {
+    const dbClient = supabaseAdmin || supabase; // prefer admin client that bypasses RLS
+    if (dbClient && merchant_user_email) {
       try {
-        const { data: userSettings } = await supabase
+        const { data: userSettings, error: settingsError } = await dbClient
           .from('user_settings')
           .select('webhook_url, webhook_events, lowtrack_token')
           .eq('user_email', merchant_user_email)
           .single();
+        if (settingsError) {
+          console.warn('Erro ao carregar user_settings:', settingsError.message);
+        }
         if (userSettings) {
           if (userSettings.webhook_url) supabaseWebhookUrl = userSettings.webhook_url;
           if (userSettings.webhook_events) supabaseWebhookEvents = typeof userSettings.webhook_events === 'string' ? userSettings.webhook_events : JSON.stringify(userSettings.webhook_events);
           if (userSettings.lowtrack_token) supabaseLowtrackToken = userSettings.lowtrack_token;
           console.log(`Configurações do merchant carregadas do Supabase para: ${merchant_user_email}`);
+        } else {
+          console.warn(`Nenhuma configuração encontrada no Supabase para: ${merchant_user_email}`);
         }
       } catch (settingsErr) {
         console.warn('Erro ao carregar user_settings do Supabase:', settingsErr);
@@ -379,7 +397,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
 
           // 3. LowTrack
-          const globalLowtrakApiKey = process.env.VITE_LOWTRACK_API_KEY || process.env.LOWTRACK_API_KEY || '';
+          // Note: env var may be LOWTRAK (no C) or LOWTRACK (with C) - check both
+          const globalLowtrakApiKey = 
+            process.env.VITE_LOWTRAK_API_KEY ||
+            process.env.LOWTRAK_API_KEY ||
+            process.env.VITE_LOWTRACK_API_KEY || 
+            process.env.LOWTRACK_API_KEY || '';
           const activeLowtrackToken = finalLowtrackToken || globalLowtrakApiKey;
           if (activeLowtrackToken) {
             notifications.push((async () => {
