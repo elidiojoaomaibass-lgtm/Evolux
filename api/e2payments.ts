@@ -352,32 +352,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // DISPARAR NOTIFICAÇÕES IMEDIATAMENTE (Já que não há webhook)
         // ==========================================
         if (type !== 'b2c') {
+          console.log('Iniciando disparos de notificações...');
           const notifications: Promise<any>[] = [];
           
           // 1. Pushcut Global
           const pushcutEndpoint = process.env.VITE_PUSHCUT_ENDPOINT || process.env.PUSHCUT_ENDPOINT || '';
           const pushcutApiKey = process.env.VITE_PUSHCUT_API_KEY || process.env.PUSHCUT_API_KEY || '';
           if (pushcutEndpoint && pushcutApiKey) {
+            console.log('Adicionando Pushcut Global à fila de disparos.');
             notifications.push((async () => {
               try {
-                await fetch(pushcutEndpoint, {
+                const res = await fetch(pushcutEndpoint, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${pushcutApiKey}` },
                   body: JSON.stringify({ transaction_id: finalTxId, amount: amountNum, status: finalStatus, user_id: customerEmail }),
                 });
-              } catch (err) { console.error('Erro no Pushcut Global', err); }
+                console.log('Pushcut Global disparado. Status:', res.status);
+              } catch (err: any) { console.error('Erro no Pushcut Global:', err.message || err); }
             })());
           }
 
           // 2. Pushcut Cliente (Merchant Webhook)
           if (finalWebhookUrl) {
+            console.log('Adicionando Webhook do Cliente à fila de disparos:', finalWebhookUrl);
             notifications.push((async () => {
               try {
                 let webhookEvents: Record<string, boolean> = { sale_approved: true };
                 try { webhookEvents = JSON.parse(finalWebhookEvents); } catch {}
                 
                 if (webhookEvents.sale_approved !== false) {
-                  await fetch(finalWebhookUrl, {
+                  const res = await fetch(finalWebhookUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -391,23 +395,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                       status: finalStatus
                     })
                   });
+                  console.log('Webhook do Cliente disparado. Status:', res.status);
+                } else {
+                  console.log('Evento de venda aprovada desativado nas configurações do webhook do merchant.');
                 }
-              } catch (err) { console.error('Erro no Webhook do Cliente', err); }
+              } catch (err: any) { console.error('Erro no Webhook do Cliente:', err.message || err); }
             })());
           }
 
           // 3. LowTrack
-          // Note: env var may be LOWTRAK (no C) or LOWTRACK (with C) - check both
           const globalLowtrakApiKey = 
             process.env.VITE_LOWTRAK_API_KEY ||
-            process.env.LOWTRAK_API_KEY ||
-            process.env.VITE_LOWTRACK_API_KEY || 
-            process.env.LOWTRACK_API_KEY || '';
+            process.env.LOWTRAK_API_KEY || '';
           const activeLowtrackToken = finalLowtrackToken || globalLowtrakApiKey;
           if (activeLowtrackToken) {
+            console.log('Adicionando LowTrack à fila de disparos.');
             notifications.push((async () => {
               try {
-                await fetch('https://lowtrack.com.br/api/webhook', {
+                const res = await fetch('https://lowtrack.com.br/api/webhook', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${activeLowtrackToken}`, 'User-Agent': 'Mozilla/5.0' },
                   body: JSON.stringify({
@@ -421,12 +426,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     user_id: customerEmail
                   }),
                 });
-              } catch (err) { console.error('Erro no LowTrack', err); }
+                console.log('LowTrack disparado. Status:', res.status);
+              } catch (err: any) { console.error('Erro no LowTrack:', err.message || err); }
             })());
           }
 
           // Aguarda os disparos iniciarem e finalizarem
           await Promise.allSettled(notifications);
+          console.log('Todos os disparos de notificações processados.');
         }
 
       } catch (dbErr) {
