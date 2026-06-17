@@ -292,12 +292,6 @@ export const CheckoutPage = () => {
     </div>
 </div>
     
-</div>
-            {/* duplicate product info block removed */}
-
-
-
-                                
                             
 
                             {/* Money Totals */}
