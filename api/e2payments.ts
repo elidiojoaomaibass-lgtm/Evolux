@@ -284,34 +284,117 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           webhook_events: finalWebhookEvents,
           lowtrack_token: finalLowtrackToken
         });
+        
+        // As E2Payments is a synchronous API and doesn't support webhooks,
+        // if we reached here, the transaction is successfully completed.
+        const finalStatus = 'Concluído';
+        const finalTxId = paymentData.transaction_id || paymentData.id || reference;
+        
         await supabase.from('transactions').insert([{
-        id: paymentData.transaction_id || paymentData.id || reference,
-        type: type === 'b2c' ? 'withdrawal' : 'payment',
-        amount: amountNum,
-        phone: sanitizedPhone,
-        method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
-        status: 'Pendente',
-        reference: reference || `REF${Date.now()}`,
-        description: type === 'b2c' ? 'Levantamento de Saldo' : `Compra online||NOTIF_META||${notifMeta}`,
-        customerName: customerName,
-        customerEmail: customerEmail,
-        device: device,
-        createdat: new Date().toISOString()
-      }]);
-      console.log('Transação pendente persistida com sucesso no Supabase.');
-    } catch (dbErr) {
-      console.error("Erro ao registrar transação pendente no Supabase:", dbErr);
+          id: finalTxId,
+          type: type === 'b2c' ? 'withdrawal' : 'payment',
+          amount: amountNum,
+          phone: sanitizedPhone,
+          method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
+          status: finalStatus,
+          reference: reference || `REF${Date.now()}`,
+          description: type === 'b2c' ? 'Levantamento de Saldo' : `Compra online||NOTIF_META||${notifMeta}`,
+          customerName: customerName,
+          customerEmail: customerEmail,
+          device: device,
+          createdat: new Date().toISOString()
+        }]);
+        console.log('Transação concluída salva com sucesso no Supabase.');
+
+        // ==========================================
+        // DISPARAR NOTIFICAÇÕES IMEDIATAMENTE (Já que não há webhook)
+        // ==========================================
+        if (type !== 'b2c') {
+          const notifications: Promise<any>[] = [];
+          
+          // 1. Pushcut Global
+          const pushcutEndpoint = process.env.VITE_PUSHCUT_ENDPOINT || process.env.PUSHCUT_ENDPOINT || '';
+          const pushcutApiKey = process.env.VITE_PUSHCUT_API_KEY || process.env.PUSHCUT_API_KEY || '';
+          if (pushcutEndpoint && pushcutApiKey) {
+            notifications.push((async () => {
+              try {
+                await fetch(pushcutEndpoint, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${pushcutApiKey}` },
+                  body: JSON.stringify({ transaction_id: finalTxId, amount: amountNum, status: finalStatus, user_id: customerEmail }),
+                });
+              } catch (err) { console.error('Erro no Pushcut Global', err); }
+            })());
+          }
+
+          // 2. Pushcut Cliente (Merchant Webhook)
+          if (finalWebhookUrl) {
+            notifications.push((async () => {
+              try {
+                let webhookEvents: Record<string, boolean> = { sale_approved: true };
+                try { webhookEvents = JSON.parse(finalWebhookEvents); } catch {}
+                
+                if (webhookEvents.sale_approved !== false) {
+                  await fetch(finalWebhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      event: 'sale_approved',
+                      timestamp: new Date().toISOString(),
+                      transaction_id: finalTxId,
+                      reference: reference,
+                      amount: amountNum,
+                      method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
+                      customer: { name: customerName, email: customerEmail, phone: sanitizedPhone },
+                      status: finalStatus
+                    })
+                  });
+                }
+              } catch (err) { console.error('Erro no Webhook do Cliente', err); }
+            })());
+          }
+
+          // 3. LowTrack
+          const globalLowtrakApiKey = process.env.VITE_LOWTRACK_API_KEY || process.env.LOWTRACK_API_KEY || '';
+          const activeLowtrackToken = finalLowtrackToken || globalLowtrakApiKey;
+          if (activeLowtrackToken) {
+            notifications.push((async () => {
+              try {
+                await fetch('https://lowtrack.com.br/api/webhook', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${activeLowtrackToken}`, 'User-Agent': 'Mozilla/5.0' },
+                  body: JSON.stringify({
+                    event: 'sale.approved',
+                    transaction_id: finalTxId,
+                    reference: reference,
+                    amount: amountNum,
+                    method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
+                    status: finalStatus,
+                    customer: { name: customerName, email: customerEmail, phone: sanitizedPhone },
+                    user_id: customerEmail
+                  }),
+                });
+              } catch (err) { console.error('Erro no LowTrack', err); }
+            })());
+          }
+
+          // Aguarda os disparos iniciarem e finalizarem
+          await Promise.allSettled(notifications);
+        }
+
+      } catch (dbErr) {
+        console.error("Erro ao registrar transação no Supabase ou disparar integrações:", dbErr);
+      }
+    } else {
+      console.warn("Supabase não configurado no backend. Transação concluída sem persistência.");
     }
-  } else {
-    console.warn("Supabase não configurado no backend. Transação concluída sem persistência.");
-  }
 
     return res.status(200).json({
       success: true,
       transactionId: paymentData.transaction_id || paymentData.id,
       message: type === 'b2c' 
         ? 'Saque processado com sucesso! O valor será creditado na sua conta.' 
-        : 'Solicitação enviada! Por favor, confirme no seu telemóvel.'
+        : 'Pagamento processado com sucesso e integrações disparadas!'
     });
 
   } catch (error: any) {
