@@ -94,38 +94,15 @@ export const SaqueView = () => {
 
         setLoading(true);
         try {
-            // Pegar credenciais guardadas no localStorage
-            const clientId = localStorage.getItem('evolux_e2_client_id');
-            const clientSecret = localStorage.getItem('evolux_e2_client_secret');
-            const walletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
-            const walletEmola = localStorage.getItem('evolux_e2_wallet_emola');
-
             const reference = `SQ-${Date.now()}`;
 
-            const response = await fetch('/api/e2payments', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    phone: phone,
-                    amount: numAmount,
-                    type: 'b2c', // BUSINESS TO CUSTOMER (Payout)
-                    reference: reference,
-                    client_id: clientId,
-                    client_secret: clientSecret,
-                    wallet_mpesa: walletMpesa,
-                    wallet_emola: walletEmola
-                })
-            });
+            // Nota: PayBlack actualmente suporta apenas C2B (receber pagamentos).
+            // A funcionalidade de Saque (B2C) será processada manualmente pela equipa.
+            // Registar o pedido de levantamento localmente e notificar a equipa.
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Erro ao processar levantamento');
-            }
-
-            // Registrar no histórico local
+            // Registar no histórico local
             addTransaction({
-                id: data.transactionId || reference,
+                id: reference,
                 type: 'withdrawal',
                 amount: numAmount,
                 phone: phone,
@@ -135,7 +112,7 @@ export const SaqueView = () => {
             });
 
             setShowSuccess(true);
-            toast.success(data.message || `Solicitação de levantamento via ${method} enviada!`);
+            toast.success(`Pedido de levantamento via ${method} registado! A equipa irá processar em breve.`);
             setAmount('');
         } catch (err: any) {
             toast.error(err.message);

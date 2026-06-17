@@ -70,16 +70,6 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
         const sanitizedPaymentPhone = cleanPhone(paymentPhone);
 
         try {
-            // Pegar credenciais guardadas no localStorage
-            const clientId = localStorage.getItem('evolux_e2_client_id');
-            const clientSecret = localStorage.getItem('evolux_e2_client_secret');
-            const walletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
-            const walletEmola = localStorage.getItem('evolux_e2_wallet_emola');
-
-            if ((!clientId || !clientSecret) && import.meta.env.MODE !== 'development') {
-                console.log('Credenciais E2Payments não encontradas no localStorage. As variáveis de ambiente do backend (.env) serão usadas.');
-            }
-
             // Read merchant notification settings from Supabase user_settings
             let userWebhookUrl = localStorage.getItem('evolux_prod_webhook_url') || '';
             let userWebhookEvents = localStorage.getItem('evolux_prod_webhook_events') || '{}';
@@ -94,21 +84,15 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 }
             }
 
-            const response = await fetch('/api/e2payments', {
+            const response = await fetch('/api/payblack', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     phone: sanitizedPaymentPhone,
                     amount: product.price,
                     reference: reference,
-                    client_id: (clientId || '').trim(),
-                    client_secret: (clientSecret || '').trim(),
-                    wallet_mpesa: (walletMpesa || '').trim(),
-                    wallet_emola: (walletEmola || '').trim(),
                     customerName: name,
                     customerEmail: email,
-                    description: `Compra: ${product.name}`,
-                    product_name: product.name,
                     // merchant_user_email allows backend to fetch settings from Supabase directly (device-independent)
                     merchant_user_email: product.user_email || '',
                     // Fallback: client-sent values from localStorage (used if Supabase lookup fails)
@@ -136,8 +120,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
             setStatus('success');
 
-            // Notifications are now handled server-side in /api/e2payments + /api/webhook
-            // (merchant_webhook_url and merchant_lowtrack_token were sent to /api/e2payments)
+            // Notifications are now handled server-side in /api/payblack
             // No need to fire from the browser — works for any customer device
 
             // Redirecionar para a página de obrigado com detalhes da compra
