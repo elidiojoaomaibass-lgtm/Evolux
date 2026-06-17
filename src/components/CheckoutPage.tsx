@@ -5,7 +5,7 @@ import {
     AlertCircle
 } from 'lucide-react';
 import { useState } from 'react';
-import Image from "next/image";
+
 import { cn } from '../lib/utils';
 import { useTransactionsStore } from '../lib/store';
 import { Logo } from './Logo';
@@ -276,13 +276,10 @@ export const CheckoutPage = () => {
                             <div className="flex flex-col sm:flex-row gap-4 pt-2">
                                 <div className="h-20 w-20 md:h-24 md:w-24 rounded-xl overflow-hidden bg-slate-150 border border-slate-200 shrink-0 shadow-sm mx-auto sm:mx-0">
                                     {product.image && product.image.startsWith('http') ? (
-                                    <Image
+                                    <img
                                         src={product.image}
                                         alt={product.name || 'Product Image'}
-                                        width={96}
-                                        height={96}
                                         className="w-full h-full object-cover"
-                                        unoptimized={true}
                                     />
                                     ) : (
                                     <img
@@ -301,6 +298,7 @@ export const CheckoutPage = () => {
                                     </div>
                                 </div>
                             </div>
+                        </div>
     
                             
 
@@ -319,6 +317,7 @@ export const CheckoutPage = () => {
                                     <span className="text-base font-black text-slate-900 tabular-nums">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
                                 </div>
                             </div>
+
                         
 
                         {/* Section 3: Payment Provider */}
