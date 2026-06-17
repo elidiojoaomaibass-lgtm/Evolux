@@ -7,6 +7,7 @@ export const config = {
 };
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
+import fetch from 'node-fetch';
 import { sendPushNotificationV1 as sendPushNotification, getUserTokens } from '../src/lib/push_v1';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
@@ -100,9 +101,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       // Wait for all notifications to complete before sending the response
       // Vercel serverless functions freeze execution as soon as res.send is called.
-      await (async () => {
-        // 1. Push notification (Pushcut/FCM)
-        if (userId) {
+      const notifications: Promise<void>[] = [];
+
+      // 1. Push notification (Pushcut/FCM)
+      if (userId) {
+        notifications.push((async () => {
           try {
             const tokens = await getUserTokens(userId);
             const val = updatedTx?.amount ? Number(updatedTx.amount).toLocaleString('pt-PT') : '';
@@ -114,91 +117,97 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               });
             }
           } catch (e) { console.error('Erro ao enviar notificação push', e); }
-        }
+        })());
+      }
 
-        // 2. Pushcut notification (global)
-        try {
-          if (pushcutEndpoint && pushcutApiKey) {
+      // 2. Pushcut notification (global)
+      if (pushcutEndpoint && pushcutApiKey) {
+        notifications.push((async () => {
+          try {
             await fetch(pushcutEndpoint, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${pushcutApiKey}` },
               body: JSON.stringify({ transaction_id, amount: updatedTx?.amount, status: finalStatus, user_id: userId }),
             });
-          }
-        } catch (pcErr) { console.error('Erro ao notificar Pushcut', pcErr); }
+          } catch (pcErr) { console.error('Erro ao notificar Pushcut', pcErr); }
+        })());
+      }
 
-        // Only fire merchant-specific notifications for successful payments
-        if (finalStatus !== 'Concluído') return;
-
-        // Parse merchant notification settings stored in the description field
+      // Only fire merchant-specific notifications for successful payments
+      if (finalStatus === 'Concluído') {
         const notifMeta = parseNotifMeta(updatedTx?.description || null);
-
         const val = updatedTx?.amount ? Number(updatedTx.amount).toLocaleString('pt-PT') : '0';
         const payMethod = updatedTx?.method || 'M-Pesa';
 
-        // 3. Merchant Webhook notification (server-side — works for any customer device)
+        // 3. Merchant Webhook notification
         const merchantWebhookUrl = notifMeta?.webhook_url || defaultMerchantWebhookUrl;
         if (merchantWebhookUrl && merchantWebhookUrl.startsWith('http')) {
-          try {
-            let webhookEvents: Record<string, boolean> = { sale_approved: true };
+          notifications.push((async () => {
             try {
-              const eventsStr = notifMeta?.webhook_events || defaultMerchantWebhookEvents;
-              webhookEvents = JSON.parse(eventsStr);
-            } catch {}
-            if (webhookEvents.sale_approved !== false) {
-              await fetch(merchantWebhookUrl, {
+              let webhookEvents: Record<string, boolean> = { sale_approved: true };
+              try {
+                const eventsStr = notifMeta?.webhook_events || defaultMerchantWebhookEvents;
+                webhookEvents = JSON.parse(eventsStr);
+              } catch {}
+              if (webhookEvents.sale_approved !== false) {
+                await fetch(merchantWebhookUrl, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    event: 'sale_approved',
+                    timestamp: new Date().toISOString(),
+                    transaction_id,
+                    reference,
+                    amount: updatedTx?.amount,
+                    method: payMethod,
+                    customer: {
+                      name: updatedTx?.customerName,
+                      email: updatedTx?.customerEmail,
+                      phone: updatedTx?.phone
+                    },
+                    status: finalStatus
+                  })
+                });
+                console.log('Merchant webhook notified at:', merchantWebhookUrl);
+              }
+            } catch (whErr) { console.error('Erro ao notificar Merchant Webhook', whErr); }
+          })());
+        }
+
+        // 4. LowTrack notification
+        const merchantLowtrackToken = notifMeta?.lowtrack_token || globalLowtrakApiKey;
+        if (merchantLowtrackToken) {
+          notifications.push((async () => {
+            try {
+              await fetch('https://lowtrack.com.br/api/webhook', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${merchantLowtrackToken}`,
+                  'User-Agent': 'Mozilla/5.0'
+                },
                 body: JSON.stringify({
-                  event: 'sale_approved',
-                  timestamp: new Date().toISOString(),
+                  event: 'sale.approved',
                   transaction_id,
                   reference,
                   amount: updatedTx?.amount,
                   method: payMethod,
+                  status: finalStatus,
                   customer: {
                     name: updatedTx?.customerName,
                     email: updatedTx?.customerEmail,
                     phone: updatedTx?.phone
                   },
-                  status: finalStatus
-                })
+                  user_id: updatedTx?.customerEmail || updatedTx?.phone || userId
+                }),
               });
-              console.log('Merchant webhook notified at:', merchantWebhookUrl);
-            }
-          } catch (whErr) { console.error('Erro ao notificar Merchant Webhook', whErr); }
+              console.log('LowTrack notified with token:', merchantLowtrackToken.substring(0, 8) + '...');
+            } catch (lowErr) { console.error('Erro ao notificar LowTrack', lowErr); }
+          })());
         }
+      }
 
-        // 4. LowTrack notification (server-side — merchant's token from transaction meta)
-        const merchantLowtrackToken = notifMeta?.lowtrack_token || globalLowtrakApiKey;
-        if (merchantLowtrackToken) {
-          try {
-            await fetch('https://lowtrack.com.br/api/webhook', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${merchantLowtrackToken}`,
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-              },
-              body: JSON.stringify({
-                event: 'sale.approved',
-                transaction_id,
-                reference,
-                amount: updatedTx?.amount,
-                method: payMethod,
-                status: finalStatus,
-                customer: {
-                  name: updatedTx?.customerName,
-                  email: updatedTx?.customerEmail,
-                  phone: updatedTx?.phone
-                },
-                user_id: updatedTx?.customerEmail || updatedTx?.phone || userId
-              }),
-            });
-            console.log('LowTrack notified with token:', merchantLowtrackToken.substring(0, 8) + '...');
-          } catch (lowErr) { console.error('Erro ao notificar LowTrack', lowErr); }
-        }
-      })();
+      await Promise.allSettled(notifications);
 
       return res.status(200).json({
         message: 'Webhook processed successfully',
