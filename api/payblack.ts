@@ -173,6 +173,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       supabaseLowtrackToken || merchant_lowtrack_token || process.env.VITE_MERCHANT_LOWTRACK_TOKEN || '';
 
     // ── Build PayBlack endpoint ───────────────────────────────────────────────
+    console.log('PayBlack request payload:', payloadBody);
     const endpoint =
       provider === 'emola'
         ? `${PAYBLACK_BASE}/emola/c2b/pay/`
@@ -192,6 +193,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // ── Call PayBlack ─────────────────────────────────────────────────────────
     let payResponse: Response;
     try {
+      console.log('Calling PayBlack endpoint:', endpoint);
       payResponse = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -209,6 +211,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // ── Parse response ────────────────────────────────────────────────────────
     const contentType = payResponse.headers.get('content-type') || '';
+    console.log('PayBlack response status:', payResponse.status, 'content-type:', contentType);
     if (!contentType.includes('application/json')) {
       const raw = await payResponse.text();
       console.error('Non-JSON response from PayBlack:', raw);
@@ -218,6 +221,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const payData = await payResponse.json();
+    console.log('PayBlack response body:', payData);
     console.log('PayBlack response:', payData);
 
     // HTTP 402 = pagamento recusado, 403 = auth error, 400 = bad request
@@ -230,6 +234,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       await logFailure(msisdn, amountNum, provider, reference, friendlyMessage, customerName, customerEmail, device);
 
+      console.log('PayBlack error details:', { status: payResponse.status, code, message: payData.message, raw: payData });
       return res.status(payResponse.status || 402).json({
         error: friendlyMessage,
         code,
