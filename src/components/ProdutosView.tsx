@@ -145,6 +145,7 @@ export const ProdutosView = () => {
             name: product.name,
             price: String(product.price)
         };
+        if (product.user_email) queryParams.user_email = product.user_email;
         if (product.deliveryLink) queryParams.deliveryLink = product.deliveryLink;
         if (product.enableCountdown) queryParams.enableCountdown = 'true';
         if (product.enableScarcityNotification) queryParams.enableScarcityNotification = 'true';
@@ -198,6 +199,7 @@ export const ProdutosView = () => {
             name: product.name,
             price: String(product.price)
         };
+        if (product.user_email) queryParams.user_email = product.user_email;
         if (product.deliveryLink) queryParams.deliveryLink = product.deliveryLink;
         if (product.enableCountdown) queryParams.enableCountdown = 'true';
         if (product.enableScarcityNotification) queryParams.enableScarcityNotification = 'true';

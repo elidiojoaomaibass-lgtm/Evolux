@@ -123,7 +123,9 @@ export const CheckoutPage = () => {
                     customerEmail: email,
                     description: `Compra: ${product.name}`,
                     product_name: product.name,
-                    // Merchant notification settings sent to the server so it can notify from any device
+                    // merchant_user_email allows backend to fetch settings from Supabase directly (device-independent)
+                    merchant_user_email: product.user_email || '',
+                    // Fallback: client-sent values from localStorage (used if Supabase lookup fails)
                     merchant_webhook_url: userWebhookUrl,
                     merchant_webhook_events: userWebhookEvents,
                     merchant_lowtrack_token: lowTrackToken,

@@ -85,16 +85,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       customerEmail: cEmail,
       merchant_webhook_url,
       merchant_webhook_events,
-      merchant_lowtrack_token
+      merchant_lowtrack_token,
+      merchant_user_email
     } = parsedBody;
 
-    // Fallback to global env vars if client did not send (ensures notifications from any device)
+    // Priority 1: Try to load merchant settings from Supabase (server-side, device-independent)
+    let supabaseWebhookUrl = '';
+    let supabaseWebhookEvents = '{}';
+    let supabaseLowtrackToken = '';
+    if (supabase && merchant_user_email) {
+      try {
+        const { data: userSettings } = await supabase
+          .from('user_settings')
+          .select('webhook_url, webhook_events, lowtrack_token')
+          .eq('user_email', merchant_user_email)
+          .single();
+        if (userSettings) {
+          if (userSettings.webhook_url) supabaseWebhookUrl = userSettings.webhook_url;
+          if (userSettings.webhook_events) supabaseWebhookEvents = typeof userSettings.webhook_events === 'string' ? userSettings.webhook_events : JSON.stringify(userSettings.webhook_events);
+          if (userSettings.lowtrack_token) supabaseLowtrackToken = userSettings.lowtrack_token;
+          console.log(`Configurações do merchant carregadas do Supabase para: ${merchant_user_email}`);
+        }
+      } catch (settingsErr) {
+        console.warn('Erro ao carregar user_settings do Supabase:', settingsErr);
+      }
+    }
+
+    // Priority 2: Fallback to client-sent values (from localStorage on merchant device)
+    // Priority 3: Fallback to global env vars
     const fallbackWebhookUrl = process.env.VITE_MERCHANT_WEBHOOK_URL || '';
     const fallbackWebhookEvents = process.env.VITE_MERCHANT_WEBHOOK_EVENTS || '{}';
     const fallbackLowtrackToken = process.env.VITE_MERCHANT_LOWTRACK_TOKEN || '';
-    const finalWebhookUrl = merchant_webhook_url || fallbackWebhookUrl;
-    const finalWebhookEvents = merchant_webhook_events || fallbackWebhookEvents;
-    const finalLowtrackToken = merchant_lowtrack_token || fallbackLowtrackToken;
+    const finalWebhookUrl = supabaseWebhookUrl || merchant_webhook_url || fallbackWebhookUrl;
+    const finalWebhookEvents = supabaseWebhookEvents !== '{}' ? supabaseWebhookEvents : (merchant_webhook_events || fallbackWebhookEvents);
+    const finalLowtrackToken = supabaseLowtrackToken || merchant_lowtrack_token || fallbackLowtrackToken;
 
     if (parsedBody.type) type = parsedBody.type;
     if (parsedBody.reference) reference = parsedBody.reference;
