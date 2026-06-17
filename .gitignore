@@ -30,3 +30,4 @@ InfroPaycredentials/
 .env
 .env.*
 !.env.example
+.vercel
