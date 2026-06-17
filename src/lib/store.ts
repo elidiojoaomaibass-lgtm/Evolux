@@ -497,36 +497,8 @@ export const useTransactionsStore = () => {
             console.warn('Falha ao assinar canal em tempo real do Supabase:', e);
         }
 
-        // Auto-aprovação: verifica pendentes a cada 30s e aprova os que têm +2 minutos
-        const autoApprove = async () => {
-            const now = new Date();
-            const pending = globalTransactions.filter(t => t.status === 'Pendente' && t.type === 'payment');
-            for (const tx of pending) {
-                const created = new Date(tx.createdAt);
-                const diffMs = now.getTime() - created.getTime();
-                if (diffMs >= 30 * 1000) { // 30 segundos
-                    // Atualiza localmente
-                    const updated = globalTransactions.map(t =>
-                        t.id === tx.id ? { ...t, status: 'Concluído' as const } : t
-                    );
-                    updateTransactions(updated);
-                    // Atualiza no Supabase
-                    try {
-                        await supabase
-                            .from('transactions')
-                            .update({ status: 'Concluído' })
-                            .eq('id', tx.id);
-                    } catch (e) {
-                        console.warn('Erro ao aprovar transação no Supabase:', e);
-                    }
-                }
-            }
-        };
-
-        // Roda imediatamente ao carregar (resolve pendentes antigas)
-        autoApprove();
-        // Depois roda a cada 30 segundos
-        const approvalInterval = setInterval(autoApprove, 10 * 1000);
+        // Auto-aprovação removida: A aprovação deve vir exclusivamente do Webhook da E2Payments (api/webhook.ts)
+        // para garantir a segurança e o disparo correto das integrações (LowTrack, Pushcut, etc).
 
         // Recarrega transações ao voltar ao aplicativo (ex: no celular quando sai de segundo plano)
         const handleVisibilityChange = () => {
@@ -539,7 +511,6 @@ export const useTransactionsStore = () => {
 
         return () => {
             transactionListeners.delete(listener);
-            clearInterval(approvalInterval);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             if (channel) {
                 try {
