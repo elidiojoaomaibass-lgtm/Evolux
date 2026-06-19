@@ -20,7 +20,7 @@ interface CheckoutModalProps {
 
 export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) => {
     const { addTransaction } = useTransactionsStore();
-    const { updateProducts } = useProductsStore();
+    const { products, updateProducts } = useProductsStore();
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
     const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -132,7 +132,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 .eq('id', product.id);
               // Update local store if needed (optimistic)
               updateProducts(
-                globalProducts.map(p =>
+                products.map(p =>
                   p.id === product.id
                     ? { ...p, sales: (p.sales ?? 0) + 1, revenue: (p.revenue ?? 0) + product.price }
                     : p

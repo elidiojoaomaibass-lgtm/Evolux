@@ -84,7 +84,7 @@ export type Category = 'Ebook' | 'Curso' | 'Mentoria' | 'Workshop' | 'Outro';
       let products = (data as Product[]) ?? [];
       // Fetch associated images from product_images table and attach to products if missing
       if (products.length > 0) {
-        const ids = products.map(p => p.id);
+
         const { data: imgData, error: imgError } = await supabase.from('product_images').select('product_id,url');
         if (!imgError && imgData) {
           const imgMap = new Map<string, string>();
@@ -188,62 +188,6 @@ export const useProductsStore = () => {
         }
     }
 };
-        const { enableScarcity, enableScarcityNotification, ...cleanProduct } = product as any;
-
-        const insertWithUser = async () => {
-            const { data: sess } = await supabase.auth.getSession();
-            const userEmail = sess?.session?.user?.email;
-            const ADMIN_EMAIL = 'kingleakds@gmail.com';
-            const payload = { ...cleanProduct, user_email: userEmail ?? ADMIN_EMAIL };
-            const { error } = await supabase.from('products').insert(payload);
-            if (error) throw error;
-            return payload;
-        };
-        const insertWithoutUser = async () => {
-            const { enableScarcity, enableScarcityNotification, ...cleanProduct } = product as any;
-            const { error } = await supabase.from('products').insert(cleanProduct);
-            if (error) throw error;
-            return cleanProduct;
-        };
-        try {
-            await insertWithUser();
-            updateProducts([product, ...globalProducts]);
-          // Save to offline storage as backup
-          try {
-            // Removed offline storage backup after successful insert.
-          } catch (e) {
-            console.warn('Failed to store product offline after successful insert:', e);
-          }
-          sendLocalNotification('📦 Novo Produto Submetido!', {
-            body: `O produto "${product.name}" foi enviado com sucesso.`,
-            icon: '/logo.png'
-          });
-        } catch (e: any) {
-            console.warn('Primary insert failed (maybe missing user_email column):', e);
-            // Attempt fallback without user_email
-            try {
-                await insertWithoutUser();
-                updateProducts([product, ...globalProducts]);
-                sendLocalNotification('📦 Novo Produto Submetido!', {
-                    body: `O produto "${product.name}" foi enviado com sucesso.`,
-                    icon: '/logo.png'
-                });
-            } catch (e2) {
-                // Both DB attempts failed – store product locally as offline backup
-                // Removed offline fallback storage when DB insert fails.
-// const offlineKey = 'evolux_offline_products';
-// const stored = localStorage.getItem(offlineKey);
-// const arr: Product[] = stored ? JSON.parse(stored) : [];
-// arr.unshift(product);
-// localStorage.setItem(offlineKey, JSON.stringify(arr));
-// updateProducts([product, ...globalProducts]);
-                sendLocalNotification('⚠️ Falha ao salvar produto', {
-                    body: `Erro do banco: ${(e2 as any)?.message || String(e2)}. Não foi possível salvar o produto no servidor.`,
-                    icon: '/logo.png'
-                });
-            }
-        }
-    };
 
     const deleteProduct = async (id: string) => {
         // Primeiro remove do Supabase e, se bem-sucedido, atualiza o estado local
