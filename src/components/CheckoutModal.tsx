@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
-import { useTransactionsStore, type Product } from '../lib/store';
+import { useTransactionsStore, useProductsStore, type Product } from '../lib/store';
 import { supabase } from '../lib/supabase';
 import { Logo } from './Logo';
 import { CountdownBanner } from './CountdownBanner';
@@ -20,6 +20,7 @@ interface CheckoutModalProps {
 
 export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) => {
     const { addTransaction } = useTransactionsStore();
+    const { updateProducts } = useProductsStore();
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
     const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -119,6 +120,27 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             }
 
             setStatus('success');
+            // Increment sales count and total revenue for the product
+            try {
+              // Update in Supabase
+              await supabase
+                .from('products')
+                .update({
+                  sales: (product.sales ?? 0) + 1,
+                  revenue: (product.revenue ?? 0) + product.price,
+                })
+                .eq('id', product.id);
+              // Update local store if needed (optimistic)
+              updateProducts(
+                globalProducts.map(p =>
+                  p.id === product.id
+                    ? { ...p, sales: (p.sales ?? 0) + 1, revenue: (p.revenue ?? 0) + product.price }
+                    : p
+                )
+              );
+            } catch (e) {
+              console.warn('Failed to increment product sales:', e);
+            }
 
             // Notifications are now handled server-side in /api/payblack
             // No need to fire from the browser — works for any customer device

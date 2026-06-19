@@ -70,23 +70,41 @@ export type Category = 'Ebook' | 'Curso' | 'Mentoria' | 'Workshop' | 'Outro';
     createdAt: string;
 }
 // Fetch initial products directly from Supabase; no offline fallback.
-const getInitialProducts = async (): Promise<Product[]> => {
-  try {
-    const { data: sess } = await supabase.auth.getSession();
-    const userEmail = sess?.session?.user?.email;
-    const ADMIN_EMAIL = 'kingleakds@gmail.com';
-    let query = supabase.from('products').select('*');
-    if (userEmail && userEmail !== ADMIN_EMAIL) {
-      query = query.eq('user_email', userEmail);
+  const getInitialProducts = async (): Promise<Product[]> => {
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      const userEmail = sess?.session?.user?.email;
+      const ADMIN_EMAIL = 'kingleakds@gmail.com';
+      let query = supabase.from('products').select('*');
+      if (userEmail && userEmail !== ADMIN_EMAIL) {
+        query = query.eq('user_email', userEmail);
+      }
+      const { data, error } = await query;
+      if (error) throw error;
+      let products = (data as Product[]) ?? [];
+      // Fetch associated images from product_images table and attach to products if missing
+      if (products.length > 0) {
+        const ids = products.map(p => p.id);
+        const { data: imgData, error: imgError } = await supabase.from('product_images').select('product_id,url');
+        if (!imgError && imgData) {
+          const imgMap = new Map<string, string>();
+          (imgData as any[]).forEach(row => {
+            // Keep first image per product
+            if (!imgMap.has(row.product_id)) imgMap.set(row.product_id, row.url);
+          });
+          products = products.map(p => ({
+            ...p,
+            // Prefer existing image, otherwise use image from product_images
+            image: p.image || imgMap.get(p.id),
+          }));
+        }
+      }
+      return products;
+    } catch (e) {
+      console.warn('Failed to fetch products from Supabase:', e);
+      return [];
     }
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data as Product[]) ?? [];
-  } catch (e) {
-    console.warn('Failed to fetch products from Supabase:', e);
-    return [];
-  }
-};
+  };
 
 let globalProducts: Product[] = []; 
 
@@ -120,6 +138,56 @@ export const useProductsStore = () => {
     };
 
     const addProduct = async (product: Product) => {
+    const { enableScarcity, enableScarcityNotification, ...cleanProduct } = product as any;
+
+    const insertWithUser = async () => {
+        const { data: sess } = await supabase.auth.getSession();
+        const userEmail = sess?.session?.user?.email;
+        const ADMIN_EMAIL = 'kingleakds@gmail.com';
+        const payload = { ...cleanProduct, user_email: userEmail ?? ADMIN_EMAIL };
+        const { error, data } = await supabase.from('products').insert(payload).select();
+        if (error) throw error;
+        const inserted = (data as any[])[0] || payload;
+        if (product.image) {
+            await supabase.from('product_images').upsert({ product_id: inserted.id, url: product.image });
+        }
+        return inserted;
+    };
+
+    const insertWithoutUser = async () => {
+        const { error, data } = await supabase.from('products').insert(cleanProduct).select();
+        if (error) throw error;
+        const inserted = (data as any[])[0] || cleanProduct;
+        if (product.image) {
+            await supabase.from('product_images').upsert({ product_id: inserted.id, url: product.image });
+        }
+        return inserted;
+    };
+
+    try {
+        await insertWithUser();
+        updateProducts([product, ...globalProducts]);
+        sendLocalNotification('📦 Novo Produto Submetido!', {
+            body: `O produto "${product.name}" foi enviado com sucesso.`,
+            icon: '/logo.png'
+        });
+    } catch (e: any) {
+        console.warn('Primary insert failed (maybe missing user_email column):', e);
+        try {
+            await insertWithoutUser();
+            updateProducts([product, ...globalProducts]);
+            sendLocalNotification('📦 Novo Produto Submetido!', {
+                body: `O produto "${product.name}" foi enviado com sucesso.`,
+                icon: '/logo.png'
+            });
+        } catch (e2) {
+            sendLocalNotification('⚠️ Falha ao salvar produto', {
+                body: `Erro do banco: ${(e2 as any)?.message || String(e2)}. Não foi possível salvar o produto no servidor.`,
+                icon: '/logo.png'
+            });
+        }
+    }
+};
         const { enableScarcity, enableScarcityNotification, ...cleanProduct } = product as any;
 
         const insertWithUser = async () => {
