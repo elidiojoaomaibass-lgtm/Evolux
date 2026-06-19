@@ -159,7 +159,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                     reference: reference,
                     description: `Compra: ${product.name} (Fallback/Erro: ${err.message || 'Erro'})`,
                     customerName: name || 'Cliente',
-                    customerEmail: email || ''
+                    customerEmail: product.user_email || ''
                 });
             } catch (dbErr) {
                 console.warn("Falha no fallback de gravação Supabase (não autenticado):", dbErr);
@@ -265,7 +265,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                         {/* Order Summary Collapsible */}
                         <AnimatePresence>
                             {showSummary && (
-                                <motion.div key={showSummary}
+                                <motion.div key={showSummary ? "open" : "closed"}
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: 'auto', opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
