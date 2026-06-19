@@ -1,14 +1,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 
-// ─── PayBlack API ──────────────────────────────────────────────────────────────
+// ─── MPESA Integration ──────────────────────────────────────────────────────────────
 // Base URL: https://h.paymoz.tech/api/v1/pagamentos/
 // Auth:     Authorization: ApiKey SUA_API_KEY
 // C2B M-Pesa:  POST /c2b/pay/      → { msisdn, amount, reference }
 // C2B e-Mola:  POST /emola/c2b/pay/ → { msisdn, amount, nome_cliente, reference }
 // ──────────────────────────────────────────────────────────────────────────────
 
-const PAYBLACK_BASE = 'https://h.paymoz.tech/api/v1/pagamentos';
+// Use MPESA base endpoints from environment variables
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
@@ -127,8 +127,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // ── PayBlack API key ───────────────────────────────────────────────────────
     const apiKey =
-      process.env.PAYBLACK_API_KEY ||
-      process.env.VITE_PAYBLACK_API_KEY || '';
+      process.env.MPESA_API_KEY ||
+      process.env.VITE_MPESA_API_KEY || '';
 
     if (!apiKey) {
       const msg = 'PayBlack API Key not configured on the server.';
@@ -173,11 +173,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       supabaseLowtrackToken || merchant_lowtrack_token || process.env.VITE_MERCHANT_LOWTRACK_TOKEN || '';
 
     // ── Build PayBlack endpoint ───────────────────────────────────────────────
-    console.log('PayBlack request payload:', payloadBody);
+    console.log('MPESA request payload:', payloadBody);
     const endpoint =
       provider === 'emola'
-        ? `${PAYBLACK_BASE}/emola/c2b/pay/`
-        : `${PAYBLACK_BASE}/c2b/pay/`;
+        ? process.env.VITE_PAYMENT_API_ENDPOINT_EMOLA || ''
+        : process.env.VITE_PAYMENT_API_ENDPOINT_C2B || '';
 
     const payloadBody: Record<string, any> = {
       msisdn,
@@ -188,12 +188,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       payloadBody.nome_cliente = customerName;
     }
 
-    console.log(`PayBlack → ${endpoint}`, { msisdn, amount: amountNum, provider });
+    console.log(`MPESA → ${endpoint}`, { msisdn, amount: amountNum, provider });
 
-    // ── Call PayBlack ─────────────────────────────────────────────────────────
+    // ── Call MPESA ─────────────────────────────────────────────────────────
     let payResponse: Response;
     try {
-      console.log('Calling PayBlack endpoint:', endpoint);
+      console.log('Calling MPESA endpoint:', endpoint);
       payResponse = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -203,7 +203,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         body: JSON.stringify(payloadBody),
       });
     } catch (fetchErr: any) {
-      const msg = `Erro de rede ao contactar PayBlack: ${fetchErr.message}`;
+      const msg = `Erro de rede ao contactar MPESA: ${fetchErr.message}`;
       console.error(msg);
       await logFailure(msisdn, amountNum, provider, reference, msg, customerName, customerEmail, device);
       return res.status(500).json({ error: 'Network error processing payment. Please try again.' });
@@ -211,18 +211,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // ── Parse response ────────────────────────────────────────────────────────
     const contentType = payResponse.headers.get('content-type') || '';
-    console.log('PayBlack response status:', payResponse.status, 'content-type:', contentType);
+    console.log('MPESA response status:', payResponse.status, 'content-type:', contentType);
     if (!contentType.includes('application/json')) {
       const raw = await payResponse.text();
-      console.error('Non-JSON response from PayBlack:', raw);
+      console.error('Non-JSON response from MPESA:', raw);
       const msg = 'Gateway responded with an invalid format.';
       await logFailure(msisdn, amountNum, provider, reference, msg, customerName, customerEmail, device);
       return res.status(500).json({ error: msg, details: raw.slice(0, 300) });
     }
 
     const payData = await payResponse.json();
-    console.log('PayBlack response body:', payData);
-    console.log('PayBlack response:', payData);
+    console.log('MPESA response body:', payData);
+    console.log('MPESA response:', payData);
 
     // HTTP 402 = pagamento recusado, 403 = auth error, 400 = bad request
     if (!payResponse.ok || payData.success === false) {
@@ -234,7 +234,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       await logFailure(msisdn, amountNum, provider, reference, friendlyMessage, customerName, customerEmail, device);
 
-      console.log('PayBlack error details:', { status: payResponse.status, code, message: payData.message, raw: payData });
+      console.log('MPESA error details:', { status: payResponse.status, code, message: payData.message, raw: payData });
       return res.status(payResponse.status || 402).json({
         error: friendlyMessage,
         code,
@@ -381,7 +381,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
   } catch (error: any) {
-    console.error('Erro Fatal PayBlack:', error);
+    console.error('Erro Fatal MPESA:', error);
     await logFailure(msisdn, amountNum, provider, reference, `Erro crítico: ${error.message}`, customerName, customerEmail, device);
     return res.status(500).json({
       error: 'Fatal error in payment server.',

@@ -138,7 +138,8 @@ export const useProductsStore = () => {
     };
 
     const addProduct = async (product: Product) => {
-    const { enableScarcity, enableScarcityNotification, ...cleanProduct } = product as any;
+    const { enableScarcity, enableScarcityNotification, barColor, enableCountdown, ...cleanProduct } = product as any;
+
 
     const insertWithUser = async () => {
         const { data: sess } = await supabase.auth.getSession();

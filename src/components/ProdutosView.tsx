@@ -360,7 +360,7 @@ export const ProdutosView = () => {
             });
         } else {
             const newProd: Product = {
-                id: `PRD-00${products.length + 1}`,
+                id: crypto.randomUUID(),
                 name: newName,
                 type: 'Digital',
                 category: newCategory,

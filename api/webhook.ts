@@ -56,7 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!supabase) {
     console.error('Supabase client is not configured in webhook.');
-    return res.status(500).json({ error: 'Supabase environment variables are missing on Vercel.' });
+    return res.status(500).setHeader('Access-Control-Allow-Origin', '*').json({ error: 'Supabase environment variables are missing on Vercel.' });
   }
 
   try {
@@ -76,7 +76,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const transaction_id = payload.transaction_id || payload.id || payload.transactionId;
 
     if (!transaction_id && !reference) {
-      return res.status(400).json({ error: 'Missing transaction identifiers (id or reference)' });
+      return res.status(400).setHeader('Access-Control-Allow-Origin', '*').json({ error: 'Missing transaction identifiers (id or reference)' });
     }
 
     // Mapeia o status da E2Payments para o status do nosso painel
@@ -94,7 +94,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .single();
 
     // Determine user ID from payload or the updated transaction
-    const userId = payload.user_id || payload.userId || (updatedTx ? updatedTx.user_id : null);
+    const userId = payload.user_id || payload.userId || (updatedTx ? updatedTx.user_id : null) || updatedTx?.customerEmail || updatedTx?.phone;
 
     if (!error) {
       console.log('Sucesso ao atualizar o status da transação no Supabase por ID.');
@@ -215,14 +215,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    return res.status(200).json({
+    return res.status(200).setHeader('Access-Control-Allow-Origin', '*').json({
       message: 'Webhook processed successfully',
       updated: { transaction_id, status: finalStatus, reference }
     });
 
   } catch (error: any) {
     console.error('Webhook Error:', error.message);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    return res.status(500).setHeader('Access-Control-Allow-Origin', '*').json({ error: 'Internal Server Error' });
   }
 }
 
