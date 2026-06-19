@@ -25,7 +25,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
-    const [email, setEmail] = useState('');
+
     const [paymentPhone, setPaymentPhone] = useState('');
     const [showSummary, setShowSummary] = useState(false);
 
@@ -36,7 +36,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 setErrorMessage(null);
                 setName('');
                 setPhone('');
-                setEmail('');
+
                 setPaymentPhone('');
                 setMethod('mpesa');
             }, 500);
@@ -92,7 +92,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                     amount: product.price,
                     reference: reference,
                     customerName: name,
-                    customerEmail: email,
+
                     // merchant_user_email allows backend to fetch settings from Supabase directly (device-independent)
                     merchant_user_email: product.user_email || '',
                     // Fallback: client-sent values from localStorage (used if Supabase lookup fails)
@@ -126,7 +126,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             // Redirecionar para a página de obrigado com detalhes da compra
             const params = new URLSearchParams({
                 name: name || '',
-                email: email || '',
+
                 product: product.name || '',
                 amount: String(product.price),
                 reference: reference,
@@ -192,7 +192,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                     <span>🎉</span> Pedido Realizado!
                   </h3>
                   <p className="text-sm text-slate-500 font-medium mb-8">
-                    O seu acesso foi enviado para <b>{email || 'seu e‑mail'}</b>. Verifique também a pasta de spam.
+                    O seu acesso foi enviado para o seu e‑mail cadastrado. Verifique também a pasta de spam.
                   </p>
                   <button
                     onClick={onClose}
@@ -265,34 +265,28 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                         {/* Order Summary Collapsible */}
                         <AnimatePresence>
                             {showSummary && (
-                                <motion.div
+                                <motion.div key={showSummary}
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: 'auto', opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
-                                    className="bg-slate-50 border-b border-slate-100 overflow-hidden"
+                                    className="bg-slate-50 border-b border-slate-100 overflow-visible"
                                 >
-                                    <div className="p-6 space-y-4">
-                                        <div className="flex gap-4">
-                                            <div className="h-20 w-20 rounded-xl overflow-hidden bg-white border border-slate-200 shrink-0 shadow-sm">
-                                                <img src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&fit=crop"} alt="" className="w-full h-full object-cover" />
-                                            </div>
-                                            <div className="flex-1 min-w-0 space-y-1">
-                                                <div className="flex justify-between items-start gap-2">
-                                                    <p className="text-sm font-bold text-slate-900 leading-tight">{product.description}</p>
-                                                    <span className="text-sm font-black text-slate-900 shrink-0">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="px-2 py-0.5 bg-slate-200 text-slate-600 rounded text-[10px] font-bold  tracking-wider">{product.type}</span>
-                                                    <span className="text-[10px] text-slate-400 font-bold  tracking-wider">{product.category}</span>
-                                                </div>
-                                                {product.description && (
-                                                    <p className="text-xs text-slate-500 line-clamp-2 md:line-clamp-3 leading-relaxed pt-1 italic">
-                                                        "{product.description}"
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
+           <div className="p-6 flex flex-row items-end gap-4">
+      <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg overflow-hidden bg-slate-100 border border-slate-100 shadow-sm shrink-0">
+      <img src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&fit=crop"} alt="" className="w-full h-full object-cover" />
+    </div>
+    <div className="flex flex-col flex-1 gap-2">
+      <div className="flex-1 flex flex-col justify-between">
+        <span className="text-xs font-bold text-slate-600 truncate">{product.description}</span>
+        <span className="text-xs font-black text-slate-900 mt-1">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
+      </div>
+      <div className="flex flex-col gap-1 mt-2">
+        <span className="text-xs text-slate-500">Subtotal: {product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
+        <span className="text-xs text-slate-500">Tax/Iva: 0,00 MT</span>
+        <span className="text-sm font-bold text-slate-900">Total: {product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
+      </div>
+    </div>
+  </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -334,42 +328,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                             />
                                         </div>
                                     </div>
-
-                                    <div className="space-y-1">
-                                        <label className="text-xs font-bold text-slate-700">E-mail</label>
-                                        <input 
-                                            type="email" 
-                                            placeholder="seu@email.com"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white text-base focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300"
-                                        />
-                                    </div>
-                                </div>
-                            </section>
-
-                            {/* Order Summary (Static) */}
-                            <section className="space-y-4 pt-4 border-t border-slate-100">
-                                <h3 className="text-lg font-bold text-slate-900">Resumo do Pedido</h3>
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-12 w-12 rounded-lg overflow-hidden bg-slate-100 border border-slate-100 shadow-sm shrink-0">
-                                            <img src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&fit=crop"} alt="" className="w-full h-full object-cover" />
-                                        </div>
-                                        <span className="text-xs font-bold text-slate-600 flex-1 truncate">{product.description}</span>
-                                        <span className="text-xs font-black text-slate-900">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
-                                    </div>
-
-                                    <div className="space-y-2 pt-4 border-t border-slate-100">
-                                        <div className="flex justify-between items-center text-xs">
-                                            <span className="text-slate-400 font-medium">Subtotal</span>
-                                            <span className="text-slate-600 font-bold">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-base font-bold text-slate-900">Total</span>
-                                            <span className="text-base font-black text-slate-900">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
-                                        </div>
-                                    </div>
+                 
                                 </div>
                             </section>
 

@@ -531,7 +531,7 @@ export const ProdutosView = () => {
                         >
                             {/* Top: Photo & Basic Info side by side */}
                             <div className="flex flex-col gap-3 items-center text-center mb-3">
-                                <div className="relative h-24 w-24 md:h-32 md:w-32 rounded-lg overflow-hidden bg-slate-100 dark:bg-brand-950 shrink-0 shadow-md border border-white dark:border-white/5">
+                                <div className="relative h-12 w-12 md:h-16 md:w-16 rounded-lg overflow-hidden bg-slate-100 dark:bg-brand-950 shrink-0 shadow-md border border-white dark:border-white/5">
                                     <img
                                         src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop"}
                                         alt={product.name}

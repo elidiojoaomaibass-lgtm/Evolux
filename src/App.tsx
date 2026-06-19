@@ -29,6 +29,10 @@ function App() {
       return null;
     }
   });
+
+  // Add a flag to indicate session check completed
+  const [sessionChecked, setSessionChecked] = useState(false);
+
   const [activeView, setActiveView] = useState<ViewType>(() => {
     // Use sessionStorage: persiste enquanto a aba está aberta (minimizar mantém), mas reseta ao fechar o browser
     // Também verificamos um timestamp para resetar após 30 minutos de inatividade
@@ -95,8 +99,8 @@ function App() {
     }
   }, [activeView]);
 
+  // Check current session
   useEffect(() => {
-    // Check current session
     supabase.auth.getSession().then(({ data: { session } }: any) => {
       if (session) {
         setSession(session);
@@ -106,6 +110,8 @@ function App() {
           setSession(null);
         }
       }
+      // Mark that session check is done
+      setSessionChecked(true);
     });
 
     // Listen for auth changes
@@ -145,6 +151,19 @@ function App() {
       window.removeEventListener('user-profile-updated', handleProfileUpdate);
     };
   }, []);
+
+  // Auto-login using stored fake session if present and no real session
+  useEffect(() => {
+    if (sessionChecked && !session) {
+      const fake = localStorage.getItem('evolux_prod_fake_session');
+      if (fake) {
+        try {
+          const parsed = JSON.parse(fake);
+          setSession(parsed as any);
+        } catch {}
+      }
+    }
+  }, [sessionChecked, session]);
 
   // Clear local data for non-admin accounts on app start
   useEffect(() => {
@@ -270,7 +289,10 @@ function App() {
     setSession(null);
   };
 
-  // Show login screen if not authenticated
+  // Show login screen if not authenticated and session check completed
+  if (!sessionChecked) {
+    return null; // or a loading spinner
+  }
   if (!session) {
     return <LoginView onLogin={(fallbackUser?: any) => {
       if (fallbackUser) {

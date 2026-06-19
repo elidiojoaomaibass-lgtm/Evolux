@@ -20,7 +20,7 @@ export const CheckoutPage = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
-    const [email, setEmail] = useState('');
+    
     const [paymentPhone, setPaymentPhone] = useState('');
 
     // Parse product info from URL
@@ -105,7 +105,7 @@ export const CheckoutPage = () => {
                     amount: product.price,
                     reference: reference,
                     customerName: name,
-                    customerEmail: email,
+                    
                     // merchant_user_email allows backend to fetch settings from Supabase directly (device-independent)
                     merchant_user_email: product.user_email || '',
                     // Fallback: client-sent values from localStorage (used if Supabase lookup fails)
@@ -136,7 +136,7 @@ export const CheckoutPage = () => {
             // Redirect to Thank You page
             const queryParams: any = {
                 name: name || '',
-                email: email || '',
+                
                 product: product.name || '',
                 amount: String(product.price),
                 method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
@@ -176,7 +176,6 @@ export const CheckoutPage = () => {
                     reference: reference,
                     description: `Compra: ${product.name} (Fallback/Erro: ${err.message || 'Erro'})`,
                     customerName: name || 'Cliente',
-                    customerEmail: email || ''
                 });
             } catch (dbErr) {
                 console.warn("Falha no fallback de gravação Supabase (não autenticado):", dbErr);
@@ -247,17 +246,6 @@ export const CheckoutPage = () => {
                                             />
                                         </div>
                                     </div>
-
-                                    <div className="space-y-1">
-                                        <label className="text-xs font-black text-slate-600  tracking-wider">E-mail</label>
-                                        <input 
-                                            type="email" 
-                                            placeholder="seu@email.com"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white text-base font-bold focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all placeholder:text-slate-300 shadow-inner"
-                                        />
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -265,34 +253,32 @@ export const CheckoutPage = () => {
                         {/* Section 2: Resumo do Produto */}
                         <div className="space-y-4 p-5 rounded-2xl bg-slate-50 border border-slate-100">
                             <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
-                                <h3 className="text-base font-bold text-slate-900  tracking-wider">Resumo do pedido</h3>
+                                <h3 className="text-base font-bold text-slate-900 tracking-wider">Order Summary</h3>
                             </div>
 
-                            <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                                <div className="h-20 w-20 md:h-24 md:w-24 rounded-xl overflow-hidden bg-slate-150 border border-slate-200 shrink-0 shadow-sm mx-auto sm:mx-0">
-                                    {product.image && product.image.startsWith('http') ? (
+                            <div className="flex flex-row gap-4 pt-2">
+                                <div className="h-24 w-24 md:h-36 md:w-36 rounded-xl overflow-hidden bg-slate-150 border border-slate-200 shrink-0 shadow-sm mx-auto sm:mx-0">
                                     <img
-                                        src={product.image}
+                                        src={productImage}
                                         alt={product.name || 'Product Image'}
                                         className="w-full h-full object-cover"
                                     />
-                                    ) : (
-                                    <img
-                                        src={product.image || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO4K6r8AAAAASUVORK5CYII='}
-                                        alt={product.name || 'Product Image'}
-                                        className="w-full h-full object-cover"
-                                    />
-                                    )}
                                 </div>
                                 
-                                <div className="flex-1 min-w-0 space-y-1 text-center sm:text-left">
-                                    <div className="flex justify-center sm:justify-between items-start gap-2">
-                                    <p className="text-base font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
+                                <div className="flex-1 min-w-0 space-y-1 text-left">
+                                    <div className="flex justify-start items-start gap-2">
+                                    <p className="text-2xl font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
                                     </div>
-                                    <div className="flex justify-center sm:justify-start items-center gap-2">
-                                    <span className="px-2 py-0.5 bg-violet-100 text-violet-750 rounded text-[10px] font-black  tracking-wider">Acesso Imediato</span>
-                                    </div>
-                                </div>
+                                    
+                                <div className="flex justify-between items-center text-xs">
+    <span className="text-slate-400 font-bold">Subtotal</span>
+    <span className="text-slate-600 font-black">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
+</div>
+<div className="flex justify-between items-center text-xs">
+    <span className="text-slate-400 font-bold">Taxas / IVA</span>
+    <span className="text-emerald-500 font-black">0,00 MT</span>
+</div>
+</div>
                             </div>
                         
     
@@ -300,14 +286,7 @@ export const CheckoutPage = () => {
 
                             {/* Money Totals */}
                             <div className="space-y-2 pt-3 border-t border-slate-200">
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-400 font-bold">Subtotal</span>
-                                    <span className="text-slate-600 font-black">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
-                                </div>
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-400 font-bold">Taxas / IVA</span>
-                                    <span className="text-emerald-500 font-black">0,00 MT</span>
-                                </div>
+
                                 <div className="flex justify-between items-center pt-2.5 border-t border-slate-200">
                                     <span className="text-sm font-black text-slate-900">Total a pagar</span>
                                     <span className="text-base font-black text-slate-900 tabular-nums">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
