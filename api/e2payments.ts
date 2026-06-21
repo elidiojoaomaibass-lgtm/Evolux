@@ -269,8 +269,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const paymentData = await paymentResponse.json();
 
     if (!paymentResponse.ok) {
+      // Detailed logging for debugging
       console.error("Erro retornado pela E2Payments:", paymentData);
-      
+      console.log('Payment error data:', JSON.stringify(paymentData, null, 2));
+
       const mpesaResponse = paymentData.mpesa_server_response || paymentData.emola_server_response || {};
       const responseCode = mpesaResponse.output_ResponseCode || '';
       const responseDesc = (mpesaResponse.output_ResponseDesc || '').toLowerCase();
@@ -296,16 +298,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       let friendlyMessage = errorMessages[responseCode];
 
       if (!friendlyMessage) {
-        if (responseDesc.includes('insufficient') || responseDesc.includes('balance') || responseDesc.includes('saldo')) {
-          friendlyMessage = 'Saldo insuficiente. Por favor, recarregue a sua conta e tente novamente.';
-        } else if (responseDesc.includes('cancel') || responseDesc.includes('reject') || responseDesc.includes('refused')) {
-          friendlyMessage = 'Pagamento cancelado. Tente novamente e confirme o PIN quando solicitado.';
-        } else if (responseDesc.includes('timeout') || responseDesc.includes('time out') || responseDesc.includes('expired')) {
-          friendlyMessage = 'Tempo esgotado. Não confirmou o PIN a tempo. Tente novamente.';
-        } else if (responseDesc.includes('invalid') && responseDesc.includes('number')) {
-          friendlyMessage = 'Número de telemóvel inválido. Verifique e tente novamente.';
-        } else {
-          friendlyMessage = 'Pagamento não processado. Verifique os seus dados e tente novamente.';
+        // Attempt to extract a generic error description from the response payload
+        if (paymentData && typeof paymentData === 'object') {
+          if (typeof paymentData.message === 'string' && paymentData.message) {
+            friendlyMessage = paymentData.message;
+          } else if (typeof paymentData.error === 'string' && paymentData.error) {
+            friendlyMessage = paymentData.error;
+          }
+        }
+        // Fallback generic message preserving user-friendly tone
+        if (!friendlyMessage) {
+          if (responseDesc.includes('insufficient') || responseDesc.includes('balance') || responseDesc.includes('saldo')) {
+            friendlyMessage = 'Saldo insuficiente. Por favor, recarregue a sua conta e tente novamente.';
+          } else if (responseDesc.includes('cancel') || responseDesc.includes('reject') || responseDesc.includes('refused')) {
+            friendlyMessage = 'Pagamento cancelado. Tente novamente e confirme o PIN quando solicitado.';
+          } else if (responseDesc.includes('timeout') || responseDesc.includes('time out') || responseDesc.includes('expired')) {
+            friendlyMessage = 'Tempo esgotado. Não confirmou o PIN a tempo. Tente novamente.';
+          } else if (responseDesc.includes('invalid') && responseDesc.includes('number')) {
+            friendlyMessage = 'Número de telemóvel inválido. Verifique e tente novamente.';
+          } else {
+            friendlyMessage = 'Pagamento não processado. Verifique os seus dados e tente novamente.';
+          }
         }
       }
 
@@ -314,7 +327,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(paymentResponse.status || 400).json({ 
         error: friendlyMessage,
         code: responseCode,
-        details: paymentData
+        details: paymentData,
+        raw: JSON.stringify(paymentData),
       });
     }
 

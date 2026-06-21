@@ -173,7 +173,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       supabaseLowtrackToken || merchant_lowtrack_token || process.env.VITE_MERCHANT_LOWTRACK_TOKEN || '';
 
     // ── Build PayBlack endpoint ───────────────────────────────────────────────
-    console.log('MPESA request payload:', payloadBody);
     const endpoint =
       provider === 'emola'
         ? process.env.VITE_PAYMENT_API_ENDPOINT_EMOLA || ''
@@ -188,6 +187,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       payloadBody.nome_cliente = customerName;
     }
 
+    console.log('MPESA request payload:', payloadBody);
     console.log(`MPESA → ${endpoint}`, { msisdn, amount: amountNum, provider });
 
     // ── Call MPESA ─────────────────────────────────────────────────────────
