@@ -97,7 +97,7 @@ export const CheckoutPage = () => {
                 }
             }
 
-            const response = await fetch(`/api/${method}`, {
+            const response = await fetch(`/api/e2payments`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
