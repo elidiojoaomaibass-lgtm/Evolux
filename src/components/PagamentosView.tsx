@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { cn } from '../lib/utils';
 import { toast } from 'sonner';
 import { processE2Payment } from '../lib/e2paymentsWrapper';
-import { E2_CLIENT_ID, E2_CLIENT_SECRET, E2_WALLET_MPESA, E2_WALLET_EMOLA } from '../config';
+// Removed unused config imports
 
 import { useTransactionsStore } from '../lib/store';
 

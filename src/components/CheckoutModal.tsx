@@ -75,10 +75,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             // Read merchant notification settings from Supabase user_settings
             // Webhook settings are now handled server‑side; no client‑side usage required.
             // userWebhookUrl is no longer used; webhook handling moved to server-side
-            if (product.user_email) {
-                const { data: userSettings } = await supabase
-                // Webhook handling moved to server-side; no client‑side processing needed
-            }
+            // Webhook handling moved to server-side; no client‑side processing needed
 
             await processE2Payment(method, {
                 phone: sanitizedPaymentPhone,

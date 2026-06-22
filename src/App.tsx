@@ -112,7 +112,7 @@ function App() {
           }
         }
       })
-      .catch((err) => {
+      .catch((err: any) => {
         console.error('Erro ao verificar sessão:', err);
         setSession(null);
       })
