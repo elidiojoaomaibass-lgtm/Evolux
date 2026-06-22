@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 import { cn } from '../lib/utils';
 import { useTransactionsStore } from '../lib/store';
-import { supabase } from '../lib/supabase';
+
 import { Logo } from './Logo';
 import { CountdownBanner } from './CountdownBanner';
 import { ScarcityNotification } from './ScarcityNotification';
