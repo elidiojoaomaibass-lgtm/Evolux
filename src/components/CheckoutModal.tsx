@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
+import { processE2Payment } from '../lib/e2paymentsWrapper';
 import { useTransactionsStore, useProductsStore, type Product } from '../lib/store';
 import { supabase } from '../lib/supabase';
 import { Logo } from './Logo';
@@ -72,52 +73,18 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
         try {
             // Read merchant notification settings from Supabase user_settings
-            let userWebhookUrl = localStorage.getItem('evolux_prod_webhook_url') || '';
-            let userWebhookEvents = localStorage.getItem('evolux_prod_webhook_events') || '{}';
-            let lowTrackToken = localStorage.getItem('evolux_prod_lowtrack_token') || '';
-
+            // Webhook settings are now handled server‑side; no client‑side usage required.
+            // userWebhookUrl is no longer used; webhook handling moved to server-side
             if (product.user_email) {
-                const { data: userSettings } = await supabase.from('user_settings').select('webhook_url, webhook_events, lowtrack_token').eq('user_email', product.user_email).single();
-                if (userSettings) {
-                    if (userSettings.webhook_url) userWebhookUrl = userSettings.webhook_url;
-                    if (userSettings.webhook_events) userWebhookEvents = typeof userSettings.webhook_events === 'string' ? userSettings.webhook_events : JSON.stringify(userSettings.webhook_events);
-                    if (userSettings.lowtrack_token) lowTrackToken = userSettings.lowtrack_token;
-                }
+                const { data: userSettings } = await supabase
+                // Webhook handling moved to server-side; no client‑side processing needed
             }
 
-            const response = await fetch(`/api/${method}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    phone: sanitizedPaymentPhone,
-                    amount: product.price,
-                    reference: reference,
-                    customerName: name,
-
-                    // merchant_user_email allows backend to fetch settings from Supabase directly (device-independent)
-                    merchant_user_email: product.user_email || '',
-                    // Fallback: client-sent values from localStorage (used if Supabase lookup fails)
-                    merchant_webhook_url: userWebhookUrl,
-                    merchant_webhook_events: userWebhookEvents,
-                    merchant_lowtrack_token: lowTrackToken,
-                })
+            await processE2Payment(method, {
+                phone: sanitizedPaymentPhone,
+                amount: product.price,
+                reference: reference
             });
-
-            // Verificar se a resposta é JSON antes de ler
-            const contentType = response.headers.get("content-type");
-            if (!response.ok) {
-                if (contentType && contentType.indexOf("application/json") !== -1) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || errorData.message || 'Não foi possível processar o pagamento. Tente novamente.');
-                } else {
-                    const textError = await response.text();
-                    console.error("Erro não-JSON recebido:", textError);
-                    if (response.status === 404) {
-                        throw new Error('Endpoint não encontrado (404). Se estiver em Localhost, certifique-se de que está a usar "vercel dev" em vez de "npm run dev".');
-                    }
-                    throw new Error(`Erro do Servidor (${response.status}). Verifique os logs do backend.`);
-                }
-            }
 
             setStatus('success');
             // Increment sales count and total revenue for the product

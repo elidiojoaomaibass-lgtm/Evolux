@@ -101,18 +101,25 @@ function App() {
 
   // Check current session
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }: any) => {
-      if (session) {
-        setSession(session);
-      } else {
-        const fake = localStorage.getItem('evolux_prod_fake_session');
-        if (!fake) {
-          setSession(null);
+    supabase.auth.getSession()
+      .then(({ data: { session } }: any) => {
+        if (session) {
+          setSession(session);
+        } else {
+          const fake = localStorage.getItem('evolux_prod_fake_session');
+          if (!fake) {
+            setSession(null);
+          }
         }
-      }
-      // Mark that session check is done
-      setSessionChecked(true);
-    });
+      })
+      .catch((err) => {
+        console.error('Erro ao verificar sessão:', err);
+        setSession(null);
+      })
+      .finally(() => {
+        // Ensure the loading flag is cleared regardless of success or failure
+        setSessionChecked(true);
+      });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
@@ -291,7 +298,12 @@ function App() {
 
   // Show login screen if not authenticated and session check completed
   if (!sessionChecked) {
-    return null; // or a loading spinner
+    // Show a loading indicator while authentication status is being determined
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#faf9ff] dark:bg-[#0d0d17]">
+        <span className="text-xl font-medium text-gray-700 dark:text-gray-200">Carregando...</span>
+      </div>
+    );
   }
   if (!session) {
     return <LoginView onLogin={(fallbackUser?: any) => {

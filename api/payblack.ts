@@ -297,35 +297,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (finalWebhookUrl) {
           notifications.push((async () => {
             try {
-              let webhookEvents: Record<string, boolean> = { sale_approved: true };
-              try { webhookEvents = JSON.parse(finalWebhookEvents); } catch {}
+              const r = await fetch(finalWebhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  event: 'sale_approved',
+                  timestamp: new Date().toISOString(),
+                  transaction_id: finalTxId,
+                  reference,
+                  amount: amountNum,
+                  method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
+                  customer: { name: customerName, email: customerEmail, phone: msisdn },
+                  status: 'Concluído',
+                }),
+              });
+              const resText = await r.text().catch(() => '');
+              console.log('Merchant Webhook:', r.status, resText.slice(0, 100));
 
-              if (webhookEvents.sale_approved !== false) {
-                const r = await fetch(finalWebhookUrl, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    event: 'sale_approved',
-                    timestamp: new Date().toISOString(),
-                    transaction_id: finalTxId,
-                    reference,
-                    amount: amountNum,
-                    method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
-                    customer: { name: customerName, email: customerEmail, phone: msisdn },
-                    status: 'Concluído',
-                  }),
-                });
-                const resText = await r.text().catch(() => '');
-                console.log('Merchant Webhook:', r.status, resText.slice(0, 100));
-
-                // Debug log in DB
-                await supabase.from('transactions').insert([{
-                  id: `DBG_${Date.now()}`,
-                  type: 'payment', amount: 0, phone: '000', method: 'Debug',
-                  status: 'Debug', reference: 'Debug',
-                  description: `Webhook res: ${r.status} - ${resText.slice(0, 100)}`,
-                }]).catch(() => {});
-              }
+              // Debug log in DB
+              await supabase.from('transactions').insert([{
+                id: `DBG_${Date.now()}`,
+                type: 'payment', amount: 0, phone: '000', method: 'Debug',
+                status: 'Debug', reference: 'Debug',
+                description: `Webhook res: ${r.status} - ${resText.slice(0, 100)}`,
+              }]).catch(() => {});
             } catch (e: any) {
               console.error('Merchant Webhook erro:', e.message);
               await supabase.from('transactions').insert([{

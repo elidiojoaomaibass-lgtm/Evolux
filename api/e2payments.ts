@@ -197,6 +197,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           client_secret: final_client_secret
         })
       });
+console.log('Raw auth response body:', await authResponse.clone().text());
     } catch (fError: any) {
       console.error("Erro no Token E2Payments:", fError);
       const friendly = 'Erro de rede ao contactar E2Payments (Token).';
@@ -250,6 +251,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           reference: String(reference).replace(/[^a-zA-Z0-9]/g, '').slice(0, 20)
         })
       });
+      console.log('Raw payment response body:', await paymentResponse.clone().text());
     } catch (pError: any) {
       console.error("Erro na Transação E2Payments:", pError);
       const friendly = 'Erro de rede ao processar transação na E2Payments.';

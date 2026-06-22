@@ -6,6 +6,8 @@ import {
 import { useState } from 'react';
 import { cn } from '../lib/utils';
 import { toast } from 'sonner';
+import { processE2Payment } from '../lib/e2paymentsWrapper';
+import { E2_CLIENT_ID, E2_CLIENT_SECRET, E2_WALLET_MPESA, E2_WALLET_EMOLA } from '../config';
 
 import { useTransactionsStore } from '../lib/store';
 
@@ -26,47 +28,27 @@ export const PagamentosView = () => {
 
         setLoading(true);
         try {
-            // Pegar credenciais guardadas no localStorage (conforme ConfiguracoesView)
-            const clientId = localStorage.getItem('evolux_e2_client_id');
-            const clientSecret = localStorage.getItem('evolux_e2_client_secret');
-            const walletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
-            const walletEmola = localStorage.getItem('evolux_e2_wallet_emola');
-
             const reference = description || `PAG-${Date.now()}`;
-
-            const response = await fetch('/api/e2payments', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    phone,
-                    amount: parseFloat(amount),
-                    reference: reference,
-                    client_id: clientId,
-                    client_secret: clientSecret,
-                    wallet_mpesa: walletMpesa,
-                    wallet_emola: walletEmola
-                })
+            const paymentResult = await processE2Payment(method, {
+                phone,
+                amount: parseFloat(amount),
+                reference,
+                // optional additional fields can be added here
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Erro ao processar pagamento');
-            }
-
-            // Registrar no store local
+            // Assuming paymentResult contains transactionId and message
             addTransaction({
-                id: data.transactionId || `TX-${Date.now()}`,
+                id: paymentResult.transactionId || `TX-${Date.now()}`,
                 type: 'payment',
                 amount: parseFloat(amount),
                 phone: phone,
                 method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
                 status: 'Pendente',
                 reference: reference,
-                description: description
+                description: description,
             });
 
-            toast.success(data.message || 'Solicitação enviada com sucesso!');
+            toast.success(paymentResult.message || 'Solicitação enviada com sucesso!');
             setAmount('');
             setPhone('');
             setDescription('');
