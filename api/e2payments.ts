@@ -98,34 +98,50 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       merchant_webhook_url,
       merchant_webhook_events,
       merchant_lowtrack_token,
-      merchant_user_email
+      merchant_user_email,
+      product_id
     } = parsedBody;
+
+    let finalMerchantEmail = merchant_user_email;
 
     // Priority 1: Try to load merchant settings from Supabase using admin client (bypasses RLS)
     let supabaseWebhookUrl = '';
     let supabaseWebhookEvents = '{}';
     let supabaseLowtrackToken = '';
     const dbClient = supabaseAdmin || supabase; // prefer admin client that bypasses RLS
-    if (dbClient && merchant_user_email) {
-      try {
-        const { data: userSettings, error: settingsError } = await dbClient
-          .from('user_settings')
-          .select('webhook_url, webhook_events, lowtrack_token')
-          .eq('user_email', merchant_user_email)
-          .single();
-        if (settingsError) {
-          console.warn('Erro ao carregar user_settings:', settingsError.message);
+    if (dbClient) {
+      if (!finalMerchantEmail && product_id) {
+         try {
+           const { data: prodData } = await dbClient.from('products').select('user_email').eq('id', product_id).single();
+           if (prodData && prodData.user_email) {
+             finalMerchantEmail = prodData.user_email;
+           }
+         } catch (e) {
+           console.warn('Failed to fetch user_email from product:', e);
+         }
+      }
+
+      if (finalMerchantEmail) {
+        try {
+          const { data: userSettings, error: settingsError } = await dbClient
+            .from('user_settings')
+            .select('webhook_url, webhook_events, lowtrack_token')
+            .eq('user_email', finalMerchantEmail)
+            .single();
+          if (settingsError) {
+            console.warn('Erro ao carregar user_settings:', settingsError.message);
+          }
+          if (userSettings) {
+            if (userSettings.webhook_url) supabaseWebhookUrl = userSettings.webhook_url;
+            if (userSettings.webhook_events) supabaseWebhookEvents = typeof userSettings.webhook_events === 'string' ? userSettings.webhook_events : JSON.stringify(userSettings.webhook_events);
+            if (userSettings.lowtrack_token) supabaseLowtrackToken = userSettings.lowtrack_token;
+            console.log(`Configurações do merchant carregadas do Supabase para: ${finalMerchantEmail}`);
+          } else {
+            console.warn(`Nenhuma configuração encontrada no Supabase para: ${finalMerchantEmail}`);
+          }
+        } catch (settingsErr) {
+          console.warn('Erro ao carregar user_settings do Supabase:', settingsErr);
         }
-        if (userSettings) {
-          if (userSettings.webhook_url) supabaseWebhookUrl = userSettings.webhook_url;
-          if (userSettings.webhook_events) supabaseWebhookEvents = typeof userSettings.webhook_events === 'string' ? userSettings.webhook_events : JSON.stringify(userSettings.webhook_events);
-          if (userSettings.lowtrack_token) supabaseLowtrackToken = userSettings.lowtrack_token;
-          console.log(`Configurações do merchant carregadas do Supabase para: ${merchant_user_email}`);
-        } else {
-          console.warn(`Nenhuma configuração encontrada no Supabase para: ${merchant_user_email}`);
-        }
-      } catch (settingsErr) {
-        console.warn('Erro ao carregar user_settings do Supabase:', settingsErr);
       }
     }
 

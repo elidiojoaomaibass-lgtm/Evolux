@@ -105,6 +105,7 @@ export const CheckoutPage = () => {
                     amount: product.price,
                     reference: reference,
                     customerName: name,
+                    product_id: product.id,
                     
                     // merchant_user_email allows backend to fetch settings from Supabase directly (device-independent)
                     merchant_user_email: product.user_email || '',
