@@ -180,10 +180,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       // 4. LowTrack notification
       const merchantLowtrackToken = notifMeta?.lowtrack_token || globalLowtrakApiKey;
-      if (merchantLowtrackToken) {
+      const lowtrackEndpoint = process.env.VITE_LOWTRAK_ENDPOINT || 'https://lowtrack.com.br/api/webhook';
+      if (merchantLowtrackToken && lowtrackEndpoint) {
         notifications.push((async () => {
           try {
-            await fetch('https://lowtrack.com.br/api/webhook', {
+            await fetch(lowtrackEndpoint, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -209,7 +210,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           } catch (lowErr) { console.error('Erro ao notificar LowTrack', lowErr); }
         })());
       }
-
       await Promise.allSettled(notifications);
 
       return res.status(200).json({

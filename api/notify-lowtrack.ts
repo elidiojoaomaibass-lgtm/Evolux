@@ -16,7 +16,7 @@ export default async function handler(req: any, res: any) {
     return res.status(400).json({ error: 'Token is required' });
   }
 
-  const endpoint = 'https://lowtrack.com.br/api/webhook';
+  const endpoint = process.env.VITE_LOWTRAK_ENDPOINT || 'https://lowtrack.com.br/api/webhook';
 
   try {
     const response = await fetch(endpoint, {
