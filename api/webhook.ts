@@ -179,37 +179,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       // 4. LowTrack notification
-      const merchantLowtrackToken = notifMeta?.lowtrack_token || globalLowtrakApiKey;
-      const lowtrackEndpoint = process.env.VITE_LOWTRAK_ENDPOINT || 'https://lowtrack.com.br/api/webhook';
-      if (merchantLowtrackToken && lowtrackEndpoint) {
-        notifications.push((async () => {
-          try {
-            await fetch(lowtrackEndpoint, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${merchantLowtrackToken}`,
-                'User-Agent': 'Mozilla/5.0'
-              },
-              body: JSON.stringify({
-                event: finalStatus === 'Concluído' ? 'sale.approved' : 'sale.failed',
-                transaction_id,
-                reference,
-                amount: updatedTx?.amount,
-                method: payMethod,
-                status: finalStatus,
-                customer: {
-                  name: updatedTx?.customerName,
-                  email: updatedTx?.customerEmail,
-                  phone: updatedTx?.phone
+      const merchantLowtrackToken = notifMeta?.lowtrack_token || await getLowtrackToken();
+        console.log('LowTrack debug - token:', merchantLowtrackToken?.substring(0,8), 'endpoint:', lowtrackEndpoint);
+        if (merchantLowtrackToken && lowtrackEndpoint) {
+          notifications.push((async () => {
+            try {
+              await fetch(lowtrackEndpoint, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${merchantLowtrackToken}`,
+                  'User-Agent': 'Mozilla/5.0'
                 },
-                user_id: updatedTx?.customerEmail || updatedTx?.phone || userId
-              }),
-            });
-            console.log(`LowTrack notified (${finalStatus}) with token:`, merchantLowtrackToken.substring(0, 8) + '...');
-          } catch (lowErr) { console.error('Erro ao notificar LowTrack', lowErr); }
-        })());
-      }
+                body: JSON.stringify({
+                  event: finalStatus === 'Concluído' ? 'sale.approved' : 'sale.failed',
+                  transaction_id,
+                  reference,
+                  amount: updatedTx?.amount,
+                  method: payMethod,
+                  status: finalStatus,
+                  customer: {
+                    name: updatedTx?.customerName,
+                    email: updatedTx?.customerEmail,
+                    phone: updatedTx?.phone
+                  },
+                  user_id: updatedTx?.customerEmail || updatedTx?.phone || userId
+                })
+              });
+              console.log(`LowTrack notified (${finalStatus}) with token:`, merchantLowtrackToken.substring(0, 8) + '...');
+            } catch (lowErr) { console.error('Erro ao notificar LowTrack', lowErr); }
+          })());
+        }
+
       await Promise.allSettled(notifications);
 
       return res.status(200).json({
