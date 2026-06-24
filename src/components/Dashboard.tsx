@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { 
+import {
     Gem, Calendar, Bell, LogOut, BarChart3, X, UserCircle2, ChevronDown,
     DollarSign, CheckCircle2, Clock, XCircle, TrendingUp, TrendingDown
 } from 'lucide-react';
@@ -7,6 +7,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 import { Logo } from './Logo';
 import { useTransactionsStore } from '../lib/store';
+
+
+
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
@@ -24,7 +27,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showPeriodDropdown, setShowPeriodDropdown] = useState(false);
-    
+
     const profileRef = useRef<HTMLDivElement>(null);
     const notificationsRef = useRef<HTMLDivElement>(null);
     const datePickerRef = useRef<HTMLDivElement>(null);
@@ -206,7 +209,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                 };
             });
         }
-        
+
         const days = period === '7D' ? 7 : period === '30D' ? 30 : period === '90D' ? 90 : 30;
         return Array.from({ length: days }, (_, i) => {
             const date = new Date();
@@ -231,7 +234,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
     return (
         <div className="min-h-screen bg-[#fafbff] dark:bg-[#0f0525] p-4 md:p-8 font-sans">
             <div className="w-full space-y-8">
-                
+
                 {/* ─── TOP HEADER ─── */}
                 <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-y-4 lg:gap-6 border-b border-slate-100 dark:border-white/5 pb-4">
                     {/* Left: Progress */}
@@ -246,10 +249,10 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                             </span>
                         </div>
                         <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-white/5 overflow-hidden shadow-inner">
-                            <motion.div 
-                                initial={{ width: 0 }} 
-                                animate={{ width: `${progressPercent}%` }} 
-                                className={cn("h-full rounded-full transition-all duration-500", level.bg)} 
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${progressPercent}%` }}
+                                className={cn("h-full rounded-full transition-all duration-500", level.bg)}
                             />
                         </div>
                     </div>
@@ -258,7 +261,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
 
                     <div className="flex items-center gap-4 order-2 lg:order-3 ml-auto lg:ml-0 z-50">
                         <div className="relative shrink-0" ref={notificationsRef}>
-                            <button 
+                            <button
                                 onClick={() => setNotificationsOpen(!notificationsOpen)}
                                 className="relative h-11 w-11 flex items-center justify-center bg-white dark:bg-brand-900 rounded-full border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all"
                             >
@@ -395,7 +398,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                         {periodOptions.map((p) => (
                                             <button
                                                 key={p.key}
-                                                onClick={() => { 
+                                                onClick={() => {
                                                     if (p.key === 'PERSONALIZADO') {
                                                         setShowDatePicker(true);
                                                     } else {
@@ -449,7 +452,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                     </div>
                     {/* Row 2: subtitle */}
                     <p className="text-sm text-slate-400 dark:text-brand-400 font-medium">
-                      Acompanhe as suas vendas e receitas de hoje.
+                        Acompanhe as suas vendas e receitas de hoje.
                     </p>
                 </div>
 
@@ -544,125 +547,40 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
 
 
 
-                                        <div className="bg-white rounded-[2rem] h-[350px] shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
-                            <div className="flex-1 flex flex-col items-center justify-center">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total</span>
-                                <span className="text-5xl font-black text-slate-900 tracking-tighter">{totalApprovedCount}</span>
+                    <div className="bg-white rounded-[2rem] h-[350px] shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
+                        <div className="flex-1 flex flex-col items-center justify-center">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total</span>
+                            <span className="text-5xl font-black text-slate-900 tracking-tighter">{totalApprovedCount}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 mt-auto">
+                            <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-100">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="h-3 w-3 rounded-sm bg-red-500 flex items-center justify-center">
+                                        <div className="h-1 w-1 bg-white rounded-full" />
+                                    </div>
+                                    <span className="text-[9px] font-black text-slate-900 tracking-widest">M-PESA</span>
+                                </div>
+                                <span className="text-sm font-black text-violet-600">{mpesaPercent}%</span>
+                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{mpesaCount} Vendas</span>
                             </div>
-                            <div className="grid grid-cols-2 gap-4 mt-auto">
-                                <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-100">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className="h-3 w-3 rounded-sm bg-red-500 flex items-center justify-center">
-                                            <div className="h-1 w-1 bg-white rounded-full" />
-                                        </div>
-                                        <span className="text-[9px] font-black text-slate-900 tracking-widest">M-PESA</span>
+                            <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-100">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="h-3 w-3 rounded-sm bg-orange-500 flex items-center justify-center">
+                                        <div className="h-1 w-1 bg-white rounded-full" />
                                     </div>
-                                    <span className="text-sm font-black text-violet-600">{mpesaPercent}%</span>
-                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{mpesaCount} Vendas</span>
+                                    <span className="text-[9px] font-black text-slate-900 tracking-widest">E-MOLA</span>
                                 </div>
-                                <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-100">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className="h-3 w-3 rounded-sm bg-orange-500 flex items-center justify-center">
-                                            <div className="h-1 w-1 bg-white rounded-full" />
-                                        </div>
-                                        <span className="text-[9px] font-black text-slate-900 tracking-widest">E-MOLA</span>
-                                    </div>
-                                    <span className="text-sm font-black text-violet-600">{emolaPercent}%</span>
-                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{emolaCount} Vendas</span>
-                                </div>
+                                <span className="text-sm font-black text-violet-600">{emolaPercent}%</span>
+                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{emolaCount} Vendas</span>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                {/* ─── TRANSACTIONS ─── */}
-                <div className="space-y-4 pt-4">
-                    <div className="flex items-center justify-between px-2">
-                        <div className="flex items-center gap-4">
-                            <h3 className="text-xl font-black text-slate-900 tracking-tight">Transações em Tempo Real</h3>
-                            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-[10px] font-black text-slate-500 tracking-widest">
-                                TOTAL: {filteredTxs.length}
-                            </div>
-                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/50 text-[10px] font-black text-emerald-600 tracking-widest">
-                                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                                ATIVO
-                            </div>
-                        </div>
-                        <button 
-                            onClick={() => setView('Vendas')}
-                            className="px-6 py-3 rounded-xl bg-white border border-slate-100 shadow-sm text-[10px] font-black uppercase text-slate-700 tracking-widest hover:bg-slate-50 transition-all cursor-pointer"
-                        >
-                            Ver Histórico
-                        </button>
-                    </div>
-
-                    <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-slate-100 overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <div className="min-w-[900px]">
-                                <div className="grid grid-cols-7 gap-4 px-6 py-4 border-b border-slate-100/50">
-                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest">ID</div>
-                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Produto</div>
-                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Cliente</div>
-                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">E-mail</div>
-                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Método</div>
-                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Valor / Estado</div>
-                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest text-right">Data/Hora</div>
-                                </div>
-                                {filteredTxs.length > 0 ? (
-                                    <div className="divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
-                                        {filteredTxs.slice(0, 5).map(tx => (
-                                            <div key={tx.id} className="grid grid-cols-7 gap-4 px-6 py-3.5 items-center hover:bg-slate-50/50 transition-all">
-                                                <div className="font-mono text-[10px] font-bold text-slate-400 truncate">
-                                                    #{tx.id.substring(0, 12)}
-                                                </div>
-                                                <div className="text-xs font-bold text-slate-700 text-center truncate">
-                                                    {tx.description || 'Pagamento'}
-                                                </div>
-                                                <div className="text-xs text-slate-600 text-center truncate">
-                                                    {tx.customerName || 'Cliente'} ({tx.phone})
-                                                </div>
-                                                <div className="text-xs text-slate-600 text-center truncate select-all">
-                                                    {tx.customerEmail || '—'}
-                                                </div>
-                                                <div className="flex justify-center">
-                                                    <div className={cn(
-                                                        "px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border shadow-sm",
-                                                        tx.method === 'e-Mola' 
-                                                            ? "bg-orange-50 text-orange-600 border-orange-200"
-                                                            : "bg-red-50 text-red-600 border-red-200"
-                                                    )}>
-                                                        {tx.method}
-                                                    </div>
-                                                </div>
-                                                <div className="text-center flex flex-col items-center">
-                                                    <span className="text-xs font-black text-slate-800">{tx.amount.toLocaleString()} MZN</span>
-                                                    <span className={cn(
-                                                        "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider mt-0.5 border",
-                                                        tx.status === 'Concluído' ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
-                                                        tx.status === 'Pendente' ? "bg-amber-50 text-amber-600 border-amber-200" :
-                                                        "bg-red-50 text-red-600 border-red-200"
-                                                    )}>
-                                                        {tx.status}
-                                                    </span>
-                                                </div>
-                                                <div className="text-right text-[10px] text-slate-400 font-bold">
-                                                    {new Date(tx.createdAt).toLocaleDateString('pt-PT')} <br />
-                                                    {new Date(tx.createdAt).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="h-32 flex items-center justify-center text-sm font-medium text-slate-400">
-                                        Nenhuma transação recente.
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
+
+
+
+        </div>
 
     );
 }

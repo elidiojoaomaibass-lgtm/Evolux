@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    ArrowUpRight, ArrowDownRight, Search, Calendar, X, BarChart3
+    ArrowUpRight, ArrowDownRight, Search, Calendar, X, BarChart3, MoreHorizontal
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { User } from '@supabase/supabase-js';
 import { useTransactionsStore } from '../lib/store';
+import { cleanProductName } from '../lib/descriptionUtils';
 
 type PeriodType = 'Hoje' | 'Ontem' | '7d' | '30d' | '90d' | 'Todo' | 'custom';
 
@@ -19,6 +20,8 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('Todas');
+    const [selectedTx, setSelectedTx] = useState<any>(null);
+    const [showDetail, setShowDetail] = useState(false);
 
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -357,14 +360,14 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                         <table className="w-full text-left border-collapse min-w-[1100px]">
                             <thead>
                                 <tr className="bg-slate-50/50 dark:bg-white/5">
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">ID Transação</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Descrição / Produto</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Cliente</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">E-mail</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Canal</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-right">Valor Bruto</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Produto</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Valor</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Estado</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Data / Hora</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Método</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">ID Transação</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Data / Hora</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
@@ -378,65 +381,47 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                             key={trx.id}
                                             className="group/row hover:bg-violet-600/[0.03] dark:hover:bg-white/[0.02] transition-all"
                                         >
-                                            <td className="px-10 py-2.5 font-mono text-[11px] font-black text-slate-400 dark:text-brand-600 group-hover/row:text-violet-600 transition-colors">
-                                                #{trx.id.substring(0, 12)}
-                                            </td>
                                             <td className="px-10 py-2.5">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[14px] font-black text-slate-800 dark:text-white tracking-tight">{trx.description || 'Pagamento Direto'}</span>
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Referência: {trx.reference}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-10 py-2.5">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="h-10 w-10 rounded-2xl bg-slate-100 dark:bg-brand-800 flex items-center justify-center text-[12px] font-black text-slate-500 dark:text-brand-300">
-                                                        {(trx.customerName || 'C')[0]}
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[14px] font-black text-slate-700 dark:text-white tracking-tight">{trx.customerName || 'Cliente Direto'}</span>
-                                                        <span className="text-[10px] font-bold text-slate-400 dark:text-brand-500 mt-0.5">{trx.phone}</span>
-                                                    </div>
+                                                    <span className="text-[14px] font-black text-slate-800 dark:text-white tracking-tight">{trx.customerName || 'Unknown Customer'}</span>
                                                 </div>
                                             </td>
                                             <td className="px-10 py-2.5">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[13px] font-bold text-slate-700 dark:text-brand-350 tracking-tight select-all">{trx.customerEmail || '—'}</span>
+                                                    <span className="text-[12px] font-black text-slate-500 dark:text-brand-500">{cleanProductName(trx.description)}</span>
                                                 </div>
                                             </td>
                                             <td className="px-10 py-2.5">
-                                                <div className="flex justify-center">
-                                                    <div className="h-7 w-7 rounded-lg bg-white border border-slate-100 p-0.5 overflow-hidden shadow-sm">
-                                                        <img 
-                                                            src={trx.method === 'e-Mola' ? '/emola_logo.png' : '/mpesa_logo.png'} 
-                                                            alt={trx.method} 
-                                                            className="w-full h-full object-cover" 
-                                                        />
-                                                    </div>
+                                                <div className="flex flex-col items-center text-center">
+                                                    <span className="text-[15px] font-black text-slate-900 dark:text-white tabular-nums tracking-tighter">{trx.amount.toLocaleString()} <span className="text-[10px] text-slate-900 dark:text-white font-medium">MZN</span></span>
+                                                    <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5">Processed</span>
                                                 </div>
                                             </td>
-                                            <td className="px-10 py-2.5 text-right">
-                                                <div className="flex flex-col items-end">
-                                                    <span className="text-[15px] font-black text-slate-900 dark:text-white tabular-nums tracking-tighter">{trx.amount.toLocaleString()} <span className="text-[10px] opacity-60">MZN</span></span>
-                                                    <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5">Processado</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-10 py-2.5">
-                                                <div className="flex justify-center">
+                                            <td className="px-10 py-2.5 text-center">
+                                                <div className="flex flex-col items-center">
                                                     <span className={cn(
                                                         "px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] border whitespace-nowrap",
                                                         trx.status === 'Concluído' ? "bg-green-500/5 border-green-500/20 text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.1)]" :
                                                             trx.status === 'Pendente' ? "bg-amber-500/5 border-amber-500/20 text-amber-500" :
                                                                 "bg-red-500/5 border-red-500/20 text-red-500"
-                                                    )}>
-                                                        {trx.status}
-                                                    </span>
+                                                    )}>{trx.status}</span>
                                                 </div>
                                             </td>
                                             <td className="px-10 py-2.5 text-center">
-                                                <div className="flex flex-col items-center">
-                                                    <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">{new Date(trx.createdAt).toLocaleDateString('pt-PT')}</span>
-                                                    <span className="text-[10px] font-bold text-slate-400 dark:text-brand-500 mt-0.5">{new Date(trx.createdAt).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                <span className={`px-2 py-1 rounded ${trx.method === 'M-Pesa' ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'} font-medium`}>{trx.method}</span>
+                                            </td>
+                                            <td className="px-10 py-2.5 font-mono text-[11px] font-black text-slate-400 dark:text-brand-600 group-hover/row:text-violet-600 transition-colors">
+                                                #{trx.id}
+                                            </td>
+                                            <td className="px-10 py-2.5 text-center">
+                                                <div className="flex flex-col items-start pl-2 h-full">
+                                                    <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">{new Date(trx.createdAt).toLocaleDateString('pt-PT')} {new Date(trx.createdAt).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}</span>
                                                 </div>
+                                            </td>
+                                            <td className="px-10 py-2.5 text-center">
+                                                <button onClick={() => { setSelectedTx(trx); setShowDetail(true); }} className="p-1 hover:bg-slate-200 dark:hover:bg-brand-800 rounded-full">
+                                                    <MoreHorizontal size={16} className="text-slate-600 dark:text-brand-400" />
+                                                </button>
                                             </td>
                                         </motion.tr>
                                     )) : (
@@ -455,6 +440,24 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                             </tbody>
                         </table>
                     </div>
+                    {/* Popover Detail */}
+                    {showDetail && selectedTx && (
+                        <div className="absolute top-4 right-4 w-96 bg-white dark:bg-brand-950 border border-gray-200 dark:border-white/10 rounded-xl shadow-lg p-6 z-50">
+                            <button onClick={() => setShowDetail(false)} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-400">
+                                <X size={20} />
+                            </button>
+                            <div className="space-y-2 text-sm">
+                                <p><span className="font-medium">Cliente:</span> {selectedTx.customerName || 'Desconhecido'}</p>
+                                <p><span className="font-medium">Email:</span> {selectedTx.customerEmail || '-'}</p>
+                                <p><span className="font-medium">Telefone:</span> {selectedTx.phone || '-'}</p>
+                                <p><span className="font-medium">Produto:</span> {cleanProductName(selectedTx.description)}</p>
+                                <p><span className="font-medium">Valor:</span> {selectedTx.amount.toLocaleString()} MZN</p>
+                                <p><span className="font-medium">Método:</span> {selectedTx.method}</p>
+                                <p><span className="font-medium">Status:</span> {selectedTx.status}</p>
+                                <p><span className="font-medium">Data:</span> {new Date(selectedTx.createdAt).toLocaleString()}</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

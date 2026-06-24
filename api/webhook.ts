@@ -8,12 +8,17 @@ export const config = {
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import fetch from 'node-fetch';
+import * as dotenv from 'dotenv';
+dotenv.config();
 import { sendPushNotificationV1 as sendPushNotification, getUserTokens } from '../src/lib/push_v1';
+import { getLowtrackToken } from '../src/lib/lowtrack';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
 // Lowtrak integration env vars (global fallback if merchant hasn't configured individually)
 const globalLowtrakApiKey = process.env.VITE_LOWTRAK_API_KEY || process.env.LOWTRAK_API_KEY || '';
+// LowTrack endpoint for webhook notifications (default provided)
+const lowtrackEndpoint = process.env.VITE_LOWTRAK_ENDPOINT || process.env.LOWTRAK_ENDPOINT || 'https://lowtrack.com.br/api/webhook';
 const defaultMerchantWebhookUrl = process.env.VITE_MERCHANT_WEBHOOK_URL || '';
 const defaultMerchantWebhookEvents = process.env.VITE_MERCHANT_WEBHOOK_EVENTS || '{}';
 const pushcutEndpoint = process.env.VITE_PUSHCUT_ENDPOINT || process.env.PUSHCUT_ENDPOINT || '';
@@ -184,7 +189,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (merchantLowtrackToken && lowtrackEndpoint) {
           notifications.push((async () => {
             try {
-              await fetch(lowtrackEndpoint, {
+              const lowtrackResponse = await fetch(lowtrackEndpoint, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -206,7 +211,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                   user_id: updatedTx?.customerEmail || updatedTx?.phone || userId
                 })
               });
-              console.log(`LowTrack notified (${finalStatus}) with token:`, merchantLowtrackToken.substring(0, 8) + '...');
+              if (!lowtrackResponse.ok) {
+                const errorText = await lowtrackResponse.text();
+                console.error(`LowTrack notification failed with status ${lowtrackResponse.status}: ${errorText}`);
+              } else {
+                console.log(`LowTrack notified (${finalStatus}) with token: ${merchantLowtrackToken.substring(0, 8)}...`);
+              }
             } catch (lowErr) { console.error('Erro ao notificar LowTrack', lowErr); }
           })());
         }

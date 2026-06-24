@@ -88,19 +88,15 @@ export const SaqueView = () => {
         }
 
         if (pendingByWallet[method]) {
-            toast.error(`Você já possui um levantamento pendente para ${method}. Aguarde a aprovação.`);
+            toast.error(`Já existe um levantamento pendente para ${method}.`);
             return;
         }
 
         setLoading(true);
+        const reference = `REF-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
         try {
-            const reference = `SQ-${Date.now()}`;
-
-            // Nota: PayBlack actualmente suporta apenas C2B (receber pagamentos).
-            // A funcionalidade de Saque (B2C) será processada manualmente pela equipa.
-            // Registar o pedido de levantamento localmente e notificar a equipa.
-
-            // Registar no histórico local
+            setPendingByWallet(prev => ({ ...prev, [method]: true }));
             addTransaction({
                 id: reference,
                 type: 'withdrawal',
