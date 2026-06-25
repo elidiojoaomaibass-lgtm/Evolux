@@ -4,14 +4,19 @@ import { supabase } from './supabase';
 import { toast } from 'sonner';
 
 // Key for offline product storage
-// Removed offline storage key; products are now persisted solely in Supabase.
-// const OFFLINE_PRODUCTS_KEY = 'evolux_offline_products';
+const OFFLINE_PRODUCTS_KEY = 'evolux_offline_products';
 
-
-
-
-
-
+const getInitialLocalProducts = (): Product[] => {
+    const stored = localStorage.getItem(OFFLINE_PRODUCTS_KEY);
+    if (stored) {
+        try {
+            return JSON.parse(stored);
+        } catch (e) {
+            console.error('Failed to parse products from localStorage', e);
+        }
+    }
+    return [];
+};
 export const sendLocalNotification = (title: string, options?: NotificationOptions) => {
     // Always show a toast in-app (styled by sonner)
     if (title.includes('Erro') || title.includes('Falha')) {
@@ -82,6 +87,10 @@ export type Category = 'Ebook' | 'Curso' | 'Mentoria' | 'Workshop' | 'Outro';
       const { data, error } = await query;
       if (error) throw error;
       let products = (data as Product[]) ?? [];
+      
+      // Ordena os produtos do mais recente para o mais antigo
+      products.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      
       // Fetch associated images from product_images table and attach to products if missing
       if (products.length > 0) {
 
@@ -106,7 +115,7 @@ export type Category = 'Ebook' | 'Curso' | 'Mentoria' | 'Workshop' | 'Outro';
     }
   };
 
-let globalProducts: Product[] = []; 
+let globalProducts: Product[] = getInitialLocalProducts(); 
 
 
 const listeners = new Set<(products: Product[]) => void>();
@@ -133,7 +142,7 @@ export const useProductsStore = () => {
 
     const updateProducts = (newProducts: Product[]) => {
         globalProducts = newProducts;
-        // No localStorage persistence for products; rely on Supabase.
+        localStorage.setItem(OFFLINE_PRODUCTS_KEY, JSON.stringify(globalProducts));
         listeners.forEach(l => l(globalProducts));
     };
 

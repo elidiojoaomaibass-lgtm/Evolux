@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    ArrowUpRight, ArrowDownRight, Search, Calendar, X, BarChart3, MoreHorizontal
+    ArrowUpRight, ArrowDownRight, Search, Calendar, X, BarChart3, MoreHorizontal,
+    ExternalLink, Copy, MessageCircle, Mail
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { User } from '@supabase/supabase-js';
@@ -440,24 +441,161 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                             </tbody>
                         </table>
                     </div>
-                    {/* Popover Detail */}
-                    {showDetail && selectedTx && (
-                        <div className="absolute top-4 right-4 w-96 bg-white dark:bg-brand-950 border border-gray-200 dark:border-white/10 rounded-xl shadow-lg p-6 z-50">
-                            <button onClick={() => setShowDetail(false)} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-400">
-                                <X size={20} />
-                            </button>
-                            <div className="space-y-2 text-sm">
-                                <p><span className="font-medium">Cliente:</span> {selectedTx.customerName || 'Desconhecido'}</p>
-                                <p><span className="font-medium">Email:</span> {selectedTx.customerEmail || '-'}</p>
-                                <p><span className="font-medium">Telefone:</span> {selectedTx.phone || '-'}</p>
-                                <p><span className="font-medium">Produto:</span> {cleanProductName(selectedTx.description)}</p>
-                                <p><span className="font-medium">Valor:</span> {selectedTx.amount.toLocaleString()} MZN</p>
-                                <p><span className="font-medium">Método:</span> {selectedTx.method}</p>
-                                <p><span className="font-medium">Status:</span> {selectedTx.status}</p>
-                                <p><span className="font-medium">Data:</span> {new Date(selectedTx.createdAt).toLocaleString()}</p>
+                    {/* Transaction Detail Modal */}
+                    <AnimatePresence>
+                        {showDetail && selectedTx && (
+                            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6">
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => setShowDetail(false)}
+                                    className="absolute inset-0 bg-slate-900/60 dark:bg-black/60 backdrop-blur-sm"
+                                />
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                    className="relative w-full max-w-3xl bg-white dark:bg-[#1e2638] rounded-[1.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] border border-slate-200 dark:border-white/10"
+                                >
+                                    {/* Header */}
+                                    <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-[#1e2638]">
+                                        <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">Detalhes da encomenda</h3>
+                                        <button onClick={() => setShowDetail(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
+                                            <X size={24} />
+                                        </button>
+                                    </div>
+                                    
+                                    {/* Body */}
+                                    <div className="p-6 overflow-y-auto space-y-6">
+                                        {/* Row 1 */}
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                            <div className="space-y-1.5">
+                                                <p className="text-sm font-bold text-slate-700 dark:text-white">Order ID:</p>
+                                                <div className="px-3 py-1.5 border border-slate-300 dark:border-white/20 rounded-md bg-slate-50 dark:bg-transparent font-mono text-xs font-bold text-slate-800 dark:text-white w-fit">
+                                                    {selectedTx.id}
+                                                </div>
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <p className="text-sm font-bold text-slate-700 dark:text-white">Status:</p>
+                                                <div className={cn(
+                                                    "px-3 py-1 rounded-md text-xs font-black uppercase tracking-widest w-fit",
+                                                    selectedTx.status === 'Concluído' ? "bg-emerald-500 text-white" :
+                                                    selectedTx.status === 'Pendente' ? "bg-amber-500 text-white" :
+                                                    "bg-rose-500 text-white"
+                                                )}>
+                                                    {selectedTx.status}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Row 2 */}
+                                        <div className="space-y-1.5">
+                                            <p className="text-sm font-bold text-slate-700 dark:text-white">Checkout Link:</p>
+                                            <button className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-[#111827] text-white rounded-lg text-sm font-bold hover:bg-slate-800 dark:hover:bg-black transition-colors w-fit shadow-sm">
+                                                <ExternalLink size={16} />
+                                                Open Checkout Page
+                                            </button>
+                                            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Opens on the checkout using the current product path</p>
+                                        </div>
+
+                                        {/* Row 3 */}
+                                        <div className="space-y-1.5">
+                                            <p className="text-sm font-bold text-slate-700 dark:text-white">Created At:</p>
+                                            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                                                {new Date(selectedTx.createdAt).toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                            </p>
+                                        </div>
+
+                                        <hr className="border-slate-100 dark:border-white/10" />
+
+                                        {/* Customer Info */}
+                                        <div className="space-y-4">
+                                            <div className="flex flex-row items-center justify-between">
+                                                <h4 className="text-base font-black text-slate-800 dark:text-white tracking-tight">Customer Information</h4>
+                                                <button 
+                                                    onClick={() => navigator.clipboard.writeText(`Nome: ${selectedTx.customerName}\nEmail: ${selectedTx.customerEmail}\nTel: ${selectedTx.phone}`)}
+                                                    className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-white hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                                                >
+                                                    <Copy size={16} /> Copy Info
+                                                </button>
+                                            </div>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div className="space-y-4">
+                                                    <div>
+                                                        <p className="text-sm font-bold text-slate-700 dark:text-white mb-1">Name:</p>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300">{selectedTx.customerName || 'N/A'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-slate-700 dark:text-white mb-1">Phone:</p>
+                                                        <a href={`https://wa.me/${selectedTx.phone?.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-sm font-medium text-blue-600 dark:text-[#38bdf8] hover:underline w-fit">
+                                                            <MessageCircle size={16} /> {selectedTx.phone || 'N/A'}
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-4">
+                                                    <div>
+                                                        <p className="text-sm font-bold text-slate-700 dark:text-white mb-1">Email:</p>
+                                                        <a href={`mailto:${selectedTx.customerEmail}`} className="flex items-center gap-1.5 text-sm font-medium text-blue-600 dark:text-[#38bdf8] hover:underline w-fit">
+                                                            <Mail size={16} /> {selectedTx.customerEmail || 'N/A'}
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <hr className="border-slate-100 dark:border-white/10" />
+
+                                        {/* Order Items */}
+                                        <div className="space-y-4">
+                                            <h4 className="text-base font-black text-slate-800 dark:text-white tracking-tight">Order Items</h4>
+                                            <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/30 dark:bg-transparent">
+                                                <table className="w-full text-left text-sm whitespace-nowrap">
+                                                    <thead className="bg-slate-50 dark:bg-[#1a2030] border-b border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300">
+                                                        <tr>
+                                                            <th className="px-5 py-3.5 font-bold">Product</th>
+                                                            <th className="px-5 py-3.5 font-bold">Quantity</th>
+                                                            <th className="px-5 py-3.5 font-bold">Unit Price</th>
+                                                            <th className="px-5 py-3.5 font-bold">Total</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-200">
+                                                        <tr className="hover:bg-white dark:hover:bg-white/5 transition-colors">
+                                                            <td className="px-5 py-4 font-bold text-blue-600 dark:text-[#38bdf8] hover:underline cursor-pointer">{cleanProductName(selectedTx.description)}</td>
+                                                            <td className="px-5 py-4 font-medium">1</td>
+                                                            <td className="px-5 py-4 font-medium">{selectedTx.amount.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN</td>
+                                                            <td className="px-5 py-4 font-black">{selectedTx.amount.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <hr className="border-slate-100 dark:border-white/10" />
+
+                                        {/* Totals */}
+                                        <div className="flex flex-col items-end space-y-2 pb-4 pt-2">
+                                            <div className="flex items-center justify-between w-full max-w-[280px]">
+                                                <span className="text-sm font-bold text-slate-700 dark:text-white">Subtotal:</span>
+                                                <span className="text-sm font-black text-slate-800 dark:text-white">{selectedTx.amount.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN</span>
+                                            </div>
+                                            <div className="flex items-center justify-between w-full max-w-[280px] pt-2">
+                                                <span className="text-base font-bold text-slate-700 dark:text-white">Total Amount:</span>
+                                                <span className="text-xl font-black text-blue-600 dark:text-[#38bdf8]">{selectedTx.amount.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MZN</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Footer */}
+                                    <div className="p-5 border-t border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-[#1a2030] flex justify-end shrink-0">
+                                        <button onClick={() => setShowDetail(false)} className="px-8 py-2.5 bg-slate-600 dark:bg-[#4b5563] hover:bg-slate-700 dark:hover:bg-slate-500 text-white text-sm font-black tracking-wide rounded-xl shadow-md active:scale-95 transition-all">
+                                            Fechar
+                                        </button>
+                                    </div>
+                                </motion.div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
         </div>

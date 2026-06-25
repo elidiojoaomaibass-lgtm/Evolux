@@ -4,10 +4,11 @@ import {
     Loader2,
     AlertCircle
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { cn } from '../lib/utils';
 import { useTransactionsStore } from '../lib/store';
+import { supabase } from '../lib/supabase';
 
 import { Logo } from './Logo';
 import { CountdownBanner } from './CountdownBanner';
@@ -41,13 +42,38 @@ export const CheckoutPage = () => {
     }
     const productImage = storedImage || urlImage;
 
+    const [dbProduct, setDbProduct] = useState<any>(null);
+    const [loadingProduct, setLoadingProduct] = useState(true);
+
+    useEffect(() => {
+        const fetchProduct = async () => {
+            if (productId && productId !== 'PRD-MOCK') {
+                try {
+                    const { data } = await supabase.from('products').select('*').eq('id', productId).single();
+                    if (data) {
+                        const { data: imgData } = await supabase.from('product_images').select('url').eq('product_id', productId).maybeSingle();
+                        if (imgData?.url) data.image = imgData.url;
+                        setDbProduct(data);
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch product", err);
+                }
+            }
+            setLoadingProduct(false);
+        };
+        fetchProduct();
+    }, [productId]);
+
     const product = {
         id: productId,
-        name: searchParams.get('name') || 'Produto sem Nome',
-        price: isNaN(rawPrice) ? 0 : rawPrice,
-        image: productImage,
-        deliveryLink: searchParams.get('deliveryLink') || '',
-        user_email: searchParams.get('user_email') || ''
+        name: dbProduct?.name || searchParams.get('name') || 'Produto sem Nome',
+        price: dbProduct?.price !== undefined ? dbProduct.price : (isNaN(rawPrice) ? 0 : rawPrice),
+        image: dbProduct?.image || productImage,
+        deliveryLink: dbProduct?.deliveryLink || searchParams.get('deliveryLink') || '',
+        user_email: dbProduct?.user_email || searchParams.get('user_email') || '',
+        enableCountdown: dbProduct?.enableCountdown ?? enableCountdown,
+        enableScarcityNotification: dbProduct?.enableScarcity ?? enableScarcity,
+        barColor: dbProduct?.barColor || barColor
     };
 
     const handlePurchase = async (e: React.FormEvent) => {
@@ -176,6 +202,15 @@ export const CheckoutPage = () => {
         }
     };
 
+    if (loadingProduct && productId !== 'PRD-MOCK') {
+        return (
+            <div className="min-h-[100dvh] bg-slate-50 flex flex-col items-center justify-center p-4">
+                <Loader2 className="h-10 w-10 animate-spin text-red-600 mb-4" />
+                <p className="text-slate-500 font-bold tracking-tight">A carregar detalhes do produto...</p>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-[100dvh] bg-slate-50 flex flex-col mx-auto">
             <div className="sticky top-0 z-50 shadow-sm">
@@ -252,7 +287,7 @@ export const CheckoutPage = () => {
                             <div className="flex flex-row gap-4 pt-2">
                                 <div className="h-24 w-24 md:h-36 md:w-36 rounded-xl overflow-hidden bg-slate-150 border border-slate-200 shrink-0 shadow-sm mx-auto sm:mx-0">
                                     <img
-                                        src={productImage}
+                                        src={product.image}
                                         alt={product.name || 'Product Image'}
                                         className="w-full h-full object-cover"
                                     />

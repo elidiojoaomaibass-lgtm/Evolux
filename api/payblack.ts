@@ -101,6 +101,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       merchant_webhook_url,
       merchant_webhook_events,
       merchant_lowtrack_token,
+      product_id,
     } = parsed;
 
     if (cName) customerName = cName;
@@ -273,6 +274,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           createdat: new Date().toISOString(),
         }]);
         console.log('Transação salva no Supabase:', finalTxId);
+
+        // Update product sales and revenue
+        if (product_id) {
+           try {
+             const { data: prod } = await supabase.from('products').select('sales, revenue').eq('id', product_id).single();
+             if (prod) {
+                 await supabase.from('products').update({
+                     sales: (prod.sales || 0) + 1,
+                     revenue: (prod.revenue || 0) + amountNum
+                 }).eq('id', product_id);
+                 console.log(`Produto ${product_id} atualizado: +1 venda, +${amountNum} receita.`);
+             }
+           } catch (e) { console.error('Erro ao atualizar vendas do produto:', e); }
+        }
 
         // ── Fire notifications ──────────────────────────────────────────────
         const notifications: Promise<any>[] = [];

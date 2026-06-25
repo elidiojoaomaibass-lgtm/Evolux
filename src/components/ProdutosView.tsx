@@ -88,47 +88,7 @@ export const ProdutosView = () => {
     const [copiedProductId, setCopiedProductId] = useState<string | null>(null);
     const [shorteningProductId, setShorteningProductId] = useState<string | null>(null);
 
-    useEffect(() => {
-        // Run migration only once on mount to compress legacy huge base64 images
-        products.forEach(product => {
-            if (product.image && product.image.startsWith('data:') && product.image.length > 5000) {
-                const img = new Image();
-                img.src = product.image;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 150;
-                    const MAX_HEIGHT = 150;
-                    let width = img.width;
-                    let height = img.height;
 
-                    if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
-                    } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    if (ctx) {
-                        ctx.drawImage(img, 0, 0, width, height);
-                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
-                        
-                        editProduct({
-                            ...product,
-                            image: compressedBase64
-                        });
-                    }
-                };
-            }
-        });
-    }, []);
 
     const handleCopyLink = async (product: Product) => {
         const origin = window.location.origin;
@@ -141,44 +101,22 @@ export const ProdutosView = () => {
         }
 
         const queryParams: Record<string, string> = {
-            id: product.id,
-            name: product.name,
-            price: String(product.price)
+            id: product.id
         };
-        if (product.user_email) queryParams.user_email = product.user_email;
-        if (product.deliveryLink) queryParams.deliveryLink = product.deliveryLink;
-        if (product.enableCountdown) queryParams.enableCountdown = 'true';
-        if (product.enableScarcityNotification) queryParams.enableScarcityNotification = 'true';
-        if (product.barColor) queryParams.barColor = product.barColor;
 
         setShorteningProductId(product.id);
-
-        if (product.image) {
-            if (product.image.startsWith('data:')) {
-                // Try to upload to cloud for a short permanent URL
-                const cloudUrl = await uploadImageToCloud(product.image);
-                if (cloudUrl) {
-                    queryParams.image = cloudUrl;
-                    // Cache the cloud URL back into the product so next copies are instant
-                    editProduct({ ...product, image: cloudUrl });
-                } else {
-                    // Fallback: compress to 40x40 thumbnail (~900 chars, fits in URL shortener)
-                    const tinyImg = await compressTinyForUrl(product.image);
-                    queryParams.image = tinyImg;
-                }
-            } else {
-                // Already a short URL (https://...) — use directly
-                queryParams.image = product.image;
-            }
-        }
 
         const params = new URLSearchParams(queryParams);
         const longLink = `${origin}/checkout?${params.toString()}`;
         
-        const shortLink = await shortenUrl(longLink);
         setShorteningProductId(null);
         
-        navigator.clipboard.writeText(shortLink).then(() => {
+        navigator.clipboard.writeText(longLink).then(() => {
+            setCopiedProductId(product.id);
+            setTimeout(() => { setCopiedProductId(null); }, 2000);
+        }).catch(() => {
+            // Fallback para celulares/Safari onde o clipboard assíncrono é bloqueado
+            window.prompt('Link de Checkout gerado! Copie o link abaixo:', longLink);
             setCopiedProductId(product.id);
             setTimeout(() => { setCopiedProductId(null); }, 2000);
         });
@@ -186,6 +124,7 @@ export const ProdutosView = () => {
 
     const handleOpenCheckout = async (product: Product) => {
         const origin = window.location.origin;
+        const newWindow = window.open('', '_blank'); // Abre imediatamente para não ser bloqueado no celular
 
         // Save full image to localStorage for same-origin preview
         if (product.image) {
@@ -195,36 +134,16 @@ export const ProdutosView = () => {
         }
 
         const queryParams: Record<string, string> = {
-            id: product.id,
-            name: product.name,
-            price: String(product.price)
+            id: product.id
         };
-        if (product.user_email) queryParams.user_email = product.user_email;
-        if (product.deliveryLink) queryParams.deliveryLink = product.deliveryLink;
-        if (product.enableCountdown) queryParams.enableCountdown = 'true';
-        if (product.enableScarcityNotification) queryParams.enableScarcityNotification = 'true';
-        if (product.barColor) queryParams.barColor = product.barColor;
-
-        if (product.image) {
-            if (product.image.startsWith('data:')) {
-                // Try cloud upload for a short URL
-                const cloudUrl = await uploadImageToCloud(product.image);
-                if (cloudUrl) {
-                    queryParams.image = cloudUrl;
-                    editProduct({ ...product, image: cloudUrl });
-                } else {
-                    // Fallback: tiny 40x40 thumbnail
-                    const tinyImg = await compressTinyForUrl(product.image);
-                    queryParams.image = tinyImg;
-                }
-            } else {
-                queryParams.image = product.image;
-            }
-        }
 
         const params = new URLSearchParams(queryParams);
         const link = `${origin}/checkout?${params.toString()}`;
-        window.open(link, '_blank');
+        if (newWindow) {
+            newWindow.location.href = link;
+        } else {
+            window.location.href = link;
+        }
     };
 
     // Create Form States
