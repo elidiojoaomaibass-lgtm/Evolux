@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Search, Edit2,
@@ -11,71 +11,6 @@ import { cn } from '../lib/utils';
 import { useProductsStore, type Product, type Category } from '../lib/store';
 import { ConfirmationModal } from './ConfirmationModal';
 import { CheckoutModal } from './CheckoutModal';
-
-const shortenUrl = async (longUrl: string): Promise<string> => {
-    try {
-        const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`);
-        if (response.ok) {
-            const data = await response.json();
-            if (data.shorturl) {
-                return data.shorturl;
-            }
-        }
-    } catch (e) {
-        console.warn('is.gd shortening failed, trying tinyurl...', e);
-    }
-
-    try {
-        const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
-        if (response.ok) {
-            const shortUrl = await response.text();
-            if (shortUrl && shortUrl.startsWith('http')) {
-                return shortUrl;
-            }
-        }
-    } catch (e) {
-        console.warn('tinyurl shortening failed, returning original URL', e);
-    }
-
-    return longUrl;
-};
-
-// Compress to a very small base64 (40x40 JPEG quality 30 = ~900 chars), small enough for URL shorteners
-const compressTinyForUrl = (base64Str: string): Promise<string> => {
-    return new Promise((resolve) => {
-        if (!base64Str || !base64Str.startsWith('data:')) { resolve(base64Str); return; }
-        const img = new Image();
-        img.src = base64Str;
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = 40;
-            canvas.height = 40;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.drawImage(img, 0, 0, 40, 40);
-                resolve(canvas.toDataURL('image/jpeg', 0.25));
-            } else { resolve(base64Str); }
-        };
-        img.onerror = () => resolve(base64Str);
-    });
-};
-
-// Upload image to catbox.moe via serverless proxy and return a short https URL
-const uploadImageToCloud = async (base64Image: string): Promise<string | null> => {
-    try {
-        const uploadResponse = await fetch('/api/upload', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: base64Image })
-        });
-        if (!uploadResponse.ok) return null;
-        const uploadData = await uploadResponse.json();
-        return uploadData.url || null;
-    } catch (e) {
-        console.warn('Image upload to cloud failed:', e);
-        return null;
-    }
-};
 
 export const ProdutosView = () => {
     const { products, addProduct, deleteProduct, editProduct } = useProductsStore();

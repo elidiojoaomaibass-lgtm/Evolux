@@ -32,36 +32,23 @@ export const CheckoutPage = () => {
     const enableScarcity = searchParams.get('enableScarcityNotification') === 'true';
     const barColor = searchParams.get('barColor');
 
-    // Attempt to load image from localStorage (for same-origin base64 preview) or URL parameter
+    // Load image: prioritize stored, then URL param, then fetch from Supabase if needed
     let storedImage = localStorage.getItem(`checkout_img_${productId}`) || '';
     const urlImage = searchParams.get('image') || '';
-    // If the URL image is a direct http link, cache it for future loads
+    // Cache direct http image URLs
     if (urlImage && urlImage.startsWith('http')) {
       localStorage.setItem(`checkout_img_${productId}`, urlImage);
       storedImage = urlImage;
     }
-    const productImage = storedImage || urlImage;
+    // placeholder that will be possibly updated after fetch
+    let productImage = storedImage || urlImage;
 
     const [dbProduct, setDbProduct] = useState<any>(null);
     const [loadingProduct, setLoadingProduct] = useState(true);
 
+    // Call fetchProduct when component mounts or productId changes
     useEffect(() => {
-        const fetchProduct = async () => {
-            if (productId && productId !== 'PRD-MOCK') {
-                try {
-                    const { data } = await supabase.from('products').select('*').eq('id', productId).single();
-                    if (data) {
-                        const { data: imgData } = await supabase.from('product_images').select('url').eq('product_id', productId).maybeSingle();
-                        if (imgData?.url) data.image = imgData.url;
-                        setDbProduct(data);
-                    }
-                } catch (err) {
-                    console.error("Failed to fetch product", err);
-                }
-            }
-            setLoadingProduct(false);
-        };
-        fetchProduct();
+      fetchProduct();
     }, [productId]);
 
     const product = {
