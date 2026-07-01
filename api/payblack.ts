@@ -31,7 +31,8 @@ if (supabaseUrl && supabaseServiceKey) {
 async function logFailure(
   msisdn: string, amount: number, provider: string,
   reference: string, message: string,
-  customerName: string, customerEmail: string, device: string
+  customerName: string, customerEmail: string, device: string,
+  product_name?: string
 ) {
   if (!supabase) return;
   try {
@@ -43,8 +44,8 @@ async function logFailure(
       method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
       status: 'Failed',
       reference: reference || `REF${Date.now()}`,
-      description: `Purchase rejected: ${message}`,
-      customerName: customerName || 'Customer',
+      description: `${product_name || 'Purchase'} (Rejected: ${message})`,
+      customerName: customerName || 'Cliente',
       customerEmail: customerEmail || '',
       device: device || 'Desktop',
       createdat: new Date().toISOString(),
@@ -83,6 +84,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let customerName = 'Cliente';
   let customerEmail = '';
   let device = 'Desktop';
+  let productName = '';
 
   try {
     const userAgent = req.headers['user-agent'] || '';
@@ -102,7 +104,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       merchant_webhook_events,
       merchant_lowtrack_token,
       product_id,
+      product_name
     } = parsed;
+
+    if (product_name) productName = product_name;
 
     if (cName) customerName = cName;
     if (cEmail) customerEmail = cEmail;
@@ -133,7 +138,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!apiKey) {
       const msg = 'PayBlack API Key not configured on the server.';
-      await logFailure(msisdn, amountNum, provider, reference, msg, customerName, customerEmail, device);
+      await logFailure(msisdn, amountNum, provider, reference, msg, customerName, customerEmail, device, productName);
       return res.status(400).json({ error: msg });
     }
 
@@ -206,7 +211,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch (fetchErr: any) {
       const msg = `Erro de rede ao contactar MPESA: ${fetchErr.message}`;
       console.error(msg);
-      await logFailure(msisdn, amountNum, provider, reference, msg, customerName, customerEmail, device);
+      await logFailure(msisdn, amountNum, provider, reference, msg, customerName, customerEmail, device, productName);
       return res.status(500).json({ error: 'Network error processing payment. Please try again.' });
     }
 
@@ -217,7 +222,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const raw = await payResponse.text();
       console.error('Non-JSON response from MPESA:', raw);
       const msg = 'Gateway responded with an invalid format.';
-      await logFailure(msisdn, amountNum, provider, reference, msg, customerName, customerEmail, device);
+      await logFailure(msisdn, amountNum, provider, reference, msg, customerName, customerEmail, device, productName);
       return res.status(500).json({ error: msg, details: raw.slice(0, 300) });
     }
 
@@ -233,7 +238,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         payData.message ||
         'Payment not processed. Verify your data and try again.';
 
-      await logFailure(msisdn, amountNum, provider, reference, friendlyMessage, customerName, customerEmail, device);
+      await logFailure(msisdn, amountNum, provider, reference, friendlyMessage, customerName, customerEmail, device, productName);
 
       console.log('MPESA error details:', { status: payResponse.status, code, message: payData.message, raw: payData });
       return res.status(payResponse.status || 402).json({
@@ -267,7 +272,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
           status: 'Concluído',
           reference,
-          description: `Online purchase||NOTIF_META||${notifMeta}`,
+          description: `${parsed.product_name || 'Online purchase'}||NOTIF_META||${notifMeta}`,
           customerName,
           customerEmail,
           device,
@@ -392,7 +397,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   } catch (error: any) {
     console.error('Erro Fatal MPESA:', error);
-    await logFailure(msisdn, amountNum, provider, reference, `Erro crítico: ${error.message}`, customerName, customerEmail, device);
+    await logFailure(msisdn, amountNum, provider, reference, `Erro crítico: ${error.message}`, customerName, customerEmail, device, productName);
     return res.status(500).json({
       error: 'Fatal error in payment server.',
       message: error.message,

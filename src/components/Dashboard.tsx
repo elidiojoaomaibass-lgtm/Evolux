@@ -238,7 +238,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                 {/* ─── TOP HEADER ─── */}
                 <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-y-4 lg:gap-6 border-b border-slate-100 dark:border-white/5 pb-4">
                     {/* Left: Progress */}
-                    <div className="flex flex-col gap-2 w-48 lg:w-48 ml-16 lg:ml-0 order-1">
+                    <div className="flex flex-col gap-2 w-64 lg:w-72 ml-16 lg:ml-0 order-1">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Gem size={14} className="text-cyan-500" />
@@ -248,7 +248,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                 {allTimeRevenue.toLocaleString('pt-PT')} / {level.target >= 1000000 ? '1M+' : `${(level.target / 1000)}K`} MZN
                             </span>
                         </div>
-                        <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-white/5 overflow-hidden shadow-inner">
+                        <div className="h-3.5 w-full rounded-full bg-slate-200 dark:bg-white/5 overflow-hidden shadow-inner">
                             <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${progressPercent}%` }}
@@ -457,18 +457,18 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                 </div>
 
                 {/* ─── STATS GRID ─── */}
-                <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
                     {stats.map((item, idx) => (
-                        <div key={idx} className={cn("bg-white dark:bg-brand-900/50 rounded-2xl p-4 border border-slate-100 dark:border-white/5 shadow-sm", item.borderColor)}>
-                            <div className="flex items-center justify-between mb-4">
-                                <span className={cn("text-[9px] font-black uppercase tracking-widest", item.labelColor)}>
+                        <div key={idx} className="bg-white dark:bg-brand-900/50 rounded-2xl p-5 md:p-6 border border-slate-100 dark:border-white/5 shadow-sm">
+                            <div className="flex items-center justify-between mb-4 md:mb-5">
+                                <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-brand-400">
                                     {item.label}
                                 </span>
-                                <div className={cn("h-8 w-8 rounded-xl flex items-center justify-center", item.iconBg)}>
-                                    <item.icon size={16} className={item.iconColor} />
+                                <div className="h-9 w-9 md:h-10 md:w-10 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-white/5">
+                                    <item.icon size={18} className="text-slate-400 dark:text-brand-400" />
                                 </div>
                             </div>
-                            <p className={cn("text-2xl font-black tracking-tighter", item.textColor)}>
+                            <p className="text-xl md:text-3xl font-black tracking-tighter text-slate-900 dark:text-white">
                                 {item.value}
                             </p>
                         </div>
@@ -476,11 +476,11 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                 </div>
 
 
-                {/* ─── MAIN GRID ─── */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* ─── MAIN LAYOUT ─── */}
+                <div className="flex flex-col lg:flex-row gap-6 w-full">
                     {/* Gráfico de Vendas */}
-                    <div className="lg:col-span-2 space-y-4">
-                        <div className="flex items-center justify-between px-2">
+                    <div className="flex-1 space-y-4 min-w-0">
+                        <div className="flex items-center justify-between px-2 min-h-[56px]">
                             <div>
                                 <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
                                     <div className="h-1.5 w-1.5 rounded-full bg-violet-500" />
@@ -488,14 +488,14 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                 </h3>
                                 <p className="text-[10px] text-slate-400 font-medium ml-3.5">Volume total do período: <span className="text-violet-600 font-bold">{totalRevenue.toLocaleString('pt-PT')} MZN</span></p>
                             </div>
-                            <div className="flex gap-4 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-100">
+                            <div className="flex gap-4 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-100 shrink-0">
                                 <div className="flex items-center gap-1.5">
                                     <div className="h-1.5 w-1.5 rounded-full bg-violet-600" />
                                     <span className="text-[8px] font-black uppercase text-slate-500 tracking-widest">Faturamento</span>
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white rounded-[2rem] h-[350px] w-full shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
+                        <div className="bg-white rounded-[2rem] h-[520px] w-full shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
                             <div className="h-full w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={chartData}>
@@ -545,43 +545,42 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                         </div>
                     </div>
 
-
-
-                    <div className="bg-white rounded-[2rem] h-[350px] shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
-                        <div className="flex-1 flex flex-col items-center justify-center">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total</span>
-                            <span className="text-5xl font-black text-slate-900 tracking-tighter">{totalApprovedCount}</span>
+                    {/* M-Pesa e E-Mola */}
+                    <div className="w-full lg:w-[320px] space-y-4 shrink-0">
+                        <div className="flex items-center justify-between px-2 min-h-[56px]">
+                            <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                                <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+                                Métodos de Pagamento
+                            </h3>
                         </div>
-                        <div className="grid grid-cols-2 gap-4 mt-auto">
-                            <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-100">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className="h-3 w-3 rounded-sm bg-red-500 flex items-center justify-center">
-                                        <div className="h-1 w-1 bg-white rounded-full" />
-                                    </div>
-                                    <span className="text-[9px] font-black text-slate-900 tracking-widest">M-PESA</span>
-                                </div>
-                                <span className="text-sm font-black text-violet-600">{mpesaPercent}%</span>
-                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{mpesaCount} Vendas</span>
+                        <div className="w-full bg-white rounded-[2rem] h-[520px] shadow-sm border border-slate-100 p-6 flex flex-col justify-center gap-8">
+
+                            <div className="flex flex-col items-center justify-center text-center">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total de Vendas</span>
+                                <span className="text-5xl font-black text-slate-900 tracking-tighter">{totalApprovedCount}</span>
                             </div>
-                            <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-100">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className="h-3 w-3 rounded-sm bg-orange-500 flex items-center justify-center">
-                                        <div className="h-1 w-1 bg-white rounded-full" />
+
+                            <div className="flex flex-col gap-4 w-full">
+                                <div className="bg-slate-50 rounded-[1.25rem] p-5 flex flex-col items-center justify-center text-center border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                                    <div className="flex items-center gap-3 mb-1.5">
+                                        <img src="/mpesa_logo.png" alt="M-Pesa" className="h-10 w-10 object-contain rounded-md" />
+                                        <span className="text-[11px] font-black text-slate-900 tracking-widest">M-PESA</span>
                                     </div>
-                                    <span className="text-[9px] font-black text-slate-900 tracking-widest">E-MOLA</span>
+                                    <span className="text-xl font-black text-slate-900 tracking-tight">{mpesaCount} Vendas</span>
                                 </div>
-                                <span className="text-sm font-black text-violet-600">{emolaPercent}%</span>
-                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{emolaCount} Vendas</span>
+                                <div className="bg-slate-50 rounded-[1.25rem] p-5 flex flex-col items-center justify-center text-center border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                                    <div className="flex items-center gap-3 mb-1.5">
+                                        <img src="/emola_logo.png" alt="E-Mola" className="h-10 w-10 object-contain rounded-md" />
+                                        <span className="text-[11px] font-black text-slate-900 tracking-widest">E-MOLA</span>
+                                    </div>
+                                    <span className="text-xl font-black text-slate-900 tracking-tight">{emolaCount} Vendas</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-
-
         </div>
-
     );
 }
 

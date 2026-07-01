@@ -35,7 +35,8 @@ async function logFailure(
   customerName: string,
   customerEmail: string,
   device: string,
-  type: string
+  type: string,
+  product_name?: string
 ) {
   if (type === 'b2c') return; // Saques não são registados como falhas de compra
   if (!supabase) {
@@ -51,7 +52,7 @@ async function logFailure(
       method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
       status: 'Falhou',
       reference: reference || `REF${Date.now()}`,
-      description: `Compra recusada: ${friendlyMessage}`,
+      description: `${product_name || 'Compra'} (Falhou: ${friendlyMessage})`,
       customerName: customerName || 'Cliente',
       customerEmail: customerEmail || '',
       device: device || 'Desktop',
@@ -77,6 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let customerEmail = '';
   let type = 'c2b';
   let device = 'Desktop';
+  let productName = '';
 
   try {
     const userAgent = req.headers['user-agent'] || '';
@@ -99,8 +101,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       merchant_webhook_events,
       merchant_lowtrack_token,
       merchant_user_email,
-      product_id
+      product_id,
+      product_name
     } = parsedBody;
+
+    if (product_name) productName = product_name;
 
     let finalMerchantEmail = merchant_user_email;
 
@@ -181,7 +186,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!final_client_id || !final_client_secret) {
       const friendly = 'Credenciais E2Payments (Client ID/Secret) não configuradas.';
-      await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type);
+      await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type, productName);
       return res.status(400).json({ error: friendly });
     }
 
@@ -192,7 +197,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!wallet_number) {
        const friendly = `Número da carteira de receção (${provider === 'mpesa' ? 'M-Pesa' : 'e-Mola'}) não configurado.`;
-       await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type);
+       await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type, productName);
        return res.status(400).json({ error: friendly });
     }
 
@@ -217,7 +222,7 @@ console.log('Raw auth response body:', await authResponse.clone().text());
     } catch (fError: any) {
       console.error("Erro no Token E2Payments:", fError);
       const friendly = 'Erro de rede ao contactar E2Payments (Token).';
-      await logFailure(sanitizedPhone, amountNum, provider, reference, `${friendly}: ${fError.message}`, customerName, customerEmail, device, type);
+      await logFailure(sanitizedPhone, amountNum, provider, reference, `${friendly}: ${fError.message}`, customerName, customerEmail, device, type, productName);
       return res.status(500).json({ error: friendly, message: fError.message });
     }
 
@@ -226,7 +231,7 @@ console.log('Raw auth response body:', await authResponse.clone().text());
       const rawAuth = await authResponse.text();
       console.error("Resposta não-JSON no Token:", rawAuth);
       const friendly = 'E2Payments respondeu com formato inválido no Token.';
-      await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type);
+      await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type, productName);
       return res.status(500).json({ error: friendly, details: rawAuth });
     }
 
@@ -235,7 +240,7 @@ console.log('Raw auth response body:', await authResponse.clone().text());
     if (!authResponse.ok || !authData.access_token) {
       console.error("Falha na Autenticação E2Payments:", authData);
       const friendly = 'Falha na autenticação com E2Payments. Verifique Client ID e Secret.';
-      await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type);
+      await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type, productName);
       return res.status(401).json({ 
         error: friendly,
         details: authData 
@@ -271,7 +276,7 @@ console.log('Raw auth response body:', await authResponse.clone().text());
     } catch (pError: any) {
       console.error("Erro na Transação E2Payments:", pError);
       const friendly = 'Erro de rede ao processar transação na E2Payments.';
-      await logFailure(sanitizedPhone, amountNum, provider, reference, `${friendly}: ${pError.message}`, customerName, customerEmail, device, type);
+      await logFailure(sanitizedPhone, amountNum, provider, reference, `${friendly}: ${pError.message}`, customerName, customerEmail, device, type, productName);
       return res.status(500).json({ error: friendly, message: pError.message });
     }
 
@@ -280,7 +285,7 @@ console.log('Raw auth response body:', await authResponse.clone().text());
       const rawPay = await paymentResponse.text();
       console.error("Resposta não-JSON na Transação:", rawPay);
       const friendly = 'E2Payments respondeu com formato inválido na Transação.';
-      await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type);
+      await logFailure(sanitizedPhone, amountNum, provider, reference, friendly, customerName, customerEmail, device, type, productName);
       return res.status(500).json({ error: friendly, details: rawPay });
     }
 
@@ -340,7 +345,7 @@ console.log('Raw auth response body:', await authResponse.clone().text());
         }
       }
 
-      await logFailure(sanitizedPhone, amountNum, provider, reference, friendlyMessage, customerName, customerEmail, device, type);
+      await logFailure(sanitizedPhone, amountNum, provider, reference, friendlyMessage, customerName, customerEmail, device, type, productName);
 
       return res.status(paymentResponse.status || 400).json({ 
         error: friendlyMessage,
@@ -372,7 +377,7 @@ console.log('Raw auth response body:', await authResponse.clone().text());
           method: provider === 'emola' ? 'e-Mola' : 'M-Pesa',
           status: finalStatus,
           reference: reference || `REF${Date.now()}`,
-          description: type === 'b2c' ? 'Levantamento de Saldo' : `Compra online||NOTIF_META||${notifMeta}`,
+          description: type === 'b2c' ? 'Levantamento de Saldo' : `${body.product_name || 'Compra online'}||NOTIF_META||${notifMeta}`,
           customerName: customerName,
           customerEmail: customerEmail,
           device: device,
@@ -500,7 +505,7 @@ console.log('Raw auth response body:', await authResponse.clone().text());
     console.error("Erro Fatal E2Payments:", error);
 
     // Salvar falha fatal no Supabase imediatamente para C2B
-    await logFailure(sanitizedPhone, amountNum, provider, reference, `Erro crítico: ${error.message || 'Erro de processamento'}`, customerName, customerEmail, device, type);
+    await logFailure(sanitizedPhone, amountNum, provider, reference, `Erro crítico: ${error.message || 'Erro de processamento'}`, customerName, customerEmail, device, type, productName);
 
     return res.status(500).json({ 
       error: 'Erro fatal no servidor de pagamento.',

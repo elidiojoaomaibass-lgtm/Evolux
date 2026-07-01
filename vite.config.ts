@@ -5,6 +5,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 // https://vite.dev/config/
 export default defineConfig({
   server: {
+    watch: {
+      ignored: ['**/_archive/**', '**/node_modules/**'],
+    },
     proxy: {
       '/api/catbox': {
         target: 'https://catbox.moe',

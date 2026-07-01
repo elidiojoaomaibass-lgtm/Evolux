@@ -27,6 +27,9 @@ export function cleanProductName(description?: string): string {
   name = name.replace(/\(Fallback\/Erro:[^)]+\)/g, '');
   // Remove any remaining parentheses that contain the word "Erro"
   name = name.replace(/\([^)]*Erro[^)]*\)/gi, '');
+  // Remove (Falhou: ...) and (Rejected: ...) suffixes
+  name = name.replace(/\(Falhou:[^)]+\)/gi, '');
+  name = name.replace(/\(Rejected:[^)]+\)/gi, '');
 
   // Strip any trailing delimiters and whitespace
   name = name.replace(/[\-_:]+/g, ' ');

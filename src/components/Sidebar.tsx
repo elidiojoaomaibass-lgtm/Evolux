@@ -2,13 +2,11 @@ import {
     LayoutDashboard, ShoppingBag, Users,
     Settings,
     Gift, Layers, ShoppingCart, Wallet,
-    Wrench, Moon, Sun, Banknote, Trophy
+    Wrench, Moon, Sun, Banknote
 } from "lucide-react";
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
 import { Logo } from "./Logo";
-import { useTransactionsStore } from '../lib/store';
-
 export type ViewType =
     | "ThankYou"
     | "Dashboard" | "Vendas" | "Produtos" | "Afiliados"
@@ -58,30 +56,9 @@ const menuGroups = [
 ];
 
 export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpen, onClose }: SidebarProps) => {
-    const { transactions } = useTransactionsStore();
+    // Store state not needed anymore since badge was removed
 
-    const totalRevenue = transactions
-        .filter(t => t.type === 'payment' && t.status === 'Concluído')
-        .reduce((acc, curr) => acc + curr.amount, 0);
 
-    let rank = "Bronze";
-    let nextGoal = 10000;
-
-    if (totalRevenue >= 100000) {
-        rank = "Diamante";
-        nextGoal = 1000000;
-    } else if (totalRevenue >= 50000) {
-        rank = "Ouro";
-        nextGoal = 100000;
-    } else if (totalRevenue >= 10000) {
-        rank = "Prata";
-        nextGoal = 50000;
-    } else {
-        rank = "Bronze";
-        nextGoal = 10000;
-    }
-
-    const levelProgress = Math.min(100, Math.round((totalRevenue / nextGoal) * 100));
 
     return (
         <>
@@ -102,51 +79,44 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
                 </div>
 
                 {/* Navigation Section */}
-                <nav className="flex-1 overflow-y-auto px-3 py-6 space-y-3 scrollbar-hide">
+                <nav className="flex-1 overflow-y-auto px-3 py-6 space-y-1 scrollbar-hide">
                     {
-                        menuGroups.map((group) => (
-                            <div key={group.label} className="space-y-1.5">
-                                <h3 className="px-3 text-[10px] font-black text-slate-400 dark:text-white/40 uppercase tracking-widest">{group.label}</h3>
-                                <div className="space-y-1">
-                                    {group.items.map((item) => {
-                                        const viewTarget = item.label as ViewType;
-                                        const isActive = activeView === viewTarget;
-                                        return (
-                                            <button
-                                                key={item.label}
-                                                onClick={() => setView(viewTarget)}
-                                                className={cn(
-                                                    "group relative flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold transition-all duration-200",
-                                                    isActive
-                                                        ? "bg-violet-600 text-white shadow-lg shadow-violet-200 scale-[1.02]"
-                                                        : "text-slate-600 dark:text-white/60 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-violet-600"
-                                                )}
-                                            >
-                                                {isActive && (
-                                                    <motion.div
-                                                        layoutId="activeBar"
-                                                        className="absolute -left-3 w-1.5 h-7 bg-violet-600 rounded-r-full"
-                                                    />
-                                                )}
-                                                <item.icon
-                                                    size={20}
-                                                    className={cn(
-                                                        "shrink-0 transition-transform group-hover:scale-110",
-                                                        isActive ? "text-white" : "text-slate-400 dark:text-white/40 group-hover:text-violet-600"
-                                                    )}
-                                                />
-                                                <span className="flex-1 text-left tracking-tight">{item.label}</span>
-                                                {'badge' in item && item.badge && (
-                                                    <span className="rounded-full bg-fuchsia-500 px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider">
-                                                        {item.badge}
-                                                    </span>
-                                                )}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        ))
+                        menuGroups.flatMap(group => group.items).map((item) => {
+                            const viewTarget = item.label as ViewType;
+                            const isActive = activeView === viewTarget;
+                            return (
+                                <button
+                                    key={item.label}
+                                    onClick={() => setView(viewTarget)}
+                                    className={cn(
+                                        "group relative flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold transition-all duration-200",
+                                        isActive
+                                            ? "bg-violet-600 text-white shadow-lg shadow-violet-200 scale-[1.02]"
+                                            : "text-slate-600 dark:text-white/60 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-violet-600"
+                                    )}
+                                >
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="activeBar"
+                                            className="absolute -left-3 w-1.5 h-7 bg-violet-600 rounded-r-full"
+                                        />
+                                    )}
+                                    <item.icon
+                                        size={20}
+                                        className={cn(
+                                            "shrink-0 transition-transform group-hover:scale-110",
+                                            isActive ? "text-white" : "text-slate-400 dark:text-white/40 group-hover:text-violet-600"
+                                        )}
+                                    />
+                                    <span className="flex-1 text-left tracking-tight">{item.label}</span>
+                                    {'badge' in item && item.badge && (
+                                        <span className="rounded-full bg-fuchsia-500 px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider">
+                                            {item.badge}
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })
                     }
                 </nav>
 
@@ -176,41 +146,7 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
                     </button>
                 </div>
 
-                {/* Level Badge Section */}
-                <div className="px-3 pb-4">
-                    <div className="relative group overflow-hidden bg-gradient-to-br from-violet-600 to-purple-800 rounded-2xl p-4 shadow-xl">
-                        <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:scale-125 transition-transform duration-1000">
-                            <Trophy size={60} className="text-white fill-white" />
-                        </div>
 
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="h-10 w-10 rounded-xl bg-white/10 backdrop-blur-xl flex items-center justify-center text-white border border-white/20 shadow-inner">
-                                    <Trophy size={20} className="text-orange-400 animate-pulse" />
-                                </div>
-                                <div>
-                                    <p className="text-[8px] font-black text-violet-200 uppercase tracking-widest leading-none mb-1">Rank Atual</p>
-                                    <h4 className="text-sm font-black text-white uppercase tracking-tighter">{rank}</h4>
-                                </div>
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <div className="flex items-center justify-between text-[9px] font-black text-white/50 uppercase tracking-widest">
-                                    <span>Faturamento</span>
-                                    <span className="text-white">{totalRevenue.toLocaleString('pt-MZ')} MZN</span>
-                                </div>
-                                <div className="h-1.5 w-full bg-black/30 rounded-full overflow-hidden p-0.5 border border-white/5">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${levelProgress}%` }}
-                                        transition={{ duration: 2, ease: "circOut" }}
-                                        className="h-full rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.6)]"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </aside >
         </>
     );

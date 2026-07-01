@@ -256,23 +256,33 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                             </div>
                         </div>
 
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="relative w-full mt-2 flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-4 text-sm font-black text-white shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:bg-violet-700 active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden"
-                        >
-                            {isLoading ? (
-                                <>
-                                    <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                                    <span>{isSignUp ? "Criando..." : "Entrando..."}</span>
-                                </>
-                            ) : (
-                                <>
-                                    <span>{isSignUp ? "Criar conta" : "Entrar"}</span>
-                                    <ArrowRight size={16} />
-                                </>
-                            )}
-                        </button>
+                        <div className="flex gap-2 mt-2">
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="relative flex-1 flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-4 text-sm font-black text-white shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:bg-violet-700 active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                                        <span>{isSignUp ? "Criando..." : "Entrando..."}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>{isSignUp ? "Criar conta" : "Entrar"}</span>
+                                        <ArrowRight size={16} />
+                                    </>
+                                )}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => onLogin({ email: 'admin@evolux.com', user_metadata: { full_name: 'Modo de Teste' } })}
+                                className="relative flex-1 flex items-center justify-center gap-2 rounded-xl bg-slate-800 border border-slate-700 px-6 py-4 text-sm font-black text-white shadow-xl hover:bg-slate-700 active:scale-[0.98] transition-all duration-200"
+                            >
+                                Acesso de Teste
+                            </button>
+                        </div>
                     </form>
 
                     <p className="mt-6 text-center text-xs text-slate-500 font-medium">
