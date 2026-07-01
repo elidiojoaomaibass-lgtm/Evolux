@@ -56,7 +56,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             setErrorMessage('Por favor, introduza o número de telefone para pagamento.');
             return;
         }
-        setStatus('processing');
+
+        setStatus('processing');
 
         const reference = `ORD${Date.now()}`;
         
@@ -70,6 +71,24 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
         };
 
         const sanitizedPaymentPhone = cleanPhone(paymentPhone);
+
+        // Auto-detectar o método correto baseado no prefixo do número
+        // e-Mola: 86, 87 | M-Pesa: 84, 85, 82, 83
+        let detectedMethod: 'mpesa' | 'emola' = method;
+        const prefix = sanitizedPaymentPhone.substring(0, 2);
+        if (prefix === '86' || prefix === '87') {
+            detectedMethod = 'emola';
+        } else if (prefix === '84' || prefix === '85' || prefix === '82' || prefix === '83') {
+            detectedMethod = 'mpesa';
+        }
+
+        // Validar que o método selecionado na UI corresponde ao número
+        if (detectedMethod !== method) {
+            const correctMethod = detectedMethod === 'emola' ? 'e-Mola' : 'M-Pesa';
+            setErrorMessage(`O número introduzido pertence ao ${correctMethod}. Por favor, selecione ${correctMethod} como método de pagamento.`);
+            setStatus('idle');
+            return;
+        }
 
         try {
             // Processar pagamento via SDK (browser → E2Payments direto)
@@ -141,7 +160,40 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             }
 
         } catch (err: any) {
-            setErrorMessage(err.message || 'Ocorreu um erro. Tente novamente.');
+            // Extrair mensagem amigável do erro da API E2Payments (pode ser um objeto)
+            let errorMsg = 'Ocorreu um erro. Tente novamente.';
+            if (typeof err === 'string') {
+                errorMsg = err;
+            } else if (err?.message) {
+                errorMsg = err.message;
+            } else if (err?.mpesa_server_response?.output_ResponseDesc) {
+                errorMsg = err.mpesa_server_response.output_ResponseDesc;
+            } else if (err?.emola_server_response?.output_ResponseDesc) {
+                errorMsg = err.emola_server_response.output_ResponseDesc;
+            } else if (err?.error) {
+                errorMsg = err.error;
+            }
+
+            // Map common E2Payments error codes to friendly messages
+            const code = err?.mpesa_server_response?.output_ResponseCode || err?.emola_server_response?.output_ResponseCode || '';
+            const friendlyErrors: Record<string, string> = {
+                'INS-2006': 'Saldo insuficiente. Por favor, recarregue a sua conta e tente novamente.',
+                'INS-6':    'Saldo insuficiente. Verifique o saldo e tente novamente.',
+                'INS-5':    'Pagamento cancelado. Não introduziu o PIN no seu telemóvel. Tente novamente.',
+                'INS-17':   'Pagamento cancelado ou recusado. Tente novamente e confirme o PIN.',
+                'INS-9':    'Tempo esgotado. Não confirmou o PIN a tempo. Tente novamente.',
+                'INS-14':   'Número de telemóvel inválido. Verifique e tente novamente.',
+                'INS-2':    'Número não encontrado. Verifique se é um número M-Pesa/e-Mola válido.',
+                'INS-4':    'Não foi possível enviar o pedido ao seu telemóvel. Verifique se tem M-Pesa/e-Mola ativo.',
+                'INS-13':   'Valor inválido. O valor mínimo é 1 MT.',
+                'INS-10':   'Transação duplicada. Aguarde alguns minutos antes de tentar novamente.',
+                'INS-1':    'Erro temporário. Por favor, tente novamente em instantes.',
+            };
+            if (code && friendlyErrors[code]) {
+                errorMsg = friendlyErrors[code];
+            }
+
+            setErrorMessage(errorMsg);
             setStatus('idle');
 
             // Fallback de segurança local para quando a requisição falhar totalmente (ex: localhost 404)

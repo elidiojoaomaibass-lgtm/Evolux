@@ -103,7 +103,19 @@ export class E2Payments {
 
     const data = await response.json();
     if (!response.ok) {
-      throw data;
+      // Lançar o objeto de erro completo para que o catch possa extrair detalhes (código, descrição)
+      const err: any = new Error(
+        data?.mpesa_server_response?.output_ResponseDesc ||
+        data?.emola_server_response?.output_ResponseDesc ||
+        data?.message ||
+        data?.error ||
+        'Erro no pagamento.'
+      );
+      // Anexar dados completos da resposta para tratamento detalhado no catch
+      err.mpesa_server_response = data?.mpesa_server_response;
+      err.emola_server_response = data?.emola_server_response;
+      err.apiData = data;
+      throw err;
     }
     return data;
   }
