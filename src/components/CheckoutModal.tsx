@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
+import { processE2Payment } from '../lib/e2paymentsWrapper';
 import { useTransactionsStore, useProductsStore, type Product } from '../lib/store';
 import { supabase } from '../lib/supabase';
 import { Logo } from './Logo';
@@ -71,31 +72,32 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
         const sanitizedPaymentPhone = cleanPhone(paymentPhone);
 
         try {
-            const response = await fetch(`/api/e2payments`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    phone: sanitizedPaymentPhone,
-                    amount: product.price,
-                    reference: reference,
-                    customerName: name || 'Cliente',
-                    product_id: product.id,
-                    product_name: product.name,
-                    merchant_user_email: product.user_email || '',
-                })
+            // Processar pagamento via SDK (browser → E2Payments direto)
+            await processE2Payment(method, {
+                phone: sanitizedPaymentPhone,
+                amount: product.price,
+                reference: reference
             });
 
-            const contentType = response.headers.get("content-type");
-            if (!response.ok) {
-                if (contentType && contentType.indexOf("application/json") !== -1) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || errorData.message || 'Erro ao processar pagamento.');
-                } else {
-                    throw new Error('Erro ao processar pagamento.');
-                }
+            setStatus('success');
+
+            // Disparar notificações push via servidor (em background, sem bloquear)
+            try {
+                fetch('/api/notify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        merchant_user_email: product.user_email || '',
+                        amount: product.price,
+                        method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                        product_name: product.name,
+                        reference: reference,
+                    })
+                }).catch(err => console.warn('Push notification dispatch failed:', err));
+            } catch (e) {
+                console.warn('Failed to dispatch push notification:', e);
             }
 
-            setStatus('success');
             // Increment sales count and total revenue for the product
             try {
               // Update in Supabase
@@ -117,9 +119,6 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             } catch (e) {
               console.warn('Failed to increment product sales:', e);
             }
-
-            // Notifications are now handled server-side in /api/payblack
-            // No need to fire from the browser — works for any customer device
 
             // Redirecionar para a página de obrigado com detalhes da compra
             const params = new URLSearchParams({
