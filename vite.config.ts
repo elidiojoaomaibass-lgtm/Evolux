@@ -27,9 +27,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['logo.png', 'vite.svg'],
       manifest: {
-        name: 'Evolux Pay',
-        short_name: 'Evolux',
-        description: 'Plataforma de Pagamentos Evolux',
+        name: 'Evolux Prod',
+        short_name: 'Evolux Prod',
+        description: 'Plataforma de Pagamentos Evolux Prod',
         theme_color: '#0d0d17',
         background_color: '#0d0d17',
         display: 'standalone',
