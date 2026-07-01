@@ -237,7 +237,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                 {/* ─── TOP HEADER ─── */}
                 <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-y-4 lg:gap-6 border-b border-slate-100 dark:border-white/5 pb-4">
                     {/* Left: Progress */}
-                    <div className="flex flex-col gap-2 w-64 lg:w-72 ml-16 lg:ml-0 order-1">
+                    <div className="flex flex-col gap-2 w-48 lg:w-56 ml-16 lg:ml-0 order-1">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Gem size={14} className="text-cyan-500" />
@@ -247,7 +247,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                 {allTimeRevenue.toLocaleString('pt-PT')} / {level.target >= 1000000 ? '1M+' : `${(level.target / 1000)}K`} MZN
                             </span>
                         </div>
-                        <div className="h-3.5 w-full rounded-full bg-slate-200 dark:bg-white/5 overflow-hidden shadow-inner">
+                        <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-white/5 overflow-hidden shadow-inner">
                             <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${progressPercent}%` }}
@@ -458,16 +458,16 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                 {/* ─── STATS GRID ─── */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
                     {stats.map((item, idx) => (
-                        <div key={idx} className="bg-white dark:bg-brand-900/50 rounded-2xl p-5 md:p-6 border border-slate-100 dark:border-white/5 shadow-sm">
-                            <div className="flex items-center justify-between mb-4 md:mb-5">
-                                <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-brand-400">
+                        <div key={idx} className="bg-white dark:bg-brand-900/50 rounded-[1.25rem] p-4 md:p-4 border border-slate-100 dark:border-white/5 shadow-sm">
+                            <div className="flex items-center justify-between mb-3 md:mb-4">
+                                <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-brand-400">
                                     {item.label}
                                 </span>
-                                <div className="h-9 w-9 md:h-10 md:w-10 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-white/5">
-                                    <item.icon size={18} className="text-slate-400 dark:text-brand-400" />
+                                <div className="h-8 w-8 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-white/5">
+                                    <item.icon size={16} className="text-slate-400 dark:text-brand-400" />
                                 </div>
                             </div>
-                            <p className="text-xl md:text-3xl font-black tracking-tighter text-slate-900 dark:text-white">
+                            <p className="text-lg md:text-2xl font-black tracking-tighter text-slate-900 dark:text-white">
                                 {item.value}
                             </p>
                         </div>
@@ -560,19 +560,25 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                             </div>
 
                             <div className="flex flex-col gap-4 w-full">
-                                <div className="bg-slate-50 rounded-[1.25rem] p-5 flex flex-col items-center justify-center text-center border border-slate-100 shadow-sm hover:shadow-md transition-all">
-                                    <div className="flex items-center gap-3 mb-1.5">
+                                <div className="bg-slate-50 rounded-[1.25rem] p-5 flex items-center justify-between border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                                    <div className="flex items-center gap-3">
                                         <img src="/mpesa_logo.png" alt="M-Pesa" className="h-10 w-10 object-contain rounded-md" />
                                         <span className="text-[11px] font-black text-slate-900 tracking-widest">M-PESA</span>
                                     </div>
-                                    <span className="text-xl font-black text-slate-900 tracking-tight">{mpesaCount} Vendas</span>
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="text-[11px] font-black text-slate-900 tracking-widest uppercase">VENDAS</span>
+                                        <span className="text-xl font-black text-slate-900 tracking-tight">{mpesaCount}</span>
+                                    </div>
                                 </div>
-                                <div className="bg-slate-50 rounded-[1.25rem] p-5 flex flex-col items-center justify-center text-center border border-slate-100 shadow-sm hover:shadow-md transition-all">
-                                    <div className="flex items-center gap-3 mb-1.5">
+                                <div className="bg-slate-50 rounded-[1.25rem] p-5 flex items-center justify-between border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                                    <div className="flex items-center gap-3">
                                         <img src="/emola_logo.png" alt="E-Mola" className="h-10 w-10 object-contain rounded-md" />
                                         <span className="text-[11px] font-black text-slate-900 tracking-widest">E-MOLA</span>
                                     </div>
-                                    <span className="text-xl font-black text-slate-900 tracking-tight">{emolaCount} Vendas</span>
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="text-[11px] font-black text-slate-900 tracking-widest uppercase">VENDAS</span>
+                                        <span className="text-xl font-black text-slate-900 tracking-tight">{emolaCount}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
