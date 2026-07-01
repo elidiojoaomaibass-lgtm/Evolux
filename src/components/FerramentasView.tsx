@@ -217,8 +217,8 @@ export const FerramentasView = () => {
         }
 
         if (Notification.permission === 'granted') {
-            new Notification('🤑 Venda Aprovada!', {
-                body: `Você realizou uma nova venda no valor de ${testPushValue} (Teste)`,
+            new Notification('Você recebeu um novo pedido! 🎉', {
+                body: `Venda aprovada de ${testPushValue} via M-Pesa`,
                 icon: '/logo.png',
                 image: '/logo.png',
             } as any);
@@ -226,8 +226,8 @@ export const FerramentasView = () => {
         } else if (Notification.permission !== 'denied') {
             Notification.requestPermission().then(permission => {
                 if (permission === 'granted') {
-                    new Notification('🤑 Venda Aprovada!', {
-                        body: `Você realizou uma nova venda no valor de ${testPushValue} (Teste)`,
+                    new Notification('Você recebeu um novo pedido! 🎉', {
+                        body: `Venda aprovada de ${testPushValue} via M-Pesa`,
                         icon: '/logo.png',
                         image: '/logo.png',
                     } as any);

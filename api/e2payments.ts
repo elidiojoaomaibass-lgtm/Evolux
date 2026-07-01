@@ -493,8 +493,8 @@ console.log('Raw auth response body:', await authResponse.clone().text());
                   const methodStr = provider === 'emola' ? 'e-Mola' : 'M-Pesa';
                   for (const token of tokens) {
                     await sendPushNotification(token, {
-                      title: '🤑 Venda Aprovada!',
-                      body: `Você realizou uma nova venda no valor de ${val} (Via ${methodStr})`,
+                      title: 'Você recebeu um novo pedido! 🎉',
+                      body: `Venda aprovada de ${val} via ${methodStr}`,
                     });
                   }
                   console.log(`FCM Push Notifications disparadas para ${tokens.length} dispositivos.`);
