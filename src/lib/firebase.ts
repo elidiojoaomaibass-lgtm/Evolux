@@ -33,7 +33,7 @@ export const getFcmToken = async (registration?: ServiceWorkerRegistration): Pro
 
 // Opcional: escuta mensagens em primeiro plano.
 export const onFcmMessage = (callback: (payload: any) => void) => {
-  onMessage(messaging, (payload) => {
+  return onMessage(messaging, (payload) => {
     console.log('Mensagem FCM em primeiro plano', payload);
     callback(payload);
   });

@@ -232,7 +232,7 @@ function App() {
         });
       }
     });
-    return () => { /* onMessage returns unsubscribe */ if (unsubscribe) (unsubscribe as any)(); };
+    return () => { if (unsubscribe) unsubscribe(); };
   }, [session]);
 
   // Meta Ads Pixel Injection
