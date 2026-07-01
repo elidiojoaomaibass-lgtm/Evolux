@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
-import { processE2Payment } from '../lib/e2paymentsWrapper';
 import { useTransactionsStore, useProductsStore, type Product } from '../lib/store';
 import { supabase } from '../lib/supabase';
 import { Logo } from './Logo';
@@ -72,16 +71,29 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
         const sanitizedPaymentPhone = cleanPhone(paymentPhone);
 
         try {
-            // Read merchant notification settings from Supabase user_settings
-            // Webhook settings are now handled server‑side; no client‑side usage required.
-            // userWebhookUrl is no longer used; webhook handling moved to server-side
-            // Webhook handling moved to server-side; no client‑side processing needed
-
-            await processE2Payment(method, {
-                phone: sanitizedPaymentPhone,
-                amount: product.price,
-                reference: reference
+            const response = await fetch(`/api/e2payments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phone: sanitizedPaymentPhone,
+                    amount: product.price,
+                    reference: reference,
+                    customerName: name || 'Cliente',
+                    product_id: product.id,
+                    product_name: product.name,
+                    merchant_user_email: product.user_email || '',
+                })
             });
+
+            const contentType = response.headers.get("content-type");
+            if (!response.ok) {
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || errorData.message || 'Erro ao processar pagamento.');
+                } else {
+                    throw new Error('Erro ao processar pagamento.');
+                }
+            }
 
             setStatus('success');
             // Increment sales count and total revenue for the product
