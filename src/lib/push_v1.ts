@@ -101,7 +101,7 @@ export async function getUserTokens(userId: string): Promise<string[]> {
   const { data, error } = await supabase
     .from('push_subscriptions')
     .select('token')
-    .eq('user_id', userId);
+    .eq('user_email', userId);
   if (error) throw error;
   return data?.map((row: any) => row.token) ?? [];
 }
