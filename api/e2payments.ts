@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { sendPushNotificationV1 as sendPushNotification, getUserTokens } from '../src/lib/push_v1';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
@@ -487,12 +486,13 @@ console.log('Raw auth response body:', await authResponse.clone().text());
             console.log(`Adicionando Push Notification (FCM) à fila para o merchant: ${finalMerchantEmail}`);
             notifications.push((async () => {
               try {
+                const { sendPushNotificationV1, getUserTokens } = await import('../src/lib/push_v1');
                 const tokens = await getUserTokens(finalMerchantEmail);
                 if (tokens && tokens.length > 0) {
                   const val = amountNum.toLocaleString('pt-PT');
                   const methodStr = provider === 'emola' ? 'e-Mola' : 'M-Pesa';
                   for (const token of tokens) {
-                    await sendPushNotification(token, {
+                    await sendPushNotificationV1(token, {
                       title: 'Você recebeu um novo pedido! 🎉',
                       body: `Venda aprovada de ${val} MT via ${methodStr}`,
                     });
