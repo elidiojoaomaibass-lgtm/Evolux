@@ -221,7 +221,7 @@ export const FerramentasView = () => {
                 body: `Você realizou uma nova venda no valor de ${testPushValue} (Teste)`,
                 icon: '/logo.png',
                 image: '/logo.png',
-            });
+            } as any);
             toast.success('Notificação de teste enviada com sucesso!');
         } else if (Notification.permission !== 'denied') {
             Notification.requestPermission().then(permission => {
@@ -230,7 +230,7 @@ export const FerramentasView = () => {
                         body: `Você realizou uma nova venda no valor de ${testPushValue} (Teste)`,
                         icon: '/logo.png',
                         image: '/logo.png',
-                    });
+                    } as any);
                     toast.success('Notificação de teste enviada com sucesso!');
                 } else {
                     toast.error('Permissão para notificações não concedida.');

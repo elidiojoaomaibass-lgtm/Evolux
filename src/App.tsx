@@ -230,7 +230,7 @@ function App() {
           body,
           icon: '/logo.png',
           image: '/logo.png',
-        });
+        } as any);
       }
     });
     return () => { if (unsubscribe) unsubscribe(); };
