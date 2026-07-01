@@ -45,6 +45,7 @@ export const FerramentasView = () => {
     const [googleAdsId, setGoogleAdsId] = useState(() => localStorage.getItem('evolux_prod_google_ads_id') || '');
     const [whatsappToken, setWhatsappToken] = useState(() => localStorage.getItem('evolux_prod_whatsapp_token') || '');
     const [klaviyoToken, setKlaviyoToken] = useState(() => localStorage.getItem('evolux_prod_klaviyo_token') || '');
+    const [testPushValue, setTestPushValue] = useState('97,00');
 
     const [userEmail, setUserEmail] = useState<string>('');
 
@@ -216,17 +217,19 @@ export const FerramentasView = () => {
         }
 
         if (Notification.permission === 'granted') {
-            new Notification('Teste de Notificação', {
-                body: 'Esta é uma notificação de teste enviada com sucesso da sua plataforma!',
+            new Notification('🤑 Venda Aprovada!', {
+                body: `Você realizou uma nova venda no valor de ${testPushValue} (Teste)`,
                 icon: '/logo.png',
+                image: '/logo.png',
             });
             toast.success('Notificação de teste enviada com sucesso!');
         } else if (Notification.permission !== 'denied') {
             Notification.requestPermission().then(permission => {
                 if (permission === 'granted') {
-                    new Notification('Teste de Notificação', {
-                        body: 'Esta é uma notificação de teste enviada com sucesso da sua plataforma!',
+                    new Notification('🤑 Venda Aprovada!', {
+                        body: `Você realizou uma nova venda no valor de ${testPushValue} (Teste)`,
                         icon: '/logo.png',
+                        image: '/logo.png',
                     });
                     toast.success('Notificação de teste enviada com sucesso!');
                 } else {
@@ -751,8 +754,8 @@ export const FerramentasView = () => {
                 >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-pink-50 dark:bg-pink-900/30 flex items-center justify-center text-pink-600">
-                                <Bell size={20} />
+                            <div className="h-10 w-10 rounded-xl bg-pink-50 dark:bg-pink-900/30 flex items-center justify-center p-2">
+                                <img src="/logo.png" alt="Plataforma" className="w-full h-full object-contain" />
                             </div>
                             <div>
                                 <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">Notificações Push</h3>
@@ -773,7 +776,19 @@ export const FerramentasView = () => {
                         </div>
                     </div>
 
-                    <div className="pt-2">
+                    <div className="pt-2 space-y-3">
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Valor do Teste</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="97,00"
+                                    value={testPushValue}
+                                    onChange={(e) => setTestPushValue(e.target.value)}
+                                    className="w-full h-11 pl-4 pr-4 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800 text-xs font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-pink-500/10 transition-all shadow-sm"
+                                />
+                            </div>
+                        </div>
                         <button
                             type="button"
                             onClick={handleTestPush}

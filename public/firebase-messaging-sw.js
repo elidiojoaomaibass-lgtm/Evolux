@@ -23,6 +23,7 @@ messaging.onBackgroundMessage(function(payload) {
     body: payload.notification?.body || '',
     icon: '/logo.png',
     badge: '/logo.png',
+    image: '/logo.png',
     data: payload.data || {}
   };
   self.registration.showNotification(title, options);

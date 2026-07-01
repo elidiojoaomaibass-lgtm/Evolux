@@ -117,8 +117,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const method = updatedTx?.method || 'Evolux Pay';
             for (const token of tokens) {
               await sendPushNotification(token, {
-                title: 'Você recebeu um novo pedido! 🎉',
-                body: `Venda aprovada de ${val} MZN ${method}`,
+                title: '🤑 Venda Aprovada!',
+                body: `Você realizou uma nova venda no valor de ${val} (Via ${method})`,
               });
             }
           } catch (e) { console.error('Erro ao enviar notificação push', e); }

@@ -55,12 +55,20 @@ export async function sendPushNotificationV1(
   const body = {
     message: {
       token,
-      ...(payload.url && { webpush: { fcmOptions: { link: payload.url } } }),
       // For foreground notifications, use the notification field
       ...(payload.background ? { data: { title: payload.title, body: payload.body } } : { notification: { title: payload.title, body: payload.body } }),
+      webpush: {
+        headers: {
+          Urgency: 'high'
+        },
+        ...(payload.url && { fcmOptions: { link: payload.url } }),
+        notification: {
+          icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' // Fallback icon
+        }
+      },
       // Ensure high priority delivery for background messages
       android: { priority: 'high' },
-      apns: { payload: { aps: { 'content-available': 1 } } },
+      apns: { payload: { aps: { 'content-available': 1 } }, headers: { 'apns-priority': '10' } },
     },
   };
 

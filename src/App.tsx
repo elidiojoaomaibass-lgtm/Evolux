@@ -229,6 +229,7 @@ function App() {
         new Notification(title, {
           body,
           icon: '/logo.png',
+          image: '/logo.png',
         });
       }
     });
