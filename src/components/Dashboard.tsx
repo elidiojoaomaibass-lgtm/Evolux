@@ -228,8 +228,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
     const emolaCount = useMemo(() => approvedTxs.filter(t => t.method === 'e-Mola').length, [approvedTxs]);
     const totalApprovedCount = approvedTxs.length;
 
-    const mpesaPercent = totalApprovedCount > 0 ? Math.round((mpesaCount / totalApprovedCount) * 100) : 0;
-    const emolaPercent = totalApprovedCount > 0 ? Math.round((emolaCount / totalApprovedCount) * 100) : 0;
+
 
     return (
         <div className="min-h-screen bg-[#fafbff] dark:bg-[#0f0525] p-4 md:p-8 font-sans">
