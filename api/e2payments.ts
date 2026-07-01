@@ -494,7 +494,7 @@ console.log('Raw auth response body:', await authResponse.clone().text());
                   for (const token of tokens) {
                     await sendPushNotification(token, {
                       title: 'Você recebeu um novo pedido! 🎉',
-                      body: `Venda aprovada de ${val} via ${methodStr}`,
+                      body: `Venda aprovada de ${val} MT via ${methodStr}`,
                     });
                   }
                   console.log(`FCM Push Notifications disparadas para ${tokens.length} dispositivos.`);
