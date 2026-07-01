@@ -458,16 +458,16 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                 {/* ─── STATS GRID ─── */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
                     {stats.map((item, idx) => (
-                        <div key={idx} className="bg-white dark:bg-brand-900/50 rounded-[1.25rem] p-4 md:p-4 border border-slate-100 dark:border-white/5 shadow-sm">
-                            <div className="flex items-center justify-between mb-3 md:mb-4">
-                                <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-brand-400">
+                        <div key={idx} className="bg-white dark:bg-brand-900/50 rounded-[1.25rem] p-3 md:p-3 border border-slate-100 dark:border-white/5 shadow-sm">
+                            <div className="flex items-center justify-between mb-2 md:mb-3">
+                                <span className="text-[7px] md:text-[8px] font-black uppercase tracking-widest text-slate-400 dark:text-brand-400">
                                     {item.label}
                                 </span>
-                                <div className="h-8 w-8 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-white/5">
-                                    <item.icon size={16} className="text-slate-400 dark:text-brand-400" />
+                                <div className="h-7 w-7 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-white/5">
+                                    <item.icon size={15} className="text-slate-400 dark:text-brand-400" />
                                 </div>
                             </div>
-                            <p className="text-lg md:text-2xl font-black tracking-tighter text-slate-900 dark:text-white">
+                            <p className="text-base md:text-xl font-black tracking-tighter text-slate-900 dark:text-white">
                                 {item.value}
                             </p>
                         </div>
@@ -494,7 +494,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white rounded-[2rem] h-[520px] w-full shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
+                        <div className="bg-white rounded-[2rem] h-[300px] w-full shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
                             <div className="h-full w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={chartData}>
@@ -552,7 +552,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                 Métodos de Pagamento
                             </h3>
                         </div>
-                        <div className="w-full bg-white rounded-[2rem] h-[520px] shadow-sm border border-slate-100 p-6 flex flex-col justify-center gap-8">
+                        <div className="w-full bg-white rounded-[2rem] h-[300px] shadow-sm border border-slate-100 p-6 flex flex-col justify-center gap-8">
 
                             <div className="flex flex-col items-center justify-center text-center">
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total de Vendas</span>

@@ -6,7 +6,7 @@ import {
     Send, ShieldCheck,
     Info, Save,
     Code2, Target,
-    Search, MessageCircle, Mail
+    Search, MessageCircle, Mail, Bell
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { toast } from 'sonner';
@@ -208,6 +208,36 @@ export const FerramentasView = () => {
         localStorage.setItem('evolux_prod_klaviyo_token', klaviyoToken);
         toast.success('Klaviyo configurado!', { description: 'A integração de email marketing está ativa.' });
     };
+
+    const handleTestPush = () => {
+        if (!('Notification' in window)) {
+            toast.error('O seu navegador não suporta notificações push.');
+            return;
+        }
+
+        if (Notification.permission === 'granted') {
+            new Notification('Teste de Notificação', {
+                body: 'Esta é uma notificação de teste enviada com sucesso da sua plataforma!',
+                icon: '/logo.png',
+            });
+            toast.success('Notificação de teste enviada com sucesso!');
+        } else if (Notification.permission !== 'denied') {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    new Notification('Teste de Notificação', {
+                        body: 'Esta é uma notificação de teste enviada com sucesso da sua plataforma!',
+                        icon: '/logo.png',
+                    });
+                    toast.success('Notificação de teste enviada com sucesso!');
+                } else {
+                    toast.error('Permissão para notificações não concedida.');
+                }
+            });
+        } else {
+             toast.error('As notificações estão bloqueadas nas definições do seu navegador.');
+        }
+    };
+
 
     return (
         <div className="px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700">
@@ -711,6 +741,50 @@ export const FerramentasView = () => {
                         </button>
                     </form>
                 </motion.div>
+
+                {/* Push Notifications Card */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35 }}
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                >
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-xl bg-pink-50 dark:bg-pink-900/30 flex items-center justify-center text-pink-600">
+                                <Bell size={20} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">Notificações Push</h3>
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Alertas Nativos</p>
+                            </div>
+                        </div>
+                        <div className="px-3 py-1 rounded-full bg-pink-50 dark:bg-pink-950 text-pink-600 text-[10px] font-black uppercase tracking-widest border border-pink-100 dark:border-pink-900/30">
+                            Ativo
+                        </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800">
+                        <div className="flex gap-2">
+                            <Info size={14} className="text-pink-500 shrink-0 mt-0.5" />
+                            <p className="text-[10px] leading-snug text-slate-500 font-medium italic">
+                                Receba alertas instantâneos de vendas e levantamentos diretamente no seu dispositivo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="pt-2">
+                        <button
+                            type="button"
+                            onClick={handleTestPush}
+                            className="w-full h-11 bg-pink-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-pink-700 shadow-lg shadow-pink-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                        >
+                            <Bell size={16} />
+                            Testar Notificação
+                        </button>
+                    </div>
+                </motion.div>
+
             </div>
         </div>
     );

@@ -7,7 +7,7 @@ import { Views } from "./components/Views";
 import { LoginView } from "./components/LoginView";
 import { supabase } from "./lib/supabase";
 import { clearLocalDataIfNotAdmin } from "./lib/clearLocalData";
-import { getFcmToken } from "./lib/firebase";
+import { getFcmToken, onFcmMessage } from "./lib/firebase";
 import type { Session } from "@supabase/supabase-js";
 import { Toaster } from 'sonner';
 import { Menu } from './components/MenuIcon';
@@ -198,7 +198,7 @@ function App() {
       if (Notification.permission === 'granted') {
         if ('serviceWorker' in navigator) {
           try {
-            const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+            const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
             // Obter o token FCM com o service worker registado
             const token = await getFcmToken(registration);
             if (token && session?.user?.email) {
@@ -216,6 +216,23 @@ function App() {
       }
     };
     if (session) setupPush();
+  }, [session]);
+
+  // Foreground push notification listener
+  useEffect(() => {
+    if (!session) return;
+    const unsubscribe = onFcmMessage((payload: any) => {
+      const title = payload?.notification?.title || 'Nova notificação';
+      const body = payload?.notification?.body || '';
+      // Show browser notification even when app is in foreground
+      if (Notification.permission === 'granted') {
+        new Notification(title, {
+          body,
+          icon: '/logo.png',
+        });
+      }
+    });
+    return () => { /* onMessage returns unsubscribe */ if (unsubscribe) (unsubscribe as any)(); };
   }, [session]);
 
   // Meta Ads Pixel Injection
