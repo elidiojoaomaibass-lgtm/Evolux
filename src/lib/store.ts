@@ -79,9 +79,8 @@ export type Category = 'Ebook' | 'Curso' | 'Mentoria' | 'Workshop' | 'Outro';
     try {
       const { data: sess } = await supabase.auth.getSession();
       const userEmail = sess?.session?.user?.email;
-      const ADMIN_EMAIL = 'kingleakds@gmail.com';
       let query = supabase.from('products').select('*');
-      if (userEmail && userEmail !== ADMIN_EMAIL) {
+      if (userEmail) {
         query = query.eq('user_email', userEmail);
       }
       const { data, error } = await query;
@@ -153,21 +152,11 @@ export const useProductsStore = () => {
     const insertWithUser = async () => {
         const { data: sess } = await supabase.auth.getSession();
         const userEmail = sess?.session?.user?.email;
-        const ADMIN_EMAIL = 'kingleakds@gmail.com';
-        const payload = { ...cleanProduct, user_email: userEmail ?? ADMIN_EMAIL };
+        if (!userEmail) throw new Error('Utilizador não autenticado');
+        const payload = { ...cleanProduct, user_email: userEmail };
         const { error, data } = await supabase.from('products').insert(payload).select();
         if (error) throw error;
         const inserted = (data as any[])[0] || payload;
-        if (product.image) {
-            await supabase.from('product_images').upsert({ product_id: inserted.id, url: product.image });
-        }
-        return inserted;
-    };
-
-    const insertWithoutUser = async () => {
-        const { error, data } = await supabase.from('products').insert(cleanProduct).select();
-        if (error) throw error;
-        const inserted = (data as any[])[0] || cleanProduct;
         if (product.image) {
             await supabase.from('product_images').upsert({ product_id: inserted.id, url: product.image });
         }
@@ -182,20 +171,12 @@ export const useProductsStore = () => {
             icon: '/logo.png'
         });
     } catch (e: any) {
-        console.warn('Primary insert failed (maybe missing user_email column):', e);
-        try {
-            await insertWithoutUser();
-            updateProducts([product, ...globalProducts]);
-            sendLocalNotification('📦 Novo Produto Submetido!', {
-                body: `O produto "${product.name}" foi enviado com sucesso.`,
-                icon: '/logo.png'
-            });
-        } catch (e2) {
-            sendLocalNotification('⚠️ Falha ao salvar produto', {
-                body: `Erro do banco: ${(e2 as any)?.message || String(e2)}. Não foi possível salvar o produto no servidor.`,
-                icon: '/logo.png'
-            });
-        }
+        console.warn('Falha ao criar produto:', e);
+        sendLocalNotification('⚠️ Falha ao salvar produto', {
+            body: `Erro: ${(e as any)?.message || String(e)}. Não foi possível criar o produto.`,
+            icon: '/logo.png'
+        });
+        throw e;
     }
 };
 
