@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { useTransactionsStore } from '../lib/store';
 import { supabase } from '../lib/supabase';
+import { processRLXPayment, waitForRLXPayment } from '../lib/rlxgatewayWrapper';
 
 import { Logo } from './Logo';
 import { CountdownBanner } from './CountdownBanner';
@@ -115,49 +116,59 @@ export const CheckoutPage = () => {
         const sanitizedPaymentPhone = cleanPhone(paymentPhone);
 
         try {
-            // Client-side settings are omitted for security; server will resolve webhook and LowTrack using product_id
-            let userWebhookUrl = '';
-            let userWebhookEvents = '{}';
-            let lowTrackToken = '';
+            // Processar pagamento via SDK (browser → RLX Gateway)
+            const result = await processRLXPayment({
+                phone: sanitizedPaymentPhone,
+                amount: product.price,
+                nome_cliente: name || 'Cliente'
+            });
 
+            if (result.status === 'pending') {
+                // Aguarda confirmação do cliente via PIN
+                await waitForRLXPayment(result.transactionId, {
+                    intervalMs: 5000,
+                    timeoutMs: 120000
+                });
+            }
 
-            const response = await fetch(`/api/e2payments`, {
+            // Após sucesso no pagamento, avisa o backend para salvar no banco de dados e disparar notificações
+            const finalizeRes = await fetch(`/api/finalize-payment`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    transactionId: result.transactionId,
                     phone: sanitizedPaymentPhone,
                     amount: product.price,
                     reference: reference,
                     customerName: name,
                     product_id: product.id,
                     product_name: product.name,
-                    
-                    // merchant_user_email allows backend to fetch settings from Supabase directly (device-independent)
                     merchant_user_email: product.user_email || '',
-                    // Fallback: client-sent values from localStorage (used if Supabase lookup fails)
-                    merchant_webhook_url: userWebhookUrl,
-                    merchant_webhook_events: userWebhookEvents,
-                    merchant_lowtrack_token: lowTrackToken,
+                    method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola'
                 })
             });
 
-            // Handle API responses
-            const contentType = response.headers.get("content-type");
-            if (!response.ok) {
-                if (contentType && contentType.indexOf("application/json") !== -1) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || errorData.message || 'Erro ao processar pagamento.');
-                } else {
-                    const textError = await response.text();
-                    console.error("Erro não-JSON recebido:", textError);
-                    throw new Error('Não foi possível concluir o pagamento. Verifique os logs.');
+            if (!finalizeRes.ok) {
+                console.error('Falha ao finalizar pagamento no backend', await finalizeRes.text());
+                // Fallback para contabilizar a transação caso a API falhe (ex: rodando localmente no Vite)
+                try {
+                    addTransaction({
+                        id: result.transactionId,
+                        type: 'payment',
+                        amount: product.price,
+                        phone: sanitizedPaymentPhone,
+                        method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                        status: 'Concluído',
+                        reference: reference,
+                        description: `Compra: ${product.name}`,
+                        customerName: name || 'Cliente',
+                    });
+                } catch (fallbackErr) {
+                    console.warn("Falha no fallback de gravação local", fallbackErr);
                 }
             }
 
             setStatus('success');
-
-            // Notifications are now handled server-side in /api/payblack
-            // No need to fire from the browser — works for any customer device
 
             // Redirect to Thank You page
             const queryParams: any = {

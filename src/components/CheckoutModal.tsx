@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
-import { processE2Payment } from '../lib/e2paymentsWrapper';
+import { processRLXPayment, waitForRLXPayment } from '../lib/rlxgatewayWrapper';
 import { useTransactionsStore, useProductsStore, type Product } from '../lib/store';
 import { supabase } from '../lib/supabase';
 import { Logo } from './Logo';
@@ -91,12 +91,38 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
         }
 
         try {
-            // Processar pagamento via SDK (browser → E2Payments direto)
-            await processE2Payment(method, {
+            // Processar pagamento via SDK (browser → RLX Gateway)
+            const result = await processRLXPayment({
                 phone: sanitizedPaymentPhone,
                 amount: product.price,
-                reference: reference
+                nome_cliente: name || 'Cliente'
             });
+
+            if (result.status === 'pending') {
+                // Aguarda confirmação do cliente via PIN
+                await waitForRLXPayment(result.transactionId, {
+                    intervalMs: 5000,
+                    timeoutMs: 120000
+                });
+            }
+
+            // Registrar a transação aprovada localmente e no Supabase
+            try {
+                addTransaction({
+                    id: result.transactionId,
+                    type: 'payment',
+                    amount: product.price,
+                    phone: sanitizedPaymentPhone,
+                    method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                    status: 'Concluído',
+                    reference: reference,
+                    description: `Compra: ${product.name}`,
+                    customerName: name || 'Cliente',
+                    customerEmail: product.user_email || ''
+                });
+            } catch (txErr) {
+                console.warn("Falha ao registar transação concluída", txErr);
+            }
 
             setStatus('success');
 

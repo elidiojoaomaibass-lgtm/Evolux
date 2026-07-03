@@ -1,24 +1,30 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Send, Clock,
-    ArrowRight, Loader2
+    ArrowRight, Loader2, CheckCircle2, XCircle, Zap
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../lib/utils';
 import { toast } from 'sonner';
-import { processE2Payment } from '../lib/e2paymentsWrapper';
-// Removed unused config imports
+import { processRLXPayment, waitForRLXPayment } from '../lib/rlxgatewayWrapper';
+import type { RLXStatusResponse } from '../lib/rlxgateway';
 
 import { useTransactionsStore } from '../lib/store';
 
+interface PollingState {
+  txid: string;
+  status: 'polling' | 'success' | 'failed';
+  message: string;
+  elapsed: number;
+}
+
 export const PagamentosView = () => {
-    const { addTransaction } = useTransactionsStore();
-    const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
+    const { addTransaction, updateTransactionStatus } = useTransactionsStore();
     const [amount, setAmount] = useState('');
     const [phone, setPhone] = useState('');
     const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
-
+    const [polling, setPolling] = useState<PollingState | null>(null);
 
     const handleSendRequest = async () => {
         if (!amount || !phone) {
@@ -27,28 +33,66 @@ export const PagamentosView = () => {
         }
 
         setLoading(true);
+        setPolling(null);
         try {
-            const reference = description || `PAG-${Date.now()}`;
-            const paymentResult = await processE2Payment(method, {
+            // ── RLX Gateway ──────────────────────────────────────────────
+            const numAmount = parseFloat(amount);
+            if (numAmount < 50) {
+                toast.error('O valor mínimo para pagamentos RLX é 50.00 MT.');
+                return;
+            }
+
+            const result = await processRLXPayment({
                 phone,
-                amount: parseFloat(amount),
-                reference,
-                // optional additional fields can be added here
+                amount: numAmount,
+                nome_cliente: description || 'Cliente',
             });
 
-            // Assuming paymentResult contains transactionId and message
+            // Auto-detect network for display purposes based on prefix
+            const isEmola = phone.startsWith('86') || phone.startsWith('87');
+
             addTransaction({
-                id: paymentResult.transactionId || `TX-${Date.now()}`,
+                id: result.transactionId,
                 type: 'payment',
-                amount: parseFloat(amount),
-                phone: phone,
-                method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                amount: numAmount,
+                phone,
+                method: isEmola ? 'e-Mola' : 'M-Pesa',
                 status: 'Pendente',
-                reference: reference,
-                description: description,
+                reference: result.transactionId,
+                description: description || undefined,
             });
 
-            toast.success(paymentResult.message || 'Solicitação enviada com sucesso!');
+            if (result.status === 'pending') {
+                toast.success('STK Push enviado! A aguardar confirmação do cliente…');
+                setPolling({ txid: result.transactionId, status: 'polling', message: 'A aguardar PIN do cliente…', elapsed: 0 });
+
+                // Polling automático em background
+                waitForRLXPayment(result.transactionId, {
+                    intervalMs: 5_000,
+                    timeoutMs: 120_000,
+                    onCheck: (res: RLXStatusResponse, elapsed: number) => {
+                        setPolling(prev => prev ? { ...prev, elapsed } : prev);
+                    },
+                })
+                .then(() => {
+                    setPolling(prev => prev ? { ...prev, status: 'success', message: 'Pagamento confirmado com sucesso!' } : prev);
+                    toast.success('✅ Pagamento confirmado com sucesso!');
+                    
+                    // Atualizar estado no Supabase e localmente para "Concluído"
+                    updateTransactionStatus(result.transactionId, 'Concluído');
+                })
+                .catch((err: Error) => {
+                    setPolling(prev => prev ? { ...prev, status: 'failed', message: err.message } : prev);
+                    if (!err.message.includes('timeout')) {
+                        toast.error(err.message);
+                    }
+                    updateTransactionStatus(result.transactionId, 'Falhou');
+                });
+            } else {
+                toast.success('Pagamento confirmado com sucesso!');
+                updateTransactionStatus(result.transactionId, 'Concluído');
+            }
+
             setAmount('');
             setPhone('');
             setDescription('');
@@ -71,7 +115,6 @@ export const PagamentosView = () => {
                 </div>
             </div>
 
-
             {/* Payment Form */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -84,10 +127,14 @@ export const PagamentosView = () => {
                         <Plus size={16} />
                     </div>
                     <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white leading-tight">Iniciar Pagamento</h3>
+                    <span className="ml-auto text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 flex items-center gap-1">
+                        RLX Gateway <Zap size={10} />
+                    </span>
                 </div>
 
                 <p className="text-[11px] md:text-xs font-bold text-slate-400 dark:text-brand-400 mb-6 md:mb-8 max-w-2xl text-pretty">
                     Insira o número do cliente para enviar a solicitação de pagamento. O cliente receberá uma notificação para confirmar com o PIN.
+                    <span className="text-orange-500 ml-1">• Mínimo: 50.00 MT</span>
                 </p>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
@@ -98,18 +145,21 @@ export const PagamentosView = () => {
                                 type="number"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
-                                placeholder="0.00"
+                                placeholder="50.00 (mínimo)"
+                                min={50}
                                 className="w-full h-11 md:h-12 px-4 rounded-xl border border-slate-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-950 font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-500/20 outline-none transition-all placeholder:text-slate-300 text-xs md:text-sm"
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-[9px] md:text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-wider ml-1">Descrição (opcional)</label>
+                            <label className="text-[9px] md:text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-wider ml-1">
+                                Nome do Cliente
+                            </label>
                             <input
                                 type="text"
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Ex: Pagamento do curso..."
+                                placeholder="Ex: Jorge Alexandre"
                                 className="w-full h-11 md:h-12 px-4 rounded-xl border border-slate-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-950 font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-500/20 outline-none transition-all placeholder:text-slate-300 text-xs md:text-sm"
                             />
                         </div>
@@ -130,59 +180,52 @@ export const PagamentosView = () => {
                                     className="flex-1 h-11 md:h-12 px-4 rounded-xl border border-slate-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-950 font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-500/20 outline-none transition-all placeholder:text-slate-300 text-xs md:text-sm"
                                 />
                             </div>
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] md:text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-wider ml-1">Método de Pagamento</label>
-                            <div className="flex flex-wrap gap-4 pt-1.5">
-                                <button
-                                    onClick={() => setMethod('mpesa')}
-                                    className="flex items-center gap-2 cursor-pointer group"
-                                >
-                                    <div className={cn(
-                                        "h-4 w-4 rounded-full border-2 flex items-center justify-center transition-all",
-                                        method === 'mpesa' ? "border-violet-600 bg-violet-600" : "border-slate-200 dark:border-brand-700"
-                                    )}>
-                                        {method === 'mpesa' && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="h-6 w-6 rounded-lg bg-white border border-slate-100 flex items-center justify-center overflow-hidden">
-                                            <img src="/mpesa_logo.png" alt="M-Pesa" className="w-full h-full object-cover" />
-                                        </div>
-                                        <span className="text-[11px] font-black text-slate-700 dark:text-brand-100">M-Pesa</span>
-                                    </div>
-                                </button>
-
-                                <button
-                                    onClick={() => setMethod('emola')}
-                                    className="flex items-center gap-2 cursor-pointer group"
-                                >
-                                    <div className={cn(
-                                        "h-4 w-4 rounded-full border-2 flex items-center justify-center transition-all",
-                                        method === 'emola' ? "border-violet-600 bg-violet-600" : "border-slate-200 dark:border-brand-700"
-                                    )}>
-                                        {method === 'emola' && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="h-6 w-6 rounded-lg bg-white border border-slate-100 flex items-center justify-center overflow-hidden">
-                                            <img src="/emola_logo.png" alt="e-Mola" className="w-full h-full object-cover" />
-                                        </div>
-                                        <span className="text-[11px] font-black text-slate-700 dark:text-brand-100">e-Mola</span>
-                                    </div>
-                                </button>
-                            </div>
+                            <p className="text-[9px] text-slate-400 ml-1">
+                                84/85 → M-Pesa &nbsp;|&nbsp; 86/87 → e-Mola (automático)
+                            </p>
                         </div>
                     </div>
                 </div>
+
+                {/* RLX Polling status indicator */}
+                <AnimatePresence>
+                    {polling && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mt-5 overflow-hidden"
+                        >
+                            <div className={cn(
+                                "flex items-center gap-3 p-4 rounded-xl border text-xs font-bold",
+                                polling.status === 'polling' && "bg-amber-50 border-amber-100 text-amber-700 dark:bg-amber-900/20 dark:border-amber-900/30",
+                                polling.status === 'success' && "bg-green-50 border-green-100 text-green-700 dark:bg-green-900/20 dark:border-green-900/30",
+                                polling.status === 'failed' && "bg-red-50 border-red-100 text-red-700 dark:bg-red-900/20 dark:border-red-900/30",
+                            )}>
+                                {polling.status === 'polling' && <Loader2 size={16} className="animate-spin shrink-0" />}
+                                {polling.status === 'success' && <CheckCircle2 size={16} className="shrink-0" />}
+                                {polling.status === 'failed' && <XCircle size={16} className="shrink-0" />}
+                                <div className="flex-1 min-w-0">
+                                    <p>{polling.message}</p>
+                                    {polling.status === 'polling' && (
+                                        <p className="text-[9px] font-medium opacity-60 mt-0.5">
+                                            ID: {polling.txid} · {Math.round(polling.elapsed / 1000)}s / 120s
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 <div className="mt-6 md:mt-8">
                     <button 
                         onClick={handleSendRequest}
                         disabled={loading}
-                        className="w-full h-11 md:h-12 bg-gradient-to-r from-violet-600 to-purple-700 text-white rounded-xl font-black flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20 hover:scale-[1.01] active:scale-[0.99] transition-all text-xs md:text-sm disabled:opacity-70"
+                        className="w-full h-11 md:h-12 text-white rounded-xl font-black flex items-center justify-center gap-2 shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all text-xs md:text-sm disabled:opacity-70 bg-gradient-to-r from-orange-500 to-red-500 shadow-orange-500/20"
                     >
                         {loading ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
-                        {loading ? 'Processando...' : 'Enviar Solicitação'}
+                        {loading ? 'Processando…' : 'Enviar via RLX Gateway'}
                     </button>
                 </div>
             </motion.div>
@@ -210,3 +253,4 @@ export const PagamentosView = () => {
         </div>
     );
 };
+
