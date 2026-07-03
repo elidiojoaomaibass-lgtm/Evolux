@@ -70,7 +70,7 @@ export const PagamentosView = () => {
                 waitForRLXPayment(result.transactionId, {
                     intervalMs: 5_000,
                     timeoutMs: 120_000,
-                    onCheck: (res: RLXStatusResponse, elapsed: number) => {
+                    onCheck: (_res: RLXStatusResponse, elapsed: number) => {
                         setPolling(prev => prev ? { ...prev, elapsed } : prev);
                     },
                 })
