@@ -550,7 +550,9 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                         <div className="h-5 w-5 rounded-full border-2 border-white flex items-center justify-center">
                                             <Check size={12} strokeWidth={4} />
                                         </div>
-                                        <span>Pagar agora</span>
+                                        <span>
+                                            Pagar agora {product.price ? `- ${product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT` : ''}
+                                        </span>
                                     </>
                                 )}
                             </button>
