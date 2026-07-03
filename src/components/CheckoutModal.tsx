@@ -538,7 +538,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                             <button
                                 onClick={handlePurchase}
                                 disabled={status === 'processing'}
-                                className="w-full h-16 bg-[#e11d24] text-white rounded-xl font-black text-lg md:text-xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-red-500/20 disabled:opacity-70"
+                                style={{ backgroundColor: product.barColor || '#e11d24' }}
+                                className="w-full h-16 text-white rounded-xl font-black text-lg md:text-xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-red-500/20 disabled:opacity-70"
                             >
                                 {status === 'processing' ? (
                                     <>
