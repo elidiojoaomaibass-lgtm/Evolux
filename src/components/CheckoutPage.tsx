@@ -502,7 +502,7 @@ export const CheckoutPage = () => {
                                 disabled={status === 'processing'}
                                 style={{ backgroundColor: product.barColor || '#e11d24' }}
                                 className={cn(
-                                    "w-full h-[72px] text-white rounded-2xl font-black text-xl md:text-2xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-red-500/20 disabled:opacity-70 cursor-pointer"
+                                    "w-full h-[72px] text-white rounded-2xl font-black text-2xl md:text-3xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-red-500/20 disabled:opacity-70 cursor-pointer"
                                 )}
                             >
                                 {status === 'processing' ? (
