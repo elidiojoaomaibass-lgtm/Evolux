@@ -124,7 +124,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           reference: reference || finalTxId,
           description: `${product_name || 'Compra online'}||NOTIF_META||${notifMeta}`,
           customerName: customerName || 'Cliente',
-          customerEmail: '',
+          customerEmail: finalMerchantEmail || '',
           device: 'Desktop/Mobile',
           createdat: new Date().toISOString(),
         }]);

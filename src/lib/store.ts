@@ -444,8 +444,16 @@ export const useTransactionsStore = () => {
             try {
 
                 let query = supabase.from('transactions').select('*').order('createdat', { ascending: false });
-                // Note: customer_email is the buyer's email, filtering by it hides sales from the seller.
-                // Reverted to show all history as requested by the user.
+                
+                // Multi-Tenant Isolation
+                const { data: sess } = await supabase.auth.getSession();
+                const userEmail = sess?.session?.user?.email;
+                const ADMIN_EMAIL = 'kingleakds@gmail.com';
+                
+                if (userEmail && userEmail !== ADMIN_EMAIL) {
+                    query = query.eq('customerEmail', userEmail);
+                }
+
                 const { data, error } = await query;
                 console.log('Supabase fetch result:', { data, error });
                 

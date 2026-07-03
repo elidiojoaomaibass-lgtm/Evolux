@@ -162,6 +162,7 @@ export const CheckoutPage = () => {
                         reference: reference,
                         description: `Compra: ${product.name}`,
                         customerName: name || 'Cliente',
+                        customerEmail: product.user_email || '',
                     });
                 } catch (fallbackErr) {
                     console.warn("Falha no fallback de gravação local", fallbackErr);
@@ -213,6 +214,7 @@ export const CheckoutPage = () => {
                     reference: reference,
                     description: `Compra: ${product.name} (Fallback/Erro: ${err.message || 'Erro'})`,
                     customerName: name || 'Cliente',
+                    customerEmail: product.user_email || '',
                 });
             } catch (dbErr) {
                 console.warn("Falha no fallback de gravação Supabase (não autenticado):", dbErr);
