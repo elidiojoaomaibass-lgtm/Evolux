@@ -146,14 +146,12 @@ export const useProductsStore = () => {
     };
 
     const addProduct = async (product: Product) => {
-    const { enableScarcity, enableScarcityNotification, barColor, enableCountdown, ...cleanProduct } = product as any;
-
 
     const insertWithUser = async () => {
         const { data: sess } = await supabase.auth.getSession();
         const userEmail = sess?.session?.user?.email;
         if (!userEmail) throw new Error('Utilizador não autenticado');
-        const payload = { ...cleanProduct, user_email: userEmail };
+        const payload = { ...product, user_email: userEmail };
         const { error, data } = await supabase.from('products').insert(payload).select();
         if (error) throw error;
         const inserted = (data as any[])[0] || payload;

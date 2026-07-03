@@ -1,7 +1,7 @@
 import { 
     Terminal, 
     Copy, Check, ExternalLink, Shield, 
-    Smartphone, Zap, Server, Key, Code
+    Smartphone, Zap, Server, Key, Code, Target
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -250,6 +250,30 @@ async function cobrarCliente() {
                             ))}
                         </div>
                     </section>
+
+                    {/* Meta Pixel Section */}
+                    <section id="meta-pixel" className="space-y-4 pt-8 border-t border-slate-100 dark:border-brand-800">
+                        <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                            <Target className="text-violet-500" size={20} />
+                            5. Meta Pixel (Facebook)
+                        </h2>
+                        <div className="space-y-3">
+                            <p className="text-sm text-slate-600 dark:text-brand-300 font-medium leading-relaxed">
+                                O rastreamento de conversões através do Meta Pixel está totalmente integrado. Ao adicionar o seu ID do Pixel na aba de Integrações, o sistema irá automaticamente:
+                            </p>
+                            <ul className="list-disc list-inside text-sm text-slate-600 dark:text-brand-300 space-y-2 ml-2">
+                                <li>Disparar o evento <b>PageView</b> em todas as páginas do produto.</li>
+                                <li>Disparar o evento <b>InitiateCheckout</b> quando o cliente aceder à página de compra.</li>
+                                <li>Disparar o evento <b>Purchase</b> (com o valor da conversão) na página de "Obrigado" após um pagamento bem sucedido.</li>
+                            </ul>
+                            <div className="p-4 mt-2 rounded-2xl bg-violet-50 dark:bg-violet-900/10 border border-violet-100 dark:border-violet-900/20">
+                                <h4 className="text-xs font-black text-violet-900 dark:text-violet-200 uppercase tracking-tight mb-2">Como Ativar?</h4>
+                                <p className="text-xs text-violet-700 dark:text-violet-400">
+                                    Vá à aba de <b className="cursor-pointer underline" onClick={() => window.dispatchEvent(new CustomEvent('change-view', { detail: 'Integrações' }))}>Integrações</b>, localize o bloco do Meta Ads e insira o ID do seu Pixel (apenas números). O sistema encarrega-se de injetar o script nas suas páginas.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
                 </div>
 
                 {/* Sticky Sidebar */}
@@ -263,6 +287,7 @@ async function cobrarCliente() {
                                     { id: "c2b", label: "2. Pagamento C2B", icon: Smartphone },
                                     { id: "sdk", label: "3. SDK JavaScript", icon: Code },
                                     { id: "endpoints", label: "4. Endpoints", icon: Server },
+                                    { id: "meta-pixel", label: "5. Meta Pixel", icon: Target },
                                 ].map((item) => (
                                     <a 
                                         key={item.id}

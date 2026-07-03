@@ -151,11 +151,18 @@ function App() {
         return updated;
       });
     };
+    const handleViewChange = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setActiveView(detail as any);
+    };
+
     window.addEventListener('user-profile-updated', handleProfileUpdate);
+    window.addEventListener('change-view', handleViewChange);
 
     return () => {
       subscription.unsubscribe();
       window.removeEventListener('user-profile-updated', handleProfileUpdate);
+      window.removeEventListener('change-view', handleViewChange);
     };
   }, []);
 

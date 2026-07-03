@@ -109,11 +109,6 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
                                         )}
                                     />
                                     <span className="flex-1 text-left tracking-tight">{item.label}</span>
-                                    {'badge' in item && item.badge && (
-                                        <span className="rounded-full bg-fuchsia-500 px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider">
-                                            {item.badge}
-                                        </span>
-                                    )}
                                 </button>
                             );
                         })

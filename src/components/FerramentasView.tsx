@@ -336,9 +336,18 @@ export const FerramentasView = () => {
                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800">
                         <div className="flex gap-2">
                             <Info size={14} className="text-violet-500 shrink-0 mt-0.5" />
-                            <p className="text-[10px] leading-snug text-slate-500 font-medium italic">
-                                Rastreie conversões e crie públicos personalizados para o Facebook e Instagram.
-                            </p>
+                            <div className="flex flex-col gap-1">
+                                <p className="text-[10px] leading-snug text-slate-500 font-medium italic">
+                                    Rastreie conversões e crie públicos personalizados para o Facebook e Instagram.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => window.dispatchEvent(new CustomEvent('change-view', { detail: 'Documentação' }))}
+                                    className="mt-1 flex w-fit items-center gap-1 text-[10px] font-bold text-violet-600 hover:text-violet-700 underline"
+                                >
+                                    Ler Documentação Oficial
+                                </button>
+                            </div>
                         </div>
                     </div>
 

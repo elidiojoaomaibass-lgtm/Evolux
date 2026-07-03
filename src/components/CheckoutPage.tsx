@@ -185,14 +185,14 @@ export const CheckoutPage = () => {
                 queryParams.deliveryLink = product.deliveryLink;
             }
 
-            if (enableCountdown) {
+            if (product.enableCountdown) {
                 queryParams.enableCountdown = 'true';
             }
-            if (enableScarcity) {
+            if (product.enableScarcityNotification) {
                 queryParams.enableScarcityNotification = 'true';
             }
-            if (barColor) {
-                queryParams.barColor = barColor;
+            if (product.barColor) {
+                queryParams.barColor = product.barColor;
             }
 
             const params = new URLSearchParams(queryParams);
@@ -222,20 +222,13 @@ export const CheckoutPage = () => {
         }
     };
 
-    if (loadingProduct && productId !== 'PRD-MOCK') {
-        return (
-            <div className="min-h-[100dvh] bg-slate-50 flex flex-col items-center justify-center p-4">
-                <Loader2 className="h-10 w-10 animate-spin text-red-600 mb-4" />
-                <p className="text-slate-500 font-bold tracking-tight">A carregar detalhes do produto...</p>
-            </div>
-        );
-    }
+
 
     return (
         <div className="min-h-[100dvh] bg-slate-50 flex flex-col mx-auto">
             <div className="sticky top-0 z-50 shadow-sm">
-                {enableCountdown && <CountdownBanner barColor={barColor || undefined} />}
-                {enableScarcity && <ScarcityNotification />}
+                {product.enableCountdown && <CountdownBanner barColor={product.barColor || undefined} />}
+                {product.enableScarcityNotification && <ScarcityNotification />}
                 {/* Header */}
                 <header className="bg-white border-b border-slate-100 py-4 px-6">
                     <div className="max-w-4xl mx-auto flex items-center justify-start">
