@@ -15,9 +15,7 @@ import { getLowtrackToken } from '../src/lib/lowtrack';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
-// Lowtrak integration env vars (global fallback if merchant hasn't configured individually)
 const globalLowtrakApiKey = process.env.VITE_LOWTRAK_API_KEY || process.env.LOWTRAK_API_KEY || '';
-// LowTrack endpoint for webhook notifications (default provided)
 const lowtrackEndpoint = process.env.VITE_LOWTRAK_ENDPOINT || process.env.LOWTRAK_ENDPOINT || 'https://lowtrack.com.br/api/webhook';
 const defaultMerchantWebhookUrl = process.env.VITE_MERCHANT_WEBHOOK_URL || '';
 const defaultMerchantWebhookEvents = process.env.VITE_MERCHANT_WEBHOOK_EVENTS || '{}';
@@ -33,10 +31,6 @@ if (supabaseUrl && supabaseAnonKey) {
   }
 }
 
-/**
- * Parse NOTIF_META from the transaction description field.
- * Format: "Compra online||NOTIF_META||{json}"
- */
 function parseNotifMeta(description: string | null): { webhook_url: string; webhook_events: string; lowtrack_token: string } | null {
   if (!description) return null;
   const marker = '||NOTIF_META||';
@@ -50,9 +44,7 @@ function parseNotifMeta(description: string | null): { webhook_url: string; webh
 }
 
 /**
- * Webhook Handler for E2Payments
- * This endpoint receives notifications when a transaction status changes.
- * Notifications (Webhook + LowTrack) are fired SERVER-SIDE so any sale from any device is captured.
+ * Webhook Handler for RLX Gateway
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -65,32 +57,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Ensure JSON payload (Vercel may provide raw string)
     let payload = req.body;
     if (typeof payload === 'string') {
-      try {
-        payload = JSON.parse(payload);
-      } catch (e) {
-        console.error('Invalid JSON payload', e);
+      try { payload = JSON.parse(payload); } catch (e) {
         return res.status(400).setHeader('Access-Control-Allow-Origin', '*').json({ error: 'Invalid JSON payload' });
       }
     }
-    console.log('E2Payments Webhook Received:', JSON.stringify(payload, null, 2));
+    console.log('RLX Webhook Received:', JSON.stringify(payload, null, 2));
 
-    const { status, reference } = payload;
-    const transaction_id = payload.transaction_id || payload.id || payload.transactionId;
+    // RLX Webhook structure support + fallback for other formats
+    const status = payload.status || payload.event;
+    const transaction_id = payload.txid || payload.transaction_id || payload.id || payload.transactionId;
+    const reference = payload.reference || transaction_id;
+    const amount = payload.valor_bruto || payload.amount;
+    const phone = payload.pagador || payload.phone;
+    const customerName = payload.nome_pagador || payload.customerName || 'Cliente';
+    const method = payload.canal === 'emola' ? 'e-Mola' : (payload.canal === 'mpesa' ? 'M-Pesa' : payload.method);
 
-    if (!transaction_id && !reference) {
-      return res.status(400).setHeader('Access-Control-Allow-Origin', '*').json({ error: 'Missing transaction identifiers (id or reference)' });
+    if (!transaction_id) {
+      return res.status(400).setHeader('Access-Control-Allow-Origin', '*').json({ error: 'Missing txid / transaction_id' });
     }
 
-    // Mapeia o status da E2Payments para o status do nosso painel
-    const statusUpper = String(status).toUpperCase();
-    const finalStatus = (statusUpper === 'SUCCESSFUL' || statusUpper === 'SUCCESS' || statusUpper === 'CONCLUÍDO') ? 'Concluído' : 'Falhou';
+    const isSuccess = (status === 'success' || status === 'payment.success' || String(status).toUpperCase() === 'CONCLUÍDO');
+    const finalStatus = isSuccess ? 'Concluído' : 'Falhou';
 
-    console.log(`Atualizando transação ${transaction_id} (Ref: ${reference}) para status: ${finalStatus} (Original: ${status})`);
+    console.log(`Atualizando transação ${transaction_id} para status: ${finalStatus}`);
 
-    // Atualiza a transação no Supabase e busca os dados completos
     const { data: updatedTx, error } = await supabase
       .from('transactions')
       .update({ status: finalStatus })
@@ -98,14 +90,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .select()
       .single();
 
-    // Determine user ID from payload or the updated transaction
-    const userId = payload.user_id || payload.userId || (updatedTx ? updatedTx.user_id : null) || updatedTx?.customerEmail || updatedTx?.phone;
-
     if (!error) {
-      console.log('Sucesso ao atualizar o status da transação no Supabase por ID.');
+      console.log('Sucesso ao atualizar a transação no Supabase.');
 
-      // Wait for all notifications to complete before sending the response
-      // Vercel serverless functions freeze execution as soon as res.send is called.
+      // Se for sucesso, atualizar vendas do produto (se existir metadado)
+      if (isSuccess && updatedTx && updatedTx.description) {
+          // Ex: "Compra: Nome do Produto"
+          // O webhook não tem o product_id diretamente, mas o ideal seria o client enviar no momento do inicio do pagamento.
+          // Para já, este webhook servirá para confirmação de notificação e state.
+          console.log("Transação confirmada. Dispatch de eventos iniciado.");
+      }
+
+      const userId = payload.user_id || payload.userId || updatedTx?.customerEmail || updatedTx?.phone;
       const notifications: Promise<void>[] = [];
 
       // 1. Push notification (Pushcut/FCM)
@@ -113,12 +109,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         notifications.push((async () => {
           try {
             const tokens = await getUserTokens(userId);
-            const val = updatedTx?.amount ? Number(updatedTx.amount).toLocaleString('pt-PT') : '';
-            const method = updatedTx?.method || 'Evolux Pay';
+            const val = amount ? Number(amount).toLocaleString('pt-PT') : '';
             for (const token of tokens) {
               await sendPushNotification(token, {
-                title: '🤑 Venda Aprovada!',
-                body: `Você realizou uma nova venda no valor de ${val} (Via ${method})`,
+                title: isSuccess ? '🤑 Venda Aprovada!' : '⚠️ Venda Falhada',
+                body: isSuccess ? `Você realizou uma nova venda no valor de ${val} (Via ${method || 'RLX'})` : `A transação de ${val} falhou.`,
               });
             }
           } catch (e) { console.error('Erro ao enviar notificação push', e); }
@@ -132,32 +127,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             await fetch(pushcutEndpoint, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${pushcutApiKey}` },
-              body: JSON.stringify({ transaction_id, amount: updatedTx?.amount, status: finalStatus, user_id: userId }),
+              body: JSON.stringify({ transaction_id, amount, status: finalStatus, user_id: userId }),
             });
           } catch (pcErr) { console.error('Erro ao notificar Pushcut', pcErr); }
         })());
       }
 
-      // Fire merchant-specific notifications for all payments (success or failure)
+      // 3. Merchant Webhook & LowTrack
       const notifMeta = parseNotifMeta(updatedTx?.description || null);
-      const val = updatedTx?.amount ? Number(updatedTx.amount).toLocaleString('pt-PT') : '0';
-      const payMethod = updatedTx?.method || 'M-Pesa';
-
-      // 3. Merchant Webhook notification
       const merchantWebhookUrl = notifMeta?.webhook_url || defaultMerchantWebhookUrl;
+      const merchantLowtrackToken = notifMeta?.lowtrack_token || globalLowtrakApiKey;
+
       if (merchantWebhookUrl && merchantWebhookUrl.startsWith('http')) {
         notifications.push((async () => {
           try {
             let webhookEvents: Record<string, boolean> = { sale_approved: true };
-            try {
-              const eventsStr = notifMeta?.webhook_events || defaultMerchantWebhookEvents;
-              webhookEvents = JSON.parse(eventsStr);
-            } catch {}
-            
-            const isSuccess = finalStatus === 'Concluído';
+            if (notifMeta?.webhook_events) { try { webhookEvents = JSON.parse(notifMeta.webhook_events); } catch {} }
             const eventName = isSuccess ? 'sale_approved' : 'sale_failed';
 
-            // Send if it's a success and sale_approved is enabled, or if it's a failure.
             if ((isSuccess && webhookEvents.sale_approved !== false) || !isSuccess) {
               await fetch(merchantWebhookUrl, {
                 method: 'POST',
@@ -165,61 +152,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 body: JSON.stringify({
                   event: eventName,
                   timestamp: new Date().toISOString(),
-                  transaction_id,
-                  reference,
-                  amount: updatedTx?.amount,
-                  method: payMethod,
-                  customer: {
-                    name: updatedTx?.customerName,
-                    email: updatedTx?.customerEmail,
-                    phone: updatedTx?.phone
-                  },
+                  transaction_id, reference, amount, method,
+                  customer: { name: customerName, phone },
                   status: finalStatus
                 })
               });
-              console.log(`Merchant webhook notified (${eventName}) at:`, merchantWebhookUrl);
             }
-          } catch (whErr) { console.error('Erro ao notificar Merchant Webhook', whErr); }
+          } catch (whErr) { console.error('Erro Merchant Webhook', whErr); }
         })());
       }
 
-      // 4. LowTrack notification
-      const merchantLowtrackToken = notifMeta?.lowtrack_token || await getLowtrackToken();
-        console.log('LowTrack debug - token:', merchantLowtrackToken?.substring(0,8), 'endpoint:', lowtrackEndpoint);
-        if (merchantLowtrackToken && lowtrackEndpoint) {
-          notifications.push((async () => {
-            try {
-              const lowtrackResponse = await fetch(lowtrackEndpoint, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${merchantLowtrackToken}`,
-                  'User-Agent': 'Mozilla/5.0'
-                },
-                body: JSON.stringify({
-                  event: finalStatus === 'Concluído' ? 'sale.approved' : 'sale.failed',
-                  transaction_id,
-                  reference,
-                  amount: updatedTx?.amount,
-                  method: payMethod,
-                  status: finalStatus,
-                  customer: {
-                    name: updatedTx?.customerName,
-                    email: updatedTx?.customerEmail,
-                    phone: updatedTx?.phone
-                  },
-                  user_id: updatedTx?.customerEmail || updatedTx?.phone || userId
-                })
-              });
-              if (!lowtrackResponse.ok) {
-                const errorText = await lowtrackResponse.text();
-                console.error(`LowTrack notification failed with status ${lowtrackResponse.status}: ${errorText}`);
-              } else {
-                console.log(`LowTrack notified (${finalStatus}) with token: ${merchantLowtrackToken.substring(0, 8)}...`);
-              }
-            } catch (lowErr) { console.error('Erro ao notificar LowTrack', lowErr); }
-          })());
-        }
+      if (merchantLowtrackToken && lowtrackEndpoint) {
+        notifications.push((async () => {
+          try {
+            await fetch(lowtrackEndpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${merchantLowtrackToken}`, 'User-Agent': 'Mozilla/5.0' },
+              body: JSON.stringify({
+                event: isSuccess ? 'sale.approved' : 'sale.failed',
+                transaction_id, reference, amount, method, status: finalStatus,
+                customer: { name: customerName, phone },
+                user_id: userId
+              })
+            });
+          } catch (lowErr) { console.error('Erro LowTrack', lowErr); }
+        })());
+      }
 
       await Promise.allSettled(notifications);
 
@@ -227,16 +185,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         message: 'Webhook processed successfully',
         updated: { transaction_id, status: finalStatus, reference }
       });
+    } else {
+        // Even if tx update fails, respond 200 to gateway so it doesn't retry infinitely
+        console.error('Failed to update tx in DB:', error);
+        return res.status(200).json({ message: 'Received, but failed to update DB.', error: error });
     }
-
-    return res.status(200).setHeader('Access-Control-Allow-Origin', '*').json({
-      message: 'Webhook processed successfully',
-      updated: { transaction_id, status: finalStatus, reference }
-    });
 
   } catch (error: any) {
     console.error('Webhook Error:', error.message);
     return res.status(500).setHeader('Access-Control-Allow-Origin', '*').json({ error: 'Internal Server Error' });
   }
 }
-
