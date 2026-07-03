@@ -486,12 +486,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                     Gráfico de Vendas
                                 </h3>
                             </div>
-                            <div className="flex gap-4 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-100 shrink-0">
-                                <div className="flex items-center gap-1.5">
-                                    <div className="h-1.5 w-1.5 rounded-full bg-violet-600" />
-                                    <span className="text-[8px] font-black uppercase text-slate-500 tracking-widest">Faturamento</span>
-                                </div>
-                            </div>
+
                         </div>
                         <div className="bg-white rounded-[2rem] h-[300px] w-full shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
                             <div className="h-full w-full">
