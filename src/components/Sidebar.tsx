@@ -35,8 +35,8 @@ const menuGroups = [
     {
         label: "Crescimento",
         items: [
-            { icon: Users, label: "Afiliados" as ViewType, badge: "Novo" },
-            { icon: Layers, label: "Mercado" as ViewType, badge: "Novo" },
+            { icon: Users, label: "Afiliados" as ViewType },
+            { icon: Layers, label: "Mercado" as ViewType },
             { icon: Wrench, label: "Integrações" as ViewType },
             { icon: Gift, label: "Premiações" as ViewType },
         ],
