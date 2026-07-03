@@ -485,7 +485,6 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                     <div className="h-1.5 w-1.5 rounded-full bg-violet-500" />
                                     Gráfico de Vendas
                                 </h3>
-                                <p className="text-[10px] text-slate-400 font-medium ml-3.5">Volume total do período: <span className="text-violet-600 font-bold">{totalRevenue.toLocaleString('pt-PT')} MZN</span></p>
                             </div>
                             <div className="flex gap-4 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-100 shrink-0">
                                 <div className="flex items-center gap-1.5">
