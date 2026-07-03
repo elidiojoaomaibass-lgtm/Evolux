@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
     X, ChevronDown, Check,
-    ShieldCheck, 
+    ShieldCheck,
     Loader2,
     AlertCircle
 } from 'lucide-react';
@@ -49,7 +49,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
     const handlePurchase = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         setErrorMessage(null);
 
         if (!paymentPhone) {
@@ -60,7 +60,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
         setStatus('processing');
 
         const reference = `ORD${Date.now()}`;
-        
+
         // Sanitização robusta dos números de telefone antes de enviar
         const cleanPhone = (num: string) => {
             let digits = num.replace(/\D/g, '');
@@ -145,24 +145,24 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
             // Increment sales count and total revenue for the product
             try {
-              // Update in Supabase
-              await supabase
-                .from('products')
-                .update({
-                  sales: (product.sales ?? 0) + 1,
-                  revenue: (product.revenue ?? 0) + product.price,
-                })
-                .eq('id', product.id);
-              // Update local store if needed (optimistic)
-              updateProducts(
-                products.map(p =>
-                  p.id === product.id
-                    ? { ...p, sales: (p.sales ?? 0) + 1, revenue: (p.revenue ?? 0) + product.price }
-                    : p
-                )
-              );
+                // Update in Supabase
+                await supabase
+                    .from('products')
+                    .update({
+                        sales: (product.sales ?? 0) + 1,
+                        revenue: (product.revenue ?? 0) + product.price,
+                    })
+                    .eq('id', product.id);
+                // Update local store if needed (optimistic)
+                updateProducts(
+                    products.map(p =>
+                        p.id === product.id
+                            ? { ...p, sales: (p.sales ?? 0) + 1, revenue: (p.revenue ?? 0) + product.price }
+                            : p
+                    )
+                );
             } catch (e) {
-              console.warn('Failed to increment product sales:', e);
+                console.warn('Failed to increment product sales:', e);
             }
 
             // Redirecionar para a página de obrigado com detalhes da compra
@@ -175,7 +175,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 deliveryLink: product.deliveryLink || '',
             });
             window.location.href = `/obrigado?${params.toString()}`;
-            
+
             // Aqui podes disparar o Pixel de Meta Ads (Purchase)
             if ((window as any).fbq) {
                 (window as any).fbq('track', 'Purchase', {
@@ -204,16 +204,16 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             const code = err?.mpesa_server_response?.output_ResponseCode || err?.emola_server_response?.output_ResponseCode || '';
             const friendlyErrors: Record<string, string> = {
                 'INS-2006': 'Saldo insuficiente. Por favor, recarregue a sua conta e tente novamente.',
-                'INS-6':    'Saldo insuficiente. Verifique o saldo e tente novamente.',
-                'INS-5':    'Pagamento cancelado. Não introduziu o PIN no seu telemóvel. Tente novamente.',
-                'INS-17':   'Pagamento cancelado ou recusado. Tente novamente e confirme o PIN.',
-                'INS-9':    'Tempo esgotado. Não confirmou o PIN a tempo. Tente novamente.',
-                'INS-14':   'Número de telemóvel inválido. Verifique e tente novamente.',
-                'INS-2':    'Número não encontrado. Verifique se é um número M-Pesa/e-Mola válido.',
-                'INS-4':    'Não foi possível enviar o pedido ao seu telemóvel. Verifique se tem M-Pesa/e-Mola ativo.',
-                'INS-13':   'Valor inválido. O valor mínimo é 1 MT.',
-                'INS-10':   'Transação duplicada. Aguarde alguns minutos antes de tentar novamente.',
-                'INS-1':    'Erro temporário. Por favor, tente novamente em instantes.',
+                'INS-6': 'Saldo insuficiente. Verifique o saldo e tente novamente.',
+                'INS-5': 'Pagamento cancelado. Não introduziu o PIN no seu telemóvel. Tente novamente.',
+                'INS-17': 'Pagamento cancelado ou recusado. Tente novamente e confirme o PIN.',
+                'INS-9': 'Tempo esgotado. Não confirmou o PIN a tempo. Tente novamente.',
+                'INS-14': 'Número de telemóvel inválido. Verifique e tente novamente.',
+                'INS-2': 'Número não encontrado. Verifique se é um número M-Pesa/e-Mola válido.',
+                'INS-4': 'Não foi possível enviar o pedido ao seu telemóvel. Verifique se tem M-Pesa/e-Mola ativo.',
+                'INS-13': 'Valor inválido. O valor mínimo é 1 MT.',
+                'INS-10': 'Transação duplicada. Aguarde alguns minutos antes de tentar novamente.',
+                'INS-1': 'Erro temporário. Por favor, tente novamente em instantes.',
             };
             if (code && friendlyErrors[code]) {
                 errorMsg = friendlyErrors[code];
@@ -244,41 +244,41 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
     if (status === 'success') {
         return (
-          <AnimatePresence>
-            {isOpen && (
-              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={onClose}
-                  className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
-                />
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="relative w-full max-w-md bg-white rounded-3xl p-10 text-center shadow-2xl"
-                >
-                  <div className="h-20 w-20 bg-emerald-500 rounded-full flex items-center justify-center text-white mx-auto mb-6 shadow-lg shadow-emerald-500/20">
-                    <Check size={40} strokeWidth={3} />
-                  </div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-2 flex items-center justify-center gap-2">
-                    <span>🎉</span> Pedido Realizado!
-                  </h3>
-                  <p className="text-sm text-slate-500 font-medium mb-8">
-                    O seu acesso foi enviado para o seu e‑mail cadastrado. Verifique também a pasta de spam.
-                  </p>
-                  <button
-                    onClick={onClose}
-                    className="w-full h-14 bg-slate-900 text-white rounded-xl font-bold tracking-widest hover:bg-slate-800 transition-all shadow-lg"
-                  >
-                    Fechar
-                  </button>
-                </motion.div>
-              </div>
-            )}
-          </AnimatePresence>
+            <AnimatePresence>
+                {isOpen && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={onClose}
+                            className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="relative w-full max-w-md bg-white rounded-3xl p-10 text-center shadow-2xl"
+                        >
+                            <div className="h-20 w-20 bg-emerald-500 rounded-full flex items-center justify-center text-white mx-auto mb-6 shadow-lg shadow-emerald-500/20">
+                                <Check size={40} strokeWidth={3} />
+                            </div>
+                            <h3 className="text-2xl font-black text-slate-900 mb-2 flex items-center justify-center gap-2">
+                                <span>🎉</span> Pedido Realizado!
+                            </h3>
+                            <p className="text-sm text-slate-500 font-medium mb-8">
+                                O seu acesso foi enviado para o seu e‑mail cadastrado. Verifique também a pasta de spam.
+                            </p>
+                            <button
+                                onClick={onClose}
+                                className="w-full h-14 bg-slate-900 text-white rounded-xl font-bold tracking-widest hover:bg-slate-800 transition-all shadow-lg"
+                            >
+                                Fechar
+                            </button>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         );
     }
 
@@ -306,7 +306,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                         {/* Branding Header */}
                         <div className="bg-white px-6 py-4 md:py-6 flex items-center justify-between z-30 shadow-sm">
                             <Logo size={28} showText={true} textColor="text-slate-900" />
-                            <button 
+                            <button
                                 onClick={onClose}
                                 className="h-9 w-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-all border border-slate-100"
                             >
@@ -316,7 +316,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
                         {/* Order Progress (Optional) */}
                         <div className="w-full h-1 bg-slate-100 overflow-hidden">
-                            <motion.div 
+                            <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: '100%' }}
                                 transition={{ duration: 0.8 }}
@@ -326,7 +326,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
                         {/* Header Summary (Sticky-ish) */}
                         <div className="bg-[#fcfcfc] border-y border-slate-100 p-4 flex items-center justify-between z-20">
-                            <button 
+                            <button
                                 onClick={() => setShowSummary(!showSummary)}
                                 className="flex items-center gap-2 text-slate-600 text-[13px] font-medium hover:text-slate-900 transition-colors"
                             >
@@ -346,22 +346,22 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                     exit={{ height: 0, opacity: 0 }}
                                     className="bg-slate-50 border-b border-slate-100 overflow-visible"
                                 >
-           <div className="p-6 flex flex-row items-end gap-4">
-      <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg overflow-hidden bg-slate-100 border border-slate-100 shadow-sm shrink-0">
-      <img src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&fit=crop"} alt="" className="w-full h-full object-cover" />
-    </div>
-    <div className="flex flex-col flex-1 gap-2">
-      <div className="flex-1 flex flex-col justify-between">
-        <span className="text-xs font-bold text-slate-600 truncate">{product.description}</span>
-        <span className="text-xs font-black text-slate-900 mt-1">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
-      </div>
-      <div className="flex flex-col gap-1 mt-2">
-        <span className="text-xs text-slate-500">Subtotal: {product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
-        <span className="text-xs text-slate-500">Tax/Iva: 0,00 MT</span>
-        <span className="text-sm font-bold text-slate-900">Total: {product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
-      </div>
-    </div>
-  </div>
+                                    <div className="p-6 flex flex-row items-end gap-4">
+                                        <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg overflow-hidden bg-slate-100 border border-slate-100 shadow-sm shrink-0">
+                                            <img src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&fit=crop"} alt="" className="w-full h-full object-cover" />
+                                        </div>
+                                        <div className="flex flex-col flex-1 gap-2">
+                                            <div className="flex-1 flex flex-col justify-between">
+                                                <span className="text-xs font-bold text-slate-600 truncate">{product.description}</span>
+                                                <span className="text-xs font-black text-slate-900 mt-1">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1 mt-2">
+                                                <span className="text-xs text-slate-500">Subtotal: {product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
+                                                <span className="text-xs text-slate-500">Tax/Iva: 0,00 MT</span>
+                                                <span className="text-sm font-bold text-slate-900">Total: {product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -373,12 +373,12 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                 <h3 className="text-lg font-bold text-slate-900 items-center flex gap-3">
                                     Informações do Cliente
                                 </h3>
-                                
+
                                 <div className="space-y-3">
                                     <div className="space-y-1">
                                         <label className="text-xs font-bold text-slate-700">Nome</label>
-                                        <input 
-                                            type="text" 
+                                        <input
+                                            type="text"
                                             placeholder="Seu nome completo"
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
@@ -393,8 +393,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                             <div className="h-11 px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-medium text-slate-600 gap-1.5 shrink-0">
                                                 <span className="text-[10px] opacity-60  font-black">MZ</span> +258
                                             </div>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 placeholder="84 xxx xxxx"
                                                 value={phone}
                                                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
@@ -403,7 +403,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                             />
                                         </div>
                                     </div>
-                 
+
                                 </div>
                             </section>
 
@@ -422,10 +422,10 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                         <span>Ativar notificação de escassez (exibe nomes aleatórios moçambicanos)</span>
                                     </label>
                                 </div>
-                                
+
                                 <div className="space-y-3">
                                     {/* M-Pesa */}
-                                    <div 
+                                    <div
                                         onClick={() => setMethod('mpesa')}
                                         className={cn(
                                             "rounded-xl border transition-all cursor-pointer overflow-hidden",
@@ -447,14 +447,14 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
                                         <AnimatePresence>
                                             {method === 'mpesa' && (
-                                                <motion.div 
+                                                <motion.div
                                                     initial={{ height: 0, opacity: 0 }}
                                                     animate={{ height: 'auto', opacity: 1 }}
                                                     className="px-4 pb-4 space-y-2"
                                                 >
                                                     <label className="text-[10px] font-black text-slate-500  tracking-widest leading-none">Número de celular*</label>
-                                                    <input 
-                                                        type="text" 
+                                                    <input
+                                                        type="text"
                                                         placeholder="84 xxx xxxx"
                                                         value={paymentPhone}
                                                         onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
@@ -466,7 +466,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                     </div>
 
                                     {/* e-Mola */}
-                                    <div 
+                                    <div
                                         onClick={() => setMethod('emola')}
                                         className={cn(
                                             "rounded-xl border transition-all cursor-pointer overflow-hidden",
@@ -487,14 +487,14 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                         </div>
                                         <AnimatePresence>
                                             {method === 'emola' && (
-                                                <motion.div 
+                                                <motion.div
                                                     initial={{ height: 0, opacity: 0 }}
                                                     animate={{ height: 'auto', opacity: 1 }}
                                                     className="px-4 pb-4 space-y-2"
                                                 >
                                                     <label className="text-[10px] font-black text-slate-500  tracking-widest leading-none">Número de celular*</label>
-                                                    <input 
-                                                        type="text" 
+                                                    <input
+                                                        type="text"
                                                         placeholder="87 xxx xxxx"
                                                         value={paymentPhone}
                                                         onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
@@ -535,10 +535,10 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                 Os seus dados serão processados de acordo com a nossa <a href="#" className="underline text-violet-500">política de privacidade</a>.
                             </p>
 
-                            <button 
+                            <button
                                 onClick={handlePurchase}
                                 disabled={status === 'processing'}
-                                className="w-full h-14 bg-violet-600 text-white rounded-xl font-black text-sm md:text-base flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-violet-500/20 disabled:opacity-70"
+                                className="w-full h-16 bg-[#e11d24] text-white rounded-xl font-black text-lg md:text-xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-red-500/20 disabled:opacity-70"
                             >
                                 {status === 'processing' ? (
                                     <>
@@ -572,7 +572,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                         {/* Sticky Processing Overlay */}
                         <AnimatePresence>
                             {status === 'processing' && (
-                                <motion.div 
+                                <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     className="absolute inset-0 z-50 bg-white/20 backdrop-blur-[2px] pointer-events-none"
@@ -588,8 +588,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
 const ShoppingCartIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 2L3 6V20C3 20.5304 3.21071 21.0391 3.58579 21.4142C3.96086 21.7893 4.46957 22 5 22H19C19.5304 22 20.0391 21.7893 20.4142 21.4142C20.783 20.9391 21 20.4304 21 20V6L18 2H6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M3 6H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M16 10C16 11.0609 15.5786 12.0783 14.8284 12.8284C14.0783 13.5786 13.0609 14 12 14C10.9391 14 9.92172 13.5786 9.17157 12.8284C8.42143 12.0783 8 11.0609 8 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M6 2L3 6V20C3 20.5304 3.21071 21.0391 3.58579 21.4142C3.96086 21.7893 4.46957 22 5 22H19C19.5304 22 20.0391 21.7893 20.4142 21.4142C20.783 20.9391 21 20.4304 21 20V6L18 2H6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M3 6H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M16 10C16 11.0609 15.5786 12.0783 14.8284 12.8284C14.0783 13.5786 13.0609 14 12 14C10.9391 14 9.92172 13.5786 9.17157 12.8284C8.42143 12.0783 8 11.0609 8 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
 );

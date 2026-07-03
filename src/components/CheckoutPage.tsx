@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { 
+import {
     X, Check,
     Loader2,
     AlertCircle
@@ -24,7 +24,7 @@ export const CheckoutPage = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
-    
+
     const [paymentPhone, setPaymentPhone] = useState('');
 
     // Parse product info from URL
@@ -40,8 +40,8 @@ export const CheckoutPage = () => {
     const urlImage = searchParams.get('image') || '';
     // Cache direct http image URLs
     if (urlImage && urlImage.startsWith('http')) {
-      localStorage.setItem(`checkout_img_${productId}`, urlImage);
-      storedImage = urlImage;
+        localStorage.setItem(`checkout_img_${productId}`, urlImage);
+        storedImage = urlImage;
     }
     // placeholder that will be possibly updated after fetch
     let productImage = storedImage || urlImage;
@@ -53,15 +53,15 @@ export const CheckoutPage = () => {
     const fetchProduct = async () => {
         setLoadingProduct(true);
         const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', productId)
-        .single();
+            .from('products')
+            .select('*')
+            .eq('id', productId)
+            .single();
         if (error) {
-        console.error('Error fetching product', error);
-        setDbProduct(null);
+            console.error('Error fetching product', error);
+            setDbProduct(null);
         } else {
-        setDbProduct(data);
+            setDbProduct(data);
         }
         setLoadingProduct(false);
     };
@@ -174,7 +174,7 @@ export const CheckoutPage = () => {
             // Redirect to Thank You page
             const queryParams: any = {
                 name: name || '',
-                
+
                 product: product.name || '',
                 amount: String(product.price),
                 method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
@@ -239,10 +239,10 @@ export const CheckoutPage = () => {
 
             {/* Centered Single-Column Container */}
             <main className="flex-1 max-w-2xl w-full mx-auto p-4 md:p-8">
-                
+
                 {/* Unified Form and Card */}
                 <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 space-y-8">
-                    
+
                     {/* Header Info */}
                     <div className="space-y-2 text-center pb-4 border-b border-slate-100">
                         <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Finalizar Compra 🚀</h2>
@@ -250,18 +250,18 @@ export const CheckoutPage = () => {
                     </div>
 
                     <form onSubmit={handlePurchase} className="space-y-8">
-                        
+
                         {/* Section 1: Customer Details */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
                                 <h3 className="text-base font-bold text-slate-900  tracking-wider">Informações do cliente</h3>
                             </div>
-                            
+
                             <div className="space-y-3.5">
                                 <div className="space-y-1">
                                     <label className="text-xs font-black text-slate-600  tracking-wider">Nome</label>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         placeholder="Introduza o seu nome completo"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
@@ -277,8 +277,8 @@ export const CheckoutPage = () => {
                                             <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
                                                 <span className="text-[10px] opacity-60  font-black">MZ</span> +258
                                             </div>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 placeholder="84 xxx xxxx"
                                                 value={phone}
                                                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
@@ -305,25 +305,25 @@ export const CheckoutPage = () => {
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
-                                
+
                                 <div className="flex-1 min-w-0 space-y-1 text-left">
                                     <div className="flex justify-start items-start gap-2">
-                                    <p className="text-2xl font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
+                                        <p className="text-2xl font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
                                     </div>
-                                    
-                                <div className="flex justify-between items-center text-xs">
-    <span className="text-slate-400 font-bold">Subtotal</span>
-    <span className="text-slate-600 font-black">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
-</div>
-<div className="flex justify-between items-center text-xs">
-    <span className="text-slate-400 font-bold">Taxas / IVA</span>
-    <span className="text-emerald-500 font-black">0,00 MT</span>
-</div>
-</div>
+
+                                    <div className="flex justify-between items-center text-xs">
+                                        <span className="text-slate-400 font-bold">Subtotal</span>
+                                        <span className="text-slate-600 font-black">{product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-xs">
+                                        <span className="text-slate-400 font-bold">Taxas / IVA</span>
+                                        <span className="text-emerald-500 font-black">0,00 MT</span>
+                                    </div>
+                                </div>
                             </div>
-                        
-    
-                            
+
+
+
 
                             {/* Money Totals */}
                             <div className="space-y-2 pt-3 border-t border-slate-200">
@@ -337,7 +337,7 @@ export const CheckoutPage = () => {
 
 
 
-                        
+
 
                         {/* Section 3: Payment Provider */}
                         <div className="space-y-4 pt-2">
@@ -347,7 +347,7 @@ export const CheckoutPage = () => {
 
                             <div className="space-y-4">
                                 {/* M-Pesa Option */}
-                                <div 
+                                <div
                                     onClick={() => {
                                         if (method !== 'mpesa') {
                                             setMethod('mpesa');
@@ -383,7 +383,7 @@ export const CheckoutPage = () => {
                                     {/* M-Pesa Wallet Input inside card */}
                                     <AnimatePresence>
                                         {method === 'mpesa' && (
-                                            <motion.div 
+                                            <motion.div
                                                 initial={{ opacity: 0, height: 0 }}
                                                 animate={{ opacity: 1, height: 'auto' }}
                                                 exit={{ opacity: 0, height: 0 }}
@@ -394,8 +394,8 @@ export const CheckoutPage = () => {
                                                     <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
                                                         <span className="text-[10px] opacity-60  font-black">MZ</span> +258
                                                     </div>
-                                                    <input 
-                                                        type="text" 
+                                                    <input
+                                                        type="text"
                                                         placeholder="84 xxx xxxx"
                                                         value={paymentPhone}
                                                         onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
@@ -410,7 +410,7 @@ export const CheckoutPage = () => {
                                 </div>
 
                                 {/* e-Mola Option */}
-                                <div 
+                                <div
                                     onClick={() => {
                                         if (method !== 'emola') {
                                             setMethod('emola');
@@ -442,7 +442,7 @@ export const CheckoutPage = () => {
                                     {/* e-Mola Wallet Input inside card */}
                                     <AnimatePresence>
                                         {method === 'emola' && (
-                                            <motion.div 
+                                            <motion.div
                                                 initial={{ opacity: 0, height: 0 }}
                                                 animate={{ opacity: 1, height: 'auto' }}
                                                 exit={{ opacity: 0, height: 0 }}
@@ -453,8 +453,8 @@ export const CheckoutPage = () => {
                                                     <div className="h-12 px-3.5 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 flex items-center justify-center text-xs font-bold text-slate-600 gap-1.5 shrink-0">
                                                         <span className="text-[10px] opacity-60  font-black">MZ</span> +258
                                                     </div>
-                                                    <input 
-                                                        type="text" 
+                                                    <input
+                                                        type="text"
                                                         placeholder="86 xxx xxxx / 87 xxx xxxx"
                                                         value={paymentPhone}
                                                         onChange={(e) => setPaymentPhone(e.target.value.replace(/\D/g, '').slice(0, 14))}
@@ -484,9 +484,9 @@ export const CheckoutPage = () => {
                                         <p className="text-sm font-bold text-red-700">Pagamento não processado</p>
                                         <p className="text-xs text-red-600 mt-0.5 leading-relaxed">{errorMessage}</p>
                                     </div>
-                                    <button 
+                                    <button
                                         type="button"
-                                        onClick={() => setErrorMessage(null)} 
+                                        onClick={() => setErrorMessage(null)}
                                         className="text-red-400 hover:text-red-600 transition-colors shrink-0"
                                     >
                                         <X size={14} />
@@ -501,7 +501,7 @@ export const CheckoutPage = () => {
                                 type="submit"
                                 disabled={status === 'processing'}
                                 className={cn(
-                                    "w-full h-14 bg-violet-600 text-white rounded-2xl font-black text-sm md:text-base flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-violet-500/20 disabled:opacity-70 cursor-pointer"
+                                    "w-full h-16 bg-[#e11d24] text-white rounded-2xl font-black text-lg md:text-xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-red-500/20 disabled:opacity-70 cursor-pointer"
                                 )}
                             >
                                 {status === 'processing' ? (
@@ -529,5 +529,5 @@ export const CheckoutPage = () => {
                 </div>
             </main>
         </div>
-        );
+    );
 };
