@@ -30,8 +30,10 @@ function App() {
     }
   });
 
-  // Add a flag to indicate session check completed
-  const [sessionChecked, setSessionChecked] = useState(false);
+  // Skip loading screen if we already restored a session from localStorage
+  const [sessionChecked, setSessionChecked] = useState(() => {
+    return !!localStorage.getItem('evolux_prod_fake_session');
+  });
 
   const [activeView, setActiveView] = useState<ViewType>(() => {
     // Use sessionStorage: persiste enquanto a aba está aberta (minimizar mantém), mas reseta ao fechar o browser
