@@ -18,7 +18,7 @@ import { CountdownBanner } from './CountdownBanner';
 import { ScarcityNotification } from './ScarcityNotification';
 
 export const CheckoutPage = () => {
-    const { addTransaction } = useTransactionsStore();
+    const { addTransaction, updateTransactionStatus } = useTransactionsStore();
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
     const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -123,6 +123,24 @@ export const CheckoutPage = () => {
                 nome_cliente: name || 'Cliente'
             });
 
+            // Registar imediatamente a transação como 'Pendente' para que o webhook consiga encontrá-la se o user fechar a página
+            try {
+                addTransaction({
+                    id: result.transactionId,
+                    type: 'payment',
+                    amount: product.price,
+                    phone: sanitizedPaymentPhone,
+                    method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                    status: result.status === 'success' ? 'Concluído' : 'Pendente',
+                    reference: reference,
+                    description: `Compra: ${product.name}`,
+                    customerName: name || 'Cliente',
+                    customerEmail: product.user_email || '',
+                });
+            } catch (txErr) {
+                console.warn("Falha ao registar transação pendente:", txErr);
+            }
+
             if (result.status === 'pending') {
                 // Aguarda confirmação do cliente via PIN
                 await waitForRLXPayment(result.transactionId, {
@@ -131,42 +149,30 @@ export const CheckoutPage = () => {
                 });
             }
 
-            // Após sucesso no pagamento, avisa o backend para salvar no banco de dados e disparar notificações
-            const finalizeRes = await fetch(`/api/finalize-payment`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    transactionId: result.transactionId,
-                    phone: sanitizedPaymentPhone,
-                    amount: product.price,
-                    reference: reference,
-                    customerName: name,
-                    product_id: product.id,
-                    product_name: product.name,
-                    merchant_user_email: product.user_email || '',
-                    method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola'
-                })
-            });
-
-            if (!finalizeRes.ok) {
-                console.error('Falha ao finalizar pagamento no backend', await finalizeRes.text());
-                // Fallback para contabilizar a transação caso a API falhe (ex: rodando localmente no Vite)
-                try {
-                    addTransaction({
-                        id: result.transactionId,
-                        type: 'payment',
-                        amount: product.price,
+            // Após sucesso no pagamento, atualiza o status e avisa o backend para disparar notificações
+            updateTransactionStatus(result.transactionId, 'Concluído');
+            try {
+                const finalizeRes = await fetch(`/api/finalize-payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        transactionId: result.transactionId,
                         phone: sanitizedPaymentPhone,
-                        method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
-                        status: 'Concluído',
+                        amount: product.price,
                         reference: reference,
-                        description: `Compra: ${product.name}`,
-                        customerName: name || 'Cliente',
-                        customerEmail: product.user_email || '',
-                    });
-                } catch (fallbackErr) {
-                    console.warn("Falha no fallback de gravação local", fallbackErr);
+                        customerName: name,
+                        product_id: product.id,
+                        product_name: product.name,
+                        merchant_user_email: product.user_email || '',
+                        method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola'
+                    })
+                });
+
+                if (!finalizeRes.ok) {
+                    console.error('Falha ao finalizar pagamento no backend', await finalizeRes.text());
                 }
+            } catch (finalizeErr) {
+                console.error('Erro de rede ao chamar finalize-payment:', finalizeErr);
             }
 
             setStatus('success');
@@ -500,9 +506,8 @@ export const CheckoutPage = () => {
                             <button
                                 type="submit"
                                 disabled={status === 'processing'}
-                                style={{ backgroundColor: product.barColor || '#e11d24' }}
                                 className={cn(
-                                    "w-full h-[72px] text-white rounded-2xl font-black text-2xl md:text-3xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-red-500/20 disabled:opacity-70 cursor-pointer"
+                                    "w-full h-[72px] text-white bg-[#e11d24] rounded-2xl font-black text-2xl md:text-3xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-red-500/20 disabled:opacity-70 cursor-pointer"
                                 )}
                             >
                                 {status === 'processing' ? (

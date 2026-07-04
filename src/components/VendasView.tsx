@@ -193,7 +193,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
     };
 
     return (
-        <div className="flex flex-col text-slate-900 dark:text-white px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 dark:from-indigo-900 dark:via-purple-900 dark:to-pink-900 min-h-screen">
+        <div className="flex flex-col text-slate-900 dark:text-white px-4 md:px-8 pt-2 md:pt-4 pb-20 space-y-6 md:space-y-8 w-full max-w-none mx-auto transition-all duration-700">
             {/* Header */}
             <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 xl:gap-16">
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-1 md:space-y-3 mt-3 md:mt-2">

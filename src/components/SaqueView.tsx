@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Wallet, Clock, CheckCircle2,
@@ -24,11 +24,31 @@ export const SaqueView = () => {
     // Filtrar apenas levantamentos para o histórico desta view
     const withdrawalHistory = transactions.filter(t => t.type === 'withdrawal');
 
-    // Mock balances separated by wallet with "Total Coletado"
-    const [balances] = useState({
-        'M-Pesa': { available: 2500.00, pending: 450.00, collected: 12000.00 },
-        'e-Mola': { available: 850.00, pending: 0.00, collected: 3400.00 }
-    });
+    // Real-time balances separated by wallet
+    const balances = useMemo(() => {
+        const calcWallet = (wallet: 'M-Pesa' | 'e-Mola') => {
+            const collected = transactions
+                .filter(t => t.type === 'payment' && t.status === 'Concluído' && t.method === wallet)
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const withdrawn = transactions
+                .filter(t => t.type === 'withdrawal' && t.status === 'Concluído' && t.method === wallet)
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const pending = transactions
+                .filter(t => t.type === 'withdrawal' && t.status === 'Pendente' && t.method === wallet)
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const available = collected - withdrawn - pending;
+            
+            return { available: Math.max(0, available), pending, withdrawn, collected };
+        };
+
+        return {
+            'M-Pesa': calcWallet('M-Pesa'),
+            'e-Mola': calcWallet('e-Mola')
+        };
+    }, [transactions]);
 
     // Tracking pending withdrawals per wallet to enforce the "1 per wallet" rule
     const [pendingByWallet, setPendingByWallet] = useState(() => {

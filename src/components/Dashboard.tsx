@@ -231,7 +231,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
 
 
     return (
-        <div className="min-h-screen bg-[#fafbff] dark:bg-[#0f0525] p-4 md:p-8 font-sans">
+        <div className="min-h-screen p-4 md:p-8 font-sans">
             <div className="w-full space-y-8">
 
                 {/* ─── TOP HEADER ─── */}

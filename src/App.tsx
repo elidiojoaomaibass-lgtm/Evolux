@@ -327,7 +327,7 @@ function App() {
   if (!sessionChecked) {
     // Show a loading indicator while authentication status is being determined
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#faf9ff] dark:bg-[#0d0d17]">
+      <div className="flex items-center justify-center min-h-screen bg-[#fafbff] dark:bg-[#0f0525]">
         <span className="text-xl font-medium text-gray-700 dark:text-gray-200">Carregando...</span>
       </div>
     );
@@ -360,7 +360,7 @@ function App() {
   }
 
   return (
-    <div className="flex bg-[#faf9ff] dark:bg-[#0d0d17] min-h-screen font-sans transition-colors duration-500 overflow-x-hidden relative">
+    <div className="flex bg-[#fafbff] dark:bg-[#0f0525] min-h-screen font-sans transition-colors duration-500 overflow-x-hidden relative">
       {/* Premium Ambient Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-violet-500/5 dark:bg-violet-600/10 rounded-full blur-[120px] animate-pulse-slow" />

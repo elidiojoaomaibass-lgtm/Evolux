@@ -20,7 +20,7 @@ interface CheckoutModalProps {
 }
 
 export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) => {
-    const { addTransaction } = useTransactionsStore();
+    const { addTransaction, updateTransactionStatus } = useTransactionsStore();
     const { products, updateProducts } = useProductsStore();
     const [method, setMethod] = useState<'mpesa' | 'emola'>('mpesa');
     const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle');
@@ -98,6 +98,24 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 nome_cliente: name || 'Cliente'
             });
 
+            // Registrar imediatamente como Pendente para não perder a transação
+            try {
+                addTransaction({
+                    id: result.transactionId,
+                    type: 'payment',
+                    amount: product.price,
+                    phone: sanitizedPaymentPhone,
+                    method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
+                    status: result.status === 'success' ? 'Concluído' : 'Pendente',
+                    reference: reference,
+                    description: `Compra: ${product.name}`,
+                    customerName: name || 'Cliente',
+                    customerEmail: product.user_email || ''
+                });
+            } catch (txErr) {
+                console.warn("Falha ao registar transação pendente", txErr);
+            }
+
             if (result.status === 'pending') {
                 // Aguarda confirmação do cliente via PIN
                 await waitForRLXPayment(result.transactionId, {
@@ -106,23 +124,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 });
             }
 
-            // Registrar a transação aprovada localmente e no Supabase
-            try {
-                addTransaction({
-                    id: result.transactionId,
-                    type: 'payment',
-                    amount: product.price,
-                    phone: sanitizedPaymentPhone,
-                    method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
-                    status: 'Concluído',
-                    reference: reference,
-                    description: `Compra: ${product.name}`,
-                    customerName: name || 'Cliente',
-                    customerEmail: product.user_email || ''
-                });
-            } catch (txErr) {
-                console.warn("Falha ao registar transação concluída", txErr);
-            }
+            // Atualiza a transação para Concluído após confirmação
+            updateTransactionStatus(result.transactionId, 'Concluído');
 
             setStatus('success');
 
@@ -538,8 +541,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                             <button
                                 onClick={handlePurchase}
                                 disabled={status === 'processing'}
-                                style={{ backgroundColor: product.barColor || '#e11d24' }}
-                                className="w-full h-[72px] text-white rounded-xl font-black text-2xl md:text-3xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-red-500/20 disabled:opacity-70"
+                                className="w-full h-[72px] text-white bg-[#e11d24] rounded-xl font-black text-2xl md:text-3xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-red-500/20 disabled:opacity-70"
                             >
                                 {status === 'processing' ? (
                                     <>

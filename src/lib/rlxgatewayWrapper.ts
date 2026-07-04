@@ -61,14 +61,41 @@ export async function processRLXPayment(
 ): Promise<RLXPaymentResult> {
   const gateway = new RLXGateway();
 
+  // ── Payout automático da plataforma ───────────────────────────────────────
+  const envPayoutMpesa =
+    (typeof import.meta !== 'undefined'
+      ? (import.meta as any).env?.VITE_RLX_PAYOUT_MPESA
+      : undefined) ??
+    (typeof process !== 'undefined'
+      ? process.env?.VITE_RLX_PAYOUT_MPESA
+      : undefined) ??
+    '';
+
+  const envPayoutEmola =
+    (typeof import.meta !== 'undefined'
+      ? (import.meta as any).env?.VITE_RLX_PAYOUT_EMOLA
+      : undefined) ??
+    (typeof process !== 'undefined'
+      ? process.env?.VITE_RLX_PAYOUT_EMOLA
+      : undefined) ??
+    '';
+
+  const finalPayoutMpesa = payload.payout_phone_mpesa || envPayoutMpesa;
+  const finalPayoutEmola = payload.payout_phone_emola || envPayoutEmola;
+
   const request: RLXPaymentRequest = {
     phone: payload.phone,
     amount: payload.amount,
     nome_cliente: payload.nome_cliente,
-    ...(payload.payout_phone_mpesa && { payout_phone_mpesa: payload.payout_phone_mpesa }),
-    ...(payload.payout_phone_emola && { payout_phone_emola: payload.payout_phone_emola }),
+    ...(finalPayoutMpesa && { payout_phone_mpesa: finalPayoutMpesa }),
+    ...(finalPayoutEmola && { payout_phone_emola: finalPayoutEmola }),
     ...(payload.webhook_url && { webhook_url: payload.webhook_url }),
   };
+
+  console.log('[RLX Payout] Números de payout injetados:', {
+    mpesa: finalPayoutMpesa || '(nenhum)',
+    emola: finalPayoutEmola || '(nenhum)',
+  });
 
   const response = await gateway.pay(request);
 
