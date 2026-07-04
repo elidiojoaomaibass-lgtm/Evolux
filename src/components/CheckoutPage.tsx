@@ -125,7 +125,7 @@ export const CheckoutPage = () => {
 
             // Registar imediatamente a transação como 'Pendente' para que o webhook consiga encontrá-la se o user fechar a página
             try {
-                addTransaction({
+                await addTransaction({
                     id: result.transactionId,
                     type: 'payment',
                     amount: product.price,
@@ -150,7 +150,7 @@ export const CheckoutPage = () => {
             }
 
             // Após sucesso no pagamento, atualiza o status e avisa o backend para disparar notificações
-            updateTransactionStatus(result.transactionId, 'Concluído');
+            await updateTransactionStatus(result.transactionId, 'Concluído');
             try {
                 const finalizeRes = await fetch(`/api/finalize-payment`, {
                     method: 'POST',

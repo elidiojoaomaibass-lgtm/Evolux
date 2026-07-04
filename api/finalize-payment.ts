@@ -114,7 +114,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           lowtrack_token: finalLowtrackToken,
         });
 
-        await supabase.from('transactions').insert([{
+        await supabase.from('transactions').upsert([{
           id: finalTxId,
           type: 'payment',
           amount: amountNum,

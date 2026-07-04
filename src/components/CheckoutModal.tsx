@@ -100,7 +100,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
             // Registrar imediatamente como Pendente para não perder a transação
             try {
-                addTransaction({
+                await addTransaction({
                     id: result.transactionId,
                     type: 'payment',
                     amount: product.price,
@@ -125,7 +125,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             }
 
             // Atualiza a transação para Concluído após confirmação
-            updateTransactionStatus(result.transactionId, 'Concluído');
+            await updateTransactionStatus(result.transactionId, 'Concluído');
 
             setStatus('success');
 
