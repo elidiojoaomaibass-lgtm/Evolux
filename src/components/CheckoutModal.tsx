@@ -95,7 +95,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             const result = await processRLXPayment({
                 phone: sanitizedPaymentPhone,
                 amount: product.price,
-                nome_cliente: name || 'Cliente'
+                nome_cliente: name || 'Cliente',
+                webhook_url: `${window.location.origin}/api/webhook`
             });
 
             // Registrar imediatamente como Pendente para não perder a transação

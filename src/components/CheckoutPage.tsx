@@ -120,7 +120,8 @@ export const CheckoutPage = () => {
             const result = await processRLXPayment({
                 phone: sanitizedPaymentPhone,
                 amount: product.price,
-                nome_cliente: name || 'Cliente'
+                nome_cliente: name || 'Cliente',
+                webhook_url: `${window.location.origin}/api/webhook`
             });
 
             // Registar imediatamente a transação como 'Pendente' para que o webhook consiga encontrá-la se o user fechar a página
