@@ -69,7 +69,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
         setIsChecking(true);
         try {
             const res = await checkRLXPaymentStatus(selectedTx.id);
-            if (res.status === 'success' || res.status === 'payment.success') {
+            if (res.status === 'success' || res.status === 'completed') {
                 // Disparar o webhook interno para enviar as notificações, Lowtrack, Pushcut, etc.
                 await fetch('/api/webhook', {
                     method: 'POST',
