@@ -18,9 +18,9 @@ export const FerramentasView = () => {
     // LowTrack state
     const [lowTrackToken, setLowTrackToken] = useState(() => localStorage.getItem('evolux_prod_lowtrack_token') || '');
 
-    // Meta Ads Pixel state
-    const [pixelId, setPixelId] = useState(() => localStorage.getItem('evolux_prod_facebook_pixel_id') || '');
-    const [tiktokId, setTiktokId] = useState(() => localStorage.getItem('evolux_prod_tiktok_pixel_id') || '');
+    // Meta Ads Pixel state (loaded from Supabase, local state as fallback)
+    const [pixelId, setPixelId] = useState('');
+    const [tiktokId, setTiktokId] = useState('');
 
     // Webhook state
     const [webhookUrl, setWebhookUrl] = useState(() => localStorage.getItem('evolux_prod_webhook_url') || '');
@@ -60,6 +60,14 @@ export const FerramentasView = () => {
                     if (data.webhook_url) setWebhookUrl(data.webhook_url);
                     if (data.webhook_events) setWebhookEvents(data.webhook_events);
                     if (data.lowtrack_token) setLowTrackToken(data.lowtrack_token);
+                    if (data.facebook_pixel_id) {
+                        setPixelId(data.facebook_pixel_id);
+                        localStorage.setItem('evolux_prod_facebook_pixel_id', data.facebook_pixel_id);
+                    }
+                    if (data.tiktok_pixel_id) {
+                        setTiktokId(data.tiktok_pixel_id);
+                        localStorage.setItem('evolux_prod_tiktok_pixel_id', data.tiktok_pixel_id);
+                    }
                 }
             }
         };
@@ -127,13 +135,13 @@ export const FerramentasView = () => {
         );
     };
 
-    const handleSavePixel = (e: React.FormEvent) => {
+    const handleSavePixel = async (e: React.FormEvent) => {
         e.preventDefault();
         localStorage.setItem('evolux_prod_facebook_pixel_id', pixelId);
+        await saveSettingToDB({ facebook_pixel_id: pixelId });
         
         // Reinitializar imediatamente sem precisar de reload
         if (pixelId) {
-            // Reset fbq so it reinitializes with the new ID
             (window as any).fbq = undefined;
             (window as any)._fbq = undefined;
             import('../lib/pixel').then(({ initFacebookPixel, trackFacebookEvent }) => {
@@ -142,16 +150,17 @@ export const FerramentasView = () => {
             });
         }
 
-        toast.success('Pixel do Meta Ads salvo!', {
-            description: 'O rastreamento do Facebook Pixel está agora ativo.'
+        toast.success('Pixel do Meta Ads salvo na conta!', {
+            description: 'O Facebook Pixel está ativo e sincronizado em todos os dispositivos.'
         });
     };
 
-    const handleSaveTikTok = (e: React.FormEvent) => {
+    const handleSaveTikTok = async (e: React.FormEvent) => {
         e.preventDefault();
         localStorage.setItem('evolux_prod_tiktok_pixel_id', tiktokId);
-        toast.success('Pixel do TikTok salvo!', {
-            description: 'O rastreamento do TikTok está agora ativo.'
+        await saveSettingToDB({ tiktok_pixel_id: tiktokId });
+        toast.success('Pixel do TikTok salvo na conta!', {
+            description: 'O TikTok Pixel está ativo e sincronizado em todos os dispositivos.'
         });
     };
 
