@@ -150,17 +150,22 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 console.warn('Failed to dispatch webhook:', e);
             }
 
-            // Disparar o Pixel de Meta Ads (Purchase) se o produto tiver pixel configurado
-            if (product.pixel) {
-                import('../lib/pixel').then(({ initFacebookPixel, trackFacebookEvent }) => {
-                    initFacebookPixel(product.pixel!);
-                    trackFacebookEvent('Purchase', {
-                        value: product.price,
-                        currency: 'MZN',
-                        content_name: product.name
-                    });
+            // Disparar os Pixels de conversão (Global e/ou Produto)
+            import('../lib/pixel').then(({ initFacebookPixel, trackFacebookEvent, trackTiktokEvent }) => {
+                if (product.pixel) {
+                    initFacebookPixel(product.pixel);
+                }
+                trackFacebookEvent('Purchase', {
+                    value: product.price,
+                    currency: 'MZN',
+                    content_name: product.name
                 });
-            }
+                trackTiktokEvent('CompletePayment', {
+                    value: product.price,
+                    currency: 'MZN',
+                    content_name: product.name
+                });
+            });
 
             setStatus('success');
 
@@ -198,11 +203,6 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             window.location.href = `/obrigado?${params.toString()}`;
 
         } catch (err: any) {
-            // Se falhou/cancelou, marca como "Falhou" em vez de ficar pendente
-            if (currentTxId) {
-                updateTransactionStatus(currentTxId, 'Falhou').catch(() => {});
-            }
-
             // Extrair mensagem amigável do erro da API E2Payments (pode ser um objeto)
             let errorMsg = 'Ocorreu um erro. Tente novamente.';
             if (typeof err === 'string') {
@@ -236,6 +236,11 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 errorMsg = friendlyErrors[code];
             }
 
+            // Se falhou/cancelou, marca como "Falhou" com motivo
+            if (currentTxId) {
+                updateTransactionStatus(currentTxId, 'Falhou', errorMsg).catch(() => {});
+            }
+
             setErrorMessage(errorMsg);
             setStatus('idle');
 
@@ -249,9 +254,10 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                     method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
                     status: 'Falhou',
                     reference: reference,
-                    description: `Compra: ${product.name} (Fallback/Erro: ${err.message || 'Erro'})`,
+                    description: `Compra: ${product.name}`,
                     customerName: name || 'Cliente',
-                    customerEmail: product.user_email || ''
+                    customerEmail: product.user_email || '',
+                    failureReason: errorMsg
                 });
             } catch (dbErr) {
                 console.warn("Falha no fallback de gravação Supabase (não autenticado):", dbErr);

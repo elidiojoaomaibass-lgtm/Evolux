@@ -316,14 +316,14 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                             <thead>
                                 <tr className="bg-slate-50/50 dark:bg-white/5">
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Cliente</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Contacto</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Estado</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Canal</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Produto</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Valor</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Estado</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Contacto</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Canal</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">ID Transação</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Data / Hora</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Ações</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Detalhes</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
@@ -340,6 +340,25 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                             </div>
                                         </td>
                                         <td className="px-10 py-2.5">
+                                            <span className="font-mono text-[11px] font-bold text-slate-600 dark:text-brand-400 tracking-wider">{trx.phone || '—'}</span>
+                                        </td>
+                                        <td className="px-10 py-2.5 text-center">
+                                            <span className={cn(
+                                                "text-[11px] font-black uppercase tracking-widest",
+                                                trx.status === 'Concluído' ? "text-green-500" :
+                                                    trx.status === 'Pendente' ? "text-amber-500" :
+                                                        "text-red-500"
+                                            )}>{trx.status}</span>
+                                        </td>
+                                        <td className="px-10 py-2.5 text-center align-middle">
+                                            <span className={cn(
+                                                "px-3 py-0.5 rounded-full border font-black tracking-tighter text-[12px] inline-flex items-center justify-center gap-1 whitespace-nowrap",
+                                                trx.method === 'M-Pesa'
+                                                    ? "border-red-500 bg-red-50/50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
+                                                    : "border-orange-500 bg-orange-50/50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400"
+                                            )}>{trx.method}</span>
+                                        </td>
+                                        <td className="px-10 py-2.5">
                                             <div className="flex flex-col">
                                                 <span className="text-[12px] font-black text-slate-500 dark:text-brand-500">
                                                     {cleanProductName(trx.description)}
@@ -350,25 +369,6 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                             <span className="font-black tabular-nums tracking-tighter text-sm text-slate-800 dark:text-white">
                                                 {trx.amount.toLocaleString()} MT
                                             </span>
-                                        </td>
-                                        <td className="px-10 py-2.5 text-center">
-                                            <span className={cn(
-                                                "text-[11px] font-black uppercase tracking-widest",
-                                                trx.status === 'Concluído' ? "text-green-500" :
-                                                    trx.status === 'Pendente' ? "text-amber-500" :
-                                                        "text-red-500"
-                                            )}>{trx.status}</span>
-                                        </td>
-                                        <td className="px-10 py-2.5">
-                                            <span className="font-mono text-[11px] font-bold text-slate-600 dark:text-brand-400 tracking-wider">{trx.phone || '—'}</span>
-                                        </td>
-                                        <td className="px-10 py-2.5 text-center">
-                                            <span className={cn(
-                                                "px-3 py-1 rounded-full border-2 font-black tracking-tighter text-sm flex items-center justify-center gap-1 w-fit mx-auto",
-                                                trx.method === 'M-Pesa'
-                                                    ? "border-red-500 bg-red-50/50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
-                                                    : "border-orange-500 bg-orange-50/50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400"
-                                            )}>{trx.method}</span>
                                         </td>
                                         <td className="px-10 py-2.5 font-mono text-[11px] font-black text-slate-400 dark:text-brand-600 group-hover/row:text-violet-600 transition-colors">
                                             #{trx.id}
@@ -445,6 +445,19 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                                 {selectedTx.status === 'Concluído' ? 'Concluído' : selectedTx.status === 'Pendente' ? 'Pendente' : 'Falhou'}
                                             </span>
                                         </div>
+                                        {selectedTx.status === 'Falhou' && (
+                                            <div className="md:col-span-2">
+                                                <p className="text-sm font-bold text-red-600 dark:text-red-400 mb-2">Motivo da Falha:</p>
+                                                <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30">
+                                                    <svg className="w-4 h-4 text-red-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                                                    </svg>
+                                                    <p className="text-sm text-red-700 dark:text-red-300 font-medium">
+                                                        {selectedTx.failureReason || 'Pagamento cancelado ou recusado pelo cliente.'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
                                         <div className="md:col-span-2">
                                             <p className="text-sm font-bold text-slate-800 dark:text-white mb-2">Link de Checkout:</p>
                                             <button 

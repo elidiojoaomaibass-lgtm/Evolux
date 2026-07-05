@@ -35,3 +35,10 @@ export const trackFacebookEvent = (eventName: string, data?: any) => {
         w.fbq('track', eventName, data);
     }
 };
+
+export const trackTiktokEvent = (eventName: string, data?: any) => {
+    const w = window as any;
+    if (w.ttq) {
+        w.ttq.track(eventName, data);
+    }
+};

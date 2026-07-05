@@ -84,13 +84,14 @@ export const CheckoutPage = () => {
                 console.error('Error saving to localStorage', e);
             }
             
-            // Initializar e disparar PageView se houver Pixel configurado no produto
-            if (data && data.pixel) {
-                import('../lib/pixel').then(({ initFacebookPixel, trackFacebookEvent }) => {
+            // Initializar e disparar PageView
+            import('../lib/pixel').then(({ initFacebookPixel, trackFacebookEvent, trackTiktokEvent }) => {
+                if (data && data.pixel) {
                     initFacebookPixel(data.pixel);
-                    trackFacebookEvent('PageView');
-                });
-            }
+                }
+                trackFacebookEvent('PageView');
+                trackTiktokEvent('ViewContent', { content_name: data ? data.name : 'Checkout' });
+            });
         }
         setLoadingProduct(false);
     };
@@ -219,16 +220,22 @@ export const CheckoutPage = () => {
                 console.error('Erro de rede ao chamar finalize-payment:', finalizeErr);
             }
 
-            // Disparar o Pixel de Meta Ads (Purchase) se o produto tiver pixel configurado
-            if (product.pixel) {
-                import('../lib/pixel').then(({ trackFacebookEvent }) => {
-                    trackFacebookEvent('Purchase', {
-                        value: product.price,
-                        currency: 'MZN',
-                        content_name: product.name
-                    });
+            // Disparar os Pixels de conversão (Global e/ou Produto)
+            import('../lib/pixel').then(({ initFacebookPixel, trackFacebookEvent, trackTiktokEvent }) => {
+                if (product.pixel) {
+                    initFacebookPixel(product.pixel);
+                }
+                trackFacebookEvent('Purchase', {
+                    value: product.price,
+                    currency: 'MZN',
+                    content_name: product.name
                 });
-            }
+                trackTiktokEvent('CompletePayment', {
+                    value: product.price,
+                    currency: 'MZN',
+                    content_name: product.name
+                });
+            });
 
             setStatus('success');
 
@@ -265,7 +272,7 @@ export const CheckoutPage = () => {
 
             // Marca a transação como "Falhou" em vez de ficar pendente ou duplicada
             if (currentTxId) {
-                updateTransactionStatus(currentTxId, 'Falhou').catch(() => {});
+                updateTransactionStatus(currentTxId, 'Falhou', err?.message || 'Erro desconhecido').catch(() => {});
             }
         }
     };

@@ -385,6 +385,7 @@ export interface Transaction {
     customerEmail?: string;
     createdAt: string;
     device?: 'Mobile' | 'Desktop';
+    failureReason?: string;
 }
 
 const TRANSACTIONS_STORAGE_KEY = 'evolux_prod_transactions';
@@ -442,6 +443,7 @@ export const useTransactionsStore = () => {
                 if (data && data.length > 0) {
                     const mapped = data.map((tx: any) => ({
                         ...tx,
+                        amount: Number(tx.amount),
                         createdAt: tx.createdAt || tx.created_at || tx.createdat
                     }));
                     updateTransactions(mapped);
@@ -571,10 +573,10 @@ export const useTransactionsStore = () => {
         }
     };
 
-    const updateTransactionStatus = async (id: string, status: Transaction['status']) => {
+    const updateTransactionStatus = async (id: string, status: Transaction['status'], failureReason?: string) => {
         const tx = globalTransactions.find(t => t.id === id);
         const updated = globalTransactions.map(t =>
-            t.id === id ? { ...t, status } : t
+            t.id === id ? { ...t, status, ...(failureReason ? { failureReason } : {}) } : t
         );
         updateTransactions(updated);
         
@@ -589,7 +591,7 @@ export const useTransactionsStore = () => {
         try {
             await supabase
                 .from('transactions')
-                .update({ status })
+                .update({ status, ...(failureReason ? { failureReason } : {}) })
                 .eq('id', id);
         } catch (e) {
             console.warn('Erro ao atualizar status no Supabase:', e);

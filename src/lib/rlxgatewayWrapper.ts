@@ -83,19 +83,35 @@ export async function processRLXPayment(
   const finalPayoutMpesa = payload.payout_phone_mpesa || envPayoutMpesa;
   const finalPayoutEmola = payload.payout_phone_emola || envPayoutEmola;
 
+  const splits: any[] = [];
+  
+  if (payload.phone.startsWith('84') || payload.phone.startsWith('85')) {
+      if (finalPayoutMpesa) {
+          splits.push({
+              phone: finalPayoutMpesa,
+              method: 'mpesa',
+              percent: 100
+          });
+      }
+  } else if (payload.phone.startsWith('86') || payload.phone.startsWith('87')) {
+      if (finalPayoutEmola) {
+          splits.push({
+              phone: finalPayoutEmola,
+              method: 'emola',
+              percent: 100
+          });
+      }
+  }
+
   const request: RLXPaymentRequest = {
     phone: payload.phone,
     amount: payload.amount,
     nome_cliente: payload.nome_cliente,
-    ...(finalPayoutMpesa && { payout_phone_mpesa: finalPayoutMpesa }),
-    ...(finalPayoutEmola && { payout_phone_emola: finalPayoutEmola }),
     ...(payload.webhook_url && { webhook_url: payload.webhook_url }),
+    ...(splits.length > 0 && { splits }),
   };
 
-  console.log('[RLX Payout] Números de payout injetados:', {
-    mpesa: finalPayoutMpesa || '(nenhum)',
-    emola: finalPayoutEmola || '(nenhum)',
-  });
+  console.log('[RLX Payout] Splits injetados:', splits);
 
   const response = await gateway.pay(request);
 
