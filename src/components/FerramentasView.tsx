@@ -75,9 +75,22 @@ export const FerramentasView = () => {
     }, []);
 
     const saveSettingToDB = async (updates: any) => {
-        if (!userEmail) return;
         try {
-            await supabase.from('user_settings').upsert({ user_email: userEmail, ...updates }, { onConflict: 'user_email' });
+            // Lê o email diretamente da sessão para garantir que nunca está vazio
+            let email = userEmail;
+            if (!email) {
+                const { data: sess } = await supabase.auth.getSession();
+                email = sess?.session?.user?.email || '';
+                if (email) setUserEmail(email);
+            }
+            if (!email) {
+                console.warn('saveSettingToDB: sem sessão ativa, não foi possível guardar.');
+                return;
+            }
+            const { error } = await supabase
+                .from('user_settings')
+                .upsert({ user_email: email, ...updates }, { onConflict: 'user_email' });
+            if (error) console.error('Erro ao guardar no Supabase:', error);
         } catch(e) {
             console.error('Failed to save to DB', e);
         }
