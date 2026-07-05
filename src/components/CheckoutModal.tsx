@@ -538,12 +538,11 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                             <p className="text-[10px] text-slate-400 font-medium leading-relaxed text-center">
                                 Os seus dados serão processados de acordo com a nossa <a href="#" className="underline text-violet-500">política de privacidade</a>.
                             </p>
-                            <div className="-mx-6 md:-mx-8">
-                                <button
-                                    onClick={handlePurchase}
-                                    disabled={status === 'processing'}
-                                    className="w-full h-[60px] text-white bg-[#e11d24] rounded-none font-black text-xl md:text-2xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-red-500/20 disabled:opacity-70"
-                                >
+                            <button
+                                onClick={handlePurchase}
+                                disabled={status === 'processing'}
+                                className="w-full h-[60px] text-white bg-[#e11d24] rounded-xl font-black text-xl md:text-2xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-red-500/20 disabled:opacity-70"
+                            >
                                     {status === 'processing' ? (
                                         <>
                                             <Loader2 className="animate-spin" size={20} />
@@ -560,8 +559,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                         </>
                                     )}
                                 </button>
-                            </div>
-
+                                
                             <div className="flex flex-row items-center justify-center gap-4 opacity-70">
                                 <div className="flex items-center gap-1.5 text-emerald-600">
                                     <ShieldCheck size={14} />
