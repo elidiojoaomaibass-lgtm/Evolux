@@ -290,17 +290,17 @@ export const FerramentasView = () => {
                 // 1. Broadcast para web (app aberta)
                 new Promise((resolve, reject) => {
                     const channel = supabase.channel('public-transactions-changes');
-                    channel.subscribe((status) => {
+                    channel.subscribe((status: any) => {
                         if (status === 'SUBSCRIBED') {
                             channel.send({
                                 type: 'broadcast',
                                 event: 'test_push',
                                 payload: testPayload
-                            }).then((res) => {
+                            }).then((res: any) => {
                                 if (res === 'ok') resolve(true);
                                 else reject(new Error('Falha ao enviar broadcast'));
                                 supabase.removeChannel(channel);
-                            }).catch(err => {
+                            }).catch((err: any) => {
                                 reject(err);
                                 supabase.removeChannel(channel);
                             });
@@ -316,7 +316,7 @@ export const FerramentasView = () => {
                         body: `Venda aprovada de ${val.toLocaleString('pt-PT')} MT M-Pesa`,
                         user_email: email
                     }
-                }).then(({ error }) => {
+                }).then(({ error }: any) => {
                     if (error) console.warn('Erro ao disparar FCM no teste:', error);
                     return true;
                 })
