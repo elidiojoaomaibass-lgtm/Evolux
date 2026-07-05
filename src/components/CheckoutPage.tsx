@@ -46,12 +46,29 @@ export const CheckoutPage = () => {
     // placeholder that will be possibly updated after fetch
     let productImage = storedImage || urlImage;
 
-    const [dbProduct, setDbProduct] = useState<any>(null);
-    const [loadingProduct, setLoadingProduct] = useState(true);
+    const [dbProduct, setDbProduct] = useState<any>(() => {
+        try {
+            const cached = localStorage.getItem(`checkout_product_${productId}`);
+            return cached ? JSON.parse(cached) : null;
+        } catch {
+            return null;
+        }
+    });
+    const [loadingProduct, setLoadingProduct] = useState(() => {
+        try {
+            const cached = localStorage.getItem(`checkout_product_${productId}`);
+            return !cached;
+        } catch {
+            return true;
+        }
+    });
 
     // Fetch product details from Supabase
     const fetchProduct = async () => {
-        setLoadingProduct(true);
+        const cached = localStorage.getItem(`checkout_product_${productId}`);
+        if (!cached) {
+            setLoadingProduct(true);
+        }
         const { data, error } = await supabase
             .from('products')
             .select('*')
@@ -59,9 +76,13 @@ export const CheckoutPage = () => {
             .single();
         if (error) {
             console.error('Error fetching product', error);
-            setDbProduct(null);
         } else {
             setDbProduct(data);
+            try {
+                localStorage.setItem(`checkout_product_${productId}`, JSON.stringify(data));
+            } catch (e) {
+                console.error('Error saving to localStorage', e);
+            }
             
             // Initializar e disparar PageView se houver Pixel configurado no produto
             if (data && data.pixel) {
@@ -90,6 +111,17 @@ export const CheckoutPage = () => {
         enableScarcityNotification: dbProduct?.enableScarcity ?? enableScarcity,
         barColor: dbProduct?.barColor || barColor
     };
+
+    if (loadingProduct) {
+        return (
+            <div className="min-h-[100dvh] bg-slate-50 flex flex-col items-center justify-center p-4">
+                <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="animate-spin text-red-500" size={40} />
+                    <p className="text-slate-500 font-bold text-sm tracking-wide">A carregar checkout...</p>
+                </div>
+            </div>
+        );
+    }
 
     const handlePurchase = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -334,7 +366,7 @@ export const CheckoutPage = () => {
 
                                 <div className="flex-1 min-w-0 space-y-1 text-left">
                                     <div className="flex justify-start items-start gap-2">
-                                        <p className="text-2xl font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
+                                        <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-950 leading-tight line-clamp-2">{product.name}</p>
                                     </div>
 
                                     <div className="flex justify-between items-center text-xs">
@@ -527,20 +559,20 @@ export const CheckoutPage = () => {
                                 type="submit"
                                 disabled={status === 'processing'}
                                 className={cn(
-                                    "w-[90%] mx-auto h-[56px] text-white bg-[#e11d24] rounded-2xl font-black text-2xl md:text-3xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-red-500/20 disabled:opacity-70 cursor-pointer"
+                                    "w-[95%] sm:w-[90%] mx-auto h-[56px] text-white bg-[#e11d24] rounded-2xl font-black text-sm min-[360px]:text-base min-[400px]:text-lg sm:text-xl md:text-2xl flex items-center justify-center gap-1.5 sm:gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-red-500/20 disabled:opacity-70 cursor-pointer"
                                 )}
                             >
                                 {status === 'processing' ? (
                                     <>
-                                        <Loader2 className="animate-spin" size={20} />
-                                        <span className=" tracking-[0.1em]">Processando...</span>
+                                        <Loader2 className="animate-spin shrink-0" size={20} />
+                                        <span className="tracking-wide whitespace-nowrap">Processando...</span>
                                     </>
                                 ) : (
                                     <>
-                                        <div className="h-5 w-5 rounded-full border-2 border-white flex items-center justify-center">
-                                            <Check size={12} strokeWidth={4} />
+                                        <div className="h-4 w-4 sm:h-5 sm:w-5 rounded-full border-2 border-white flex items-center justify-center shrink-0">
+                                            <Check strokeWidth={4} className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                                         </div>
-                                        <span className=" tracking-[0.1em]">
+                                        <span className="tracking-wide whitespace-nowrap">
                                             Pagar agora {product.price ? `- ${product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT` : ''}
                                         </span>
                                     </>

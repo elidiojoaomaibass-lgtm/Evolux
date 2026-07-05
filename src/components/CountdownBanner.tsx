@@ -22,7 +22,7 @@ export const CountdownBanner = ({ barColor }: { barColor?: string }) => {
 
     return (
         <div 
-            className="w-full bg-[#007BFF] text-white px-4 flex items-center justify-center gap-2 text-base md:text-lg font-black tracking-wide shadow-sm z-[100] relative"
+            className="w-full bg-[#007BFF] text-white px-4 flex items-center justify-center gap-2 text-base md:text-lg font-black tracking-wide z-[100] relative"
             style={{
                 backgroundColor: barColor || '#007BFF',
                 paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)',

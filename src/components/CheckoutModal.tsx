@@ -544,19 +544,19 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                             <button
                                 onClick={handlePurchase}
                                 disabled={status === 'processing'}
-                                className="w-[90%] mx-auto flex h-[56px] text-white bg-[#e11d24] rounded-xl font-black text-2xl md:text-3xl items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-red-500/20 disabled:opacity-70"
+                                className="w-[95%] sm:w-[90%] mx-auto flex h-[56px] text-white bg-[#e11d24] rounded-2xl font-black text-sm min-[360px]:text-base min-[400px]:text-lg sm:text-xl md:text-2xl items-center justify-center gap-1.5 sm:gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-red-500/20 disabled:opacity-70"
                             >
                                 {status === 'processing' ? (
                                     <>
-                                        <Loader2 className="animate-spin" size={20} />
-                                        <span>Processando...</span>
+                                        <Loader2 className="animate-spin shrink-0" size={20} />
+                                        <span className="tracking-wide whitespace-nowrap">Processando...</span>
                                     </>
                                 ) : (
                                     <>
-                                        <div className="h-5 w-5 rounded-full border-2 border-white flex items-center justify-center">
-                                            <Check size={12} strokeWidth={4} />
+                                        <div className="h-4 w-4 sm:h-5 sm:w-5 rounded-full border-2 border-white flex items-center justify-center shrink-0">
+                                            <Check strokeWidth={4} className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                                         </div>
-                                        <span>
+                                        <span className="tracking-wide whitespace-nowrap">
                                             Pagar agora {product.price ? `- ${product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT` : ''}
                                         </span>
                                     </>
