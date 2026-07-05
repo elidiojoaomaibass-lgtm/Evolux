@@ -280,26 +280,47 @@ export const FerramentasView = () => {
 
         // 3. Disparar notificação via Supabase Realtime (funciona localmente sem Vercel API)
         const val = parseFloat(testPushValue.replace(',', '.')) || 97;
-        const testTx = {
-            id: `TEST-${Date.now()}`,
-            type: 'payment',
+        const testPayload = {
             amount: val,
-            phone: '840000000',
-            method: 'M-Pesa',
-            status: 'Concluído',
-            reference: `TEST-${Date.now()}`,
-            description: 'Teste de Notificação Push',
-            customerName: 'Utilizador de Teste',
-            customerEmail: email,
-            createdat: new Date().toISOString()
+            method: 'M-Pesa'
         };
 
         toast.promise(
-            supabase.from('transactions').insert([testTx]).then((res: any) => {
-                const { error } = res;
-                if (error) throw error;
-                return true;
-            }),
+            Promise.all([
+                // 1. Broadcast para web (app aberta)
+                new Promise((resolve, reject) => {
+                    const channel = supabase.channel('public-transactions-changes');
+                    channel.subscribe((status) => {
+                        if (status === 'SUBSCRIBED') {
+                            channel.send({
+                                type: 'broadcast',
+                                event: 'test_push',
+                                payload: testPayload
+                            }).then((res) => {
+                                if (res === 'ok') resolve(true);
+                                else reject(new Error('Falha ao enviar broadcast'));
+                                supabase.removeChannel(channel);
+                            }).catch(err => {
+                                reject(err);
+                                supabase.removeChannel(channel);
+                            });
+                        } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+                            reject(new Error('Falha na conexão do canal'));
+                        }
+                    });
+                }),
+                // 2. Disparar notificação nativa via Edge Function para FCM (background)
+                supabase.functions.invoke('send-push', {
+                    body: {
+                        title: 'Você recebeu um novo pedido! 🎉 (TESTE)',
+                        body: `Venda aprovada de ${val.toLocaleString('pt-PT')} MT M-Pesa`,
+                        user_email: email
+                    }
+                }).then(({ error }) => {
+                    if (error) console.warn('Erro ao disparar FCM no teste:', error);
+                    return true;
+                })
+            ]),
             {
                 loading: `A enviar evento em tempo real para os dispositivos...`,
                 success: `✅ Evento disparado! O telemóvel logado deve receber a notificação em instantes.`,

@@ -499,6 +499,14 @@ export const useTransactionsStore = () => {
                         });
                     }
                 })
+                .on('broadcast', { event: 'test_push' }, (payload: any) => {
+                    console.log('Realtime broadcast test_push:', payload);
+                    const val = Number(payload.payload.amount).toLocaleString('pt-PT');
+                    sendLocalNotification('Você recebeu um novo pedido! 🎉 (TESTE)', {
+                        body: `Venda aprovada de ${val} MT ${payload.payload.method}`,
+                        icon: '/logo.png'
+                    });
+                })
                 .subscribe();
         } catch (e) {
             console.warn('Falha ao assinar canal em tempo real do Supabase:', e);
