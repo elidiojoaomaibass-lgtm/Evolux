@@ -55,7 +55,12 @@ export const FerramentasView = () => {
             const email = sess?.session?.user?.email;
             if (email) {
                 setUserEmail(email);
-                const { data } = await supabase.from('user_settings').select('*').eq('user_email', email).single();
+                const { data, error } = await supabase
+                    .from('user_settings')
+                    .select('*')
+                    .eq('user_email', email)
+                    .single();
+                if (error) console.error('[FerramentasView] Erro ao carregar settings:', error);
                 if (data) {
                     if (data.webhook_url) setWebhookUrl(data.webhook_url);
                     if (data.webhook_events) setWebhookEvents(data.webhook_events);
@@ -69,12 +74,14 @@ export const FerramentasView = () => {
                         localStorage.setItem('evolux_prod_tiktok_pixel_id', data.tiktok_pixel_id);
                     }
                 }
+            } else {
+                console.warn('[FerramentasView] Nenhuma sessão activa ao carregar.');
             }
         };
         loadSettings();
     }, []);
 
-    const saveSettingToDB = async (updates: any) => {
+    const saveSettingToDB = async (updates: any): Promise<boolean> => {
         try {
             // Lê o email diretamente da sessão para garantir que nunca está vazio
             let email = userEmail;
@@ -84,15 +91,25 @@ export const FerramentasView = () => {
                 if (email) setUserEmail(email);
             }
             if (!email) {
-                console.warn('saveSettingToDB: sem sessão ativa, não foi possível guardar.');
-                return;
+                toast.error('Sem sessão activa', { description: 'Faça login para guardar as configurações.' });
+                return false;
             }
+            console.log('[saveSettingToDB] upsert para', email, updates);
             const { error } = await supabase
                 .from('user_settings')
                 .upsert({ user_email: email, ...updates }, { onConflict: 'user_email' });
-            if (error) console.error('Erro ao guardar no Supabase:', error);
-        } catch(e) {
-            console.error('Failed to save to DB', e);
+            if (error) {
+                console.error('[saveSettingToDB] Erro:', error);
+                toast.error('Erro ao guardar: ' + (error.message || error.code), {
+                    description: 'Verifique o Supabase Dashboard → Authentication → Policies para a tabela user_settings.'
+                });
+                return false;
+            }
+            return true;
+        } catch(e: any) {
+            console.error('[saveSettingToDB] Excepção:', e);
+            toast.error('Erro inesperado: ' + e?.message);
+            return false;
         }
     };
 
@@ -151,8 +168,9 @@ export const FerramentasView = () => {
     const handleSavePixel = async (e: React.FormEvent) => {
         e.preventDefault();
         localStorage.setItem('evolux_prod_facebook_pixel_id', pixelId);
-        await saveSettingToDB({ facebook_pixel_id: pixelId });
-        
+        const ok = await saveSettingToDB({ facebook_pixel_id: pixelId });
+        if (!ok) return; // toast de erro já foi mostrado dentro de saveSettingToDB
+
         // Reinitializar imediatamente sem precisar de reload
         if (pixelId) {
             (window as any).fbq = undefined;
