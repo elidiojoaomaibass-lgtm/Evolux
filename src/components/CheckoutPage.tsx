@@ -508,7 +508,7 @@ export const CheckoutPage = () => {
                                 type="submit"
                                 disabled={status === 'processing'}
                                 className={cn(
-                                    "w-[85%] mx-auto h-[52px] text-white bg-[#e11d24] rounded-2xl font-black text-2xl md:text-3xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-red-500/20 disabled:opacity-70 cursor-pointer"
+                                    "w-[90%] mx-auto h-[56px] text-white bg-[#e11d24] rounded-2xl font-black text-2xl md:text-3xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-red-500/20 disabled:opacity-70 cursor-pointer"
                                 )}
                             >
                                 {status === 'processing' ? (
