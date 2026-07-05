@@ -275,44 +275,33 @@ export const FerramentasView = () => {
             return;
         }
 
-        // 2. Verificar se existem dispositivos registados (tokens FCM no Supabase)
-        const { data: tokens, error: tokErr } = await supabase
-            .from('push_subscriptions')
-            .select('token')
-            .eq('user_email', email);
+        // A verificação de dispositivos (push_subscriptions) foi removida.
+        // O evento será disparado em tempo real, notificando qualquer dispositivo logado que tenha a app aberta.
 
-        if (tokErr) {
-            toast.error('Erro ao verificar dispositivos registados.');
-            return;
-        }
+        // 3. Disparar notificação via Supabase Realtime (funciona localmente sem Vercel API)
+        const val = parseFloat(testPushValue.replace(',', '.')) || 97;
+        const testTx = {
+            id: `TEST-${Date.now()}`,
+            type: 'payment',
+            amount: val,
+            phone: '840000000',
+            method: 'M-Pesa',
+            status: 'Concluído',
+            reference: `TEST-${Date.now()}`,
+            description: 'Teste de Notificação Push',
+            customerName: 'Utilizador de Teste',
+            customerEmail: email,
+            createdat: new Date().toISOString()
+        };
 
-        if (!tokens || tokens.length === 0) {
-            toast.error('Nenhum dispositivo registado', {
-                description: 'Para receber notificações push, abra a aplicação no seu telemóvel e faça login. As notificações serão automaticamente configuradas.',
-                duration: 8000,
-            });
-            return;
-        }
-
-        // 3. Disparar notificação push real via servidor (funciona mesmo com o telemóvel bloqueado)
         toast.promise(
-            fetch('/api/notify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    merchant_user_email: email,
-                    amount: parseFloat(testPushValue.replace(',', '.')) || 97,
-                    method: 'M-Pesa',
-                    product_name: 'Produto de Teste',
-                    reference: `TEST-${Date.now()}`,
-                })
-            }).then(async (res) => {
-                if (!res.ok) throw new Error(await res.text());
-                return res.json();
+            supabase.from('transactions').insert([testTx]).then(({ error }) => {
+                if (error) throw error;
+                return true;
             }),
             {
-                loading: `A enviar notificação para ${tokens.length} dispositivo(s)...`,
-                success: `✅ Notificação enviada para ${tokens.length} dispositivo(s)! Verifique o seu telemóvel.`,
+                loading: `A enviar evento em tempo real para os dispositivos...`,
+                success: `✅ Evento disparado! O telemóvel logado deve receber a notificação em instantes.`,
                 error: (err: any) => `Erro ao enviar: ${err?.message || 'Tente novamente'}`,
             }
         );

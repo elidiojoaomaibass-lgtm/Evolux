@@ -78,7 +78,8 @@ export default {
       const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
       const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_ANON_KEY') || '';
 
-      const tableRes = await fetch(`${supabaseUrl}/rest/v1/push_subscriptions?select=token`, {
+      const emailFilter = user_email ? `&user_email=eq.${encodeURIComponent(user_email)}` : '';
+      const tableRes = await fetch(`${supabaseUrl}/rest/v1/push_subscriptions?select=token${emailFilter}`, {
         headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
       });
       const tokens: { token: string }[] = await tableRes.json();
