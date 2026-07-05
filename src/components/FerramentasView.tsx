@@ -295,7 +295,8 @@ export const FerramentasView = () => {
         };
 
         toast.promise(
-            supabase.from('transactions').insert([testTx]).then(({ error }) => {
+            supabase.from('transactions').insert([testTx]).then((res: any) => {
+                const { error } = res;
                 if (error) throw error;
                 return true;
             }),
