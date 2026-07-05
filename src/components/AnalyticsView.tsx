@@ -618,13 +618,14 @@ export const AnalyticsView = () => {
                                     tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 700 }}
                                     dx={-10}
                                     tickFormatter={(val) => {
-                                        if (val === 0 || val === 25 || val === 50 || val === 75 || val === 100) {
-                                            return `${val}%`;
+                                        if (val >= 1000) {
+                                            return `${(val / 1000).toFixed(1).replace(/\.0$/, '')}k%`;
                                         }
-                                        return val >= 1000 ? `${(val / 1000)}k` : val;
+                                        return `${val}%`;
                                     }}
                                 />
                                 <Tooltip
+                                    formatter={(value: any) => [`${value}%`]}
                                     cursor={{ stroke: 'rgba(139, 92, 246, 0.5)', strokeWidth: 2 }}
                                     contentStyle={{
                                         backgroundColor: 'rgba(13, 13, 23, 0.9)',

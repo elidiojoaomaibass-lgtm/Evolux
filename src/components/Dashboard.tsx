@@ -518,13 +518,14 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                             tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 700 }}
                                             dx={-10}
                                             tickFormatter={(val) => {
-                                                if (val === 0 || val === 25 || val === 50 || val === 75 || val === 100) {
-                                                    return `${val}%`;
+                                                if (val >= 1000) {
+                                                    return `${(val / 1000).toFixed(1).replace(/\.0$/, '')}k%`;
                                                 }
-                                                return val >= 1000 ? `${(val / 1000)}k` : val;
+                                                return `${val}%`;
                                             }}
                                         />
                                         <Tooltip
+                                            formatter={(value: any) => [`${value}%`]}
                                             contentStyle={{
                                                 backgroundColor: 'rgba(15, 5, 37, 0.95)',
                                                 borderRadius: '16px',
