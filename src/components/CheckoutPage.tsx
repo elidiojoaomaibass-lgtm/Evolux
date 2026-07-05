@@ -503,12 +503,12 @@ export const CheckoutPage = () => {
                         </AnimatePresence>
 
                         {/* Button Purchase CTA */}
-                        <div className="space-y-4">
+                        <div className="space-y-4 -mx-6 md:-mx-8">
                             <button
                                 type="submit"
                                 disabled={status === 'processing'}
                                 className={cn(
-                                    "w-fit mx-auto px-8 h-[60px] text-white bg-[#e11d24] rounded-2xl font-black text-xl md:text-2xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-red-500/20 disabled:opacity-70 cursor-pointer"
+                                    "w-full h-[60px] text-white bg-[#e11d24] rounded-none font-black text-xl md:text-2xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-red-500/20 disabled:opacity-70 cursor-pointer"
                                 )}
                             >
                                 {status === 'processing' ? (
