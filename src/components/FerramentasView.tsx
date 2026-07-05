@@ -130,6 +130,18 @@ export const FerramentasView = () => {
     const handleSavePixel = (e: React.FormEvent) => {
         e.preventDefault();
         localStorage.setItem('evolux_prod_facebook_pixel_id', pixelId);
+        
+        // Reinitializar imediatamente sem precisar de reload
+        if (pixelId) {
+            // Reset fbq so it reinitializes with the new ID
+            (window as any).fbq = undefined;
+            (window as any)._fbq = undefined;
+            import('../lib/pixel').then(({ initFacebookPixel, trackFacebookEvent }) => {
+                initFacebookPixel(pixelId);
+                trackFacebookEvent('PageView');
+            });
+        }
+
         toast.success('Pixel do Meta Ads salvo!', {
             description: 'O rastreamento do Facebook Pixel está agora ativo.'
         });

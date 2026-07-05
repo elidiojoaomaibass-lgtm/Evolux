@@ -62,6 +62,14 @@ export const CheckoutPage = () => {
             setDbProduct(null);
         } else {
             setDbProduct(data);
+            
+            // Initializar e disparar PageView se houver Pixel configurado no produto
+            if (data && data.pixel) {
+                import('../lib/pixel').then(({ initFacebookPixel, trackFacebookEvent }) => {
+                    initFacebookPixel(data.pixel);
+                    trackFacebookEvent('PageView');
+                });
+            }
         }
         setLoadingProduct(false);
     };
@@ -174,6 +182,17 @@ export const CheckoutPage = () => {
                 }
             } catch (finalizeErr) {
                 console.error('Erro de rede ao chamar finalize-payment:', finalizeErr);
+            }
+
+            // Disparar o Pixel de Meta Ads (Purchase) se o produto tiver pixel configurado
+            if (product.pixel) {
+                import('../lib/pixel').then(({ trackFacebookEvent }) => {
+                    trackFacebookEvent('Purchase', {
+                        value: product.price,
+                        currency: 'MZN',
+                        content_name: product.name
+                    });
+                });
             }
 
             setStatus('success');

@@ -128,6 +128,18 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             // Atualiza a transação para Concluído após confirmação
             await updateTransactionStatus(result.transactionId, 'Concluído');
 
+            // Disparar o Pixel de Meta Ads (Purchase) se o produto tiver pixel configurado
+            if (product.pixel) {
+                import('../lib/pixel').then(({ initFacebookPixel, trackFacebookEvent }) => {
+                    initFacebookPixel(product.pixel!);
+                    trackFacebookEvent('Purchase', {
+                        value: product.price,
+                        currency: 'MZN',
+                        content_name: product.name
+                    });
+                });
+            }
+
             setStatus('success');
 
             // Disparar notificações push via servidor (em background, sem bloquear)
@@ -179,15 +191,6 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 deliveryLink: product.deliveryLink || '',
             });
             window.location.href = `/obrigado?${params.toString()}`;
-
-            // Aqui podes disparar o Pixel de Meta Ads (Purchase)
-            if ((window as any).fbq) {
-                (window as any).fbq('track', 'Purchase', {
-                    value: product.price,
-                    currency: 'MZN',
-                    content_name: product.name
-                });
-            }
 
         } catch (err: any) {
             // Extrair mensagem amigável do erro da API E2Payments (pode ser um objeto)
