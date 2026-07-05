@@ -228,6 +228,12 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
     const emolaCount = useMemo(() => approvedTxs.filter(t => t.method === 'e-Mola').length, [approvedTxs]);
     const totalApprovedCount = approvedTxs.length;
 
+    const mpesaTotal = useMemo(() => filteredTxs.filter(t => t.method === 'M-Pesa').length, [filteredTxs]);
+    const emolaTotal = useMemo(() => filteredTxs.filter(t => t.method === 'e-Mola').length, [filteredTxs]);
+
+    const mpesaConvRate = useMemo(() => mpesaTotal > 0 ? ((mpesaCount / mpesaTotal) * 100).toFixed(1) : '0.0', [mpesaCount, mpesaTotal]);
+    const emolaConvRate = useMemo(() => emolaTotal > 0 ? ((emolaCount / emolaTotal) * 100).toFixed(1) : '0.0', [emolaCount, emolaTotal]);
+
 
 
     return (
@@ -511,7 +517,12 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                             tickLine={false}
                                             tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 700 }}
                                             dx={-10}
-                                            tickFormatter={(val) => val >= 1000 ? `${(val / 1000)}k` : val}
+                                            tickFormatter={(val) => {
+                                                if (val === 0 || val === 25 || val === 50 || val === 75 || val === 100) {
+                                                    return `${val}%`;
+                                                }
+                                                return val >= 1000 ? `${(val / 1000)}k` : val;
+                                            }}
                                         />
                                         <Tooltip
                                             contentStyle={{
@@ -557,7 +568,10 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                 <div className="bg-slate-50 rounded-[1.25rem] p-5 flex items-center justify-between border border-slate-100 shadow-sm hover:shadow-md transition-all">
                                     <div className="flex items-center gap-3">
                                         <img src="/mpesa_logo.png" alt="M-Pesa" className="h-10 w-10 object-contain rounded-md" />
-                                        <span className="text-[11px] font-black text-slate-900 tracking-widest">M-PESA</span>
+                                        <div className="flex flex-col">
+                                            <span className="text-[11px] font-black text-slate-900 tracking-widest">M-PESA</span>
+                                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">CONVERSÃO: {mpesaConvRate}%</span>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                         <span className="text-[11px] font-black text-slate-900 tracking-widest uppercase">VENDAS</span>
@@ -567,7 +581,10 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                 <div className="bg-slate-50 rounded-[1.25rem] p-5 flex items-center justify-between border border-slate-100 shadow-sm hover:shadow-md transition-all">
                                     <div className="flex items-center gap-3">
                                         <img src="/emola_logo.png" alt="E-Mola" className="h-10 w-10 object-contain rounded-md" />
-                                        <span className="text-[11px] font-black text-slate-900 tracking-widest">E-MOLA</span>
+                                        <div className="flex flex-col">
+                                            <span className="text-[11px] font-black text-slate-900 tracking-widest">E-MOLA</span>
+                                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">CONVERSÃO: {emolaConvRate}%</span>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                         <span className="text-[11px] font-black text-slate-900 tracking-widest uppercase">VENDAS</span>

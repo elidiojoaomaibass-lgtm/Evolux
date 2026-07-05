@@ -200,31 +200,51 @@ function App() {
 
 
   useEffect(() => {
-    const setupPush = async () => {
+    const setupPush = async (userEmail?: string) => {
+      // Tenta obter o email da sessão activa se não for passado
+      let email = userEmail;
+      if (!email) {
+        try {
+          const { supabase: sb } = await import('./lib/supabase');
+          const { data: sess } = await sb.auth.getSession();
+          email = sess?.session?.user?.email;
+        } catch {}
+      }
+      if (!email) return;
+
       if ('Notification' in window && Notification.permission === 'default') {
         await Notification.requestPermission();
       }
-      if (Notification.permission === 'granted') {
-        if ('serviceWorker' in navigator) {
-          try {
-            const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
-            // Obter o token FCM com o service worker registado
-            const token = await getFcmToken(registration);
-            if (token && session?.user?.email) {
-              // Guardar o token directamente no Supabase (tabela push_subscriptions)
-              const { supabase } = await import('./lib/supabase');
-              await supabase
-                .from('push_subscriptions')
-                .upsert({ user_email: session.user.email, token }, { onConflict: 'user_email' });
-              console.log('✅ FCM token guardado no Supabase para:', session.user.email);
-            }
-          } catch (e) {
-            console.error('Erro ao configurar push notifications:', e);
+      if (Notification.permission !== 'granted') return;
+
+      if ('serviceWorker' in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
+          const token = await getFcmToken(registration);
+          if (token) {
+            const { supabase: sb } = await import('./lib/supabase');
+            await sb
+              .from('push_subscriptions')
+              .upsert({ user_email: email, token }, { onConflict: 'user_email' });
+            console.log('✅ FCM token renovado no Supabase para:', email);
           }
+        } catch (e) {
+          console.error('Erro ao configurar push notifications:', e);
         }
       }
     };
-    if (session) setupPush();
+
+    // Corre ao login
+    if (session) setupPush(session.user?.email);
+
+    // Corre sempre que o utilizador volta à aba (ecrã desbloqueado, app voltou ao 1º plano)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        setupPush(session?.user?.email);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
   }, [session]);
 
   // Foreground push notification listener

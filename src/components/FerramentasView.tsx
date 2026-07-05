@@ -262,35 +262,60 @@ export const FerramentasView = () => {
         toast.success('Klaviyo configurado!', { description: 'A integração de email marketing está ativa.' });
     };
 
-    const handleTestPush = () => {
-        if (!('Notification' in window)) {
-            toast.error('O seu navegador não suporta notificações push.');
+    const handleTestPush = async () => {
+        // 1. Verificar se o utilizador está autenticado
+        let email = userEmail;
+        if (!email) {
+            const { data: sess } = await supabase.auth.getSession();
+            email = sess?.session?.user?.email || '';
+            if (email) setUserEmail(email);
+        }
+        if (!email) {
+            toast.error('Sessão não encontrada. Faça login primeiro.');
             return;
         }
 
-        if (Notification.permission === 'granted') {
-            new Notification('Você recebeu um novo pedido! 🎉', {
-                body: `Venda aprovada de ${testPushValue} MT via M-Pesa\nTeste de notificação push`,
-                icon: '/logo.png',
-                image: '/logo.png',
-            } as any);
-            toast.success('Notificação de teste enviada com sucesso!');
-        } else if (Notification.permission !== 'denied') {
-            Notification.requestPermission().then(permission => {
-                if (permission === 'granted') {
-                    new Notification('Você recebeu um novo pedido! 🎉', {
-                        body: `Venda aprovada de ${testPushValue} MT via M-Pesa\nTeste de notificação push`,
-                        icon: '/logo.png',
-                        image: '/logo.png',
-                    } as any);
-                    toast.success('Notificação de teste enviada com sucesso!');
-                } else {
-                    toast.error('Permissão para notificações não concedida.');
-                }
-            });
-        } else {
-             toast.error('As notificações estão bloqueadas nas definições do seu navegador.');
+        // 2. Verificar se existem dispositivos registados (tokens FCM no Supabase)
+        const { data: tokens, error: tokErr } = await supabase
+            .from('push_subscriptions')
+            .select('token')
+            .eq('user_email', email);
+
+        if (tokErr) {
+            toast.error('Erro ao verificar dispositivos registados.');
+            return;
         }
+
+        if (!tokens || tokens.length === 0) {
+            toast.error('Nenhum dispositivo registado', {
+                description: 'Para receber notificações push, abra a aplicação no seu telemóvel e faça login. As notificações serão automaticamente configuradas.',
+                duration: 8000,
+            });
+            return;
+        }
+
+        // 3. Disparar notificação push real via servidor (funciona mesmo com o telemóvel bloqueado)
+        toast.promise(
+            fetch('/api/notify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    merchant_user_email: email,
+                    amount: parseFloat(testPushValue.replace(',', '.')) || 97,
+                    method: 'M-Pesa',
+                    product_name: 'Produto de Teste',
+                    reference: `TEST-${Date.now()}`,
+                })
+            }).then(async (res) => {
+                if (!res.ok) throw new Error(await res.text());
+                return res.json();
+            }),
+            {
+                loading: `A enviar notificação para ${tokens.length} dispositivo(s)...`,
+                success: `✅ Notificação enviada para ${tokens.length} dispositivo(s)! Verifique o seu telemóvel.`,
+                error: (err: any) => `Erro ao enviar: ${err?.message || 'Tente novamente'}`,
+            }
+        );
     };
 
 

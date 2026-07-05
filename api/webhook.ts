@@ -91,17 +91,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .single();
 
     if (!error) {
-      console.log('Sucesso ao atualizar a transação no Supabase.');
+      console.log('Sucesso ao atualizar a transação no Supabase:', transaction_id, '->', finalStatus);
 
-      // Se for sucesso, atualizar vendas do produto (se existir metadado)
-      if (isSuccess && updatedTx && updatedTx.description) {
-          // Ex: "Compra: Nome do Produto"
-          // O webhook não tem o product_id diretamente, mas o ideal seria o client enviar no momento do inicio do pagamento.
-          // Para já, este webhook servirá para confirmação de notificação e state.
-          console.log("Transação confirmada. Dispatch de eventos iniciado.");
+      // ── Atualizar vendas + receita do produto (server-side, funciona sem browser) ──
+      if (isSuccess && updatedTx) {
+        const desc: string = updatedTx.description || '';
+
+        // Extrair product_id do campo description (formato: "Compra: Nome||PRODUCT_ID||prod-xxx")
+        const pidMarker = '||PRODUCT_ID||';
+        const pidIdx = desc.indexOf(pidMarker);
+        const productId = pidIdx !== -1 ? desc.substring(pidIdx + pidMarker.length).split('||')[0].trim() : null;
+
+        if (productId) {
+          try {
+            const { data: prod } = await supabase.from('products').select('sales, revenue').eq('id', productId).single();
+            if (prod) {
+              await supabase.from('products').update({
+                sales: (prod.sales || 0) + 1,
+                revenue: (prod.revenue || 0) + Number(amount || 0)
+              }).eq('id', productId);
+              console.log(`✅ Produto ${productId} atualizado: +1 venda, +${amount} receita.`);
+            }
+          } catch (prodErr) {
+            console.error('Erro ao atualizar vendas do produto no webhook:', prodErr);
+          }
+        }
       }
 
-      const userId = payload.user_id || payload.userId || updatedTx?.customerEmail || updatedTx?.phone;
+      // ── Determinar o email do merchant para enviar push ──
+      // Tenta primeiro o customerEmail guardado na transação,
+      // depois procura o produto pelo product_id para obter o user_email do merchant.
+      let merchantEmail = payload.user_id || payload.userId || updatedTx?.customerEmail || '';
+
+      if (!merchantEmail && updatedTx?.description) {
+        const desc: string = updatedTx.description;
+        const pidMarker = '||PRODUCT_ID||';
+        const pidIdx = desc.indexOf(pidMarker);
+        const productId = pidIdx !== -1 ? desc.substring(pidIdx + pidMarker.length).split('||')[0].trim() : null;
+        if (productId) {
+          try {
+            const { data: prodData } = await supabase.from('products').select('user_email').eq('id', productId).single();
+            if (prodData?.user_email) merchantEmail = prodData.user_email;
+          } catch {}
+        }
+      }
+
+      const userId = merchantEmail;
       const notifications: Promise<void>[] = [];
 
       // 1. Push notification (Pushcut/FCM)

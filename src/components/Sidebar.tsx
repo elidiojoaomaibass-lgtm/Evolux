@@ -27,8 +27,8 @@ const menuGroups = [
         label: "Principal",
         items: [
             { icon: LayoutDashboard, label: "Dashboard" as ViewType },
-            { icon: ShoppingCart, label: "Vendas" as ViewType },
             { icon: ShoppingBag, label: "Produtos" as ViewType },
+            { icon: ShoppingCart, label: "Vendas" as ViewType },
             { icon: Wallet, label: "Pagamentos" as ViewType },
         ],
     },

@@ -155,6 +155,8 @@ export const CheckoutPage = () => {
 
         const sanitizedPaymentPhone = cleanPhone(paymentPhone);
 
+        let currentTxId = '';
+
         try {
             // Processar pagamento via SDK (browser → RLX Gateway)
             const result = await processRLXPayment({
@@ -163,18 +165,19 @@ export const CheckoutPage = () => {
                 nome_cliente: name || 'Cliente',
                 webhook_url: `${window.location.origin}/api/webhook`
             });
+            currentTxId = result.transactionId;
 
             // Registar imediatamente a transação como 'Pendente' para que o webhook consiga encontrá-la se o user fechar a página
             try {
                 await addTransaction({
-                    id: result.transactionId,
+                    id: currentTxId,
                     type: 'payment',
                     amount: product.price,
                     phone: sanitizedPaymentPhone,
                     method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
                     status: result.status === 'success' ? 'Concluído' : 'Pendente',
                     reference: reference,
-                    description: `Compra: ${product.name}`,
+                    description: `Compra: ${product.name}||PRODUCT_ID||${product.id}`,
                     customerName: name || 'Cliente',
                     customerEmail: product.user_email || '',
                 });
@@ -260,22 +263,9 @@ export const CheckoutPage = () => {
             setErrorMessage(err.message || 'Ocorreu um erro ao processar a compra. Tente novamente.');
             setStatus('idle');
 
-            // Fallback de segurança local para quando a requisição falhar totalmente (ex: localhost 404)
-            try {
-                addTransaction({
-                    id: `ERR_FB_${Date.now()}`,
-                    type: 'payment',
-                    amount: product.price,
-                    phone: paymentPhone,
-                    method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
-                    status: 'Falhou',
-                    reference: reference,
-                    description: `Compra: ${product.name} (Fallback/Erro: ${err.message || 'Erro'})`,
-                    customerName: name || 'Cliente',
-                    customerEmail: product.user_email || '',
-                });
-            } catch (dbErr) {
-                console.warn("Falha no fallback de gravação Supabase (não autenticado):", dbErr);
+            // Marca a transação como "Falhou" em vez de ficar pendente ou duplicada
+            if (currentTxId) {
+                updateTransactionStatus(currentTxId, 'Falhou').catch(() => {});
             }
         }
     };

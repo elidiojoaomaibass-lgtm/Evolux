@@ -8,6 +8,8 @@ import { cn } from '../lib/utils';
 import type { User } from '@supabase/supabase-js';
 import { useTransactionsStore, useProductsStore } from '../lib/store';
 import { cleanProductName } from '../lib/descriptionUtils';
+import { checkRLXPaymentStatus } from '../lib/rlxgatewayWrapper';
+import { Loader2 } from 'lucide-react';
 
 type PeriodType = 'Hoje' | 'Ontem' | '7d' | '30d' | '90d' | 'Todo' | 'custom';
 
@@ -17,7 +19,7 @@ interface VendasViewProps {
 
 export const VendasView = ({ user: _user }: VendasViewProps) => {
     // Store
-    const { transactions } = useTransactionsStore();
+    const { transactions, updateTransactionStatus } = useTransactionsStore();
     const { products } = useProductsStore();
 
     // State
@@ -27,6 +29,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
     const [statusFilter, setStatusFilter] = useState('Todas');
     const [selectedTx, setSelectedTx] = useState<any>(null);
     const [showDetail, setShowDetail] = useState(false);
+    const [isChecking, setIsChecking] = useState(false);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [startParts, setStartParts] = useState({ d: '', m: '', y: '' });
@@ -60,6 +63,45 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
             detailRef.current.scrollTop = 0;
         }
     }, [showDetail]);
+
+    const handleCheckStatus = async () => {
+        if (!selectedTx) return;
+        setIsChecking(true);
+        try {
+            const res = await checkRLXPaymentStatus(selectedTx.id);
+            if (res.status === 'success' || res.status === 'payment.success') {
+                // Disparar o webhook interno para enviar as notificações, Lowtrack, Pushcut, etc.
+                await fetch('/api/webhook', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: 'success',
+                        transaction_id: selectedTx.id,
+                        reference: selectedTx.reference || selectedTx.id,
+                        amount: selectedTx.amount,
+                        phone: selectedTx.phone,
+                        customerName: selectedTx.customerName,
+                        method: selectedTx.method
+                    })
+                }).catch(err => console.warn('Erro ao disparar webhook manual:', err));
+
+                await updateTransactionStatus(selectedTx.id, 'Concluído');
+                setSelectedTx((prev: any) => prev ? { ...prev, status: 'Concluído' } : prev);
+            } else if (res.status === 'failed' || res.status === 'error') {
+                await updateTransactionStatus(selectedTx.id, 'Falhou');
+                setSelectedTx((prev: any) => prev ? { ...prev, status: 'Falhou' } : prev);
+            } else if (res.status === 'pending') {
+                alert('A venda ainda está pendente aguardando o pagamento do cliente.');
+            } else {
+                alert(`Estado atual no gateway: ${res.status}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Erro ao verificar o estado. Tente novamente mais tarde.');
+        } finally {
+            setIsChecking(false);
+        }
+    };
 
     // Sync parts when startDate changes
     useEffect(() => {
@@ -277,7 +319,8 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Produto</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Valor</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Estado</th>
-                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Método</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Contacto</th>
+                                    <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Canal</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">ID Transação</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em]">Data / Hora</th>
                                     <th className="px-10 py-2 text-[10px] font-black text-slate-400 dark:text-brand-500 uppercase tracking-[0.2em] text-center">Ações</th>
@@ -303,31 +346,29 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                                 </span>
                                             </div>
                                         </td>
+                                        <td className="px-10 py-2.5 text-center">
+                                            <span className="font-black tabular-nums tracking-tighter text-sm text-slate-800 dark:text-white">
+                                                {trx.amount.toLocaleString()} MT
+                                            </span>
+                                        </td>
+                                        <td className="px-10 py-2.5 text-center">
+                                            <span className={cn(
+                                                "text-[11px] font-black uppercase tracking-widest",
+                                                trx.status === 'Concluído' ? "text-green-500" :
+                                                    trx.status === 'Pendente' ? "text-amber-500" :
+                                                        "text-red-500"
+                                            )}>{trx.status}</span>
+                                        </td>
                                         <td className="px-10 py-2.5">
-                                            <div className="flex flex-col items-center text-center">
-                                                <span className={cn(
-                                                    "px-3 py-1 rounded-full border-2 font-black tabular-nums tracking-tighter text-sm flex items-center gap-1",
-                                                    trx.method === 'M-Pesa'
-                                                        ? "border-red-500 bg-red-50/50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
-                                                        : "border-orange-500 bg-orange-50/50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400"
-                                                )}>
-                                                    {trx.amount.toLocaleString()} <span className="text-[10px] font-bold">MZN</span>
-                                                </span>
-                                                <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5">Processed</span>
-                                            </div>
+                                            <span className="font-mono text-[11px] font-bold text-slate-600 dark:text-brand-400 tracking-wider">{trx.phone || '—'}</span>
                                         </td>
                                         <td className="px-10 py-2.5 text-center">
-                                            <div className="flex flex-col items-center">
-                                                <span className={cn(
-                                                    "px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] border whitespace-nowrap",
-                                                    trx.status === 'Concluído' ? "bg-green-500/5 border-green-500/20 text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.1)]" :
-                                                        trx.status === 'Pendente' ? "bg-amber-500/5 border-amber-500/20 text-amber-500" :
-                                                            "bg-red-500/5 border-red-500/20 text-red-500"
-                                                )}>{trx.status}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-10 py-2.5 text-center">
-                                            <span className={`px-2 py-1 rounded ${trx.method === 'M-Pesa' ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'} font-medium`}>{trx.method}</span>
+                                            <span className={cn(
+                                                "px-3 py-1 rounded-full border-2 font-black tracking-tighter text-sm flex items-center justify-center gap-1 w-fit mx-auto",
+                                                trx.method === 'M-Pesa'
+                                                    ? "border-red-500 bg-red-50/50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
+                                                    : "border-orange-500 bg-orange-50/50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400"
+                                            )}>{trx.method}</span>
                                         </td>
                                         <td className="px-10 py-2.5 font-mono text-[11px] font-black text-slate-400 dark:text-brand-600 group-hover/row:text-violet-600 transition-colors">
                                             #{trx.id}
@@ -347,7 +388,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan={8} className="px-8 py-32 text-center">
+                                        <td colSpan={9} className="px-8 py-32 text-center">
                                             <div className="flex flex-col items-center gap-6">
                                                 <div className="h-20 w-20 rounded-full bg-slate-50 dark:bg-brand-950 flex items-center justify-center text-slate-200 dark:text-brand-900 border-2 border-dashed border-slate-200 dark:border-brand-800">
                                                     <Search size={40} />
@@ -491,7 +532,17 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="p-4 sm:px-6 bg-slate-100 dark:bg-[#9ca3af]/40 border-t border-slate-200 dark:border-white/10 flex justify-end">
+                                <div className="p-4 sm:px-6 bg-slate-100 dark:bg-[#9ca3af]/40 border-t border-slate-200 dark:border-white/10 flex justify-end gap-3">
+                                    {selectedTx?.status === 'Pendente' && (
+                                        <button 
+                                            onClick={handleCheckStatus} 
+                                            disabled={isChecking}
+                                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-bold rounded-lg transition-colors shadow-sm flex items-center gap-2"
+                                        >
+                                            {isChecking && <Loader2 size={16} className="animate-spin" />}
+                                            Verificar Estado
+                                        </button>
+                                    )}
                                     <button onClick={() => setShowDetail(false)} className="px-6 py-2 bg-slate-600 hover:bg-slate-700 text-white text-sm font-bold rounded-lg transition-colors shadow-sm">
                                         Fechar
                                     </button>

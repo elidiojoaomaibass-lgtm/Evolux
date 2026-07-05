@@ -617,7 +617,12 @@ export const AnalyticsView = () => {
                                     tickLine={false}
                                     tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 700 }}
                                     dx={-10}
-                                    tickFormatter={(val) => val >= 1000 ? `${(val / 1000)}k` : val}
+                                    tickFormatter={(val) => {
+                                        if (val === 0 || val === 25 || val === 50 || val === 75 || val === 100) {
+                                            return `${val}%`;
+                                        }
+                                        return val >= 1000 ? `${(val / 1000)}k` : val;
+                                    }}
                                 />
                                 <Tooltip
                                     cursor={{ stroke: 'rgba(139, 92, 246, 0.5)', strokeWidth: 2 }}

@@ -90,6 +90,8 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             return;
         }
 
+        let currentTxId = '';
+
         try {
             // Processar pagamento via SDK (browser → RLX Gateway)
             const result = await processRLXPayment({
@@ -98,18 +100,19 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 nome_cliente: name || 'Cliente',
                 webhook_url: `${window.location.origin}/api/webhook`
             });
+            currentTxId = result.transactionId;
 
             // Registrar imediatamente como Pendente para não perder a transação
             try {
                 await addTransaction({
-                    id: result.transactionId,
+                    id: currentTxId,
                     type: 'payment',
                     amount: product.price,
                     phone: sanitizedPaymentPhone,
                     method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
                     status: result.status === 'success' ? 'Concluído' : 'Pendente',
                     reference: reference,
-                    description: `Compra: ${product.name}`,
+                    description: `Compra: ${product.name}||PRODUCT_ID||${product.id}`,
                     customerName: name || 'Cliente',
                     customerEmail: product.user_email || ''
                 });
@@ -126,7 +129,26 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             }
 
             // Atualiza a transação para Concluído após confirmação
-            await updateTransactionStatus(result.transactionId, 'Concluído');
+            await updateTransactionStatus(currentTxId, 'Concluído');
+
+            // Disparar webhooks e notificações via servidor (idêntico ao webhook do VendasView)
+            try {
+                fetch('/api/webhook', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: 'success',
+                        transaction_id: currentTxId,
+                        reference: reference,
+                        amount: product.price,
+                        phone: sanitizedPaymentPhone,
+                        customerName: name || 'Cliente',
+                        method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola'
+                    })
+                }).catch(err => console.warn('Webhook dispatch failed:', err));
+            } catch (e) {
+                console.warn('Failed to dispatch webhook:', e);
+            }
 
             // Disparar o Pixel de Meta Ads (Purchase) se o produto tiver pixel configurado
             if (product.pixel) {
@@ -141,23 +163,6 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             }
 
             setStatus('success');
-
-            // Disparar notificações push via servidor (em background, sem bloquear)
-            try {
-                fetch('/api/notify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        merchant_user_email: product.user_email || '',
-                        amount: product.price,
-                        method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
-                        product_name: product.name,
-                        reference: reference,
-                    })
-                }).catch(err => console.warn('Push notification dispatch failed:', err));
-            } catch (e) {
-                console.warn('Failed to dispatch push notification:', e);
-            }
 
             // Increment sales count and total revenue for the product
             try {
@@ -193,6 +198,11 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
             window.location.href = `/obrigado?${params.toString()}`;
 
         } catch (err: any) {
+            // Se falhou/cancelou, marca como "Falhou" em vez de ficar pendente
+            if (currentTxId) {
+                updateTransactionStatus(currentTxId, 'Falhou').catch(() => {});
+            }
+
             // Extrair mensagem amigável do erro da API E2Payments (pode ser um objeto)
             let errorMsg = 'Ocorreu um erro. Tente novamente.';
             if (typeof err === 'string') {
