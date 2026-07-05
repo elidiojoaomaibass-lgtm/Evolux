@@ -543,23 +543,23 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                 disabled={status === 'processing'}
                                 className="w-full h-[60px] text-white bg-[#e11d24] rounded-xl font-black text-2xl md:text-3xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-red-500/20 disabled:opacity-70"
                             >
-                                    {status === 'processing' ? (
-                                        <>
-                                            <Loader2 className="animate-spin" size={20} />
-                                            <span>Processando...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className="h-5 w-5 rounded-full border-2 border-white flex items-center justify-center">
-                                                <Check size={12} strokeWidth={4} />
-                                            </div>
-                                            <span>
-                                                Pagar agora {product.price ? `- ${product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT` : ''}
-                                            </span>
-                                        </>
-                                    )}
-                                </button>
-                                
+                                {status === 'processing' ? (
+                                    <>
+                                        <Loader2 className="animate-spin" size={20} />
+                                        <span>Processando...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="h-5 w-5 rounded-full border-2 border-white flex items-center justify-center">
+                                            <Check size={12} strokeWidth={4} />
+                                        </div>
+                                        <span>
+                                            Pagar agora {product.price ? `- ${product.price.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT` : ''}
+                                        </span>
+                                    </>
+                                )}
+                            </button>
+
                             <div className="flex flex-row items-center justify-center gap-4 opacity-70">
                                 <div className="flex items-center gap-1.5 text-emerald-600">
                                     <ShieldCheck size={14} />
