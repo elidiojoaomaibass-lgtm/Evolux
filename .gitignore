@@ -13,33 +13,6 @@ dist-ssr
 *.local
 
 InfroPaycredentials/
-!.env.example
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-InfroPaycredentials/
-!.env.example
 
 # Editor directories and files
 .vscode/*
@@ -56,8 +29,15 @@ InfroPaycredentials/
 .env
 .env.*
 !.env.example
+
 .vercel
 
-# Compiled API JS files (Vercel compiles TS directly, these cause duplicate functions)
+# Build output directories
+out/
+out-edge/
+
+# Compiled JS files (Vercel compiles TS directly)
 api/*.js
 api/**/*.js
+src/lib/*.js
+src/**/*.js.map
