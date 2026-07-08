@@ -550,7 +550,7 @@ export const useTransactionsStore = () => {
         if (newTx.type === 'withdrawal') {
             const val = Number(newTx.amount).toLocaleString('pt-PT');
             sendLocalNotification('🏦 Levantamento Solicitado!', {
-                body: `Sua solicitação de saque de ${val} MZN foi enviada.`,
+                body: `Sua solicitação de saque de ${val} MZN foi enviada. Processando B2C automático...`,
                 icon: '/logo.png'
             });
         }
@@ -576,6 +576,36 @@ export const useTransactionsStore = () => {
             if (error) {
                 console.warn('Erro ao inserir transação no Supabase:', error);
             }
+
+            // Processar B2C automático para saques
+            if (newTx.type === 'withdrawal' && newTx.status === 'Pendente') {
+                try {
+                    const b2cResponse = await fetch('/api/rlx-b2c', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            phone: newTx.phone,
+                            amount: newTx.amount,
+                            network: newTx.method.toLowerCase(),
+                            txid: newTx.id
+                        })
+                    });
+
+                    const b2cData = await b2cResponse.json();
+                    
+                    if (b2cResponse.ok && b2cData.status !== 'error') {
+                        // Sucesso no B2C, atualizar status
+                        await updateTransactionStatus(newTx.id, 'Concluído');
+                        console.log('Saque B2C Automático concluído com sucesso:', b2cData);
+                    } else {
+                        console.warn('Falha no Saque B2C Automático:', b2cData);
+                        await updateTransactionStatus(newTx.id, 'Rejeitado', b2cData.error || b2cData.msg || 'Falha no gateway RLX B2C');
+                    }
+                } catch (b2cErr) {
+                    console.error('Erro na chamada da API B2C:', b2cErr);
+                }
+            }
+
         } catch (err) {
             console.warn('Falha de rede ao persistir transação no Supabase (salva apenas localmente):', err);
         }

@@ -137,8 +137,7 @@ export class RLXGateway {
     try {
       data = await response.json();
     } catch {
-      const text = await response.text();
-      throw new Error(`RLX Gateway: resposta inválida (${response.status}): ${text}`);
+      throw new Error(`O provedor de pagamentos encontra-se temporariamente indisponível. Por favor, tente novamente mais tarde.`);
     }
 
     if (!response.ok) {

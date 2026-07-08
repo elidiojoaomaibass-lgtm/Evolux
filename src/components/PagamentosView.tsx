@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { cn } from '../lib/utils';
 import { toast } from 'sonner';
 import { processRLXPayment, waitForRLXPayment } from '../lib/rlxgatewayWrapper';
-import type { RLXStatusResponse } from '../lib/rlxgateway';
+import type { RLXStatusResponse } from '../lib/rlxgatewayWrapper';
 
 import { useTransactionsStore } from '../lib/store';
 
