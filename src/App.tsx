@@ -205,7 +205,7 @@ function App() {
       let email = userEmail;
       if (!email) {
         try {
-          const { supabase: sb } = await import('./lib/supabase');
+          const sb = supabase;
           const { data: sess } = await sb.auth.getSession();
           email = sess?.session?.user?.email;
         } catch {}
@@ -222,7 +222,7 @@ function App() {
           const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
           const token = await getFcmToken(registration);
           if (token) {
-            const { supabase: sb } = await import('./lib/supabase');
+            const sb = supabase;
             await sb
               .from('push_subscriptions')
               .upsert({ user_email: email, token }, { onConflict: 'user_email' });

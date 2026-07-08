@@ -37,7 +37,21 @@ export default defineConfig(({ mode }) => {
         }
       }
     },
+    build: {
+      chunkSizeWarningLimit: 2000,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom'],
+            'vendor-supabase': ['@supabase/supabase-js'],
+            'vendor-charts': ['recharts'],
+            'vendor-motion': ['framer-motion'],
+          }
+        }
+      }
+    },
     plugins: [
+
       react(),
       VitePWA({
         registerType: 'autoUpdate',
