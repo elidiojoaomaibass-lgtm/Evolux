@@ -599,7 +599,7 @@ export const useTransactionsStore = () => {
                         console.log('Saque B2C Automático concluído com sucesso:', b2cData);
                     } else {
                         console.warn('Falha no Saque B2C Automático:', b2cData);
-                        await updateTransactionStatus(newTx.id, 'Rejeitado', b2cData.error || b2cData.msg || 'Falha no gateway RLX B2C');
+                        await updateTransactionStatus(newTx.id, 'Falhou', b2cData.error || b2cData.msg || 'Falha no gateway RLX B2C');
                     }
                 } catch (b2cErr) {
                     console.error('Erro na chamada da API B2C:', b2cErr);
