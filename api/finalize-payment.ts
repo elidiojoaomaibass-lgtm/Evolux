@@ -235,7 +235,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             notifications.push((async () => {
                 try {
                 // Dynamically import to not break edge functions if missing dependencies
-                const { sendPushNotificationV1, getUserTokens } = await import('../src/lib/push_v1.js');
+                const { sendPushNotificationV1, getUserTokens } = await import('../src/lib/push_v1');
                 const tokens = await getUserTokens(finalMerchantEmail);
                 if (tokens && tokens.length > 0) {
                     const val = amountNum.toLocaleString('pt-PT');
