@@ -8,10 +8,8 @@ export const config = {
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import fetch from 'node-fetch';
-import * as dotenv from 'dotenv';
-dotenv.config();
-import { sendPushNotificationV1 as sendPushNotification, getUserTokens } from '../src/lib/push_v1';
-import { getLowtrackToken } from '../src/lib/lowtrack';
+import { sendPushNotificationV1 as sendPushNotification, getUserTokens } from '../src/lib/push_v1.js';
+import { getLowtrackToken } from '../src/lib/lowtrack.js';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';

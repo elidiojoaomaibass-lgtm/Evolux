@@ -46,7 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Payload para e-Mola (Exemplo genérico - pode variar conforme a versão da API)
     const payload = {
-      appId: EMOLA_APP_ID,
+      appId: process.env.EMOLA_APP_ID,
       token: EMOLA_API_KEY,
       msisdn: formattedPhone,
       amount: amount,

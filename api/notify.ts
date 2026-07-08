@@ -30,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // 1. Firebase Cloud Messaging (FCM) Push Notifications
     try {
-      const { sendPushNotificationV1, getUserTokens } = await import('../src/lib/push_v1');
+      const { sendPushNotificationV1, getUserTokens } = await import('../src/lib/push_v1.js');
       const tokens = await getUserTokens(merchant_user_email);
 
       if (tokens && tokens.length > 0) {
