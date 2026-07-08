@@ -1,11 +1,12 @@
 {
     "buildCommand": "npm run build",
     "outputDirectory": "dist",
+    "functions": {
+        "api/**/*.ts": {
+            "runtime": "@vercel/node@3.0.0"
+        }
+    },
     "rewrites": [
-        {
-            "source": "/api/catbox",
-            "destination": "https://catbox.moe/user/api.php"
-        },
         {
             "source": "/api/lowtrack-proxy",
             "destination": "https://lowtrack.com.br/api/webhook"

@@ -1,12 +1,14 @@
-{ 
-  "compilerOptions": { 
-    "module": "NodeNext", 
-    "moduleResolution": "NodeNext", 
-    "target": "ES2022", 
-    "esModuleInterop": true, 
-    "strict": true, 
-    "skipLibCheck": true, 
-    "forceConsistentCasingInFileNames": true 
-  }, 
-  "exclude": ["node_modules", "../node_modules", "dist", "../dist"] 
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": ".vercel/functions"
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules", "../node_modules", "../dist", "../src"]
 }
