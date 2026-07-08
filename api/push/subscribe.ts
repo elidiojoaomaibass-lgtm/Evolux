@@ -9,7 +9,9 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
  * API route to store/update an FCM token for a user.
  * Expected JSON body: { userId: string, token: string }
  */
-export default async function handler(req, res) {
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
