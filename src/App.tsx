@@ -368,7 +368,7 @@ function App() {
           // Final fallback
           const fakeSession = {
             user: {
-              email: 'admin@evolux.com',
+              email: import.meta.env.VITE_ADMIN_EMAIL || 'ofcdzin6@gmail.com',
               user_metadata: { full_name: 'Administrador' }
             }
           };

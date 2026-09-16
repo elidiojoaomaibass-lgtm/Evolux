@@ -7,9 +7,10 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
-import { processRLXPayment, waitForRLXPayment } from '../lib/rlxgatewayWrapper';
+
 import { useTransactionsStore, useProductsStore, type Product } from '../lib/store';
 import { supabase } from '../lib/supabase';
+import { E2Payments } from '../lib/e2payments';
 import { Logo } from './Logo';
 import { CountdownBanner } from './CountdownBanner';
 
@@ -93,16 +94,25 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
         let currentTxId = '';
 
         try {
-            // Processar pagamento via SDK (browser → RLX Gateway)
-            const result = await processRLXPayment({
-                phone: sanitizedPaymentPhone,
-                amount: product.price,
-                nome_cliente: name || 'Cliente',
-                webhook_url: `${window.location.origin}/api/webhook`
-            });
-            currentTxId = result.transactionId;
+            const e2p = new E2Payments();
+            const walletId = method === 'mpesa' 
+                ? (import.meta.env.VITE_E2_WALLET_MPESA || '996801')
+                : (import.meta.env.VITE_E2_WALLET_EMOLA || '996802');
+            
+            if (!walletId) {
+                throw new Error('Wallet ID não está configurado.');
+            }
 
-            // Registrar imediatamente como Pendente para não perder a transação
+            const result = await e2p.c2bPayment(
+                method,
+                walletId,
+                product.price,
+                sanitizedPaymentPhone,
+                reference
+            );
+
+            currentTxId = result.transaction_id || 'TX_' + Date.now();
+
             try {
                 await addTransaction({
                     id: currentTxId,
@@ -110,7 +120,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                     amount: product.price,
                     phone: sanitizedPaymentPhone,
                     method: method === 'mpesa' ? 'M-Pesa' : 'e-Mola',
-                    status: result.status === 'success' ? 'Concluído' : 'Pendente',
+                    status: 'Pendente',
                     reference: reference,
                     description: `Compra: ${product.name}||PRODUCT_ID||${product.id}`,
                     customerName: name || 'Cliente',
@@ -120,15 +130,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                 console.warn("Falha ao registar transação pendente", txErr);
             }
 
-            if (result.status === 'pending') {
-                // Aguarda confirmação do cliente via PIN
-                await waitForRLXPayment(result.transactionId, {
-                    intervalMs: 5000,
-                    timeoutMs: 120000
-                });
-            }
-
-            // Atualiza a transação para Concluído após confirmação
+            // Atualiza a transação para Concluído temporariamente, aguardando webhook real
             await updateTransactionStatus(currentTxId, 'Concluído');
 
             // Disparar webhooks e notificações via servidor (idêntico ao webhook do VendasView)

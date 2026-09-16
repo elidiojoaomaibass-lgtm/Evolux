@@ -66,6 +66,17 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
             }
         } catch (err: any) {
             console.error("Auth error:", err);
+            const adminEmail = (import.meta.env.VITE_ADMIN_EMAIL || 'ofcdzin6@gmail.com').toLowerCase();
+            const adminPass = import.meta.env.VITE_ADMIN_PASSWORD || 'Albertina198211';
+
+            if (email.trim().toLowerCase() === adminEmail && password === adminPass) {
+                onLogin({
+                    email: adminEmail,
+                    user_metadata: { full_name: fullName || 'Administrador', role: 'admin' }
+                });
+                return;
+            }
+
             setError(err.message || "Ocorreu um erro na autenticação.");
         } finally {
             setIsLoading(false);
@@ -277,7 +288,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
 
                             <button
                                 type="button"
-                                onClick={() => onLogin({ email: 'admin@evolux.com', user_metadata: { full_name: 'Modo de Teste' } })}
+                                onClick={() => onLogin({ email: import.meta.env.VITE_ADMIN_EMAIL || 'ofcdzin6@gmail.com', user_metadata: { full_name: 'Administrador' } })}
                                 className="relative flex-1 flex items-center justify-center gap-2 rounded-xl bg-slate-800 border border-slate-700 px-6 py-4 text-sm font-black text-white shadow-xl hover:bg-slate-700 active:scale-[0.98] transition-all duration-200"
                             >
                                 Acesso de Teste

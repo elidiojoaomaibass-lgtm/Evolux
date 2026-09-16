@@ -5,7 +5,7 @@ import 'dotenv/config';
 
 import { createClient } from '@supabase/supabase-js';
 
-const ADMIN_EMAIL = 'kingleakds@gmail.com';
+const ADMIN_EMAIL = process.env.VITE_ADMIN_EMAIL || 'ofcdzin6@gmail.com';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '';

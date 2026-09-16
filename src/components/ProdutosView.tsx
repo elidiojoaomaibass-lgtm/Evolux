@@ -190,56 +190,65 @@ export const ProdutosView = () => {
         return matchesSearch && matchesStatus;
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (editingProduct) {
-            editProduct({
-                ...editingProduct,
-                name: newName,
-                price: Number(newPrice),
-                category: newCategory,
-                description: newDescription,
-                phone: newPhone,
-                salesLink: newSalesLink,
-                pixel: newPixel,
-                isMarketplaceEnabled,
-                commission: Number(newCommission),
-                affiliationType: newAffiliationType,
-                image: imagePreview || editingProduct.image,
-                deliveryLink: newDeliveryLink,
-                enableCountdown: newEnableCountdown,
-                enableScarcityNotification: newEnableScarcityNotification,
-                barColor: newBarColor
-            });
-        } else {
-            const newProd: Product = {
-                id: crypto.randomUUID(),
-                name: newName,
-                type: 'Digital',
-                category: newCategory,
-                price: Number(newPrice),
-                sales: 0,
-                revenue: 0,
-                status: 'Ativo',
-                description: newDescription,
-                phone: newPhone,
-                salesLink: newSalesLink,
-                pixel: newPixel,
-                isMarketplaceEnabled: isMarketplaceEnabled,
-                commission: Number(newCommission),
-                affiliationType: newAffiliationType,
-                image: imagePreview || undefined,
-                deliveryLink: newDeliveryLink,
-                enableCountdown: newEnableCountdown,
-                enableScarcityNotification: newEnableScarcityNotification,
-                barColor: newBarColor,
-                createdAt: new Date().toISOString().split('T')[0]
-            };
-            addProduct(newProd);
-        }
+        try {
+            if (editingProduct) {
+                await editProduct({
+                    ...editingProduct,
+                    name: newName.trim(),
+                    price: Number(newPrice) || 0,
+                    category: newCategory,
+                    description: newDescription.trim(),
+                    phone: newPhone.trim(),
+                    salesLink: newSalesLink.trim(),
+                    pixel: newPixel.trim(),
+                    isMarketplaceEnabled,
+                    commission: Number(newCommission) || 0,
+                    affiliationType: newAffiliationType,
+                    image: imagePreview || editingProduct.image || '',
+                    deliveryLink: newDeliveryLink.trim(),
+                    enableCountdown: newEnableCountdown,
+                    enableScarcityNotification: newEnableScarcityNotification,
+                    barColor: newBarColor
+                });
+            } else {
+                const prodId = typeof crypto !== 'undefined' && crypto.randomUUID
+                    ? crypto.randomUUID()
+                    : 'prd_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
 
-        closeModal();
+                const newProd: Product = {
+                    id: prodId,
+                    name: newName.trim(),
+                    type: 'Digital',
+                    category: newCategory,
+                    price: Number(newPrice) || 0,
+                    sales: 0,
+                    revenue: 0,
+                    status: 'Ativo',
+                    description: newDescription.trim(),
+                    phone: newPhone.trim(),
+                    salesLink: newSalesLink.trim(),
+                    pixel: newPixel.trim(),
+                    isMarketplaceEnabled: isMarketplaceEnabled,
+                    commission: Number(newCommission) || 0,
+                    affiliationType: newAffiliationType,
+                    image: imagePreview || undefined,
+                    deliveryLink: newDeliveryLink.trim(),
+                    enableCountdown: newEnableCountdown,
+                    enableScarcityNotification: newEnableScarcityNotification,
+                    barColor: newBarColor,
+                    createdAt: new Date().toISOString()
+                };
+                await addProduct(newProd);
+            }
+
+            closeModal();
+        } catch (err: any) {
+            console.error('Erro ao submeter produto:', err);
+            closeModal();
+        }
     };
 
     const handleDeleteProduct = (id: string) => {

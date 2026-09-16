@@ -6,11 +6,31 @@ import { toast } from 'sonner';
 // Key for offline product storage
 const OFFLINE_PRODUCTS_KEY = 'evolux_offline_products';
 
+export const getActiveUserEmail = async (): Promise<string> => {
+    try {
+        const { data: sess } = await supabase.auth.getSession();
+        if (sess?.session?.user?.email) {
+            return sess.session.user.email.toLowerCase();
+        }
+    } catch {}
+
+    const fake = localStorage.getItem('evolux_prod_fake_session');
+    if (fake) {
+        try {
+            const parsed = JSON.parse(fake);
+            if (parsed?.user?.email) return parsed.user.email.toLowerCase();
+        } catch {}
+    }
+
+    return (import.meta.env.VITE_ADMIN_EMAIL || 'ofcdzin6@gmail.com').toLowerCase();
+};
+
 const getInitialLocalProducts = (): Product[] => {
-    const stored = localStorage.getItem(OFFLINE_PRODUCTS_KEY);
+    const stored = localStorage.getItem(OFFLINE_PRODUCTS_KEY) || localStorage.getItem('evolux_prod_products');
     if (stored) {
         try {
-            return JSON.parse(stored);
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) return parsed;
         } catch (e) {
             console.error('Failed to parse products from localStorage', e);
         }
@@ -48,8 +68,7 @@ export const sendLocalNotification = (title: string, options?: NotificationOptio
 export type ProductType = 'Digital' | 'Fisico' | 'Serviço';
 export type Category = 'Ebook' | 'Curso' | 'Mentoria' | 'Workshop' | 'Outro';
 
-
-    export interface Product {
+export interface Product {
     id: string;
     name: string;
     type: ProductType;
@@ -66,71 +85,117 @@ export type Category = 'Ebook' | 'Curso' | 'Mentoria' | 'Workshop' | 'Outro';
     commission: number; // Percentage (0-100)
     affiliationType: 'Automatica' | 'Manual';
     image?: string;
-    deliveryLink?: string; // New field for product deliverable link
-    enableCountdown?: boolean; // New field to activate countdown timer
-    user_email?: string; // Added to associate product with a specific user
-    enableScarcity?: boolean; // New field to toggle scarcity notifications
-    enableScarcityNotification?: boolean; // Legacy field
-    barColor?: string; // New field for countdown bar color (hex or preset)
+    deliveryLink?: string; // Product deliverable link
+    enableCountdown?: boolean; // Activate countdown timer
+    user_email?: string; // Associated user email
+    enableScarcity?: boolean; // Scarcity notifications toggle
+    enableScarcityNotification?: boolean; // Scarcity notifications legacy toggle
+    barColor?: string; // Countdown bar color
     createdAt: string;
 }
-// Fetch initial products directly from Supabase; no offline fallback.
-  const getInitialProducts = async (): Promise<Product[]> => {
-    try {
-      const { data: sess } = await supabase.auth.getSession();
-      const userEmail = sess?.session?.user?.email;
-      let query = supabase.from('products').select('*');
-      if (userEmail) {
-        query = query.eq('user_email', userEmail);
-      }
-      const { data, error } = await query;
-      if (error) throw error;
-      let products = (data as Product[]) ?? [];
-      
-      // Ordena os produtos do mais recente para o mais antigo
-      products.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-      
-      // Fetch associated images from product_images table and attach to products if missing
-      if (products.length > 0) {
 
-        const { data: imgData, error: imgError } = await supabase.from('product_images').select('product_id,url');
-        if (!imgError && imgData) {
-          const imgMap = new Map<string, string>();
-          (imgData as any[]).forEach(row => {
-            // Keep first image per product
-            if (!imgMap.has(row.product_id)) imgMap.set(row.product_id, row.url);
-          });
-          products = products.map(p => ({
-            ...p,
-            // Prefer existing image, otherwise use image from product_images
-            image: p.image || imgMap.get(p.id),
-          }));
+const mapSupabaseProduct = (row: any): Product => ({
+    id: String(row.id || crypto.randomUUID()),
+    name: row.name || 'Produto sem nome',
+    type: (row.type as ProductType) || 'Digital',
+    category: (row.category as Category) || 'Outro',
+    price: Number(row.price) || 0,
+    sales: Number(row.sales) || 0,
+    revenue: Number(row.revenue) || 0,
+    status: (row.status as Product['status']) || 'Ativo',
+    description: row.description || '',
+    phone: row.phone || '',
+    salesLink: row.salesLink || row.saleslink || '',
+    pixel: row.pixel || '',
+    isMarketplaceEnabled: Boolean(row.isMarketplaceEnabled ?? row.ismarketplaceenabled ?? true),
+    commission: Number(row.commission) || 0,
+    affiliationType: (row.affiliationType || row.affiliationtype || 'Automatica') as Product['affiliationType'],
+    image: row.image || '',
+    deliveryLink: row.deliveryLink || row.deliverylink || '',
+    enableCountdown: Boolean(row.enableCountdown ?? row.enablecountdown),
+    enableScarcity: Boolean(row.enableScarcity ?? row.enablescarcity),
+    enableScarcityNotification: Boolean(row.enableScarcityNotification ?? row.enablescarcitynotification),
+    barColor: row.barColor || row.barcolor || '#007BFF',
+    user_email: row.user_email || '',
+    createdAt: row.createdAt || row.createdat || row.created_at || new Date().toISOString()
+});
+
+const getInitialProducts = async (): Promise<Product[]> => {
+    const localProducts = getInitialLocalProducts();
+    try {
+        const userEmail = await getActiveUserEmail();
+        const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'ofcdzin6@gmail.com').toLowerCase();
+
+        let query = supabase.from('products').select('*');
+        if (userEmail && userEmail !== ADMIN_EMAIL) {
+            query = query.eq('user_email', userEmail);
         }
-      }
-      return products;
+
+        const { data, error } = await query;
+        if (error) {
+            console.warn('Could not fetch products from Supabase, using local fallback:', error);
+            return localProducts;
+        }
+
+        if (data && Array.isArray(data) && data.length > 0) {
+            let remoteProducts = data.map(mapSupabaseProduct);
+
+            // Fetch associated images from product_images table if present
+            try {
+                const { data: imgData, error: imgError } = await supabase.from('product_images').select('product_id,url');
+                if (!imgError && imgData) {
+                    const imgMap = new Map<string, string>();
+                    (imgData as any[]).forEach(row => {
+                        if (!imgMap.has(row.product_id)) imgMap.set(row.product_id, row.url);
+                    });
+                    remoteProducts = remoteProducts.map(p => ({
+                        ...p,
+                        image: p.image || imgMap.get(p.id) || '',
+                    }));
+                }
+            } catch (e) {
+                console.warn('Could not fetch product_images:', e);
+            }
+
+            // Merge remote products with local products (avoiding duplicates by id)
+            const remoteIds = new Set(remoteProducts.map(p => p.id));
+            const merged = [...remoteProducts];
+            localProducts.forEach(lp => {
+                if (!remoteIds.has(lp.id)) {
+                    merged.push(lp);
+                }
+            });
+
+            merged.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+            return merged;
+        }
+
+        return localProducts;
     } catch (e) {
-      console.warn('Failed to fetch products from Supabase:', e);
-      return [];
+        console.warn('Failed to fetch products from Supabase:', e);
+        return localProducts;
     }
-  };
+};
 
 let globalProducts: Product[] = getInitialLocalProducts(); 
-
 
 const listeners = new Set<(products: Product[]) => void>();
 
 export const useProductsStore = () => {
     const [products, setProducts] = useState<Product[]>(globalProducts);
 
-    // Fetch products from Supabase on mount and listen for changes
     useEffect(() => {
         const listener = (newProducts: Product[]) => setProducts(newProducts);
         listeners.add(listener);
 
         const fetchProducts = async () => {
-          const data = await getInitialProducts();
-          globalProducts = data;
-          listeners.forEach(l => l(globalProducts));
+            const data = await getInitialProducts();
+            if (data && data.length > 0) {
+                globalProducts = data;
+                localStorage.setItem(OFFLINE_PRODUCTS_KEY, JSON.stringify(globalProducts));
+                localStorage.setItem('evolux_prod_products', JSON.stringify(globalProducts));
+                listeners.forEach(l => l(globalProducts));
+            }
         };
         fetchProducts();
 
@@ -142,84 +207,146 @@ export const useProductsStore = () => {
     const updateProducts = (newProducts: Product[]) => {
         globalProducts = newProducts;
         localStorage.setItem(OFFLINE_PRODUCTS_KEY, JSON.stringify(globalProducts));
+        localStorage.setItem('evolux_prod_products', JSON.stringify(globalProducts));
         listeners.forEach(l => l(globalProducts));
     };
 
     const addProduct = async (product: Product) => {
+        const userEmail = await getActiveUserEmail();
+        const completeProduct: Product = {
+            ...product,
+            user_email: userEmail,
+            createdAt: product.createdAt || new Date().toISOString()
+        };
 
-    const insertWithUser = async () => {
-        const { data: sess } = await supabase.auth.getSession();
-        const userEmail = sess?.session?.user?.email;
-        if (!userEmail) throw new Error('Utilizador não autenticado');
-        const payload = { ...product, user_email: userEmail };
-        const { error, data } = await supabase.from('products').insert(payload).select();
-        if (error) throw error;
-        const inserted = (data as any[])[0] || payload;
-        if (product.image) {
-            await supabase.from('product_images').upsert({ product_id: inserted.id, url: product.image });
+        // 1. Optimistic update: Guarantee immediate save to state and localStorage
+        const updatedList = [completeProduct, ...globalProducts.filter(p => p.id !== completeProduct.id)];
+        updateProducts(updatedList);
+
+        sendLocalNotification('📦 Novo Produto Salvo!', {
+            body: `O produto "${product.name}" foi criado e salvo com sucesso.`,
+            icon: '/logo.png'
+        });
+
+        // 2. Persist to Supabase in background
+        try {
+            const dbPayload = {
+                id: completeProduct.id,
+                name: completeProduct.name,
+                type: completeProduct.type || 'Digital',
+                category: completeProduct.category,
+                price: Number(completeProduct.price) || 0,
+                sales: Number(completeProduct.sales) || 0,
+                revenue: Number(completeProduct.revenue) || 0,
+                status: completeProduct.status || 'Ativo',
+                description: completeProduct.description || '',
+                phone: completeProduct.phone || '',
+                salesLink: completeProduct.salesLink || '',
+                pixel: completeProduct.pixel || '',
+                isMarketplaceEnabled: Boolean(completeProduct.isMarketplaceEnabled),
+                commission: Number(completeProduct.commission) || 0,
+                affiliationType: completeProduct.affiliationType || 'Automatica',
+                image: completeProduct.image || '',
+                deliveryLink: completeProduct.deliveryLink || '',
+                enableCountdown: Boolean(completeProduct.enableCountdown),
+                enableScarcity: Boolean(completeProduct.enableScarcity),
+                enableScarcityNotification: Boolean(completeProduct.enableScarcityNotification),
+                barColor: completeProduct.barColor || '#007BFF',
+                user_email: userEmail,
+                createdat: completeProduct.createdAt
+            };
+
+            const { error } = await supabase.from('products').upsert(dbPayload, { onConflict: 'id' });
+            if (error) {
+                console.warn('Aviso ao sincronizar produto com Supabase:', error);
+            }
+
+            if (completeProduct.image) {
+                await supabase.from('product_images').upsert({
+                    product_id: completeProduct.id,
+                    url: completeProduct.image
+                }, { onConflict: 'product_id' }).catch((err: any) => console.warn('Aviso product_images:', err));
+            }
+        } catch (e: any) {
+            console.warn('Falha de rede ao persistir no Supabase (salvo localmente):', e);
         }
-        return inserted;
+
+        return completeProduct;
     };
 
-    try {
-        await insertWithUser();
-        updateProducts([product, ...globalProducts]);
-        sendLocalNotification('📦 Novo Produto Submetido!', {
-            body: `O produto "${product.name}" foi enviado com sucesso.`,
-            icon: '/logo.png'
-        });
-    } catch (e: any) {
-        console.warn('Falha ao criar produto:', e);
-        sendLocalNotification('⚠️ Falha ao salvar produto', {
-            body: `Erro: ${(e as any)?.message || String(e)}. Não foi possível criar o produto.`,
-            icon: '/logo.png'
-        });
-        throw e;
-    }
-};
-
     const deleteProduct = async (id: string) => {
-        // Primeiro remove do Supabase e, se bem-sucedido, atualiza o estado local
+        // Atualiza imediatamente local
+        updateProducts(globalProducts.filter(p => p.id !== id));
+        toast.success('Produto removido com sucesso!');
+
+        // Remove do Supabase de forma assíncrona
         try {
-          await supabase.from('products').delete().eq('id', id);
-          // Remoção bem-sucedida: atualiza local
-          updateProducts(globalProducts.filter(p => p.id !== id));
+            await supabase.from('products').delete().eq('id', id);
+            await supabase.from('product_images').delete().eq('product_id', id).catch(() => {});
         } catch (e) {
-          console.warn('Failed to delete product from Supabase:', e);
-          sendLocalNotification('⚠️ Falha ao remover produto', {
-            body: `Não foi possível remover o produto.`,
-            icon: '/logo.png'
-          });
+            console.warn('Erro ao remover produto do Supabase:', e);
         }
     };
 
     const editProduct = async (updatedProduct: Product) => {
         const oldProduct = globalProducts.find(p => p.id === updatedProduct.id);
-        updateProducts(globalProducts.map(p => (p.id === updatedProduct.id ? updatedProduct : p)));
-        if (oldProduct && oldProduct.status !== 'Ativo' && updatedProduct.status === 'Ativo') {
+        const userEmail = await getActiveUserEmail();
+        const completeProduct: Product = {
+            ...updatedProduct,
+            user_email: updatedProduct.user_email || userEmail
+        };
+
+        // 1. Atualização imediata local
+        updateProducts(globalProducts.map(p => (p.id === completeProduct.id ? completeProduct : p)));
+
+        if (oldProduct && oldProduct.status !== 'Ativo' && completeProduct.status === 'Ativo') {
             sendLocalNotification('✅ Produto Aprovado!', {
-                body: `O produto "${updatedProduct.name}" agora está Ativo.`,
+                body: `O produto "${completeProduct.name}" agora está Ativo.`,
                 icon: '/logo.png'
             });
+        } else {
+            toast.success('Produto atualizado com sucesso!');
         }
-        // Primeiro atualiza no Supabase e, se bem-sucedido, sincroniza estado local
+
+        // 2. Sincroniza no Supabase
         try {
-          await supabase.from('products').update(updatedProduct).eq('id', updatedProduct.id);
-          // Atualização bem-sucedida: sincroniza local
-          updateProducts(globalProducts.map(p => (p.id === updatedProduct.id ? updatedProduct : p)));
-          if (oldProduct && oldProduct.status !== 'Ativo' && updatedProduct.status === 'Ativo') {
-            sendLocalNotification('✅ Produto Aprovado!', {
-              body: `O produto "${updatedProduct.name}" agora está Ativo.`,
-              icon: '/logo.png'
-            });
-          }
+            const dbPayload = {
+                id: completeProduct.id,
+                name: completeProduct.name,
+                type: completeProduct.type || 'Digital',
+                category: completeProduct.category,
+                price: Number(completeProduct.price) || 0,
+                sales: Number(completeProduct.sales) || 0,
+                revenue: Number(completeProduct.revenue) || 0,
+                status: completeProduct.status || 'Ativo',
+                description: completeProduct.description || '',
+                phone: completeProduct.phone || '',
+                salesLink: completeProduct.salesLink || '',
+                pixel: completeProduct.pixel || '',
+                isMarketplaceEnabled: Boolean(completeProduct.isMarketplaceEnabled),
+                commission: Number(completeProduct.commission) || 0,
+                affiliationType: completeProduct.affiliationType || 'Automatica',
+                image: completeProduct.image || '',
+                deliveryLink: completeProduct.deliveryLink || '',
+                enableCountdown: Boolean(completeProduct.enableCountdown),
+                enableScarcity: Boolean(completeProduct.enableScarcity),
+                enableScarcityNotification: Boolean(completeProduct.enableScarcityNotification),
+                barColor: completeProduct.barColor || '#007BFF',
+                user_email: completeProduct.user_email || userEmail
+            };
+
+            await supabase.from('products').upsert(dbPayload, { onConflict: 'id' });
+
+            if (completeProduct.image) {
+                await supabase.from('product_images').upsert({
+                    product_id: completeProduct.id,
+                    url: completeProduct.image
+                }, { onConflict: 'product_id' }).catch(() => {});
+            }
         } catch (e) {
-          console.warn('Failed to update product in Supabase:', e);
-          sendLocalNotification('⚠️ Falha ao editar produto', {
-            body: `Não foi possível atualizar o produto "${updatedProduct.name}".`,
-            icon: '/logo.png'
-          });
-        }    };
+            console.warn('Erro ao atualizar produto no Supabase:', e);
+        }
+    };
 
     return { products, addProduct, deleteProduct, editProduct, updateProducts };
 };
@@ -428,9 +555,9 @@ export const useTransactionsStore = () => {
                 // Multi-Tenant Isolation
                 const { data: sess } = await supabase.auth.getSession();
                 const userEmail = sess?.session?.user?.email;
-                const ADMIN_EMAIL = 'kingleakds@gmail.com';
+                const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'ofcdzin6@gmail.com').toLowerCase();
                 
-                if (userEmail && userEmail !== ADMIN_EMAIL) {
+                if (userEmail && userEmail.toLowerCase() !== ADMIN_EMAIL) {
                     query = query.eq('customerEmail', userEmail);
                 }
 
@@ -577,34 +704,7 @@ export const useTransactionsStore = () => {
                 console.warn('Erro ao inserir transação no Supabase:', error);
             }
 
-            // Processar B2C automático para saques
-            if (newTx.type === 'withdrawal' && newTx.status === 'Pendente') {
-                try {
-                    const b2cResponse = await fetch('/api/rlx-b2c', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            phone: newTx.phone,
-                            amount: newTx.amount,
-                            network: newTx.method.toLowerCase(),
-                            txid: newTx.id
-                        })
-                    });
 
-                    const b2cData = await b2cResponse.json();
-                    
-                    if (b2cResponse.ok && b2cData.status !== 'error') {
-                        // Sucesso no B2C, atualizar status
-                        await updateTransactionStatus(newTx.id, 'Concluído');
-                        console.log('Saque B2C Automático concluído com sucesso:', b2cData);
-                    } else {
-                        console.warn('Falha no Saque B2C Automático:', b2cData);
-                        await updateTransactionStatus(newTx.id, 'Falhou', b2cData.error || b2cData.msg || 'Falha no gateway RLX B2C');
-                    }
-                } catch (b2cErr) {
-                    console.error('Erro na chamada da API B2C:', b2cErr);
-                }
-            }
 
         } catch (err) {
             console.warn('Falha de rede ao persistir transação no Supabase (salva apenas localmente):', err);

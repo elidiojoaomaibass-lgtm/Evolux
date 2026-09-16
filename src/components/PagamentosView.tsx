@@ -1,30 +1,20 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
     Plus, Send, Clock,
-    ArrowRight, Loader2, CheckCircle2, XCircle, Zap
+    ArrowRight, Loader2
 } from 'lucide-react';
 import { useState } from 'react';
-import { cn } from '../lib/utils';
 import { toast } from 'sonner';
-import { processRLXPayment, waitForRLXPayment } from '../lib/rlxgatewayWrapper';
-import type { RLXStatusResponse } from '../lib/rlxgatewayWrapper';
 
 import { useTransactionsStore } from '../lib/store';
 
-interface PollingState {
-  txid: string;
-  status: 'polling' | 'success' | 'failed';
-  message: string;
-  elapsed: number;
-}
 
 export const PagamentosView = () => {
-    const { addTransaction, updateTransactionStatus } = useTransactionsStore();
+    const { addTransaction } = useTransactionsStore();
     const [amount, setAmount] = useState('');
     const [phone, setPhone] = useState('');
     const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
-    const [polling, setPolling] = useState<PollingState | null>(null);
 
     const handleSendRequest = async () => {
         if (!amount || !phone) {
@@ -33,65 +23,28 @@ export const PagamentosView = () => {
         }
 
         setLoading(true);
-        setPolling(null);
         try {
-            // ── RLX Gateway ──────────────────────────────────────────────
             const numAmount = parseFloat(amount);
-            if (numAmount < 50) {
-                toast.error('O valor mínimo para pagamentos RLX é 50.00 MT.');
+            if (numAmount <= 0) {
+                toast.error('O valor deve ser maior que 0.');
                 return;
             }
 
-            const result = await processRLXPayment({
-                phone,
-                amount: numAmount,
-                nome_cliente: description || 'Cliente',
-            });
-
-            // Auto-detect network for display purposes based on prefix
             const isEmola = phone.startsWith('86') || phone.startsWith('87');
+            const txid = 'TX_' + Date.now();
 
             addTransaction({
-                id: result.transactionId,
+                id: txid,
                 type: 'payment',
                 amount: numAmount,
                 phone,
                 method: isEmola ? 'e-Mola' : 'M-Pesa',
                 status: 'Pendente',
-                reference: result.transactionId,
+                reference: txid,
                 description: description || undefined,
             });
 
-            if (result.status === 'pending') {
-                toast.success('STK Push enviado! A aguardar confirmação do cliente…');
-                setPolling({ txid: result.transactionId, status: 'polling', message: 'A aguardar PIN do cliente…', elapsed: 0 });
-
-                // Polling automático em background
-                waitForRLXPayment(result.transactionId, {
-                    intervalMs: 5_000,
-                    timeoutMs: 120_000,
-                    onCheck: (_res: RLXStatusResponse, elapsed: number) => {
-                        setPolling(prev => prev ? { ...prev, elapsed } : prev);
-                    },
-                })
-                .then(() => {
-                    setPolling(prev => prev ? { ...prev, status: 'success', message: 'Pagamento confirmado com sucesso!' } : prev);
-                    toast.success('✅ Pagamento confirmado com sucesso!');
-                    
-                    // Atualizar estado no Supabase e localmente para "Concluído"
-                    updateTransactionStatus(result.transactionId, 'Concluído');
-                })
-                .catch((err: Error) => {
-                    setPolling(prev => prev ? { ...prev, status: 'failed', message: err.message } : prev);
-                    if (!err.message.includes('timeout')) {
-                        toast.error(err.message);
-                    }
-                    updateTransactionStatus(result.transactionId, 'Falhou');
-                });
-            } else {
-                toast.success('Pagamento confirmado com sucesso!');
-                updateTransactionStatus(result.transactionId, 'Concluído');
-            }
+            toast.success('Solicitação de pagamento registrada localmente!');
 
             setAmount('');
             setPhone('');
@@ -127,10 +80,7 @@ export const PagamentosView = () => {
                         <Plus size={16} />
                     </div>
                     <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white leading-tight">Iniciar Pagamento</h3>
-                    <span className="ml-auto text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 flex items-center gap-1">
-                        RLX Gateway <Zap size={10} />
-                    </span>
-                </div>
+                    </div>
 
                 <p className="text-[11px] md:text-xs font-bold text-slate-400 dark:text-brand-400 mb-6 md:mb-8 max-w-2xl text-pretty">
                     Insira o número do cliente para enviar a solicitação de pagamento. O cliente receberá uma notificação para confirmar com o PIN.
@@ -187,36 +137,6 @@ export const PagamentosView = () => {
                     </div>
                 </div>
 
-                {/* RLX Polling status indicator */}
-                <AnimatePresence>
-                    {polling && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="mt-5 overflow-hidden"
-                        >
-                            <div className={cn(
-                                "flex items-center gap-3 p-4 rounded-xl border text-xs font-bold",
-                                polling.status === 'polling' && "bg-amber-50 border-amber-100 text-amber-700 dark:bg-amber-900/20 dark:border-amber-900/30",
-                                polling.status === 'success' && "bg-green-50 border-green-100 text-green-700 dark:bg-green-900/20 dark:border-green-900/30",
-                                polling.status === 'failed' && "bg-red-50 border-red-100 text-red-700 dark:bg-red-900/20 dark:border-red-900/30",
-                            )}>
-                                {polling.status === 'polling' && <Loader2 size={16} className="animate-spin shrink-0" />}
-                                {polling.status === 'success' && <CheckCircle2 size={16} className="shrink-0" />}
-                                {polling.status === 'failed' && <XCircle size={16} className="shrink-0" />}
-                                <div className="flex-1 min-w-0">
-                                    <p>{polling.message}</p>
-                                    {polling.status === 'polling' && (
-                                        <p className="text-[9px] font-medium opacity-60 mt-0.5">
-                                            ID: {polling.txid} · {Math.round(polling.elapsed / 1000)}s / 120s
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
 
                 <div className="mt-6 md:mt-8">
                     <button 
@@ -225,7 +145,7 @@ export const PagamentosView = () => {
                         className="w-full h-11 md:h-12 text-white rounded-xl font-black flex items-center justify-center gap-2 shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all text-xs md:text-sm disabled:opacity-70 bg-gradient-to-r from-orange-500 to-red-500 shadow-orange-500/20"
                     >
                         {loading ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
-                        {loading ? 'Processando…' : 'Enviar via RLX Gateway'}
+                        {loading ? 'Processando…' : 'Registrar Solicitação'}
                     </button>
                 </div>
             </motion.div>

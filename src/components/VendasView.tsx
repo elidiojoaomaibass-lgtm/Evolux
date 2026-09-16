@@ -8,8 +8,6 @@ import { cn } from '../lib/utils';
 import type { User } from '@supabase/supabase-js';
 import { useTransactionsStore, useProductsStore } from '../lib/store';
 import { cleanProductName } from '../lib/descriptionUtils';
-import { checkRLXPaymentStatus } from '../lib/rlxgatewayWrapper';
-import { Loader2 } from 'lucide-react';
 
 type PeriodType = 'Hoje' | 'Ontem' | '7d' | '30d' | '90d' | 'Todo' | 'custom';
 
@@ -19,7 +17,7 @@ interface VendasViewProps {
 
 export const VendasView = ({ user: _user }: VendasViewProps) => {
     // Store
-    const { transactions, updateTransactionStatus } = useTransactionsStore();
+    const { transactions } = useTransactionsStore();
     const { products } = useProductsStore();
 
     // State
@@ -29,7 +27,6 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
     const [statusFilter, setStatusFilter] = useState('Todas');
     const [selectedTx, setSelectedTx] = useState<any>(null);
     const [showDetail, setShowDetail] = useState(false);
-    const [isChecking, setIsChecking] = useState(false);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [startParts, setStartParts] = useState({ d: '', m: '', y: '' });
@@ -64,44 +61,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
         }
     }, [showDetail]);
 
-    const handleCheckStatus = async () => {
-        if (!selectedTx) return;
-        setIsChecking(true);
-        try {
-            const res = await checkRLXPaymentStatus(selectedTx.id);
-            if (res.status === 'success' || res.status === 'completed') {
-                // Disparar o webhook interno para enviar as notificações, Lowtrack, Pushcut, etc.
-                await fetch('/api/webhook', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        status: 'success',
-                        transaction_id: selectedTx.id,
-                        reference: selectedTx.reference || selectedTx.id,
-                        amount: selectedTx.amount,
-                        phone: selectedTx.phone,
-                        customerName: selectedTx.customerName,
-                        method: selectedTx.method
-                    })
-                }).catch(err => console.warn('Erro ao disparar webhook manual:', err));
 
-                await updateTransactionStatus(selectedTx.id, 'Concluído');
-                setSelectedTx((prev: any) => prev ? { ...prev, status: 'Concluído' } : prev);
-            } else if (res.status === 'failed' || res.status === 'error') {
-                await updateTransactionStatus(selectedTx.id, 'Falhou');
-                setSelectedTx((prev: any) => prev ? { ...prev, status: 'Falhou' } : prev);
-            } else if (res.status === 'pending') {
-                alert('A venda ainda está pendente aguardando o pagamento do cliente.');
-            } else {
-                alert(`Estado atual no gateway: ${res.status}`);
-            }
-        } catch (error) {
-            console.error(error);
-            alert('Erro ao verificar o estado. Tente novamente mais tarde.');
-        } finally {
-            setIsChecking(false);
-        }
-    };
 
     // Sync parts when startDate changes
     useEffect(() => {
@@ -546,16 +506,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                     </div>
                                 </div>
                                 <div className="p-4 sm:px-6 bg-slate-100 dark:bg-[#9ca3af]/40 border-t border-slate-200 dark:border-white/10 flex justify-end gap-3">
-                                    {selectedTx?.status === 'Pendente' && (
-                                        <button 
-                                            onClick={handleCheckStatus} 
-                                            disabled={isChecking}
-                                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-bold rounded-lg transition-colors shadow-sm flex items-center gap-2"
-                                        >
-                                            {isChecking && <Loader2 size={16} className="animate-spin" />}
-                                            Verificar Estado
-                                        </button>
-                                    )}
+
                                     <button onClick={() => setShowDetail(false)} className="px-6 py-2 bg-slate-600 hover:bg-slate-700 text-white text-sm font-bold rounded-lg transition-colors shadow-sm">
                                         Fechar
                                     </button>

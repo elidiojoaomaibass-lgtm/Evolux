@@ -42,7 +42,7 @@ function parseNotifMeta(description: string | null): { webhook_url: string; webh
 }
 
 /**
- * Webhook Handler for RLX Gateway
+ * Webhook Handler for Payment Gateway
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -61,9 +61,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).setHeader('Access-Control-Allow-Origin', '*').json({ error: 'Invalid JSON payload' });
       }
     }
-    console.log('RLX Webhook Received:', JSON.stringify(payload, null, 2));
+    console.log('Webhook Received:', JSON.stringify(payload, null, 2));
 
-    // RLX Webhook structure support + fallback for other formats
+    // Webhook structure support + fallback for other formats
     const status = payload.status || payload.event;
     const transaction_id = payload.txid || payload.transaction_id || payload.id || payload.transactionId;
     const reference = payload.reference || transaction_id;
@@ -146,7 +146,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             for (const token of tokens) {
               await sendPushNotification(token, {
                 title: isSuccess ? '🤑 Venda Aprovada!' : '⚠️ Venda Falhada',
-                body: isSuccess ? `Você realizou uma nova venda no valor de ${val} (Via ${method || 'RLX'})` : `A transação de ${val} falhou.`,
+                body: isSuccess ? `Você realizou uma nova venda no valor de ${val} (Via ${method || 'Gateway'})` : `A transação de ${val} falhou.`,
               });
             }
           } catch (e) { console.error('Erro ao enviar notificação push', e); }
