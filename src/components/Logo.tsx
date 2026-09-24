@@ -13,7 +13,7 @@ export const Logo = ({ className, size = 40, showText = false, textColor = "text
         <div className={cn("flex items-center gap-3", className)}>
             <div
                 style={{ width: size, height: size }}
-                className="relative flex shrink-0 items-center justify-center rounded-xl overflow-hidden shadow-lg shadow-emerald-500/30"
+                className="relative flex shrink-0 items-center justify-center rounded-xl overflow-hidden shadow-lg shadow-green-500/50"
             >
                 <img
                     src="/logo.png"
@@ -25,7 +25,7 @@ export const Logo = ({ className, size = 40, showText = false, textColor = "text
                         target.style.display = 'none';
                         const parent = target.parentElement;
                         if (parent) {
-                            parent.style.background = 'linear-gradient(135deg, #059669, #10b981, #34d399)';
+                            parent.style.background = 'linear-gradient(135deg, #000000, #001a00, #002200)';
                             parent.innerHTML = `
                                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:70%;height:70%;color:white;drop-shadow:0 2px 4px rgba(0,0,0,0.3)">
                                     <path d="M4 6H16M4 12H12M4 18H16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>

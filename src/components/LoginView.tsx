@@ -97,7 +97,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
 
                     {/* Logo */}
                     <div className="flex items-center gap-3 mb-8 md:mb-12">
-                        <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl overflow-hidden shadow-lg shadow-emerald-500/10">
+                        <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl overflow-hidden shadow-lg shadow-green-500/40 ring-1 ring-green-500/30">
                             <img
                                 src="/logo.png"
                                 alt="VELORA"
