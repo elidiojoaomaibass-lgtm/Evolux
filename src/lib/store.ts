@@ -26,7 +26,7 @@ export const getActiveUserEmail = async (): Promise<string> => {
 };
 
 const getInitialLocalProducts = (): Product[] => {
-    const stored = localStorage.getItem(OFFLINE_PRODUCTS_KEY) || localStorage.getItem('velora_products');
+    const stored = localStorage.getItem(OFFLINE_PRODUCTS_KEY) || localStorage.getItem('velora_products') || localStorage.getItem('evolux_offline_products') || localStorage.getItem('evolux_products');
     if (stored) {
         try {
             const parsed = JSON.parse(stored);
@@ -369,7 +369,7 @@ const AFFILIATES_STORAGE_KEY = 'velora_affiliate_requests';
 const initialRequests: AffiliateRequest[] = [];
 
 const getInitialRequests = (): AffiliateRequest[] => {
-    const stored = localStorage.getItem(AFFILIATES_STORAGE_KEY);
+    const stored = localStorage.getItem(AFFILIATES_STORAGE_KEY) || localStorage.getItem('evolux_affiliate_requests');
     if (stored) {
         try {
             return JSON.parse(stored);
@@ -454,12 +454,12 @@ const initialCampaigns: MarketingCampaign[] = [];
 
 export const useMarketingStore = () => {
     const [coupons, setCoupons] = useState<Coupon[]>(() => {
-        const stored = localStorage.getItem(COUPONS_STORAGE_KEY);
+        const stored = localStorage.getItem(COUPONS_STORAGE_KEY) || localStorage.getItem('evolux_coupons');
         return stored ? JSON.parse(stored) : initialCoupons;
     });
 
     const [campaigns, setCampaigns] = useState<MarketingCampaign[]>(() => {
-        const stored = localStorage.getItem(CAMPAIGNS_STORAGE_KEY);
+        const stored = localStorage.getItem(CAMPAIGNS_STORAGE_KEY) || localStorage.getItem('evolux_campaigns');
         return stored ? JSON.parse(stored) : initialCampaigns;
     });
 
@@ -518,7 +518,7 @@ export interface Transaction {
 const TRANSACTIONS_STORAGE_KEY = 'velora_transactions';
 
 const getInitialTransactions = (): Transaction[] => {
-    const stored = localStorage.getItem(TRANSACTIONS_STORAGE_KEY);
+    const stored = localStorage.getItem(TRANSACTIONS_STORAGE_KEY) || localStorage.getItem('evolux_transactions');
     if (stored) {
         try {
             return JSON.parse(stored);
