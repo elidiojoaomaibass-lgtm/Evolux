@@ -87,11 +87,11 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
         <div className="min-h-screen w-full flex font-sans overflow-hidden bg-white">
 
             {/* ── LEFT PANEL: Form ── */}
-            <div className="relative flex flex-col justify-center items-center w-full lg:w-[46%] bg-[#1e0a45] px-6 md:px-12 py-10 md:py-16 overflow-hidden shrink-0 border-r border-white/10">
+            <div className="relative flex flex-col justify-center items-center w-full lg:w-[46%] bg-[#064e3b] px-6 md:px-12 py-10 md:py-16 overflow-hidden shrink-0 border-r border-white/10">
 
                 {/* Ambient glow blobs */}
                 <div className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-emerald-400/20 blur-[100px]" />
-                <div className="pointer-events-none absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-pink-400/15 blur-[120px]" />
+                <div className="pointer-events-none absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-emerald-400/15 blur-[120px]" />
 
                 <div className="relative z-10 w-full max-w-sm">
 
@@ -104,13 +104,13 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).src =
-                                        "https://ui-avatars.com/api/?name=E&background=7c3aed&color=fff&bold=true&size=128";
+                                        "https://ui-avatars.com/api/?name=V&background=064e3b&color=fff&bold=true&size=128";
                                 }}
                             />
                         </div>
                         <div>
                             <p className="text-white font-black text-xl md:text-2xl leading-none tracking-tight">
-                                VELORA <span className="text-emerald-400">Prod</span>
+                                VELORA
                             </p>
                         </div>
                     </div>
@@ -314,7 +314,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
 
                 {/* Background animations / decorations */}
                 <div className="absolute top-0 right-0 h-[800px] w-[800px] rounded-full bg-emerald-500/5 blur-[140px] animate-pulse" />
-                <div className="absolute bottom-0 left-0 h-[600px] w-[600px] rounded-full bg-pink-500/5 blur-[140px]" />
+                <div className="absolute bottom-0 left-0 h-[600px] w-[600px] rounded-full bg-emerald-500/5 blur-[140px]" />
                 
                 {/* Modern Grid Pattern */}
                 <div 
@@ -342,7 +342,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                             className="text-6xl font-black text-slate-900 leading-[1.05] tracking-tight mb-6"
                         >
                             Escalabilidade<br />
-                            <span className="bg-gradient-to-r from-emerald-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent">
+                            <span className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 bg-clip-text text-transparent">
                                 Sem Fronteiras.
                             </span>
                         </motion.h2>
@@ -399,8 +399,8 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                 <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40">
                                     <defs>
                                         <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.2" />
-                                            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
+                                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
+                                            <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
                                         </linearGradient>
                                     </defs>
                                     {/* Grid Lines */}
@@ -422,7 +422,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                         transition={{ duration: 2.5, delay: 1, ease: "easeInOut" }}
                                         d="M 0 35 Q 10 32 20 28 Q 30 35 40 22 Q 50 15 60 25 Q 70 8 80 18 Q 90 20 100 5"
                                         fill="none"
-                                        stroke="#7c3aed"
+                                        stroke="#10b981"
                                         strokeWidth="0.8"
                                         strokeLinecap="round"
                                     />
@@ -431,7 +431,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: 3 }}
-                                        cx="100" cy="5" r="1.2" fill="#7c3aed" 
+                                        cx="100" cy="5" r="1.2" fill="#10b981" 
                                     />
                                 </svg>
 
