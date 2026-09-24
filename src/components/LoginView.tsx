@@ -9,9 +9,9 @@ interface LoginViewProps {
 }
 
 const stats = [
-    { label: "Vendas hoje", value: "1.543", icon: TrendingUp, color: "text-emerald-400" },
-    { label: "Clientes ativos", value: "321", icon: Users, color: "text-pink-400" },
-    { label: "Conversão", value: "20,8%", icon: Zap, color: "text-amber-400" },
+    { label: "Vendas hoje", value: "1.543", icon: TrendingUp, color: "text-emerald-500" },
+    { label: "Clientes ativos", value: "321", icon: Users, color: "text-emerald-600" },
+    { label: "Conversão", value: "20,8%", icon: Zap, color: "text-emerald-400" },
 ];
 
 export const LoginView = ({ onLogin }: LoginViewProps) => {
@@ -119,7 +119,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                     <div className="mb-8">
                         <h1 className="text-2xl md:text-4xl font-black text-white leading-tight mb-2 md:mb-3">
                             {isSignUp ? "Criar minha" : "Entrar na"}<br />
-                            <span className="bg-gradient-to-r from-emerald-400 to-pink-400 bg-clip-text text-transparent">
+                            <span className="text-white">
                                 {isSignUp ? "conta gratuita" : "minha conta"}
                             </span>
                         </h1>
@@ -191,35 +191,35 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                         {isSignUp && (
                             <>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Nome</label>
+                                    <label className="text-xs font-bold text-white/80 uppercase tracking-widest">Nome</label>
                                     <input
                                         type="text"
                                         value={fullName}
                                         onChange={(e) => setFullName(e.target.value)}
                                         placeholder="João Pedro"
-                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-white/40 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                                         required
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Nº de Celular</label>
+                                    <label className="text-xs font-bold text-white/80 uppercase tracking-widest">Nº de Celular</label>
                                     <input
                                         type="tel"
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
                                         placeholder="+258 8X XXX XXXX"
-                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-white/40 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                                         required
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">ID de Identidade (BI/NUIT)</label>
+                                    <label className="text-xs font-bold text-white/80 uppercase tracking-widest">ID de Identidade (BI/NUIT)</label>
                                     <input
                                         type="text"
                                         value={documentId}
                                         onChange={(e) => setDocumentId(e.target.value)}
                                         placeholder="Número do seu documento"
-                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-white/40 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                                         required
                                     />
                                 </div>
@@ -227,20 +227,20 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                         )}
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Email</label>
+                            <label className="text-xs font-bold text-white/80 uppercase tracking-widest">Email</label>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="seu@email.com"
-                                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+                                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-white/40 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                                 required
                             />
                         </div>
 
                         <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Senha</label>
+                                <label className="text-xs font-bold text-white/80 uppercase tracking-widest">Senha</label>
                                 {!isSignUp && (
                                     <a href="#" className="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-colors">
                                         Esqueceu a senha?
@@ -253,7 +253,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 pr-12 text-sm text-white placeholder-slate-600 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+                                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 pr-12 text-sm text-white placeholder-white/40 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                                     required
                                     minLength={6}
                                 />
