@@ -28,8 +28,8 @@ export class E2Payments {
 
     constructor(clientId?: string, clientSecret?: string) {
         // Credentials come from env vars or KwikPay defaults
-        this.clientId     = clientId     || import.meta.env.VITE_KWIKPAY_CLIENT_ID     || import.meta.env.VITE_E2_CLIENT_ID     || '5';
-        this.clientSecret = clientSecret || import.meta.env.VITE_KWIKPAY_CLIENT_SECRET || import.meta.env.VITE_E2_CLIENT_SECRET || 'tZi6BmjOLmuVOuJb1rVx9FynoJXYxgcyGqJlmEvz';
+        this.clientId     = clientId     || import.meta.env.VITE_KWIKPAY_CLIENT_ID     || import.meta.env.VITE_E2_CLIENT_ID     || '';
+        this.clientSecret = clientSecret || import.meta.env.VITE_KWIKPAY_CLIENT_SECRET || import.meta.env.VITE_E2_CLIENT_SECRET || '';
 
         // In browser, use the same-origin proxy (/api/kwikpay-proxy) to bypass CORS blocks
         this.baseUrl = typeof window !== 'undefined' ? '/api/kwikpay-proxy' : 'https://kwikpay.web.tr';

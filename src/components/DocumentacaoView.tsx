@@ -1,4 +1,4 @@
-﻿import {
+import {
     Terminal,
     Copy, Check, ExternalLink, Shield,
     Smartphone, Zap, Server, Key, Target, Globe, FileCode
@@ -25,9 +25,9 @@ export const DocumentacaoView = () => {
     };
 
     // â”€â”€ Credentials â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    const CLIENT_ID     = '5';
-    const CLIENT_SECRET = 'tZi6BmjOLmuVOuJb1rVx9FynoJXYxgcyGqJlmEvz';
-    const WALLET_UUID   = '3e9beb57-d267-40be-a1fe-68919efb78ff';
+    const CLIENT_ID     = import.meta.env.VITE_KWIKPAY_CLIENT_ID || import.meta.env.VITE_E2_CLIENT_ID || '';
+    const CLIENT_SECRET = import.meta.env.VITE_KWIKPAY_CLIENT_SECRET || import.meta.env.VITE_E2_CLIENT_SECRET || '';
+    const WALLET_UUID   = import.meta.env.VITE_KWIKPAY_WALLET_ID || import.meta.env.VITE_E2_WALLET_MPESA || '';
     const PHONE         = '856195186'; // Joao Maibass
     const BASE          = 'https://kwikpay.web.tr';
 

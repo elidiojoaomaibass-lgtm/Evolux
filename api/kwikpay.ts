@@ -22,9 +22,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
     const { action, method, walletId, amount, phone, reference } = body;
 
-    const clientId = process.env.KWIKPAY_CLIENT_ID || process.env.E2_CLIENT_ID || process.env.VITE_KWIKPAY_CLIENT_ID || process.env.VITE_E2_CLIENT_ID || '5';
-    const clientSecret = process.env.KWIKPAY_CLIENT_SECRET || process.env.E2_CLIENT_SECRET || process.env.VITE_KWIKPAY_CLIENT_SECRET || process.env.VITE_E2_CLIENT_SECRET || 'tZi6BmjOLmuVOuJb1rVx9FynoJXYxgcyGqJlmEvz';
-    const defaultWalletId = process.env.KWIKPAY_WALLET_ID || process.env.E2_WALLET_MPESA || '3e9beb57-d267-40be-a1fe-68919efb78ff';
+    const clientId = process.env.KWIKPAY_CLIENT_ID || process.env.E2_CLIENT_ID || process.env.VITE_KWIKPAY_CLIENT_ID || process.env.VITE_E2_CLIENT_ID || '';
+    const clientSecret = process.env.KWIKPAY_CLIENT_SECRET || process.env.E2_CLIENT_SECRET || process.env.VITE_KWIKPAY_CLIENT_SECRET || process.env.VITE_E2_CLIENT_SECRET || '';
+    const defaultWalletId = process.env.KWIKPAY_WALLET_ID || process.env.E2_WALLET_MPESA || '';
 
     // 1. Get OAuth Access Token from KwikPay
     const tokenRes = await fetch('https://kwikpay.web.tr/oauth/token', {
