@@ -18,6 +18,12 @@ export default defineConfig({
           target: 'https://lowtrack.com.br',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api\/lowtrack-proxy/, '/sales')
+        },
+        '/api/kwikpay-proxy': {
+          target: 'https://kwikpay.web.tr',
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api\/kwikpay-proxy/, '')
         }
       }
     },

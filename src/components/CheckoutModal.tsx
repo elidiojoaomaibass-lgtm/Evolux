@@ -3,7 +3,8 @@ import {
     X, ChevronDown, Check,
     ShieldCheck,
     Loader2,
-    AlertCircle
+    AlertCircle,
+    Smartphone
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
@@ -95,13 +96,9 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
 
         try {
             const e2p = new E2Payments();
-            const walletId = method === 'mpesa' 
-                ? (import.meta.env.VITE_E2_WALLET_MPESA || '996801')
-                : (import.meta.env.VITE_E2_WALLET_EMOLA || '996802');
-            
-            if (!walletId) {
-                throw new Error('Wallet ID não está configurado.');
-            }
+            const walletId = method === 'mpesa'
+                ? (import.meta.env.VITE_KWIKPAY_WALLET_ID || import.meta.env.VITE_E2_WALLET_MPESA || '3e9beb57-d267-40be-a1fe-68919efb78ff')
+                : (import.meta.env.VITE_KWIKPAY_WALLET_ID || import.meta.env.VITE_E2_WALLET_EMOLA || '3e9beb57-d267-40be-a1fe-68919efb78ff');
 
             const result = await e2p.c2bPayment(
                 method,
@@ -550,6 +547,30 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                                     <button onClick={() => setErrorMessage(null)} className="text-red-400 hover:text-red-600 transition-colors shrink-0">
                                         <X size={14} />
                                     </button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Processing / PIN Prompt Banner */}
+                        <AnimatePresence>
+                            {status === 'processing' && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 10 }}
+                                    className="mx-6 mb-2 rounded-2xl bg-amber-50 border border-amber-200 p-4 flex items-center gap-3.5 text-amber-950 shadow-sm"
+                                >
+                                    <div className="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 text-amber-700 animate-bounce">
+                                        <Smartphone size={22} />
+                                    </div>
+                                    <div className="flex-1 text-left">
+                                        <p className="text-xs font-black text-amber-950 flex items-center gap-1.5">
+                                            <span>📱</span> Confirme no telemóvel agora!
+                                        </p>
+                                        <p className="text-[11px] text-amber-800 font-semibold mt-0.5 leading-snug">
+                                            Introduza o seu <strong>PIN do {method === 'emola' ? 'e-Mola' : 'M-Pesa'}</strong> no aviso que apareceu no telemóvel para debitar o valor e concluir a compra.
+                                        </p>
+                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>

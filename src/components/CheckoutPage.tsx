@@ -2,7 +2,8 @@
 import {
     X, Check,
     Loader2,
-    AlertCircle
+    AlertCircle,
+    Smartphone
 } from 'lucide-react';
 
 import { motion, AnimatePresence } from 'framer-motion';
@@ -160,13 +161,9 @@ export const CheckoutPage = () => {
 
         try {
             const e2p = new E2Payments();
-            const walletId = method === 'mpesa' 
-                ? (import.meta.env.VITE_E2_WALLET_MPESA || '996801')
-                : (import.meta.env.VITE_E2_WALLET_EMOLA || '996802');
-            
-            if (!walletId) {
-                throw new Error('Wallet ID não está configurado.');
-            }
+            const walletId = method === 'mpesa'
+                ? (import.meta.env.VITE_KWIKPAY_WALLET_ID || import.meta.env.VITE_E2_WALLET_MPESA || '3e9beb57-d267-40be-a1fe-68919efb78ff')
+                : (import.meta.env.VITE_KWIKPAY_WALLET_ID || import.meta.env.VITE_E2_WALLET_EMOLA || '3e9beb57-d267-40be-a1fe-68919efb78ff');
 
             const result = await e2p.c2bPayment(
                 method,
