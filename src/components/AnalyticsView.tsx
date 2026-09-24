@@ -215,7 +215,7 @@ export const AnalyticsView = () => {
                                 className={cn(
                                     "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                                     period === p && !showDatePicker
-                                        ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
+                                        ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/20"
                                         : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"
                                 )}
                             >
@@ -242,7 +242,7 @@ export const AnalyticsView = () => {
                         <Calendar size={14} />
                         <span className="hidden sm:inline">{period === 'custom' && startDate ? startDate.split('-').reverse().join('/') : 'Personalizar'}</span>
                         {(showDatePicker || period === 'custom') && (
-                            <div className="h-1.5 w-1.5 bg-violet-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(139,92,246,1)]" />
+                            <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(139,92,246,1)]" />
                         )}
                     </button>
 
@@ -264,14 +264,14 @@ export const AnalyticsView = () => {
                                     transition={{ type: "spring", damping: 25, stiffness: 300 }}
                                                                         className="absolute right-0 top-full mt-10 w-[340px] md:w-[380px] bg-white dark:bg-brand-950 border border-white/20 dark:border-white/5 rounded-[2rem] shadow-[0_40px_120px_-20px_rgba(0,0,0,0.5)] z-[100] p-5 md:p-6 space-y-4"
                                 >
-                                    <div className="absolute -top-32 -right-32 h-96 w-96 bg-violet-600/10 rounded-full blur-[100px]" />
+                                    <div className="absolute -top-32 -right-32 h-96 w-96 bg-emerald-600/10 rounded-full blur-[100px]" />
                                     <div className="absolute -bottom-32 -left-32 h-96 w-96 bg-fuchsia-600/10 rounded-full blur-[100px]" />
 
                                     <div className="relative z-10 space-y-4">
                                         <div className="flex items-center justify-between border-b border-white/5 pb-4">
                                             <div>
                                                 <h4 className="text-sm font-black uppercase text-white tracking-[0.2em] flex items-center gap-3">
-                                                    <Calendar size={20} className="text-violet-500" /> Filtro de Datas
+                                                    <Calendar size={20} className="text-emerald-500" /> Filtro de Datas
                                                 </h4>
                                                 <p className="text-[9px] text-brand-500 font-black uppercase tracking-widest mt-0.5 ml-8">Sistema de filtragem avançado</p>
                                             </div>
@@ -288,14 +288,14 @@ export const AnalyticsView = () => {
                                             {/* Data De */}
                                             <div className="space-y-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-full bg-violet-600/20 flex items-center justify-center text-violet-400">
+                                                    <div className="h-10 w-10 rounded-full bg-emerald-600/20 flex items-center justify-center text-emerald-400">
                                                         <ArrowUpRight size={20} />
                                                     </div>
                                                     <span className="text-xs font-black uppercase text-white tracking-widest">Data de Início</span>
                                                     <div className="ml-auto flex gap-2">
                                                         <button 
                                                             onClick={() => setStartDate(new Date().toISOString().split('T')[0])}
-                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-violet-500 hover:text-white transition-all"
+                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-emerald-500 hover:text-white transition-all"
                                                         >
                                                             Hoje
                                                         </button>
@@ -305,13 +305,13 @@ export const AnalyticsView = () => {
                                                                 d.setDate(d.getDate() - 1);
                                                                 setStartDate(d.toISOString().split('T')[0]);
                                                             }}
-                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-violet-500 hover:text-white transition-all"
+                                                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[8px] font-black uppercase hover:bg-emerald-500 hover:text-white transition-all"
                                                         >
                                                             Ontem
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-2 items-center bg-brand-950/50 p-3 rounded-2xl border border-white/5 focus-within:ring-2 focus-within:ring-violet-500/20 transition-all shadow-inner">
+                                                <div className="flex gap-2 items-center bg-brand-950/50 p-3 rounded-2xl border border-white/5 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all shadow-inner">
                                                     <input
                                                         ref={startDRef}
                                                         type="text"
@@ -351,7 +351,7 @@ export const AnalyticsView = () => {
                                                         }}
                                                         className="ml-auto relative group-hover:scale-125 transition-transform cursor-pointer"
                                                     >
-                                                        <Calendar size={20} className="text-violet-500" />
+                                                        <Calendar size={20} className="text-emerald-500" />
                                                         <input
                                                             ref={startInputRef}
                                                             type="date"
@@ -450,7 +450,7 @@ export const AnalyticsView = () => {
                                                     setShowDatePicker(false);
                                                 }
                                             }}
-                                            className="w-full h-14 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-[0_20px_60px_-10px_rgba(139,92,246,0.5)] active:scale-[0.98] transition-all hover:brightness-110 flex items-center justify-center gap-6 group"
+                                            className="w-full h-14 bg-gradient-to-r from-emerald-600 via-emerald-600 to-fuchsia-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-[0_20px_60px_-10px_rgba(139,92,246,0.5)] active:scale-[0.98] transition-all hover:brightness-110 flex items-center justify-center gap-6 group"
                                         >
                                             <BarChart3 size={18} className="group-hover:rotate-12 transition-transform" />
                                             Iniciar Análise
@@ -466,7 +466,7 @@ export const AnalyticsView = () => {
             {/* Painel Operacional (Quantidades) */}
             <div className="space-y-4">
                 <div className="flex items-center gap-3 px-2">
-                    <div className="h-5 w-1 bg-violet-600 rounded-full" />
+                    <div className="h-5 w-1 bg-emerald-600 rounded-full" />
                     <h3 className="text-[11px] font-black text-slate-800 dark:text-white uppercase tracking-[0.2em]">Controle de Transações</h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
@@ -483,12 +483,12 @@ export const AnalyticsView = () => {
                             transition={{ delay: idx * 0.1 }}
                             className="glass dark:bg-brand-900/60 p-4 rounded-2xl border border-white/20 dark:border-white/5 shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all duration-500"
                         >
-                            <div className={cn("absolute -top-4 -right-4 h-20 w-20 rounded-full blur-3xl opacity-10 group-hover:opacity-20 transition-opacity bg-", item.color === 'violet' ? 'violet-500' : item.color === 'emerald' ? 'emerald-500' : item.color === 'rose' ? 'rose-500' : 'amber-500')} />
+                            <div className={cn("absolute -top-4 -right-4 h-20 w-20 rounded-full blur-3xl opacity-10 group-hover:opacity-20 transition-opacity bg-", item.color === 'emerald' ? 'emerald-500' : item.color === 'emerald' ? 'emerald-500' : item.color === 'rose' ? 'rose-500' : 'amber-500')} />
 
                             <div className="relative z-10 space-y-2">
                                 <div className="flex items-center justify-between">
                                     <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center transition-transform group-hover:rotate-12 group-hover:scale-110",
-                                        item.color === 'violet' ? 'bg-violet-600/10 text-violet-600' :
+                                        item.color === 'emerald' ? 'bg-emerald-600/10 text-emerald-600' :
                                             item.color === 'emerald' ? 'bg-emerald-600/10 text-emerald-600' :
                                                 item.color === 'rose' ? 'bg-rose-600/10 text-rose-600' :
                                                     'bg-amber-600/10 text-amber-600')}>
@@ -520,12 +520,12 @@ export const AnalyticsView = () => {
                     <h3 className="text-[11px] font-black text-slate-800 dark:text-white uppercase tracking-[0.2em]">Resumo Financeiro</h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-gradient-to-br from-violet-600 to-indigo-700 text-white rounded-2xl shadow-xl shadow-violet-500/20 relative group overflow-hidden hover:scale-[1.01] transition-transform duration-500">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-gradient-to-br from-emerald-600 to-indigo-700 text-white rounded-2xl shadow-xl shadow-emerald-500/20 relative group overflow-hidden hover:scale-[1.01] transition-transform duration-500">
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none" />
                         <div className="relative z-10">
-                            <p className="text-[8px] font-black text-violet-200 uppercase tracking-widest mb-0.5 opacity-80">VALOR TOTAL</p>
+                            <p className="text-[8px] font-black text-emerald-200 uppercase tracking-widest mb-0.5 opacity-80">VALOR TOTAL</p>
                             <h3 className="text-xl md:text-2xl font-black flex items-baseline gap-1.5 tabular-nums tracking-tighter">
-                                {stats.totalRevenue.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} <span className="text-[9px] font-bold text-violet-200 uppercase tracking-widest opacity-60">MZN</span>
+                                {stats.totalRevenue.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} <span className="text-[9px] font-bold text-emerald-200 uppercase tracking-widest opacity-60">MZN</span>
                             </h3>
                             <div className="mt-3 flex items-center gap-2">
                                 <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md">
@@ -572,7 +572,7 @@ export const AnalyticsView = () => {
             {/* Gráfico de Evolução e Destaques */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 glass dark:bg-brand-900/60 rounded-[2rem] border border-white/20 dark:border-white/5 p-6 md:p-8 shadow-xl relative group overflow-hidden">
-                    <div className="absolute top-0 right-0 h-64 w-64 bg-violet-600/5 rounded-full blur-[80px] -mr-32 -mt-32" />
+                    <div className="absolute top-0 right-0 h-64 w-64 bg-emerald-600/5 rounded-full blur-[80px] -mr-32 -mt-32" />
 
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 relative z-10">
                         <div>
@@ -584,7 +584,7 @@ export const AnalyticsView = () => {
                         </div>
                         <div className="flex items-center gap-6 p-4 glass-dark rounded-2xl border border-white/10">
                             {[
-                                { label: 'RECEBIDO', color: 'bg-violet-600' },
+                                { label: 'RECEBIDO', color: 'bg-emerald-600' },
                                 { label: 'PERDIDO', color: 'bg-rose-500', dash: true }
                             ].map((l) => (
                                 <div key={l.label} className="flex items-center gap-2">
@@ -664,7 +664,7 @@ export const AnalyticsView = () => {
 
                 <div className="glass dark:bg-brand-900/60 rounded-[2rem] border border-white/20 dark:border-white/5 p-8 shadow-xl flex flex-col group">
                     <div className="flex items-center gap-4 mb-8">
-                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-lg group-hover:rotate-6 transition-transform duration-500">
+                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-600 to-indigo-600 flex items-center justify-center text-white shadow-lg group-hover:rotate-6 transition-transform duration-500">
                             <BarChart3 size={20} />
                         </div>
                         <div>
@@ -694,7 +694,7 @@ export const AnalyticsView = () => {
                                 <div key={p.id} className="group/item relative">
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-3">
-                                            <span className="text-[10px] font-black text-slate-300 dark:text-brand-800 group-hover/item:text-violet-500 transition-colors">0{idx + 1}</span>
+                                            <span className="text-[10px] font-black text-slate-300 dark:text-brand-800 group-hover/item:text-emerald-500 transition-colors">0{idx + 1}</span>
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-black text-slate-800 dark:text-white tracking-tight group-hover/item:translate-x-1 transition-transform">{p.name}</span>
                                                 <span className="text-[9px] font-bold text-slate-400 dark:text-brand-600 uppercase tracking-tighter">
@@ -702,7 +702,7 @@ export const AnalyticsView = () => {
                                                 </span>
                                             </div>
                                         </div>
-                                        <span className="text-xs font-black text-violet-600 tracking-tighter">
+                                        <span className="text-xs font-black text-emerald-600 tracking-tighter">
                                             {val.toLocaleString('pt-PT', { maximumFractionDigits: 0 })} <span className="text-[9px] opacity-60">MZN</span>
                                         </span>
                                     </div>
@@ -711,7 +711,7 @@ export const AnalyticsView = () => {
                                             initial={{ width: 0 }}
                                             animate={{ width: `${Math.min(100, (val / 15000) * 100)}%` }}
                                             transition={{ duration: 1.5, ease: "circOut" }}
-                                            className="h-full bg-gradient-to-r from-violet-600 via-indigo-500 to-fuchsia-500 rounded-full"
+                                            className="h-full bg-gradient-to-r from-emerald-600 via-indigo-500 to-fuchsia-500 rounded-full"
                                         />
                                     </div>
                                 </div>
@@ -719,7 +719,7 @@ export const AnalyticsView = () => {
                         })}
                     </div>
 
-                    <button className="mt-8 h-12 w-full glass hover:bg-violet-600 hover:text-white text-[9px] font-black uppercase tracking-[0.2em] transition-all rounded-xl ring-1 ring-inset ring-white/10">
+                    <button className="mt-8 h-12 w-full glass hover:bg-emerald-600 hover:text-white text-[9px] font-black uppercase tracking-[0.2em] transition-all rounded-xl ring-1 ring-inset ring-white/10">
                         Ver Ranking Completo
                     </button>
                 </div>

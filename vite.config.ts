@@ -46,9 +46,9 @@ export default defineConfig({
         registerType: 'autoUpdate',
         includeAssets: ['logo.png', 'vite.svg'],
         manifest: {
-          name: 'VELORA Prod',
-          short_name: 'VELORA Prod',
-          description: 'Plataforma de Pagamentos VELORA Prod',
+          name: 'VELORA',
+          short_name: 'VELORA',
+          description: 'Plataforma de Pagamentos VELORA',
           theme_color: '#0d0d17',
           background_color: '#0d0d17',
           display: 'standalone',

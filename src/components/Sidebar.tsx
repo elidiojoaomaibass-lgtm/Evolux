@@ -91,21 +91,21 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
                                     className={cn(
                                         "group relative flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold transition-all duration-200",
                                         isActive
-                                            ? "bg-violet-600 text-white shadow-lg shadow-violet-200 scale-[1.02]"
-                                            : "text-slate-600 dark:text-white/60 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-violet-600"
+                                            ? "bg-emerald-600 text-white shadow-lg shadow-emerald-200 scale-[1.02]"
+                                            : "text-slate-600 dark:text-white/60 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-emerald-600"
                                     )}
                                 >
                                     {isActive && (
                                         <motion.div
                                             layoutId="activeBar"
-                                            className="absolute -left-3 w-1.5 h-7 bg-violet-600 rounded-r-full"
+                                            className="absolute -left-3 w-1.5 h-7 bg-emerald-600 rounded-r-full"
                                         />
                                     )}
                                     <item.icon
                                         size={20}
                                         className={cn(
                                             "shrink-0 transition-transform group-hover:scale-110",
-                                            isActive ? "text-white" : "text-slate-400 dark:text-white/40 group-hover:text-violet-600"
+                                            isActive ? "text-white" : "text-slate-400 dark:text-white/40 group-hover:text-emerald-600"
                                         )}
                                     />
                                     <span className="flex-1 text-left tracking-tight">{item.label}</span>
@@ -131,7 +131,7 @@ export const Sidebar = ({ activeView, setView, isDarkMode, toggleDarkMode, isOpe
                         </div>
                         <div className={cn(
                             "h-5 w-10 rounded-full p-1 transition-colors duration-300",
-                            isDarkMode ? "bg-violet-600" : "bg-slate-200 dark:bg-brand-800"
+                            isDarkMode ? "bg-emerald-600" : "bg-slate-200 dark:bg-brand-800"
                         )}>
                             <div className={cn(
                                 "h-3 w-3 rounded-full bg-white transition-transform duration-300 shadow-sm",

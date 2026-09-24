@@ -81,9 +81,9 @@ export const AfiliadosView = () => {
                     {
                         label: 'Total de Afiliados',
                         value: stats.total.toString(),
-                        borderColor: 'border-l-violet-400',
-                        textColor: 'text-violet-500',
-                        labelColor: 'text-violet-400',
+                        borderColor: 'border-l-emerald-400',
+                        textColor: 'text-emerald-500',
+                        labelColor: 'text-emerald-400',
                     },
                     {
                         label: 'Solicitações Pendentes',
@@ -123,7 +123,7 @@ export const AfiliadosView = () => {
             {/* Product Selector */}
             <div className="space-y-6">
                 <div className="flex items-center gap-4 px-2">
-                    <div className="h-6 w-1 bg-violet-600 rounded-full" />
+                    <div className="h-6 w-1 bg-emerald-600 rounded-full" />
                     <h4 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.3em]">Filtrar por Produto</h4>
                 </div>
                 <div className="flex items-center gap-2 p-1.5 bg-slate-100/30 dark:bg-brand-900/30 rounded-3xl border border-white/10 backdrop-blur-2xl overflow-x-auto scrollbar-hide">
@@ -167,7 +167,7 @@ export const AfiliadosView = () => {
                         placeholder="Procurar por nome, email ou produto..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full h-12 pl-12 pr-6 rounded-xl border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/5 outline-none transition-all placeholder:text-slate-400 shadow-inner"
+                        className="w-full h-12 pl-12 pr-6 rounded-xl border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all placeholder:text-slate-400 shadow-inner"
                     />
                 </div>
 
@@ -179,7 +179,7 @@ export const AfiliadosView = () => {
                             className={cn(
                                 "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                                 filterStatus === status
-                                    ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20"
+                                    ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/20"
                                     : "text-slate-400 hover:text-slate-700 dark:text-brand-500 dark:hover:text-white"
                             )}
                         >
@@ -214,7 +214,7 @@ export const AfiliadosView = () => {
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0 }}
                                                 key={req.id} 
-                                                className="group hover:bg-violet-600/5 transition-all duration-300"
+                                                className="group hover:bg-emerald-600/5 transition-all duration-300"
                                             >
                                                 <td className="px-10 py-2.5">
                                                     <div className="flex items-center gap-4">
@@ -234,7 +234,7 @@ export const AfiliadosView = () => {
                                                     </div>
                                                 </td>
                                                 <td className="px-10 py-2.5">
-                                                    <span className="font-mono text-[11px] font-black text-slate-400 dark:text-brand-600 group-hover:text-violet-500 transition-colors">
+                                                    <span className="font-mono text-[11px] font-black text-slate-400 dark:text-brand-600 group-hover:text-emerald-500 transition-colors">
                                                         {req.requestedAt}
                                                     </span>
                                                 </td>

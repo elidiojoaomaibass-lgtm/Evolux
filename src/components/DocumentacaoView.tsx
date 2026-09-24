@@ -169,7 +169,7 @@ export const DocumentacaoView = () => {
                     <section id="auth" className="space-y-4">
                         <div className="space-y-2 pl-14 lg:pl-0">
                             <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                <Shield className="text-violet-500" size={20} />
+                                <Shield className="text-emerald-500" size={20} />
                                 1. AutenticaÃ§Ã£o (OAuth2)
                             </h2>
                             <p className="text-sm text-slate-600 dark:text-brand-300 font-medium">
@@ -217,7 +217,7 @@ export const DocumentacaoView = () => {
                                     ].map((p, i) => (
                                         <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
                                             <td className="px-4 py-3 font-bold text-emerald-600 dark:text-emerald-400">{p.name}</td>
-                                            <td className="px-4 py-3 font-mono text-violet-500 text-[10px]">{p.type}</td>
+                                            <td className="px-4 py-3 font-mono text-emerald-500 text-[10px]">{p.type}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-brand-300 font-medium">{p.desc}</td>
                                         </tr>
                                     ))}
@@ -245,7 +245,7 @@ export const DocumentacaoView = () => {
                     <section id="transactions" className="space-y-4">
                         <div className="space-y-2 pl-14 lg:pl-0">
                             <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                <Server className="text-violet-500" size={20} />
+                                <Server className="text-emerald-500" size={20} />
                                 4. Listar TransaÃ§Ãµes
                             </h2>
                             <div className="flex items-center gap-2">
@@ -291,7 +291,7 @@ export const DocumentacaoView = () => {
                     {/* 6. Meta Pixel */}
                     <section id="meta-pixel" className="space-y-4 pt-8 border-t border-slate-100 dark:border-brand-800">
                         <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                            <Target className="text-violet-500" size={20} />
+                            <Target className="text-emerald-500" size={20} />
                             6. Meta Pixel (Facebook)
                         </h2>
                         <p className="text-sm text-slate-600 dark:text-brand-300 font-medium leading-relaxed">
@@ -302,9 +302,9 @@ export const DocumentacaoView = () => {
                             <li>Disparar o evento <b>InitiateCheckout</b> quando o cliente aceder Ã  pÃ¡gina de compra.</li>
                             <li>Disparar o evento <b>Purchase</b> (com valor de conversÃ£o) na pÃ¡gina "Obrigado".</li>
                         </ul>
-                        <div className="p-4 rounded-2xl bg-violet-50 dark:bg-violet-900/10 border border-violet-100 dark:border-violet-900/20">
-                            <h4 className="text-xs font-black text-violet-900 dark:text-violet-200 uppercase tracking-tight mb-2">Como Ativar?</h4>
-                            <p className="text-xs text-violet-700 dark:text-violet-400">
+                        <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20">
+                            <h4 className="text-xs font-black text-emerald-900 dark:text-emerald-200 uppercase tracking-tight mb-2">Como Ativar?</h4>
+                            <p className="text-xs text-emerald-700 dark:text-emerald-400">
                                 VÃ¡ Ã  aba de{' '}
                                 <b className="cursor-pointer underline" onClick={() => window.dispatchEvent(new CustomEvent('change-view', { detail: 'IntegraÃ§Ãµes' }))}>
                                     IntegraÃ§Ãµes
@@ -343,7 +343,7 @@ export const DocumentacaoView = () => {
 
                         {/* Language Switcher */}
                         <div className="p-5 rounded-3xl bg-white dark:bg-brand-900 border border-slate-100 dark:border-brand-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
-                            <h4 className="text-[10px] font-black text-violet-600 dark:text-violet-400 uppercase tracking-widest mb-3">Linguagem</h4>
+                            <h4 className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-3">Linguagem</h4>
                             <div className="flex flex-col gap-1.5">
                                 {(Object.keys(LANG_LABELS) as Lang[]).map((lang) => (
                                     <button

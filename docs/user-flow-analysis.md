@@ -1,4 +1,4 @@
-# Análise de Fluxo de Utilizador — InfroPay / VELORA Prod
+# Análise de Fluxo de Utilizador — InfroPay / VELORA
 
 > **Versão:** 1.0 | **Data:** Julho 2026  
 > **Âmbito:** Análise completa dos fluxos de interação de todos os perfis de utilizador da plataforma
@@ -211,7 +211,7 @@ sequenceDiagram
 
 ```mermaid
 mindmap
-  root((VELORA Prod))
+  root((VELORA))
     Login e Registo
       Recuperar Senha
       Criar Conta
@@ -346,4 +346,4 @@ flowchart LR
 
 ---
 
-*Documento gerado em Julho 2026 — InfroPay / VELORA Prod*
+*Documento gerado em Julho 2026 — InfroPay / VELORA*

@@ -320,13 +320,13 @@ export const ProdutosView = () => {
                 </motion.div>
 
                 {/* Ativos Badge - Absolute Top Right */}
-                <div className="absolute top-5 right-0 md:top-4 md:right-0 flex items-center justify-center gap-1.5 bg-white/50 dark:bg-violet-950/20 backdrop-blur-md px-2 py-1 rounded-lg border border-violet-200/50 dark:border-violet-500/20 shadow-sm group/badge hover:border-violet-400 transition-all duration-300 shrink-0 z-10">
+                <div className="absolute top-5 right-0 md:top-4 md:right-0 flex items-center justify-center gap-1.5 bg-white/50 dark:bg-emerald-950/20 backdrop-blur-md px-2 py-1 rounded-lg border border-emerald-200/50 dark:border-emerald-500/20 shadow-sm group/badge hover:border-emerald-400 transition-all duration-300 shrink-0 z-10">
                     <div className="relative flex h-1.5 w-1.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
                     </div>
-                    <span className="text-[9px] font-black text-violet-700 dark:text-violet-300 uppercase tracking-[0.15em] flex items-center gap-1">
-                        <Package size={10} className="text-violet-600 group-hover/badge:scale-110 transition-transform" />
+                    <span className="text-[9px] font-black text-emerald-700 dark:text-emerald-300 uppercase tracking-[0.15em] flex items-center gap-1">
+                        <Package size={10} className="text-emerald-600 group-hover/badge:scale-110 transition-transform" />
                         {products.length} Ativos
                     </span>
                 </div>
@@ -358,7 +358,7 @@ export const ProdutosView = () => {
                                     placeholder="Pesquisar..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full h-7 pl-6 pr-2 rounded-lg border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-[8px] md:text-[10px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/5 outline-none transition-all placeholder:text-slate-400 shadow-inner"
+                                    className="w-full h-7 pl-6 pr-2 rounded-lg border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-[8px] md:text-[10px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all placeholder:text-slate-400 shadow-inner"
                                 />
                             </div>
 
@@ -390,7 +390,7 @@ export const ProdutosView = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.9 }}
                             key={product.id}
-                            className="glass dark:bg-brand-900/60 rounded-2xl border border-white/20 dark:border-white/5 p-3 md:p-4 flex flex-col justify-between shadow-lg hover:shadow-violet-600/20 transition-all duration-700 group hover:-translate-y-1"
+                            className="glass dark:bg-brand-900/60 rounded-2xl border border-white/20 dark:border-white/5 p-3 md:p-4 flex flex-col justify-between shadow-lg hover:shadow-emerald-600/20 transition-all duration-700 group hover:-translate-y-1"
                         >
                             {/* Top: Photo & Basic Info side by side */}
                             <div className="flex flex-col gap-3 items-center text-center mb-3">
@@ -413,7 +413,7 @@ export const ProdutosView = () => {
                                                 {product.category}
                                             </span>
                                         </div>
-                                        <h3 className="text-sm md:text-base font-black text-slate-900 dark:text-white leading-tight tracking-tighter group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                                        <h3 className="text-sm md:text-base font-black text-slate-900 dark:text-white leading-tight tracking-tighter group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                                             {product.name}
                                         </h3>
                                         {product.description && (
@@ -429,7 +429,7 @@ export const ProdutosView = () => {
                                 <div className="grid grid-cols-2 gap-2 p-2 rounded-xl bg-slate-50/50 dark:bg-black/30 border border-slate-100 dark:border-white/5">
                                     <div className="space-y-0.5">
                                         <p className="text-[7px] font-black text-slate-400 dark:text-brand-600 uppercase tracking-widest">Preço</p>
-                                        <p className="text-xs font-black text-violet-600 dark:text-brand-300 tabular-nums">
+                                        <p className="text-xs font-black text-emerald-600 dark:text-brand-300 tabular-nums">
                                             {product.price.toLocaleString()} <span className="text-[7px] opacity-60">MZN</span>
                                         </p>
                                     </div>
@@ -452,7 +452,7 @@ export const ProdutosView = () => {
                                     </button>
                                     <button 
                                         onClick={() => handleOpenCheckout(product)}
-                                        className="h-8 w-8 flex items-center justify-center rounded-[10px] bg-white dark:bg-brand-800 border border-slate-100 dark:border-white/5 text-slate-400 hover:text-violet-600 transition-all shadow-sm"
+                                        className="h-8 w-8 flex items-center justify-center rounded-[10px] bg-white dark:bg-brand-800 border border-slate-100 dark:border-white/5 text-slate-400 hover:text-emerald-600 transition-all shadow-sm"
                                         title="Visualizar Checkout"
                                     >
                                         <Globe size={14} />
@@ -462,7 +462,7 @@ export const ProdutosView = () => {
                                         disabled={shorteningProductId === product.id}
                                         className={cn(
                                             "h-8 w-8 flex items-center justify-center rounded-[10px] bg-white dark:bg-brand-800 border border-slate-100 dark:border-white/5 transition-all shadow-sm",
-                                            copiedProductId === product.id ? "text-emerald-500" : (shorteningProductId === product.id ? "text-violet-500 animate-pulse" : "text-slate-400 hover:text-violet-600")
+                                            copiedProductId === product.id ? "text-emerald-500" : (shorteningProductId === product.id ? "text-emerald-500 animate-pulse" : "text-slate-400 hover:text-emerald-600")
                                         )}
                                         title="Copiar Link de Checkout"
                                     >
@@ -470,7 +470,7 @@ export const ProdutosView = () => {
                                             <Check size={14} />
                                         ) : (
                                             shorteningProductId === product.id ? (
-                                                <div className="h-3.5 w-3.5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                                                <div className="h-3.5 w-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
                                             ) : (
                                                 <Link2 size={14} />
                                             )
@@ -532,14 +532,14 @@ export const ProdutosView = () => {
                                     {/* Section 1: Visual Identity */}
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-4 w-1 bg-violet-600 rounded-full" />
+                                            <div className="h-4 w-1 bg-emerald-600 rounded-full" />
                                             <h4 className="text-[9px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Identidade Visual</h4>
                                         </div>
 
                                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                                             {/* Image Upload Area */}
                                             <div className="lg:col-span-4">
-                                                <div className="relative group aspect-square rounded-2xl border-2 border-dashed border-slate-200 dark:border-brand-800 bg-slate-50/50 dark:bg-brand-950/50 overflow-hidden transition-all hover:border-violet-500/50 flex flex-col items-center justify-center">
+                                                <div className="relative group aspect-square rounded-2xl border-2 border-dashed border-slate-200 dark:border-brand-800 bg-slate-50/50 dark:bg-brand-950/50 overflow-hidden transition-all hover:border-emerald-500/50 flex flex-col items-center justify-center">
                                                     {imagePreview ? (
                                                         <>
                                                             <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
@@ -555,7 +555,7 @@ export const ProdutosView = () => {
                                                         </>
                                                     ) : (
                                                         <label className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer p-4 text-center group">
-                                                            <Upload size={20} className="text-slate-400 mb-2 group-hover:scale-110 group-hover:text-violet-600 transition-all" />
+                                                            <Upload size={20} className="text-slate-400 mb-2 group-hover:scale-110 group-hover:text-emerald-600 transition-all" />
                                                             <span className="text-[8px] font-black text-slate-500 dark:text-brand-400 uppercase tracking-widest">Capa</span>
                                                             <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
                                                         </label>
@@ -572,7 +572,7 @@ export const ProdutosView = () => {
                                                         value={newName}
                                                         onChange={(e) => setNewName(e.target.value)}
                                                         placeholder="ex: Curso de Finanças"
-                                                        className="w-full h-10 px-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[13px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all placeholder:text-slate-300 shadow-inner"
+                                                        className="w-full h-10 px-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[13px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder:text-slate-300 shadow-inner"
                                                     />
                                                 </div>
                                                 <div className="space-y-1.5">
@@ -582,7 +582,7 @@ export const ProdutosView = () => {
                                                         value={newDescription}
                                                         onChange={(e) => setNewDescription(e.target.value)}
                                                         placeholder="Descreva os benefícios..."
-                                                        className="w-full h-24 px-4 py-3 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[13px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all placeholder:text-slate-300 resize-none shadow-inner"
+                                                        className="w-full h-24 px-4 py-3 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[13px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder:text-slate-300 resize-none shadow-inner"
                                                     />
                                                 </div>
                                             </div>
@@ -591,7 +591,7 @@ export const ProdutosView = () => {
 
                                     {/* Section 2: Parameters */}
                 <div className="flex items-center gap-3">
-                  <div className="h-4 w-1 bg-violet-600 rounded-full" />
+                  <div className="h-4 w-1 bg-emerald-600 rounded-full" />
                   <h4 className="text-[9px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Parâmetros de Notificação</h4>
                 </div>
                 <div className="flex items-center gap-2">
@@ -600,13 +600,13 @@ export const ProdutosView = () => {
                     id="scarcityNotif"
                     checked={newEnableScarcityNotification}
                     onChange={(e) => setNewEnableScarcityNotification(e.target.checked)}
-                    className="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
+                    className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                   />
                   <label htmlFor="scarcityNotif" className="text-xs font-black text-slate-400 uppercase">Ativar Notificações de Escassez</label>
                 </div>
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-4 w-1 bg-violet-600 rounded-full" />
+                                            <div className="h-4 w-1 bg-emerald-600 rounded-full" />
                                             <h4 className="text-[9px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Parâmetros Comerciais</h4>
                                         </div>
 
@@ -614,14 +614,14 @@ export const ProdutosView = () => {
                                             <div className="space-y-1.5">
                                                 <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-1">Preço (MZN)</label>
                                                 <div className="relative">
-                                                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-violet-500" size={16} />
+                                                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500" size={16} />
                                                     <input
                                                         required
                                                         type="number"
                                                         value={newPrice}
                                                         onChange={(e) => setNewPrice(e.target.value)}
                                                         placeholder="0.00"
-                                                        className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[13px] font-black text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all tabular-nums"
+                                                        className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[13px] font-black text-slate-700 dark:text-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all tabular-nums"
                                                     />
                                                 </div>
                                             </div>
@@ -635,7 +635,7 @@ export const ProdutosView = () => {
                                                         value={newPhone}
                                                         onChange={(e) => setNewPhone(e.target.value)}
                                                         placeholder="84xxxxxxx"
-                                                        className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[13px] font-black text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all"
+                                                        className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[13px] font-black text-slate-700 dark:text-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all"
                                                     />
                                                 </div>
                                             </div>
@@ -648,7 +648,7 @@ export const ProdutosView = () => {
                                                         value={newPixel}
                                                         onChange={(e) => setNewPixel(e.target.value)}
                                                         placeholder="e.g. 123456789"
-                                                        className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[13px] font-black text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all"
+                                                        className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[13px] font-black text-slate-700 dark:text-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all"
                                                     />
                                                 </div>
                                             </div>
@@ -678,7 +678,7 @@ export const ProdutosView = () => {
                                                     value={newSalesLink}
                                                     onChange={(e) => setNewSalesLink(e.target.value)}
                                                     placeholder="https://..."
-                                                    className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[12px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all"
+                                                    className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[12px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all"
                                                 />
                                             </div>
                                         </div>
@@ -692,7 +692,7 @@ export const ProdutosView = () => {
                                                         value={newDeliveryLink}
                                                         onChange={(e) => setNewDeliveryLink(e.target.value)}
                                                         placeholder="Link do Entregável"
-                                                        className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[12px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all"
+                                                        className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-brand-950/50 text-[12px] font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all"
                                                     />
                                                 </div>
                                                 {/* Upload button - full width, larger */}
@@ -700,12 +700,12 @@ export const ProdutosView = () => {
                                                     "w-full h-12 rounded-xl flex items-center justify-center gap-3 cursor-pointer transition-all border-2 font-bold text-[13px]",
                                                     isUploadingFile
                                                         ? "border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-brand-950/50 text-slate-400 cursor-not-allowed"
-                                                        : "border-dashed border-violet-300 dark:border-violet-500/40 bg-violet-50/50 dark:bg-violet-900/10 text-violet-600 dark:text-violet-400 hover:border-violet-500 hover:bg-violet-100/50 dark:hover:bg-violet-900/20"
+                                                        : "border-dashed border-emerald-300 dark:border-emerald-500/40 bg-emerald-50/50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-400 hover:border-emerald-500 hover:bg-emerald-100/50 dark:hover:bg-emerald-900/20"
                                                 )}>
                                                     {isUploadingFile ? (
-                                                        <Loader2 size={18} className="animate-spin text-violet-500" />
+                                                        <Loader2 size={18} className="animate-spin text-emerald-500" />
                                                     ) : (
-                                                        <Upload size={18} className="text-violet-500" />
+                                                        <Upload size={18} className="text-emerald-500" />
                                                     )}
                                                     <span>{isUploadingFile ? 'A carregar...' : 'Carregar Arquivo do Entregável'}</span>
                                                     <input
@@ -806,13 +806,13 @@ export const ProdutosView = () => {
                                     {/* Section 3: Global Expansion */}
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-4 w-1 bg-violet-600 rounded-full" />
+                                            <div className="h-4 w-1 bg-emerald-600 rounded-full" />
                                             <h4 className="text-[9px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Afiliação e Mercado</h4>
                                         </div>
 
-                                        <div className="p-4 lg:p-5 rounded-[1.5rem] bg-gradient-to-br from-violet-600/10 via-fuchsia-600/5 to-transparent border border-violet-500/20 shadow-xl space-y-4">
+                                        <div className="p-4 lg:p-5 rounded-[1.5rem] bg-gradient-to-br from-emerald-600/10 via-fuchsia-600/5 to-transparent border border-emerald-500/20 shadow-xl space-y-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="h-10 w-10 rounded-xl bg-violet-600 text-white flex items-center justify-center shadow-lg shrink-0">
+                                                <div className="h-10 w-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shrink-0">
                                                     <Globe size={20} className="animate-pulse" />
                                                 </div>
                                                 <div>
@@ -824,7 +824,7 @@ export const ProdutosView = () => {
                                                         onClick={() => setIsMarketplaceEnabled(!isMarketplaceEnabled)}
                                                         className={cn(
                                                             "w-12 h-6 rounded-full transition-all relative p-1 flex items-center",
-                                                            isMarketplaceEnabled ? "bg-violet-600" : "bg-slate-300 dark:bg-brand-800"
+                                                            isMarketplaceEnabled ? "bg-emerald-600" : "bg-slate-300 dark:bg-brand-800"
                                                         )}
                                                     >
                                                         <motion.div
@@ -840,11 +840,11 @@ export const ProdutosView = () => {
                                                 <motion.div
                                                     initial={{ opacity: 0, height: 0 }}
                                                     animate={{ opacity: 1, height: 'auto' }}
-                                                    className="pt-4 border-t border-violet-500/10 grid grid-cols-1 lg:grid-cols-2 gap-4"
+                                                    className="pt-4 border-t border-emerald-500/10 grid grid-cols-1 lg:grid-cols-2 gap-4"
                                                 >
                                                     <div className="space-y-2">
-                                                        <label className="text-[8px] font-black text-violet-600 dark:text-brand-300 uppercase tracking-widest px-1">Tipo de Afiliação</label>
-                                                        <div className="flex p-1 bg-white/50 dark:bg-brand-950/50 rounded-xl border border-violet-500/10 shadow-inner">
+                                                        <label className="text-[8px] font-black text-emerald-600 dark:text-brand-300 uppercase tracking-widest px-1">Tipo de Afiliação</label>
+                                                        <div className="flex p-1 bg-white/50 dark:bg-brand-950/50 rounded-xl border border-emerald-500/10 shadow-inner">
                                                             {(['Automatica', 'Manual'] as const).map((type) => (
                                                                 <button
                                                                     key={type}
@@ -864,7 +864,7 @@ export const ProdutosView = () => {
                                                     </div>
 
                                                     <div className="space-y-2">
-                                                        <label className="text-[8px] font-black text-violet-600 dark:text-brand-300 uppercase tracking-widest px-1">Comissão (%)</label>
+                                                        <label className="text-[8px] font-black text-emerald-600 dark:text-brand-300 uppercase tracking-widest px-1">Comissão (%)</label>
                                                         <div className="relative">
                                                             <input
                                                                 type="number"
@@ -872,7 +872,7 @@ export const ProdutosView = () => {
                                                                 max="100"
                                                                 value={newCommission}
                                                                 onChange={(e) => setNewCommission(e.target.value)}
-                                                                className="w-full h-10 px-4 pr-10 rounded-xl border border-violet-500/20 bg-white/50 dark:bg-brand-950/50 text-[14px] font-black text-violet-600 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none tabular-nums shadow-inner"
+                                                                className="w-full h-10 px-4 pr-10 rounded-xl border border-emerald-500/20 bg-white/50 dark:bg-brand-950/50 text-[14px] font-black text-emerald-600 dark:text-white focus:ring-4 focus:ring-emerald-500/10 outline-none tabular-nums shadow-inner"
                                                             />
                                                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">%</span>
                                                         </div>

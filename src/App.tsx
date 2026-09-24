@@ -18,21 +18,21 @@ import { Menu } from './components/MenuIcon';
 function App() {
   console.log('App rendered');
   const [session, setSession] = useState<Session | null>(() => {
-    const saved = localStorage.getItem('velora_prod_fake_session');
+    const saved = localStorage.getItem('velora_fake_session');
     if (!saved) return null;
     try {
       const parsed = JSON.parse(saved);
       // Ensure the parsed object has a user property
       return (parsed && parsed.user) ? parsed : null;
     } catch (e) {
-      localStorage.removeItem('velora_prod_fake_session');
+      localStorage.removeItem('velora_fake_session');
       return null;
     }
   });
 
   // Skip loading screen if we already restored a session from localStorage
   const [sessionChecked, setSessionChecked] = useState(() => {
-    return !!localStorage.getItem('velora_prod_fake_session');
+    return !!localStorage.getItem('velora_fake_session');
   });
 
   const [activeView, setActiveView] = useState<ViewType>(() => {
@@ -57,7 +57,7 @@ function App() {
     const isThankYou = params.get('thankyou') === 'true' || window.location.pathname === '/obrigado';
     if (isThankYou) {
       setActiveView('ThankYou' as ViewType);
-      localStorage.setItem('velora_prod_active_view', 'ThankYou');
+      localStorage.setItem('velora_active_view', 'ThankYou');
     }
   }, []);
 
@@ -108,7 +108,7 @@ function App() {
         if (session) {
           setSession(session);
         } else {
-          const fake = localStorage.getItem('velora_prod_fake_session');
+          const fake = localStorage.getItem('velora_fake_session');
           if (!fake) {
             setSession(null);
           }
@@ -146,9 +146,9 @@ function App() {
           }
         };
         // Update fake session in localStorage if present
-        const fake = localStorage.getItem('velora_prod_fake_session');
+        const fake = localStorage.getItem('velora_fake_session');
         if (fake) {
-          localStorage.setItem('velora_prod_fake_session', JSON.stringify(updated));
+          localStorage.setItem('velora_fake_session', JSON.stringify(updated));
         }
         return updated;
       });
@@ -171,7 +171,7 @@ function App() {
   // Auto-login using stored fake session if present and no real session
   useEffect(() => {
     if (sessionChecked && !session) {
-      const fake = localStorage.getItem('velora_prod_fake_session');
+      const fake = localStorage.getItem('velora_fake_session');
       if (fake) {
         try {
           const parsed = JSON.parse(fake);
@@ -267,7 +267,7 @@ function App() {
 
   // Meta Ads Pixel Injection
   useEffect(() => {
-    const pixelId = localStorage.getItem('velora_prod_facebook_pixel_id');
+    const pixelId = localStorage.getItem('velora_facebook_pixel_id');
     if (!pixelId) return;
 
     const w = window as any;
@@ -294,7 +294,7 @@ function App() {
 
   // TikTok Pixel Injection
   useEffect(() => {
-    const pixelId = localStorage.getItem('velora_prod_tiktok_pixel_id');
+    const pixelId = localStorage.getItem('velora_tiktok_pixel_id');
     if (!pixelId) return;
 
     const w = window as any;
@@ -335,7 +335,7 @@ function App() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    localStorage.removeItem('velora_prod_fake_session');
+    localStorage.removeItem('velora_fake_session');
     // Ao fazer logout, apaga a aba guardada → próximo login sempre começa no Dashboard
     sessionStorage.removeItem('velora_active_view');
     sessionStorage.removeItem('velora_last_active');
@@ -356,7 +356,7 @@ function App() {
     return <LoginView onLogin={(fallbackUser?: any) => {
       if (fallbackUser) {
         const fakeSession = { user: fallbackUser };
-        localStorage.setItem('velora_prod_fake_session', JSON.stringify(fakeSession));
+        localStorage.setItem('velora_fake_session', JSON.stringify(fakeSession));
         setSession(fakeSession as any);
         return;
       }
@@ -372,7 +372,7 @@ function App() {
               user_metadata: { full_name: 'Administrador' }
             }
           };
-          localStorage.setItem('velora_prod_fake_session', JSON.stringify(fakeSession));
+          localStorage.setItem('velora_fake_session', JSON.stringify(fakeSession));
           setSession(fakeSession as any);
         }
       });
@@ -383,7 +383,7 @@ function App() {
     <div className="flex bg-[#fafbff] dark:bg-[#0f0525] min-h-screen font-sans transition-colors duration-500 overflow-x-hidden relative">
       {/* Premium Ambient Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-violet-500/5 dark:bg-violet-600/10 rounded-full blur-[120px] animate-pulse-slow" />
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-emerald-500/5 dark:bg-emerald-600/10 rounded-full blur-[120px] animate-pulse-slow" />
         <div className="absolute top-[20%] -right-[5%] w-[30%] h-[30%] bg-fuchsia-500/5 dark:bg-fuchsia-600/5 rounded-full blur-[100px] animate-float" />
         <div className="absolute -bottom-[10%] left-[20%] w-[35%] h-[35%] bg-blue-500/5 dark:bg-blue-600/5 rounded-full blur-[130px] animate-pulse-slow" />
       </div>
@@ -401,7 +401,7 @@ function App() {
       {!sidebarOpen && (
         <button
           onClick={() => setSidebarOpen(true)}
-          className="lg:hidden absolute top-4 left-4 z-[60] h-12 w-12 flex items-center justify-center rounded-2xl bg-white dark:bg-brand-900 border border-violet-100 dark:border-white/5 text-slate-600 dark:text-brand-100 shadow-xl active:scale-95 transition-all"
+          className="lg:hidden absolute top-4 left-4 z-[60] h-12 w-12 flex items-center justify-center rounded-2xl bg-white dark:bg-brand-900 border border-emerald-100 dark:border-white/5 text-slate-600 dark:text-brand-100 shadow-xl active:scale-95 transition-all"
         >
           <Menu size={24} />
         </button>

@@ -578,7 +578,7 @@ export const CheckoutModal = ({ product, isOpen, onClose }: CheckoutModalProps) 
                         {/* Footer / Button Area */}
                         <div className="bg-white border-t border-slate-100 p-6 md:p-8 space-y-4">
                             <p className="text-[10px] text-slate-400 font-medium leading-relaxed text-center">
-                                Os seus dados serão processados de acordo com a nossa <a href="#" className="underline text-violet-500">política de privacidade</a>.
+                                Os seus dados serão processados de acordo com a nossa <a href="#" className="underline text-emerald-500">política de privacidade</a>.
                             </p>
                             <button
                                 onClick={handlePurchase}

@@ -42,7 +42,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                 
             } else {
                 // Fake session fallback
-                const fake = localStorage.getItem('velora_prod_fake_session');
+                const fake = localStorage.getItem('velora_fake_session');
                 if (fake) {
                     const fakeUser = JSON.parse(fake).user;
                     setUser(fakeUser);
@@ -88,7 +88,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                 if (error) throw error;
             } else {
                 // Fallback to fake session
-                const fake = localStorage.getItem('velora_prod_fake_session');
+                const fake = localStorage.getItem('velora_fake_session');
                 if (fake) {
                     const parsed = JSON.parse(fake);
                     parsed.user = { 
@@ -98,7 +98,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                             ...metadata 
                         } 
                     };
-                    localStorage.setItem('velora_prod_fake_session', JSON.stringify(parsed));
+                    localStorage.setItem('velora_fake_session', JSON.stringify(parsed));
                 } else {
                     throw new Error('Nenhuma sessão ativa encontrada para salvar.');
                 }
@@ -191,8 +191,8 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                             key={item.id}
                             onClick={() => setActiveTab(item.id as any)}
                             className={`flex items-center gap-2 px-3 py-2 md:py-2.5 rounded-lg font-bold text-[11px] md:text-xs transition-all whitespace-nowrap shrink-0 md:w-full ${activeTab === item.id
-                                ? 'bg-violet-600 text-white shadow-md shadow-violet-500/20'
-                                : 'text-slate-500 hover:bg-violet-50 dark:text-brand-400 dark:hover:bg-brand-800'
+                                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
+                                : 'text-slate-500 hover:bg-emerald-50 dark:text-brand-400 dark:hover:bg-brand-800'
                                 }`}
                         >
                             <item.icon size={14} />
@@ -229,7 +229,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                className="bg-white dark:bg-brand-900 rounded-2xl border border-violet-100 dark:border-brand-800 p-4 md:p-6 shadow-sm"
+                                className="bg-white dark:bg-brand-900 rounded-2xl border border-emerald-100 dark:border-brand-800 p-4 md:p-6 shadow-sm"
                             >
 
 
@@ -245,7 +245,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                                 value={fullName}
                                                 onChange={(e) => setFullName(e.target.value)}
                                                 placeholder="Ex: João Pedro"
-                                                className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
+                                                className="w-full px-3.5 py-2.5 rounded-lg border border-emerald-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all dark:text-white text-xs"
                                             />
                                         </div>
                                         <div className="space-y-1.5">
@@ -255,7 +255,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                                 value={nickname}
                                                 onChange={(e) => setNickname(e.target.value)}
                                                 placeholder="Ex: @joao_pedro"
-                                                className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
+                                                className="w-full px-3.5 py-2.5 rounded-lg border border-emerald-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all dark:text-white text-xs"
                                             />
                                         </div>
                                     </div>
@@ -267,7 +267,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                             value={phoneNumber}
                                             onChange={(e) => setPhoneNumber(e.target.value)}
                                             placeholder="+258 8X XXX XXXX"
-                                            className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs"
+                                            className="w-full px-3.5 py-2.5 rounded-lg border border-emerald-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all dark:text-white text-xs"
                                         />
                                     </div>
 
@@ -277,7 +277,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                             type="email"
                                             value={user?.email || ''}
                                             disabled
-                                            className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-100 dark:bg-brand-950/50 text-slate-400 cursor-not-allowed outline-none text-xs"
+                                            className="w-full px-3.5 py-2.5 rounded-lg border border-emerald-100 dark:border-brand-800 bg-slate-100 dark:bg-brand-950/50 text-slate-400 cursor-not-allowed outline-none text-xs"
                                         />
                                         <p className="text-[9px] text-slate-400 italic ml-1">O e-mail não pode ser alterado por motivos de segurança.</p>
                                     </div>
@@ -285,7 +285,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-violet-600 text-white px-6 py-2.5 rounded-xl font-black text-[11px] md:text-xs hover:bg-violet-700 transition-all shadow-md shadow-violet-500/20 disabled:opacity-50"
+                                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-black text-[11px] md:text-xs hover:bg-emerald-700 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50"
                                     >
                                         {loading ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
                                         Salvar Mudanças
@@ -300,10 +300,10 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                className="bg-white dark:bg-brand-900 rounded-2xl border border-violet-100 dark:border-brand-800 p-4 md:p-6 shadow-sm"
+                                className="bg-white dark:bg-brand-900 rounded-2xl border border-emerald-100 dark:border-brand-800 p-4 md:p-6 shadow-sm"
                             >
                                 <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white mb-2 flex items-center gap-2">
-                                    <Lock className="text-violet-500" size={16} />
+                                    <Lock className="text-emerald-500" size={16} />
                                     Alterar Senha
                                 </h3>
                                 <div className="p-3 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-100 dark:border-amber-900/20 mb-5">
@@ -321,12 +321,12 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                                 value={currentPassword}
                                                 onChange={(e) => setCurrentPassword(e.target.value)}
                                                 placeholder="••••••••"
-                                                className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs pr-10"
+                                                className="w-full px-3.5 py-2.5 rounded-lg border border-emerald-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all dark:text-white text-xs pr-10"
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-violet-600 transition-colors"
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors"
                                             >
                                                 {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                             </button>
@@ -340,12 +340,12 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                                 value={newPassword}
                                                 onChange={(e) => setNewPassword(e.target.value)}
                                                 placeholder="••••••••"
-                                                className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs pr-10"
+                                                className="w-full px-3.5 py-2.5 rounded-lg border border-emerald-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all dark:text-white text-xs pr-10"
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowNewPassword(!showNewPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-violet-600 transition-colors"
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors"
                                             >
                                                 {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                             </button>
@@ -359,12 +359,12 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                                 value={confirmPassword}
                                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                                 placeholder="••••••••"
-                                                className="w-full px-3.5 py-2.5 rounded-lg border border-violet-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-violet-500/20 outline-none transition-all dark:text-white text-xs pr-10"
+                                                className="w-full px-3.5 py-2.5 rounded-lg border border-emerald-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-800 shadow-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all dark:text-white text-xs pr-10"
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-violet-600 transition-colors"
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors"
                                             >
                                                 {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                             </button>
@@ -388,15 +388,15 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                className="bg-white dark:bg-brand-900 rounded-2xl border border-violet-100 dark:border-brand-800 p-6 space-y-6 shadow-sm"
+                                className="bg-white dark:bg-brand-900 rounded-2xl border border-emerald-100 dark:border-brand-800 p-6 space-y-6 shadow-sm"
                             >
                                 <div className="text-center space-y-4">
-                                    <div className="h-16 w-16 bg-violet-50 dark:bg-brand-800 rounded-full flex items-center justify-center mx-auto text-violet-600">
+                                    <div className="h-16 w-16 bg-emerald-50 dark:bg-brand-800 rounded-full flex items-center justify-center mx-auto text-emerald-600">
                                         <Bell size={32} />
                                     </div>
                                     <h3 className="text-lg font-black text-slate-900 dark:text-white">Alertas do Sistema</h3>
                                     <p className="text-xs text-slate-400 max-w-xs mx-auto">Você receberá notificações sobre novas vendas, saques e atualizações de segurança.</p>
-                                    <button className="text-[10px] font-black text-violet-600 uppercase tracking-widest border border-violet-100 px-4 py-2 rounded-lg hover:bg-violet-50 transition-colors">Gerenciar Preferências</button>
+                                    <button className="text-[10px] font-black text-emerald-600 uppercase tracking-widest border border-emerald-100 px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors">Gerenciar Preferências</button>
                                 </div>
 
                                 <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-100 dark:border-amber-900/20 text-left max-h-96 overflow-y-auto custom-scrollbar">
@@ -407,7 +407,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                                 TERMOS DA VELORA
                                             </h4>
                                             <ul className="text-[10px] md:text-xs font-medium text-amber-700 dark:text-amber-400 space-y-2 list-none">
-                                                <li>• A VELORA Prod é uma plataforma de venda de produtos digitais e físicos.</li>
+                                                <li>• A VELORA é uma plataforma de venda de produtos digitais e físicos.</li>
                                                 <li>• O usuário deve fornecer informações verdadeiras no cadastro.</li>
                                                 <li>• Cada vendedor é responsável pelo produto que publica.</li>
                                                 <li>• A plataforma atua apenas como intermediadora.</li>

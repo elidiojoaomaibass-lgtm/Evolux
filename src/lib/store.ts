@@ -14,7 +14,7 @@ export const getActiveUserEmail = async (): Promise<string> => {
         }
     } catch {}
 
-    const fake = localStorage.getItem('velora_prod_fake_session');
+    const fake = localStorage.getItem('velora_fake_session');
     if (fake) {
         try {
             const parsed = JSON.parse(fake);
@@ -26,7 +26,7 @@ export const getActiveUserEmail = async (): Promise<string> => {
 };
 
 const getInitialLocalProducts = (): Product[] => {
-    const stored = localStorage.getItem(OFFLINE_PRODUCTS_KEY) || localStorage.getItem('velora_prod_products');
+    const stored = localStorage.getItem(OFFLINE_PRODUCTS_KEY) || localStorage.getItem('velora_products');
     if (stored) {
         try {
             const parsed = JSON.parse(stored);
@@ -193,7 +193,7 @@ export const useProductsStore = () => {
             if (data && data.length > 0) {
                 globalProducts = data;
                 localStorage.setItem(OFFLINE_PRODUCTS_KEY, JSON.stringify(globalProducts));
-                localStorage.setItem('velora_prod_products', JSON.stringify(globalProducts));
+                localStorage.setItem('velora_products', JSON.stringify(globalProducts));
                 listeners.forEach(l => l(globalProducts));
             }
         };
@@ -207,7 +207,7 @@ export const useProductsStore = () => {
     const updateProducts = (newProducts: Product[]) => {
         globalProducts = newProducts;
         localStorage.setItem(OFFLINE_PRODUCTS_KEY, JSON.stringify(globalProducts));
-        localStorage.setItem('velora_prod_products', JSON.stringify(globalProducts));
+        localStorage.setItem('velora_products', JSON.stringify(globalProducts));
         listeners.forEach(l => l(globalProducts));
     };
 
@@ -364,7 +364,7 @@ export interface AffiliateRequest {
     commission: number;
 }
 
-const AFFILIATES_STORAGE_KEY = 'velora_prod_affiliate_requests';
+const AFFILIATES_STORAGE_KEY = 'velora_affiliate_requests';
 
 const initialRequests: AffiliateRequest[] = [];
 
@@ -445,8 +445,8 @@ export interface MarketingCampaign {
     spend: number;
 }
 
-const COUPONS_STORAGE_KEY = 'velora_prod_coupons';
-const CAMPAIGNS_STORAGE_KEY = 'velora_prod_campaigns';
+const COUPONS_STORAGE_KEY = 'velora_coupons';
+const CAMPAIGNS_STORAGE_KEY = 'velora_campaigns';
 
 const initialCoupons: Coupon[] = [];
 
@@ -515,7 +515,7 @@ export interface Transaction {
     failureReason?: string;
 }
 
-const TRANSACTIONS_STORAGE_KEY = 'velora_prod_transactions';
+const TRANSACTIONS_STORAGE_KEY = 'velora_transactions';
 
 const getInitialTransactions = (): Transaction[] => {
     const stored = localStorage.getItem(TRANSACTIONS_STORAGE_KEY);

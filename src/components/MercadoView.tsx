@@ -81,7 +81,7 @@ export const MercadoView = () => {
                         placeholder="Pesquisar ativos..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full h-12 pl-12 pr-6 rounded-xl border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/5 outline-none transition-all placeholder:text-slate-400 shadow-inner"
+                        className="w-full h-12 pl-12 pr-6 rounded-xl border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all placeholder:text-slate-400 shadow-inner"
                     />
                 </div>
 
@@ -113,7 +113,7 @@ export const MercadoView = () => {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 key={product.id}
-                                className="glass dark:bg-brand-900/60 rounded-2xl border border-white/20 dark:border-white/5 p-3 md:p-4 flex flex-col justify-between shadow-lg hover:shadow-violet-600/20 transition-all duration-700 group hover:-translate-y-1"
+                                className="glass dark:bg-brand-900/60 rounded-2xl border border-white/20 dark:border-white/5 p-3 md:p-4 flex flex-col justify-between shadow-lg hover:shadow-emerald-600/20 transition-all duration-700 group hover:-translate-y-1"
                             >
                                 {/* Top: Photo & Basic Info side by side */}
                                 <div className="flex flex-col gap-3 items-center text-center">
@@ -128,10 +128,10 @@ export const MercadoView = () => {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <span className="text-[10px] font-black text-violet-600 dark:text-brand-500 uppercase tracking-widest block">
+                                        <span className="text-[10px] font-black text-emerald-600 dark:text-brand-500 uppercase tracking-widest block">
                                             {product.category}
                                         </span>
-                                        <h3 className="text-sm md:text-base font-black text-slate-900 dark:text-white leading-tight tracking-tighter group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                                        <h3 className="text-sm md:text-base font-black text-slate-900 dark:text-white leading-tight tracking-tighter group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                                             {product.name}
                                         </h3>
                                         {product.description && (
@@ -151,8 +151,8 @@ export const MercadoView = () => {
                                         </p>
                                     </div>
                                     <div className="space-y-0.5 border-l border-slate-200 dark:border-white/10 pl-2">
-                                        <p className="text-[7px] font-black text-violet-600 dark:text-brand-400 uppercase tracking-widest">Ganhas</p>
-                                        <p className="text-xs font-black text-violet-600 dark:text-brand-300 tabular-nums">
+                                        <p className="text-[7px] font-black text-emerald-600 dark:text-brand-400 uppercase tracking-widest">Ganhas</p>
+                                        <p className="text-xs font-black text-emerald-600 dark:text-brand-300 tabular-nums">
                                             {product.commission}%
                                         </p>
                                     </div>

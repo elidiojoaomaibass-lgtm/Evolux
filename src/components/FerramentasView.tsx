@@ -13,19 +13,19 @@ import { toast } from 'sonner';
 
 export const FerramentasView = () => {
     // Utmify state
-    const [utmifyToken, setUtmifyToken] = useState(() => localStorage.getItem('velora_prod_utmify_token') || '');
+    const [utmifyToken, setUtmifyToken] = useState(() => localStorage.getItem('velora_utmify_token') || '');
 
     // LowTrack state
-    const [lowTrackToken, setLowTrackToken] = useState(() => localStorage.getItem('velora_prod_lowtrack_token') || '');
+    const [lowTrackToken, setLowTrackToken] = useState(() => localStorage.getItem('velora_lowtrack_token') || '');
 
     // Meta Ads Pixel state (loaded from Supabase, local state as fallback)
     const [pixelId, setPixelId] = useState('');
     const [tiktokId, setTiktokId] = useState('');
 
     // Webhook state
-    const [webhookUrl, setWebhookUrl] = useState(() => localStorage.getItem('velora_prod_webhook_url') || '');
+    const [webhookUrl, setWebhookUrl] = useState(() => localStorage.getItem('velora_webhook_url') || '');
     const [webhookEvents, setWebhookEvents] = useState(() => {
-        const saved = localStorage.getItem('velora_prod_webhook_events');
+        const saved = localStorage.getItem('velora_webhook_events');
         if (saved) {
             try {
                 return JSON.parse(saved);
@@ -42,9 +42,9 @@ export const FerramentasView = () => {
     });
 
     // Novas Integrações
-    const [googleAdsId, setGoogleAdsId] = useState(() => localStorage.getItem('velora_prod_google_ads_id') || '');
-    const [whatsappToken, setWhatsappToken] = useState(() => localStorage.getItem('velora_prod_whatsapp_token') || '');
-    const [klaviyoToken, setKlaviyoToken] = useState(() => localStorage.getItem('velora_prod_klaviyo_token') || '');
+    const [googleAdsId, setGoogleAdsId] = useState(() => localStorage.getItem('velora_google_ads_id') || '');
+    const [whatsappToken, setWhatsappToken] = useState(() => localStorage.getItem('velora_whatsapp_token') || '');
+    const [klaviyoToken, setKlaviyoToken] = useState(() => localStorage.getItem('velora_klaviyo_token') || '');
     const [testPushValue, setTestPushValue] = useState('97,00');
 
     const [userEmail, setUserEmail] = useState<string>('');
@@ -67,11 +67,11 @@ export const FerramentasView = () => {
                     if (data.lowtrack_token) setLowTrackToken(data.lowtrack_token);
                     if (data.facebook_pixel_id) {
                         setPixelId(data.facebook_pixel_id);
-                        localStorage.setItem('velora_prod_facebook_pixel_id', data.facebook_pixel_id);
+                        localStorage.setItem('velora_facebook_pixel_id', data.facebook_pixel_id);
                     }
                     if (data.tiktok_pixel_id) {
                         setTiktokId(data.tiktok_pixel_id);
-                        localStorage.setItem('velora_prod_tiktok_pixel_id', data.tiktok_pixel_id);
+                        localStorage.setItem('velora_tiktok_pixel_id', data.tiktok_pixel_id);
                     }
                 }
             } else {
@@ -89,7 +89,7 @@ export const FerramentasView = () => {
                 email = sess?.session?.user?.email || '';
             }
             if (!email) {
-                const fake = localStorage.getItem('velora_prod_fake_session');
+                const fake = localStorage.getItem('velora_fake_session');
                 if (fake) {
                     try {
                         const parsed = JSON.parse(fake);
@@ -118,7 +118,7 @@ export const FerramentasView = () => {
 
     const handleSaveUtmify = (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('velora_prod_utmify_token', utmifyToken);
+        localStorage.setItem('velora_utmify_token', utmifyToken);
         toast.success('Token Utmify salvo!', {
             description: 'A integração com Utmify está agora ativa no seu checkout.'
         });
@@ -126,7 +126,7 @@ export const FerramentasView = () => {
 
     const handleSaveLowTrack = async (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('velora_prod_lowtrack_token', lowTrackToken);
+        localStorage.setItem('velora_lowtrack_token', lowTrackToken);
         await saveSettingToDB({ lowtrack_token: lowTrackToken });
         toast.success('Token LowTrack salvo!', {
             description: 'A integração com LowTrack está agora ativa no seu checkout e foi guardada na sua conta.'
@@ -170,7 +170,7 @@ export const FerramentasView = () => {
 
     const handleSavePixel = async (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('velora_prod_facebook_pixel_id', pixelId);
+        localStorage.setItem('velora_facebook_pixel_id', pixelId);
         const ok = await saveSettingToDB({ facebook_pixel_id: pixelId });
         if (!ok) return; // toast de erro já foi mostrado dentro de saveSettingToDB
 
@@ -191,7 +191,7 @@ export const FerramentasView = () => {
 
     const handleSaveTikTok = async (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('velora_prod_tiktok_pixel_id', tiktokId);
+        localStorage.setItem('velora_tiktok_pixel_id', tiktokId);
         await saveSettingToDB({ tiktok_pixel_id: tiktokId });
         toast.success('Pixel do TikTok salvo na conta!', {
             description: 'O TikTok Pixel está ativo e sincronizado em todos os dispositivos.'
@@ -204,8 +204,8 @@ export const FerramentasView = () => {
             toast.error('URL do Webhook inválida');
             return;
         }
-        localStorage.setItem('velora_prod_webhook_url', webhookUrl);
-        localStorage.setItem('velora_prod_webhook_events', JSON.stringify(webhookEvents));
+        localStorage.setItem('velora_webhook_url', webhookUrl);
+        localStorage.setItem('velora_webhook_events', JSON.stringify(webhookEvents));
         await saveSettingToDB({ webhook_url: webhookUrl, webhook_events: webhookEvents });
         toast.success('Webhook configurado!', {
             description: 'Os eventos selecionados serão enviados para a URL informada e as configurações foram guardadas na sua conta.'
@@ -222,7 +222,7 @@ export const FerramentasView = () => {
             event: 'test_webhook',
             timestamp: new Date().toISOString(),
             data: {
-                message: 'Webhook de teste enviado pela VELORA Prod'
+                message: 'Webhook de teste enviado pela VELORA'
             }
         };
 
@@ -249,19 +249,19 @@ export const FerramentasView = () => {
 
     const handleSaveGoogleAds = (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('velora_prod_google_ads_id', googleAdsId);
+        localStorage.setItem('velora_google_ads_id', googleAdsId);
         toast.success('Google Ads salvo!', { description: 'O rastreamento de conversões via API está ativo.' });
     };
 
     const handleSaveWhatsapp = (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('velora_prod_whatsapp_token', whatsappToken);
+        localStorage.setItem('velora_whatsapp_token', whatsappToken);
         toast.success('WhatsApp configurado!', { description: 'A recuperação automática de vendas foi ativada.' });
     };
 
     const handleSaveKlaviyo = (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('velora_prod_klaviyo_token', klaviyoToken);
+        localStorage.setItem('velora_klaviyo_token', klaviyoToken);
         toast.success('Klaviyo configurado!', { description: 'A integração de email marketing está ativa.' });
     };
 
@@ -342,7 +342,7 @@ export const FerramentasView = () => {
                         <span>Ferramentas e Integrações</span>
                     </h2>
                     <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight pl-[3.5rem] md:pl-0 leading-snug">
-                        Conecte a VELORA Prod com serviços externos para automatizar o seu negócio.
+                        Conecte a VELORA com serviços externos para automatizar o seu negócio.
                     </p>
                 </div>
             </div>
@@ -352,7 +352,7 @@ export const FerramentasView = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-emerald-100 dark:border-brand-800 shadow-sm space-y-4"
                 >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -407,11 +407,11 @@ export const FerramentasView = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.05 }}
-                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-emerald-100 dark:border-brand-800 shadow-sm space-y-4"
                 >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center">
+                            <div className="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
                                 <img src="/integrations/meta_ads_integration_1780442567251.png" alt="Meta Ads integration" className="w-8 h-8" />
                             </div>
                             <div>
@@ -419,14 +419,14 @@ export const FerramentasView = () => {
                                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Facebook Pixel</p>
                             </div>
                         </div>
-                        <div className="px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-950 text-violet-600 text-[10px] font-black uppercase tracking-widest border border-violet-100 dark:border-violet-900/30">
+                        <div className="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-100 dark:border-emerald-900/30">
                             Ativo
                         </div>
                     </div>
 
                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800">
                         <div className="flex gap-2">
-                            <Info size={14} className="text-violet-500 shrink-0 mt-0.5" />
+                            <Info size={14} className="text-emerald-500 shrink-0 mt-0.5" />
                             <div className="flex flex-col gap-1">
                                 <p className="text-[10px] leading-snug text-slate-500 font-medium italic">
                                     Rastreie conversões e crie públicos personalizados para o Facebook e Instagram.
@@ -434,7 +434,7 @@ export const FerramentasView = () => {
                                 <button
                                     type="button"
                                     onClick={() => window.dispatchEvent(new CustomEvent('change-view', { detail: 'Documentação' }))}
-                                    className="mt-1 flex w-fit items-center gap-1 text-[10px] font-bold text-violet-600 hover:text-violet-700 underline"
+                                    className="mt-1 flex w-fit items-center gap-1 text-[10px] font-bold text-emerald-600 hover:text-emerald-700 underline"
                                 >
                                     Ler Documentação Oficial
                                 </button>
@@ -452,13 +452,13 @@ export const FerramentasView = () => {
                                     placeholder="Ex: 123456789012345"
                                     value={pixelId}
                                     onChange={(e) => setPixelId(e.target.value)}
-                                    className="w-full h-11 pl-12 pr-4 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800 text-xs font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-violet-500/10 transition-all shadow-sm"
+                                    className="w-full h-11 pl-12 pr-4 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800 text-xs font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm"
                                 />
                             </div>
                         </div>
                         <button
                             type="submit"
-                            className="w-full h-11 bg-violet-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-violet-700 shadow-lg shadow-violet-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                            className="w-full h-11 bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
                         >
                             <Save size={16} />
                             Salvar Pixel
@@ -471,7 +471,7 @@ export const FerramentasView = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-emerald-100 dark:border-brand-800 shadow-sm space-y-4"
                 >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -526,7 +526,7 @@ export const FerramentasView = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.15 }}
-                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-emerald-100 dark:border-brand-800 shadow-sm space-y-4"
                 >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -597,7 +597,7 @@ export const FerramentasView = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-emerald-100 dark:border-brand-800 shadow-sm space-y-4"
                 >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -685,7 +685,7 @@ export const FerramentasView = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-emerald-100 dark:border-brand-800 shadow-sm space-y-4"
                 >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -740,7 +740,7 @@ export const FerramentasView = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.25 }}
-                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-emerald-100 dark:border-brand-800 shadow-sm space-y-4"
                 >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -795,11 +795,11 @@ export const FerramentasView = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-emerald-100 dark:border-brand-800 shadow-sm space-y-4"
                 >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center text-violet-600">
+                            <div className="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
                                 <Mail size={20} />
                             </div>
                             <div>
@@ -807,14 +807,14 @@ export const FerramentasView = () => {
                                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Email Marketing</p>
                             </div>
                         </div>
-                        <div className="px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-950 text-violet-600 text-[10px] font-black uppercase tracking-widest border border-violet-100 dark:border-violet-900/30">
+                        <div className="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-100 dark:border-emerald-900/30">
                             Ativo
                         </div>
                     </div>
 
                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800">
                         <div className="flex gap-2">
-                            <Info size={14} className="text-violet-500 shrink-0 mt-0.5" />
+                            <Info size={14} className="text-emerald-500 shrink-0 mt-0.5" />
                             <p className="text-[10px] leading-snug text-slate-500 font-medium italic">
                                 Sincronize clientes e abandono de carrinho diretamente com o Klaviyo.
                             </p>
@@ -831,13 +831,13 @@ export const FerramentasView = () => {
                                     placeholder="pk_..."
                                     value={klaviyoToken}
                                     onChange={(e) => setKlaviyoToken(e.target.value)}
-                                    className="w-full h-11 pl-12 pr-4 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800 text-xs font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-violet-500/10 transition-all shadow-sm"
+                                    className="w-full h-11 pl-12 pr-4 rounded-xl bg-slate-50 dark:bg-brand-950 border border-slate-100 dark:border-brand-800 text-xs font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm"
                                 />
                             </div>
                         </div>
                         <button
                             type="submit"
-                            className="w-full h-11 bg-violet-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-violet-700 shadow-lg shadow-violet-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+                            className="w-full h-11 bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
                         >
                             <Save size={16} />
                             Salvar Integração
@@ -850,7 +850,7 @@ export const FerramentasView = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.35 }}
-                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-violet-100 dark:border-brand-800 shadow-sm space-y-4"
+                    className="p-5 md:p-6 bg-white dark:bg-brand-900 rounded-[2rem] border border-emerald-100 dark:border-brand-800 shadow-sm space-y-4"
                 >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">

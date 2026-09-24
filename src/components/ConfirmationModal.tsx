@@ -39,10 +39,10 @@ export const ConfirmationModal = ({
             border: "border-amber-100 dark:border-amber-900/30"
         },
         info: {
-            icon: <AlertTriangle className="text-violet-500" size={32} />,
-            bgIcon: "bg-violet-50 dark:bg-violet-900/20",
-            button: "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-violet-500/25",
-            border: "border-violet-100 dark:border-violet-900/30"
+            icon: <AlertTriangle className="text-emerald-500" size={32} />,
+            bgIcon: "bg-emerald-50 dark:bg-emerald-900/20",
+            button: "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-emerald-500/25",
+            border: "border-emerald-100 dark:border-emerald-900/30"
         }
     };
 

@@ -15,7 +15,7 @@ admin.initializeApp();
  *   Each transaction document should contain at least:
  *     - amount (number or string)
  *     - currency (e.g., "MZN")
- *     - from (string) – e.g., "VELORA Prod"
+ *     - from (string) – e.g., "VELORA"
  *     - userId (string) – ID of the user who should receive the notification
  */
 exports.notifyOnNewTransaction = functions.firestore

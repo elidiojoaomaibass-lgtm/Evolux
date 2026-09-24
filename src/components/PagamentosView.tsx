@@ -61,7 +61,7 @@ export const PagamentosView = () => {
             {/* Header */}
             <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 xl:gap-16">
                 <div className="space-y-1 md:space-y-3 mt-3 md:mt-2">
-                    <h2 className="text-xl md:text-3xl font-black text-violet-950 dark:text-white tracking-tighter leading-none pl-[3.5rem] md:pl-0 flex items-center min-h-[2rem] md:min-h-0">
+                    <h2 className="text-xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tighter leading-none pl-[3.5rem] md:pl-0 flex items-center min-h-[2rem] md:min-h-0">
                         <span>Pagamentos</span>
                     </h2>
                     <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight pl-[3.5rem] md:pl-0 leading-snug">Receba pagamentos dos clientes via M-Pesa ou e-Mola.</p>
@@ -73,10 +73,10 @@ export const PagamentosView = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="rounded-2xl md:rounded-3xl border border-violet-100 dark:border-brand-800 bg-white dark:bg-brand-900 p-5 md:p-8 shadow-sm"
+                className="rounded-2xl md:rounded-3xl border border-emerald-100 dark:border-brand-800 bg-white dark:bg-brand-900 p-5 md:p-8 shadow-sm"
             >
                 <div className="flex items-center gap-2 mb-3">
-                    <div className="h-7 w-7 rounded-lg bg-violet-100 dark:bg-brand-800 flex items-center justify-center text-violet-600">
+                    <div className="h-7 w-7 rounded-lg bg-emerald-100 dark:bg-brand-800 flex items-center justify-center text-emerald-600">
                         <Plus size={16} />
                     </div>
                     <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white leading-tight">Iniciar Pagamento</h3>
@@ -97,7 +97,7 @@ export const PagamentosView = () => {
                                 onChange={(e) => setAmount(e.target.value)}
                                 placeholder="50.00 (mínimo)"
                                 min={50}
-                                className="w-full h-11 md:h-12 px-4 rounded-xl border border-slate-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-950 font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-500/20 outline-none transition-all placeholder:text-slate-300 text-xs md:text-sm"
+                                className="w-full h-11 md:h-12 px-4 rounded-xl border border-slate-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-950 font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-300 text-xs md:text-sm"
                             />
                         </div>
 
@@ -110,7 +110,7 @@ export const PagamentosView = () => {
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 placeholder="Ex: Jorge Alexandre"
-                                className="w-full h-11 md:h-12 px-4 rounded-xl border border-slate-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-950 font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-500/20 outline-none transition-all placeholder:text-slate-300 text-xs md:text-sm"
+                                className="w-full h-11 md:h-12 px-4 rounded-xl border border-slate-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-950 font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-300 text-xs md:text-sm"
                             />
                         </div>
                     </div>
@@ -127,7 +127,7 @@ export const PagamentosView = () => {
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
                                     placeholder="84 123 4567"
-                                    className="flex-1 h-11 md:h-12 px-4 rounded-xl border border-slate-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-950 font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-500/20 outline-none transition-all placeholder:text-slate-300 text-xs md:text-sm"
+                                    className="flex-1 h-11 md:h-12 px-4 rounded-xl border border-slate-100 dark:border-brand-800 bg-slate-50 dark:bg-brand-950 font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-300 text-xs md:text-sm"
                                 />
                             </div>
                             <p className="text-[9px] text-slate-400 ml-1">
@@ -155,10 +155,10 @@ export const PagamentosView = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="rounded-[1.5rem] md:rounded-[2rem] border border-violet-100 dark:border-brand-800 bg-white/50 dark:bg-brand-900/50 p-4 md:p-6 flex items-center justify-between group cursor-pointer hover:bg-white dark:hover:bg-brand-900 transition-all"
+                className="rounded-[1.5rem] md:rounded-[2rem] border border-emerald-100 dark:border-brand-800 bg-white/50 dark:bg-brand-900/50 p-4 md:p-6 flex items-center justify-between group cursor-pointer hover:bg-white dark:hover:bg-brand-900 transition-all"
             >
                 <div className="flex items-center gap-3 md:gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-brand-800 flex items-center justify-center text-slate-400 group-hover:text-violet-600 transition-colors">
+                    <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-brand-800 flex items-center justify-center text-slate-400 group-hover:text-emerald-600 transition-colors">
                         <Clock size={20} />
                     </div>
                     <div>
@@ -166,7 +166,7 @@ export const PagamentosView = () => {
                         <p className="text-[10px] md:text-[11px] font-bold text-slate-400 leading-tight mt-0.5">Todos os pagamentos recebidos</p>
                     </div>
                 </div>
-                <div className="h-8 w-8 rounded-full flex items-center justify-center text-slate-300 group-hover:text-violet-600 group-hover:translate-x-1 transition-all">
+                <div className="h-8 w-8 rounded-full flex items-center justify-center text-slate-300 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all">
                     <ArrowRight size={20} />
                 </div>
             </motion.div>

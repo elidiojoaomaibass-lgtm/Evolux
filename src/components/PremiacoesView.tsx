@@ -73,7 +73,7 @@ export const PremiacoesView = () => {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="group relative overflow-hidden rounded-xl md:rounded-2xl border border-violet-100 dark:border-brand-800 bg-white dark:bg-brand-900 p-3 md:p-4 shadow-sm transition-all hover:shadow-xl"
+                className="group relative overflow-hidden rounded-xl md:rounded-2xl border border-emerald-100 dark:border-brand-800 bg-white dark:bg-brand-900 p-3 md:p-4 shadow-sm transition-all hover:shadow-xl"
             >
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
                     <div className="flex-shrink-0 flex justify-center md:block">
@@ -84,7 +84,7 @@ export const PremiacoesView = () => {
                     <div className="flex-1 text-center md:text-left">
                         <div className="flex flex-col md:flex-row items-center gap-1 md:gap-1.5 mb-1">
                             <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-white leading-tight">Nível Atual: {currentLevel.name}</h3>
-                            <span className="rounded-full bg-violet-100 dark:bg-brand-800 px-2 py-0.5 text-[7px] md:text-[8px] font-black text-violet-600 dark:text-brand-300 uppercase tracking-widest">
+                            <span className="rounded-full bg-emerald-100 dark:bg-brand-800 px-2 py-0.5 text-[7px] md:text-[8px] font-black text-emerald-600 dark:text-brand-300 uppercase tracking-widest">
                                 {totalRevenue > 0 ? 'Em Evolução' : 'Iniciante'}
                             </span>
                         </div>
@@ -95,7 +95,7 @@ export const PremiacoesView = () => {
 
                         <div className="mt-3 md:mt-4 space-y-1 md:space-y-1.5">
                             <div className="flex items-center justify-between text-[8px] md:text-[9px] font-black tracking-wider uppercase">
-                                <span className="text-violet-600 dark:text-brand-300">
+                                <span className="text-emerald-600 dark:text-brand-300">
                                     {nextLevel ? `Meta: Próximo Nível (${nextLevel.name})` : 'Nível Máximo Alcançado!'}
                                 </span>
                                 <span className="text-slate-400">
@@ -106,7 +106,7 @@ export const PremiacoesView = () => {
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${progress}%` }}
-                                    className="h-full rounded-full bg-gradient-to-r from-violet-400 via-violet-600 to-violet-400 shadow-[0_0_15px_rgba(139,92,246,0.5)]"
+                                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-emerald-600 to-emerald-400 shadow-[0_0_15px_rgba(139,92,246,0.5)]"
                                 />
                             </div>
                         </div>
@@ -117,7 +117,7 @@ export const PremiacoesView = () => {
                         <div className="grid grid-cols-2 md:grid-cols-1 gap-1">
                             {currentLevel.benefits.map(b => (
                                 <div key={b} className="flex items-center justify-center md:justify-start gap-1 text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-brand-200">
-                                    <CheckCircle2 size={10} className="text-violet-500" /> {b}
+                                    <CheckCircle2 size={10} className="text-emerald-500" /> {b}
                                 </div>
                             ))}
                         </div>
@@ -125,7 +125,7 @@ export const PremiacoesView = () => {
                 </div>
 
                 {/* Decorative background element */}
-                <div className="absolute -right-20 -bottom-20 h-64 w-64 rounded-full bg-violet-50 dark:bg-brand-800/10 blur-[80px]" />
+                <div className="absolute -right-20 -bottom-20 h-64 w-64 rounded-full bg-emerald-50 dark:bg-brand-800/10 blur-[80px]" />
             </motion.div>
 
             {/* Main Rewards Grid */}
@@ -151,7 +151,7 @@ export const PremiacoesView = () => {
                                 <div className="relative">
                                     <div className={cn(
                                         "relative aspect-[4/3] w-full rounded-2xl md:rounded-3xl bg-slate-950 border shadow-xl overflow-hidden flex items-center justify-center transition-all duration-500",
-                                        unlocked ? "border-emerald-500/50 shadow-emerald-500/10" : "border-violet-900/30 grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100"
+                                        unlocked ? "border-emerald-500/50 shadow-emerald-500/10" : "border-emerald-900/30 grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100"
                                     )}>
                                         <img
                                             src={r.image}
@@ -173,7 +173,7 @@ export const PremiacoesView = () => {
                                         )}
 
                                         <div className="absolute bottom-3 left-3 rounded-full bg-black/60 backdrop-blur-sm px-2.5 py-1 border border-white/10">
-                                            <span className="text-[8px] md:text-[9px] font-black text-violet-300 uppercase tracking-widest">{r.target / 1000}K {r.label}</span>
+                                            <span className="text-[8px] md:text-[9px] font-black text-emerald-300 uppercase tracking-widest">{r.target / 1000}K {r.label}</span>
                                         </div>
                                     </div>
 
@@ -188,8 +188,8 @@ export const PremiacoesView = () => {
                                                 {unlocked ? 'Prêmio Desbloqueado' : `Faltam ${remain.toLocaleString('pt-PT')} MZN`}
                                             </p>
                                         </div>
-                                        <div className="h-6 w-6 md:h-7 md:w-7 rounded-lg bg-violet-100 dark:bg-brand-800 flex items-center justify-center shrink-0">
-                                            <Trophy size={12} className={cn(unlocked ? "text-emerald-500" : "text-violet-500")} />
+                                        <div className="h-6 w-6 md:h-7 md:w-7 rounded-lg bg-emerald-100 dark:bg-brand-800 flex items-center justify-center shrink-0">
+                                            <Trophy size={12} className={cn(unlocked ? "text-emerald-500" : "text-emerald-500")} />
                                         </div>
                                     </div>
                                 </div>
@@ -217,14 +217,14 @@ export const PremiacoesView = () => {
                                 className={cn(
                                     "relative flex flex-col items-center p-4 md:p-6 rounded-2xl md:rounded-3xl border transition-all duration-300",
                                     isCurrent
-                                        ? "bg-white dark:bg-brand-900 border-violet-500 shadow-xl ring-1 ring-violet-500/20 scale-105 z-10"
+                                        ? "bg-white dark:bg-brand-900 border-emerald-500 shadow-xl ring-1 ring-emerald-500/20 scale-105 z-10"
                                         : isReached 
                                             ? "bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800 opacity-80"
                                             : "bg-white/50 dark:bg-brand-900/40 border-slate-100 dark:border-brand-800 grayscale opacity-40 hover:grayscale-0 hover:opacity-100"
                                 )}
                             >
                                 {isCurrent && (
-                                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-violet-600 px-2 py-0.5 text-[6px] md:text-[7px] font-black text-white uppercase tracking-widest shadow-lg whitespace-nowrap">
+                                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 px-2 py-0.5 text-[6px] md:text-[7px] font-black text-white uppercase tracking-widest shadow-lg whitespace-nowrap">
                                         VOCÊ ESTÁ AQUI
                                     </span>
                                 )}
@@ -235,15 +235,15 @@ export const PremiacoesView = () => {
                                     <lvl.icon size={16} className="md:w-5 md:h-5" />
                                 </div>
                                 <h4 className="text-xs md:text-sm font-black text-slate-900 dark:text-white mb-0.5">{lvl.name}</h4>
-                                <p className="text-[7px] md:text-[8px] font-black text-violet-500 uppercase tracking-tighter mb-3 md:mb-4">
+                                <p className="text-[7px] md:text-[8px] font-black text-emerald-500 uppercase tracking-tighter mb-3 md:mb-4">
                                     {lvl.max === Infinity ? `+${lvl.min.toLocaleString('pt-PT')} MZN` : `${lvl.min.toLocaleString('pt-PT')} - ${lvl.max.toLocaleString('pt-PT')} MZN`}
                                 </p>
 
                                 <div className="w-full space-y-1.5 md:space-y-2">
                                     {lvl.benefits.map((b, i) => (
                                         <div key={i} className="flex items-start gap-1.5">
-                                            <div className="h-3 w-3 rounded-full bg-violet-50 dark:bg-brand-800 flex items-center justify-center shrink-0 mt-0.5">
-                                                <Star size={7} className="text-violet-500 fill-violet-500" />
+                                            <div className="h-3 w-3 rounded-full bg-emerald-50 dark:bg-brand-800 flex items-center justify-center shrink-0 mt-0.5">
+                                                <Star size={7} className="text-emerald-500 fill-emerald-500" />
                                             </div>
                                             <span className="text-[9px] md:text-[10px] font-bold text-slate-500 dark:text-brand-300 leading-tight">{b}</span>
                                         </div>
@@ -258,7 +258,7 @@ export const PremiacoesView = () => {
             {/* Bottom Badges */}
             <section className="bg-slate-50 dark:bg-brand-950/50 rounded-xl md:rounded-2xl p-4 md:p-6 border border-slate-100 dark:border-brand-800/50 mt-4 md:mt-8">
                 <div className="flex items-center gap-2 mb-4 md:mb-5">
-                    <div className="h-7 w-7 rounded-lg bg-violet-600 flex items-center justify-center text-white shadow-lg shrink-0">
+                    <div className="h-7 w-7 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-lg shrink-0">
                         <Award size={16} />
                     </div>
                     <div>

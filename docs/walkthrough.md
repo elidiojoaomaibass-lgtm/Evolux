@@ -1,4 +1,4 @@
-# InfroPay / VELORA Prod — Arquitectura & Fluxo Completo
+# InfroPay / VELORA — Arquitectura & Fluxo Completo
 
 ## Estrutura Final do Projecto (após limpeza)
 
@@ -176,7 +176,7 @@ sequenceDiagram
     participant LS as localStorage
 
     U->>APP: Abre a aplicação
-    APP->>LS: Verifica velora_prod_fake_session
+    APP->>LS: Verifica velora_fake_session
     alt Sessão local encontrada
         LS-->>APP: Sessão JSON (offline/fallback)
         APP->>APP: setSession(parsed)

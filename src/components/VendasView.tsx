@@ -214,7 +214,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                 onClick={() => { setPeriod(p); setShowDatePicker(false); }}
                                 className={cn(
                                     "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
-                                    period === p && !showDatePicker ? "bg-violet-600 text-white shadow-md shadow-violet-500/20" : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"
+                                    period === p && !showDatePicker ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/20" : "text-slate-500 hover:text-slate-800 dark:text-brand-400 dark:hover:text-white"
                                 )}
                             >
                                 {p}
@@ -232,7 +232,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                 {period === 'custom' && startDate ? startDate.split('-').reverse().join('/') : 'Personalizar'}
                             </span>
                             {(showDatePicker || period === 'custom') && (
-                                <div className="h-1.5 w-1.5 bg-violet-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(139,92,246,1)]" />
+                                <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(139,92,246,1)]" />
                             )}
                         </button>
                     </div>
@@ -249,7 +249,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                             placeholder="Pesquisar por cliente, e‑mail ou referência..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className="w-full h-12 pl-12 pr-6 rounded-xl border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-violet-500/10 outline-none transition-all placeholder:text-slate-400 shadow-inner"
+                            className="w-full h-12 pl-12 pr-6 rounded-xl border border-white/20 dark:border-white/5 bg-white/50 dark:bg-brand-900/40 backdrop-blur-3xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder:text-slate-400 shadow-inner"
                         />
                     </div>
                     <div className="flex items-center gap-2 p-1.5 bg-slate-100/50 dark:bg-brand-900/60 rounded-3xl border border-white/10 overflow-x-auto w-full lg:w-auto scrollbar-hide">
@@ -270,7 +270,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
 
                 {/* Table */}
                 <div className="glass dark:bg-brand-900/60 rounded-[3rem] border border-white/20 dark:border-white/5 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 opacity-30" />
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 via-fuchsia-600 to-indigo-600 opacity-30" />
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse min-w-[1100px]">
                             <thead>
@@ -290,7 +290,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                 {filteredTransactions.length > 0 ? filteredTransactions.map(trx => (
                                     <tr
                                         key={trx.id}
-                                        className="group/row hover:bg-violet-600/[0.03] dark:hover:bg-white/[0.02] transition-all"
+                                        className="group/row hover:bg-emerald-600/[0.03] dark:hover:bg-white/[0.02] transition-all"
                                     >
                                         <td className="px-10 py-2.5">
                                             <div className="flex flex-col">
@@ -330,7 +330,7 @@ export const VendasView = ({ user: _user }: VendasViewProps) => {
                                                 {trx.amount.toLocaleString()} MT
                                             </span>
                                         </td>
-                                        <td className="px-10 py-2.5 font-mono text-[11px] font-black text-slate-400 dark:text-brand-600 group-hover/row:text-violet-600 transition-colors">
+                                        <td className="px-10 py-2.5 font-mono text-[11px] font-black text-slate-400 dark:text-brand-600 group-hover/row:text-emerald-600 transition-colors">
                                             #{trx.id}
                                         </td>
                                         <td className="px-10 py-2.5 text-center">

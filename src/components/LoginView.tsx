@@ -9,7 +9,7 @@ interface LoginViewProps {
 }
 
 const stats = [
-    { label: "Vendas hoje", value: "1.543", icon: TrendingUp, color: "text-violet-400" },
+    { label: "Vendas hoje", value: "1.543", icon: TrendingUp, color: "text-emerald-400" },
     { label: "Clientes ativos", value: "321", icon: Users, color: "text-pink-400" },
     { label: "Conversão", value: "20,8%", icon: Zap, color: "text-amber-400" },
 ];
@@ -90,14 +90,14 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
             <div className="relative flex flex-col justify-center items-center w-full lg:w-[46%] bg-[#1e0a45] px-6 md:px-12 py-10 md:py-16 overflow-hidden shrink-0 border-r border-white/10">
 
                 {/* Ambient glow blobs */}
-                <div className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-violet-400/20 blur-[100px]" />
+                <div className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-emerald-400/20 blur-[100px]" />
                 <div className="pointer-events-none absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-pink-400/15 blur-[120px]" />
 
                 <div className="relative z-10 w-full max-w-sm">
 
                     {/* Logo */}
                     <div className="flex items-center gap-3 mb-8 md:mb-12">
-                        <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl overflow-hidden shadow-lg shadow-violet-500/10">
+                        <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl overflow-hidden shadow-lg shadow-emerald-500/10">
                             <img
                                 src="/logo.png"
                                 alt="VELORA"
@@ -110,7 +110,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                         </div>
                         <div>
                             <p className="text-white font-black text-xl md:text-2xl leading-none tracking-tight">
-                                VELORA <span className="text-violet-400">Prod</span>
+                                VELORA <span className="text-emerald-400">Prod</span>
                             </p>
                         </div>
                     </div>
@@ -119,7 +119,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                     <div className="mb-8">
                         <h1 className="text-2xl md:text-4xl font-black text-white leading-tight mb-2 md:mb-3">
                             {isSignUp ? "Criar minha" : "Entrar na"}<br />
-                            <span className="bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
+                            <span className="bg-gradient-to-r from-emerald-400 to-pink-400 bg-clip-text text-transparent">
                                 {isSignUp ? "conta gratuita" : "minha conta"}
                             </span>
                         </h1>
@@ -130,7 +130,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                     setIsSignUp(!isSignUp);
                                     setError(null);
                                 }}
-                                className="text-violet-400 font-bold hover:text-violet-300 transition-colors"
+                                className="text-emerald-400 font-bold hover:text-emerald-300 transition-colors"
                             >
                                 {isSignUp ? "Fazer Login" : "Registar-se"}
                             </button>
@@ -197,7 +197,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                         value={fullName}
                                         onChange={(e) => setFullName(e.target.value)}
                                         placeholder="João Pedro"
-                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-violet-500 focus:bg-white/8 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
+                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                                         required
                                     />
                                 </div>
@@ -208,7 +208,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
                                         placeholder="+258 8X XXX XXXX"
-                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-violet-500 focus:bg-white/8 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
+                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                                         required
                                     />
                                 </div>
@@ -219,7 +219,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                         value={documentId}
                                         onChange={(e) => setDocumentId(e.target.value)}
                                         placeholder="Número do seu documento"
-                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-violet-500 focus:bg-white/8 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
+                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                                         required
                                     />
                                 </div>
@@ -233,7 +233,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="seu@email.com"
-                                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-violet-500 focus:bg-white/8 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
+                                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white placeholder-slate-600 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                                 required
                             />
                         </div>
@@ -242,7 +242,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                             <div className="flex items-center justify-between">
                                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Senha</label>
                                 {!isSignUp && (
-                                    <a href="#" className="text-xs font-bold text-violet-400 hover:text-violet-300 transition-colors">
+                                    <a href="#" className="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-colors">
                                         Esqueceu a senha?
                                     </a>
                                 )}
@@ -253,7 +253,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 pr-12 text-sm text-white placeholder-slate-600 outline-none focus:border-violet-500 focus:bg-white/8 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
+                                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 pr-12 text-sm text-white placeholder-slate-600 outline-none focus:border-emerald-500 focus:bg-white/8 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                                     required
                                     minLength={6}
                                 />
@@ -271,7 +271,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="relative flex-1 flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-4 text-sm font-black text-white shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:bg-violet-700 active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden"
+                                className="relative flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-4 text-sm font-black text-white shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:bg-emerald-700 active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden"
                             >
                                 {isLoading ? (
                                     <>
@@ -313,7 +313,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
             <div className="hidden lg:flex flex-col justify-between w-[54%] relative overflow-hidden bg-white p-16">
 
                 {/* Background animations / decorations */}
-                <div className="absolute top-0 right-0 h-[800px] w-[800px] rounded-full bg-violet-500/5 blur-[140px] animate-pulse" />
+                <div className="absolute top-0 right-0 h-[800px] w-[800px] rounded-full bg-emerald-500/5 blur-[140px] animate-pulse" />
                 <div className="absolute bottom-0 left-0 h-[600px] w-[600px] rounded-full bg-pink-500/5 blur-[140px]" />
                 
                 {/* Modern Grid Pattern */}
@@ -342,7 +342,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                             className="text-6xl font-black text-slate-900 leading-[1.05] tracking-tight mb-6"
                         >
                             Escalabilidade<br />
-                            <span className="bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent">
+                            <span className="bg-gradient-to-r from-emerald-600 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent">
                                 Sem Fronteiras.
                             </span>
                         </motion.h2>
@@ -352,7 +352,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                             transition={{ delay: 0.1 }}
                             className="text-lg text-slate-600 font-medium leading-relaxed"
                         >
-                            A VELORA Prod é a infraestrutura definitiva para criadores moçambicanos que buscam o próximo nível em vendas digitais.
+                            A VELORA é a infraestrutura definitiva para criadores moçambicanos que buscam o próximo nível em vendas digitais.
                         </motion.p>
                     </div>
 
@@ -364,7 +364,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                         className="relative group"
                     >
                         {/* Glow effect under card */}
-                        <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/10 to-pink-500/10 blur-3xl rounded-[3rem] group-hover:opacity-100 opacity-50 transition-opacity duration-700" />
+                        <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/10 to-pink-500/10 blur-3xl rounded-[3rem] group-hover:opacity-100 opacity-50 transition-opacity duration-700" />
                         
                         <div className="relative rounded-[2.5rem] border border-slate-200 bg-white/90 backdrop-blur-3xl p-8 shadow-2xl overflow-hidden">
                             <div className="flex items-center justify-between mb-8">
@@ -387,7 +387,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                                         transition={{ delay: 0.5 + (i * 0.1) }}
                                         className="relative p-5 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors shadow-sm"
                                     >
-                                        <s.icon size={16} className={`${s.color.replace('violet-400', 'violet-600').replace('pink-400', 'pink-600').replace('amber-400', 'amber-600')} mb-3`} />
+                                        <s.icon size={16} className={`${s.color.replace('emerald-400', 'emerald-600').replace('pink-400', 'pink-600').replace('amber-400', 'amber-600')} mb-3`} />
                                         <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">{s.label}</p>
                                         <p className="text-2xl font-black text-slate-900 tabular-nums tracking-tighter">{s.value}</p>
                                     </motion.div>

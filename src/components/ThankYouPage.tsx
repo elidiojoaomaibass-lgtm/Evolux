@@ -104,7 +104,7 @@ export const ThankYouPage = () => {
                                 transition={{ delay: 0.55 }}
                                 className="bg-white/5 rounded-2xl p-5 space-y-3 border border-white/5"
                             >
-                                <p className="text-[9px] font-black text-violet-400 uppercase tracking-[0.2em] mb-1">Resumo da Compra</p>
+                                <p className="text-[9px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-1">Resumo da Compra</p>
                                 {details.product && (
                                     <div className="flex justify-between items-center">
                                         <span className="text-xs text-white/50 font-medium">Produto</span>
@@ -114,7 +114,7 @@ export const ThankYouPage = () => {
                                 {details.amount && (
                                     <div className="flex justify-between items-center">
                                         <span className="text-xs text-white/50 font-medium">Valor Pago</span>
-                                        <span className="text-sm font-black text-violet-400">
+                                        <span className="text-sm font-black text-emerald-400">
                                             {(isNaN(Number(details.amount)) ? 0 : Number(details.amount)).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} MT
                                         </span>
                                     </div>
@@ -160,13 +160,13 @@ export const ThankYouPage = () => {
                                         }}
                                         className="w-full relative overflow-hidden group rounded-2xl"
                                     >
-                                        <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-fuchsia-500 rounded-2xl" />
-                                        <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-400 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-fuchsia-500 rounded-2xl" />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-fuchsia-400 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                         <div className="relative flex items-center justify-center gap-3 px-6 py-4">
                                             <span className="text-2xl">{clicked ? '🚀' : '🔓'}</span>
                                             <div className="text-left">
                                                 <p className="text-white font-black text-base leading-tight">Aceder ao Produto</p>
-                                                <p className="text-violet-100/80 text-xs font-medium">Clique para abrir o seu conteúdo</p>
+                                                <p className="text-emerald-100/80 text-xs font-medium">Clique para abrir o seu conteúdo</p>
                                             </div>
                                             <div className="ml-auto text-white/60 group-hover:translate-x-1 transition-transform duration-200">→</div>
                                         </div>

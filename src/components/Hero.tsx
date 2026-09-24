@@ -20,7 +20,7 @@ export const Hero = () => {
                             O Mercado Digital de <span className="text-primary-500">Moçambique</span>
                         </h1>
                         <p className="max-w-[600px] text-lg text-zinc-400">
-                            O VELORA Prod é a plataforma líder para comprar e vender ativos digitais,
+                            O VELORA é a plataforma líder para comprar e vender ativos digitais,
                             artesanato local, eletrónicos e serviços profissionais de todo o país.
                         </p>
                         <div className="flex flex-wrap gap-4">

@@ -8,16 +8,16 @@ interface LogoProps {
     textColor?: string;
 }
 
-export const Logo = ({ className, size = 40, showText = false, textColor = "text-violet-950" }: LogoProps) => {
+export const Logo = ({ className, size = 40, showText = false, textColor = "text-emerald-950" }: LogoProps) => {
     return (
         <div className={cn("flex items-center gap-3", className)}>
             <div
                 style={{ width: size, height: size }}
-                className="relative flex shrink-0 items-center justify-center rounded-xl overflow-hidden shadow-lg shadow-violet-500/30"
+                className="relative flex shrink-0 items-center justify-center rounded-xl overflow-hidden shadow-lg shadow-emerald-500/30"
             >
                 <img
                     src="/logo.png"
-                    alt="VELORA Prod Logo"
+                    alt="VELORA Logo"
                     className="w-full h-full object-cover"
                     onError={(e) => {
                         // Fallback: SVG gradient logo if image not found
@@ -38,7 +38,7 @@ export const Logo = ({ className, size = 40, showText = false, textColor = "text
             </div>
             {showText && (
                 <span className={cn("text-xl md:text-2xl font-black tracking-tight leading-none", textColor)}>
-                    VELORA <span className="text-violet-600 dark:text-violet-400">Prod</span>
+                    VELORA <span className="text-emerald-600 dark:text-emerald-400">Prod</span>
                 </span>
             )}
         </div>

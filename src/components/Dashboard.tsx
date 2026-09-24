@@ -125,7 +125,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
         if (allTimeRevenue < 50000) return { name: 'PRATA', target: 50000, color: 'text-slate-400', bg: 'bg-slate-400' };
         if (allTimeRevenue < 150000) return { name: 'OURO', target: 150000, color: 'text-amber-500', bg: 'bg-amber-500' };
         if (allTimeRevenue < 500000) return { name: 'PLATINA', target: 500000, color: 'text-indigo-400', bg: 'bg-indigo-400' };
-        return { name: 'DIAMANTE', target: allTimeRevenue || 1, color: 'text-purple-500', bg: 'bg-purple-500' };
+        return { name: 'DIAMANTE', target: allTimeRevenue || 1, color: 'text-emerald-500', bg: 'bg-emerald-500' };
     }, [allTimeRevenue]);
 
     const progressPercent = Math.min(100, (allTimeRevenue / level.target) * 100);
@@ -178,12 +178,12 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
         {
             label: 'TAXA DE CONVERSÃO',
             value: `${conversionRate}%`,
-            borderColor: 'border-l-violet-500',
-            labelColor: 'text-violet-400',
-            textColor: 'text-violet-500',
+            borderColor: 'border-l-emerald-500',
+            labelColor: 'text-emerald-400',
+            textColor: 'text-emerald-500',
             icon: TrendingUp,
-            iconBg: 'bg-violet-50 dark:bg-violet-500/10',
-            iconColor: 'text-violet-500'
+            iconBg: 'bg-emerald-50 dark:bg-emerald-500/10',
+            iconColor: 'text-emerald-500'
         },
         {
             label: 'TAXA DE ABANDONO',
@@ -272,7 +272,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                             >
                                 <Bell size={18} className="text-slate-600 dark:text-brand-400" />
                                 {recentNotifications.length > 0 && (
-                                    <div className="absolute top-[10px] right-[10px] h-2 w-2 rounded-full bg-violet-600 border-2 border-white dark:border-brand-900" />
+                                    <div className="absolute top-[10px] right-[10px] h-2 w-2 rounded-full bg-emerald-600 border-2 border-white dark:border-brand-900" />
                                 )}
                             </button>
 
@@ -287,7 +287,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                         <div className="px-4 py-3 border-b border-slate-100 dark:border-white/5 mb-2 flex justify-between items-center">
                                             <span className="text-[10px] font-black uppercase text-slate-800 dark:text-white tracking-widest">Notificações</span>
                                             {recentNotifications.length > 0 && (
-                                                <span className="bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 text-[8px] font-black px-2 py-0.5 rounded-full">
+                                                <span className="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[8px] font-black px-2 py-0.5 rounded-full">
                                                     {recentNotifications.length} RECENTES
                                                 </span>
                                             )}
@@ -327,7 +327,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                         <div className="relative shrink-0" ref={profileRef}>
                             <button
                                 onClick={() => setProfileOpen(!profileOpen)}
-                                className="h-11 w-11 rounded-xl bg-violet-50 dark:bg-violet-900/30 border border-violet-200 dark:border-violet-500/20 p-1 flex items-center justify-center cursor-pointer hover:scale-105 transition-all overflow-hidden"
+                                className="h-11 w-11 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-500/20 p-1 flex items-center justify-center cursor-pointer hover:scale-105 transition-all overflow-hidden"
                             >
                                 <Logo size={40} showText={false} />
                             </button>
@@ -340,7 +340,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                         className="absolute right-0 top-[calc(100%+0.5rem)] w-64 rounded-[1.5rem] bg-white dark:bg-brand-950 p-2 border border-slate-100 dark:border-white/5 shadow-2xl z-50 overflow-hidden"
                                     >
-                                        <div className="px-4 py-4 bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-violet-900/20 dark:to-fuchsia-900/20 rounded-xl mb-2 flex flex-col gap-2">
+                                        <div className="px-4 py-4 bg-gradient-to-br from-emerald-50 to-fuchsia-50 dark:from-emerald-900/20 dark:to-fuchsia-900/20 rounded-xl mb-2 flex flex-col gap-2">
                                             <Logo showText size={28} textColor="text-slate-900 dark:text-white" />
                                             <div className="pl-1">
                                                 <p className="text-[11px] font-black text-slate-900 dark:text-white truncate">
@@ -351,7 +351,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                         </div>
                                         <button
                                             onClick={() => { setView('Configurações'); setProfileOpen(false); }}
-                                            className="flex w-full items-center gap-3 px-4 py-3 text-xs font-black text-slate-700 dark:text-brand-200 hover:bg-violet-50 dark:hover:bg-violet-500/10 hover:text-violet-600 rounded-xl transition-all uppercase tracking-widest"
+                                            className="flex w-full items-center gap-3 px-4 py-3 text-xs font-black text-slate-700 dark:text-brand-200 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:text-emerald-600 rounded-xl transition-all uppercase tracking-widest"
                                         >
                                             <UserCircle2 size={16} /> Meu Perfil
                                         </button>
@@ -385,7 +385,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                 onClick={() => { setShowPeriodDropdown(!showPeriodDropdown); setShowDatePicker(false); }}
                                 className="h-10 px-5 bg-white dark:bg-brand-900/40 border border-slate-100 dark:border-white/5 rounded-full shadow-sm flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-brand-900/60 transition-all"
                             >
-                                <Calendar size={14} className="text-violet-600 dark:text-violet-400" />
+                                <Calendar size={14} className="text-emerald-600 dark:text-emerald-400" />
                                 <span className="text-[10px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-widest">
                                     {showDatePicker ? 'Personalizado' : (periodOptions.find(p => p.key === period)?.label || 'Hoje')}
                                 </span>
@@ -415,7 +415,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                                 className={cn(
                                                     "w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                                                     (period === p.key && p.key !== 'PERSONALIZADO' && !showDatePicker) || (p.key === 'PERSONALIZADO' && showDatePicker)
-                                                        ? "bg-violet-600 text-white shadow-md shadow-violet-500/20"
+                                                        ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/20"
                                                         : "text-slate-500 hover:text-slate-800 hover:bg-slate-50 dark:text-brand-400 dark:hover:text-white dark:hover:bg-brand-900"
                                                 )}
                                             >
@@ -442,13 +442,13 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                                         <div className="space-y-4">
                                             <div>
                                                 <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest block mb-1">Data Inicial</label>
-                                                <input type="date" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/20" />
+                                                <input type="date" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
                                             </div>
                                             <div>
                                                 <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest block mb-1">Data Final</label>
-                                                <input type="date" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/20" />
+                                                <input type="date" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
                                             </div>
-                                            <button onClick={() => setShowDatePicker(false)} className="w-full py-2 bg-violet-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-700 transition-all">Aplicar</button>
+                                            <button onClick={() => setShowDatePicker(false)} className="w-full py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all">Aplicar</button>
                                         </div>
                                     </motion.div>
                                 )}
@@ -488,7 +488,7 @@ export function Dashboard({ user, onLogout, setView, toggleSidebar }: DashboardP
                         <div className="flex items-center justify-between px-2 min-h-[56px]">
                             <div>
                                 <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                                    <div className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+                                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                                     Gráfico de Vendas
                                 </h3>
                             </div>

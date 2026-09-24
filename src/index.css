@@ -29,7 +29,7 @@ body {
 }
 
 ::selection {
-  @apply bg-violet-600/30 text-violet-900 dark:text-violet-100;
+  @apply bg-emerald-600/30 text-emerald-900 dark:text-emerald-100;
 }
 
 /* Glassmorphism utility */
@@ -44,7 +44,7 @@ body {
 
 /* Premium Gradient Text */
 .text-gradient {
-  @apply bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-emerald-600 via-fuchsia-600 to-indigo-600 bg-clip-text text-transparent;
 }
 
 /* Custom Scrollbar */
@@ -58,7 +58,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300/40 dark:bg-white/10 rounded-full hover:bg-violet-500/50 transition-colors;
+  @apply bg-slate-300/40 dark:bg-white/10 rounded-full hover:bg-emerald-500/50 transition-colors;
 }
 
 /* Animations */
