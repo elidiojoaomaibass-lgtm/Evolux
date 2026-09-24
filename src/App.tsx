@@ -45,7 +45,7 @@ function App() {
     if (saved && lastActive) {
       const elapsed = Date.now() - parseInt(lastActive, 10);
       if (elapsed < SESSION_TIMEOUT_MS) {
-        const validViews = ["ThankYou", "Dashboard", "Vendas", "Produtos", "Afiliados", "Mercado", "Pagamentos", "Levantamentos", "Premiações", "Integrações", "Configurações", "Documentação"];
+        const validViews = ["ThankYou", "Dashboard", "Vendas", "Produtos", "Afiliados", "Mercado", "Pagamentos", "Levantamentos", "Premiações", "Integrações", "Configurações"];
         if (validViews.includes(saved)) return saved as ViewType;
       }
     }
@@ -437,7 +437,7 @@ function App() {
           {activeView === "Integrações" && <Views.Ferramentas />}
           {activeView === "Análise" && <Views.Análise />}
           {activeView === "Configurações" && <Views.Configuracoes onLogout={handleLogout} />}
-          {activeView === "Documentação" && <Views.Documentacao />}
+
         </div>
       </main>
 

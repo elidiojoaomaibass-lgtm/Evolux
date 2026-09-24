@@ -11,7 +11,7 @@ export type ViewType =
     | "ThankYou"
     | "Dashboard" | "Vendas" | "Produtos" | "Afiliados"
     | "Mercado" | "Pagamentos" | "Levantamentos" | "Premiações" | "Integrações"
-    | "Análise" | "Configurações" | "Documentação";
+    | "Análise" | "Configurações";
 
 interface SidebarProps {
     activeView: ViewType;

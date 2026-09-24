@@ -431,13 +431,6 @@ export const FerramentasView = () => {
                                 <p className="text-[10px] leading-snug text-slate-500 font-medium italic">
                                     Rastreie conversões e crie públicos personalizados para o Facebook e Instagram.
                                 </p>
-                                <button
-                                    type="button"
-                                    onClick={() => window.dispatchEvent(new CustomEvent('change-view', { detail: 'Documentação' }))}
-                                    className="mt-1 flex w-fit items-center gap-1 text-[10px] font-bold text-violet-600 hover:text-violet-700 underline"
-                                >
-                                    Ler Documentação Oficial
-                                </button>
                             </div>
                         </div>
                     </div>
