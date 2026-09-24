@@ -203,7 +203,7 @@ export const ThankYouPage = () => {
                     transition={{ delay: 1 }}
                     className="text-center text-white/20 text-[10px] mt-4 tracking-widest uppercase"
                 >
-                    Powered by Evolux Pay
+                    Powered by VELORA Pay
                 </motion.p>
             </motion.div>
 

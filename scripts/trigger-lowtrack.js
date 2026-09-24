@@ -19,7 +19,7 @@ const payload = {
   transaction_id: 'test-12345',
   reference: 'ref-67890',
   amount: 1000,
-  method: 'Evolux Pay',
+  method: 'VELORA Pay',
   status: 'Concluído',
   customer: {
     name: 'Test User',

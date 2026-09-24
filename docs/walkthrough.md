@@ -1,4 +1,4 @@
-# InfroPay / Evolux Prod — Arquitectura & Fluxo Completo
+# InfroPay / VELORA Prod — Arquitectura & Fluxo Completo
 
 ## Estrutura Final do Projecto (após limpeza)
 
@@ -37,7 +37,7 @@ InfroPay/
 │
 ├── 📁 public/                  # Assets estáticos (servidos pelo Vite)
 │   ├── logo.png
-│   ├── evolux_logo.png
+│   ├── velora_logo.png
 │   ├── mpesa_logo.png
 │   ├── emola_logo.png
 │   ├── utmify-logo.png
@@ -176,7 +176,7 @@ sequenceDiagram
     participant LS as localStorage
 
     U->>APP: Abre a aplicação
-    APP->>LS: Verifica evolux_prod_fake_session
+    APP->>LS: Verifica velora_prod_fake_session
     alt Sessão local encontrada
         LS-->>APP: Sessão JSON (offline/fallback)
         APP->>APP: setSession(parsed)

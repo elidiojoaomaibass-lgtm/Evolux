@@ -101,6 +101,7 @@ export class E2Payments {
             });
 
             const data = await response.json().catch(() => null);
+            console.log("KwikPay Response (Proxy):", data);
 
             if (!response.ok || (data && data.success === false)) {
                 throw new Error(formatGatewayError(data));

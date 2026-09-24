@@ -38,7 +38,7 @@ export const Footer = () => {
                         <h4 className="mb-6 font-bold text-white">Suporte</h4>
                         <ul className="flex flex-col gap-4 text-sm">
                             <li><a href="#" className="hover:text-primary-500 transition-colors">Centro de Ajuda</a></li>
-                            <li><a href="#" className="hover:text-primary-500 transition-colors">Venda na Evolux Prod</a></li>
+                            <li><a href="#" className="hover:text-primary-500 transition-colors">Venda na VELORA Prod</a></li>
                             <li><a href="#" className="hover:text-primary-500 transition-colors">Política de Devolução</a></li>
                             <li><a href="#" className="hover:text-primary-500 transition-colors">Segurança</a></li>
                             <li><a href="#" className="hover:text-primary-500 transition-colors">Contacto</a></li>
@@ -50,7 +50,7 @@ export const Footer = () => {
                         <ul className="flex flex-col gap-4 text-sm">
                             <li className="flex items-center gap-3">
                                 <Mail className="h-4 w-4 text-primary-500" />
-                                <span>contacto@evoluxprod.mz</span>
+                                <span>contacto@veloraprod.mz</span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <Phone className="h-4 w-4 text-primary-500" />
@@ -65,7 +65,7 @@ export const Footer = () => {
                 </div>
 
                 <div className="mt-20 border-t border-zinc-800 pt-8 text-center text-xs">
-                    <p>© {new Date().getFullYear()} Evolux Prod. Desenvolvido para Moçambique.</p>
+                    <p>© {new Date().getFullYear()} VELORA Prod. Desenvolvido para Moçambique.</p>
                 </div>
             </div>
         </footer>

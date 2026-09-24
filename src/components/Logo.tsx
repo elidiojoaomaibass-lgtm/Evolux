@@ -17,7 +17,7 @@ export const Logo = ({ className, size = 40, showText = false, textColor = "text
             >
                 <img
                     src="/logo.png"
-                    alt="Evolux Prod Logo"
+                    alt="VELORA Prod Logo"
                     className="w-full h-full object-cover"
                     onError={(e) => {
                         // Fallback: SVG gradient logo if image not found
@@ -38,7 +38,7 @@ export const Logo = ({ className, size = 40, showText = false, textColor = "text
             </div>
             {showText && (
                 <span className={cn("text-xl md:text-2xl font-black tracking-tight leading-none", textColor)}>
-                    Evolux <span className="text-violet-600 dark:text-violet-400">Prod</span>
+                    VELORA <span className="text-violet-600 dark:text-violet-400">Prod</span>
                 </span>
             )}
         </div>

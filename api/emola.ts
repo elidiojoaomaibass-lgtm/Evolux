@@ -51,7 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       msisdn: formattedPhone,
       amount: amount,
       orderId: reference || `EM-${Date.now()}`,
-      description: 'Pagamento Evolux Prod'
+      description: 'Pagamento VELORA Prod'
     };
 
     const response = await fetch(`${baseUrl}/v1/payments/request`, {

@@ -42,7 +42,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                 
             } else {
                 // Fake session fallback
-                const fake = localStorage.getItem('evolux_prod_fake_session');
+                const fake = localStorage.getItem('velora_prod_fake_session');
                 if (fake) {
                     const fakeUser = JSON.parse(fake).user;
                     setUser(fakeUser);
@@ -58,10 +58,10 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
         loadUser();
 
         // Load E2Payments settings from localStorage
-        // const savedClientId = localStorage.getItem('evolux_e2_client_id');
-        // const savedClientSecret = localStorage.getItem('evolux_e2_client_secret');
-        // const savedWalletMpesa = localStorage.getItem('evolux_e2_wallet_mpesa');
-        // const savedWalletEmola = localStorage.getItem('evolux_e2_wallet_emola');
+        // const savedClientId = localStorage.getItem('velora_e2_client_id');
+        // const savedClientSecret = localStorage.getItem('velora_e2_client_secret');
+        // const savedWalletMpesa = localStorage.getItem('velora_e2_wallet_mpesa');
+        // const savedWalletEmola = localStorage.getItem('velora_e2_wallet_emola');
 
         // if (savedClientId) setE2ClientId(savedClientId);
 // if (savedClientSecret) setE2ClientSecret(savedClientSecret);
@@ -88,7 +88,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                 if (error) throw error;
             } else {
                 // Fallback to fake session
-                const fake = localStorage.getItem('evolux_prod_fake_session');
+                const fake = localStorage.getItem('velora_prod_fake_session');
                 if (fake) {
                     const parsed = JSON.parse(fake);
                     parsed.user = { 
@@ -98,7 +98,7 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                             ...metadata 
                         } 
                     };
-                    localStorage.setItem('evolux_prod_fake_session', JSON.stringify(parsed));
+                    localStorage.setItem('velora_prod_fake_session', JSON.stringify(parsed));
                 } else {
                     throw new Error('Nenhuma sessão ativa encontrada para salvar.');
                 }
@@ -404,10 +404,10 @@ export const ConfiguracoesView = ({ onLogout }: { onLogout: () => void }) => {
                                         <div>
                                             <h4 className="text-xs font-black text-amber-800 dark:text-amber-200 uppercase tracking-wider mb-3 flex items-center gap-2">
                                                 <Shield size={14} />
-                                                TERMOS DA EVOLUX PROD
+                                                TERMOS DA VELORA
                                             </h4>
                                             <ul className="text-[10px] md:text-xs font-medium text-amber-700 dark:text-amber-400 space-y-2 list-none">
-                                                <li>• A Evolux Prod é uma plataforma de venda de produtos digitais e físicos.</li>
+                                                <li>• A VELORA Prod é uma plataforma de venda de produtos digitais e físicos.</li>
                                                 <li>• O usuário deve fornecer informações verdadeiras no cadastro.</li>
                                                 <li>• Cada vendedor é responsável pelo produto que publica.</li>
                                                 <li>• A plataforma atua apenas como intermediadora.</li>

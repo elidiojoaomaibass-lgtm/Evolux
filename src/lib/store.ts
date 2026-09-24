@@ -4,7 +4,7 @@ import { supabase } from './supabase';
 import { toast } from 'sonner';
 
 // Key for offline product storage
-const OFFLINE_PRODUCTS_KEY = 'evolux_offline_products';
+const OFFLINE_PRODUCTS_KEY = 'velora_offline_products';
 
 export const getActiveUserEmail = async (): Promise<string> => {
     try {
@@ -14,7 +14,7 @@ export const getActiveUserEmail = async (): Promise<string> => {
         }
     } catch {}
 
-    const fake = localStorage.getItem('evolux_prod_fake_session');
+    const fake = localStorage.getItem('velora_prod_fake_session');
     if (fake) {
         try {
             const parsed = JSON.parse(fake);
@@ -26,7 +26,7 @@ export const getActiveUserEmail = async (): Promise<string> => {
 };
 
 const getInitialLocalProducts = (): Product[] => {
-    const stored = localStorage.getItem(OFFLINE_PRODUCTS_KEY) || localStorage.getItem('evolux_prod_products');
+    const stored = localStorage.getItem(OFFLINE_PRODUCTS_KEY) || localStorage.getItem('velora_prod_products');
     if (stored) {
         try {
             const parsed = JSON.parse(stored);
@@ -193,7 +193,7 @@ export const useProductsStore = () => {
             if (data && data.length > 0) {
                 globalProducts = data;
                 localStorage.setItem(OFFLINE_PRODUCTS_KEY, JSON.stringify(globalProducts));
-                localStorage.setItem('evolux_prod_products', JSON.stringify(globalProducts));
+                localStorage.setItem('velora_prod_products', JSON.stringify(globalProducts));
                 listeners.forEach(l => l(globalProducts));
             }
         };
@@ -207,7 +207,7 @@ export const useProductsStore = () => {
     const updateProducts = (newProducts: Product[]) => {
         globalProducts = newProducts;
         localStorage.setItem(OFFLINE_PRODUCTS_KEY, JSON.stringify(globalProducts));
-        localStorage.setItem('evolux_prod_products', JSON.stringify(globalProducts));
+        localStorage.setItem('velora_prod_products', JSON.stringify(globalProducts));
         listeners.forEach(l => l(globalProducts));
     };
 
@@ -364,7 +364,7 @@ export interface AffiliateRequest {
     commission: number;
 }
 
-const AFFILIATES_STORAGE_KEY = 'evolux_prod_affiliate_requests';
+const AFFILIATES_STORAGE_KEY = 'velora_prod_affiliate_requests';
 
 const initialRequests: AffiliateRequest[] = [];
 
@@ -445,8 +445,8 @@ export interface MarketingCampaign {
     spend: number;
 }
 
-const COUPONS_STORAGE_KEY = 'evolux_prod_coupons';
-const CAMPAIGNS_STORAGE_KEY = 'evolux_prod_campaigns';
+const COUPONS_STORAGE_KEY = 'velora_prod_coupons';
+const CAMPAIGNS_STORAGE_KEY = 'velora_prod_campaigns';
 
 const initialCoupons: Coupon[] = [];
 
@@ -515,7 +515,7 @@ export interface Transaction {
     failureReason?: string;
 }
 
-const TRANSACTIONS_STORAGE_KEY = 'evolux_prod_transactions';
+const TRANSACTIONS_STORAGE_KEY = 'velora_prod_transactions';
 
 const getInitialTransactions = (): Transaction[] => {
     const stored = localStorage.getItem(TRANSACTIONS_STORAGE_KEY);
@@ -603,14 +603,14 @@ export const useTransactionsStore = () => {
                     // Trigger System Notification for Payments
                     if (payload.eventType === 'INSERT' && payload.new.type === 'payment' && payload.new.status === 'Concluído') {
                         const val = Number(payload.new.amount).toLocaleString('pt-PT');
-                        // const method = payload.new.method || 'Evolux Pay'; // removed unused variable
+                        // const method = payload.new.method || 'VELORA Pay'; // removed unused variable
                         sendLocalNotification('Você recebeu um novo pedido! 🎉', {
                             body: `Venda aprovada de ${val} MT ${payload.new.method}`,
                             icon: '/logo.png'
                         });
                     } else if (payload.eventType === 'UPDATE' && payload.new.type === 'payment' && payload.old?.status !== 'Concluído' && payload.new.status === 'Concluído') {
                         const val = Number(payload.new.amount).toLocaleString('pt-PT');
-                        // const method = payload.new.method || 'Evolux Pay'; // removed unused variable
+                        // const method = payload.new.method || 'VELORA Pay'; // removed unused variable
                         sendLocalNotification('Você recebeu um novo pedido! 🎉', {
                             body: `Venda aprovada de ${val} MT ${payload.new.method}`,
                             icon: '/logo.png'

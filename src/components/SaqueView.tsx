@@ -71,7 +71,7 @@ export const SaqueView = () => {
             if (user?.user_metadata?.phone_number) {
                 setPhone(user.user_metadata.phone_number.replace(/\D/g, '').slice(-9));
             } else {
-                const fake = localStorage.getItem('evolux_prod_fake_session');
+                const fake = localStorage.getItem('velora_prod_fake_session');
                 if (fake) {
                     const parsed = JSON.parse(fake);
                     if (parsed.user?.user_metadata?.phone_number) {

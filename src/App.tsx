@@ -18,29 +18,29 @@ import { Menu } from './components/MenuIcon';
 function App() {
   console.log('App rendered');
   const [session, setSession] = useState<Session | null>(() => {
-    const saved = localStorage.getItem('evolux_prod_fake_session');
+    const saved = localStorage.getItem('velora_prod_fake_session');
     if (!saved) return null;
     try {
       const parsed = JSON.parse(saved);
       // Ensure the parsed object has a user property
       return (parsed && parsed.user) ? parsed : null;
     } catch (e) {
-      localStorage.removeItem('evolux_prod_fake_session');
+      localStorage.removeItem('velora_prod_fake_session');
       return null;
     }
   });
 
   // Skip loading screen if we already restored a session from localStorage
   const [sessionChecked, setSessionChecked] = useState(() => {
-    return !!localStorage.getItem('evolux_prod_fake_session');
+    return !!localStorage.getItem('velora_prod_fake_session');
   });
 
   const [activeView, setActiveView] = useState<ViewType>(() => {
     // Use sessionStorage: persiste enquanto a aba está aberta (minimizar mantém), mas reseta ao fechar o browser
     // Também verificamos um timestamp para resetar após 30 minutos de inatividade
     const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutos
-    const saved = sessionStorage.getItem('evolux_active_view');
-    const lastActive = sessionStorage.getItem('evolux_last_active');
+    const saved = sessionStorage.getItem('velora_active_view');
+    const lastActive = sessionStorage.getItem('velora_last_active');
 
     if (saved && lastActive) {
       const elapsed = Date.now() - parseInt(lastActive, 10);
@@ -57,7 +57,7 @@ function App() {
     const isThankYou = params.get('thankyou') === 'true' || window.location.pathname === '/obrigado';
     if (isThankYou) {
       setActiveView('ThankYou' as ViewType);
-      localStorage.setItem('evolux_prod_active_view', 'ThankYou');
+      localStorage.setItem('velora_prod_active_view', 'ThankYou');
     }
   }, []);
 
@@ -67,8 +67,8 @@ function App() {
 
   useEffect(() => {
     // Guarda a aba atual e o timestamp na sessionStorage (reset automático ao fechar o browser)
-    sessionStorage.setItem('evolux_active_view', activeView);
-    sessionStorage.setItem('evolux_last_active', Date.now().toString());
+    sessionStorage.setItem('velora_active_view', activeView);
+    sessionStorage.setItem('velora_last_active', Date.now().toString());
   }, [activeView]);
 
   // Atualiza o timestamp de atividade ao focar a janela (para detetar inatividade longa)
@@ -76,16 +76,16 @@ function App() {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
-        const lastActive = sessionStorage.getItem('evolux_last_active');
+        const lastActive = sessionStorage.getItem('velora_last_active');
         if (lastActive) {
           const elapsed = Date.now() - parseInt(lastActive, 10);
           if (elapsed >= SESSION_TIMEOUT_MS) {
             // Mais de 30 minutos inativo → volta ao Dashboard
             setActiveView('Dashboard');
-            sessionStorage.setItem('evolux_active_view', 'Dashboard');
+            sessionStorage.setItem('velora_active_view', 'Dashboard');
           }
         }
-        sessionStorage.setItem('evolux_last_active', Date.now().toString());
+        sessionStorage.setItem('velora_last_active', Date.now().toString());
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -108,7 +108,7 @@ function App() {
         if (session) {
           setSession(session);
         } else {
-          const fake = localStorage.getItem('evolux_prod_fake_session');
+          const fake = localStorage.getItem('velora_prod_fake_session');
           if (!fake) {
             setSession(null);
           }
@@ -146,9 +146,9 @@ function App() {
           }
         };
         // Update fake session in localStorage if present
-        const fake = localStorage.getItem('evolux_prod_fake_session');
+        const fake = localStorage.getItem('velora_prod_fake_session');
         if (fake) {
-          localStorage.setItem('evolux_prod_fake_session', JSON.stringify(updated));
+          localStorage.setItem('velora_prod_fake_session', JSON.stringify(updated));
         }
         return updated;
       });
@@ -171,7 +171,7 @@ function App() {
   // Auto-login using stored fake session if present and no real session
   useEffect(() => {
     if (sessionChecked && !session) {
-      const fake = localStorage.getItem('evolux_prod_fake_session');
+      const fake = localStorage.getItem('velora_prod_fake_session');
       if (fake) {
         try {
           const parsed = JSON.parse(fake);
@@ -267,7 +267,7 @@ function App() {
 
   // Meta Ads Pixel Injection
   useEffect(() => {
-    const pixelId = localStorage.getItem('evolux_prod_facebook_pixel_id');
+    const pixelId = localStorage.getItem('velora_prod_facebook_pixel_id');
     if (!pixelId) return;
 
     const w = window as any;
@@ -294,7 +294,7 @@ function App() {
 
   // TikTok Pixel Injection
   useEffect(() => {
-    const pixelId = localStorage.getItem('evolux_prod_tiktok_pixel_id');
+    const pixelId = localStorage.getItem('velora_prod_tiktok_pixel_id');
     if (!pixelId) return;
 
     const w = window as any;
@@ -335,10 +335,10 @@ function App() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    localStorage.removeItem('evolux_prod_fake_session');
+    localStorage.removeItem('velora_prod_fake_session');
     // Ao fazer logout, apaga a aba guardada → próximo login sempre começa no Dashboard
-    sessionStorage.removeItem('evolux_active_view');
-    sessionStorage.removeItem('evolux_last_active');
+    sessionStorage.removeItem('velora_active_view');
+    sessionStorage.removeItem('velora_last_active');
     setActiveView('Dashboard');
     setSession(null);
   };
@@ -356,7 +356,7 @@ function App() {
     return <LoginView onLogin={(fallbackUser?: any) => {
       if (fallbackUser) {
         const fakeSession = { user: fallbackUser };
-        localStorage.setItem('evolux_prod_fake_session', JSON.stringify(fakeSession));
+        localStorage.setItem('velora_prod_fake_session', JSON.stringify(fakeSession));
         setSession(fakeSession as any);
         return;
       }
@@ -372,7 +372,7 @@ function App() {
               user_metadata: { full_name: 'Administrador' }
             }
           };
-          localStorage.setItem('evolux_prod_fake_session', JSON.stringify(fakeSession));
+          localStorage.setItem('velora_prod_fake_session', JSON.stringify(fakeSession));
           setSession(fakeSession as any);
         }
       });

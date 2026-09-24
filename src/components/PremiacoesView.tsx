@@ -17,7 +17,7 @@ const levelsConfig = [
 ];
 
 const rewardsConfig = [
-    { target: 10000, label: 'FATURADOS', title: 'Pulseira Evolux de 10K', image: '/awards/10K.png' },
+    { target: 10000, label: 'FATURADOS', title: 'Pulseira VELORA de 10K', image: '/awards/10K.png' },
     { target: 100000, label: 'FATURADOS', title: 'Placa de Prata de 100K', image: '/awards/100k.jpg' },
     { target: 500000, label: 'FATURADOS', title: 'Placa de Ouro de 500K', image: '/awards/500K.jpg' },
     { target: 1000000, label: 'FATURADOS', title: 'Placa de Diamante de 1M', image: '/awards/1M.jpg' },
@@ -64,7 +64,7 @@ export const PremiacoesView = () => {
                         <span>Premiações</span>
                     </h2>
                     <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight pl-[3.5rem] md:pl-0 leading-snug">
-                        Conquiste marcos e desbloqueie prêmios exclusivos pela Evolux.
+                        Conquiste marcos e desbloqueie prêmios exclusivos pela VELORA.
                     </p>
                 </div>
             </div>

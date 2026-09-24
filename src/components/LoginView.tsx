@@ -100,7 +100,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                         <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl overflow-hidden shadow-lg shadow-violet-500/10">
                             <img
                                 src="/logo.png"
-                                alt="Evolux"
+                                alt="VELORA"
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).src =
@@ -110,7 +110,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                         </div>
                         <div>
                             <p className="text-white font-black text-xl md:text-2xl leading-none tracking-tight">
-                                Evolux <span className="text-violet-400">Prod</span>
+                                VELORA <span className="text-violet-400">Prod</span>
                             </p>
                         </div>
                     </div>
@@ -352,7 +352,7 @@ export const LoginView = ({ onLogin }: LoginViewProps) => {
                             transition={{ delay: 0.1 }}
                             className="text-lg text-slate-600 font-medium leading-relaxed"
                         >
-                            A Evolux Prod é a infraestrutura definitiva para criadores moçambicanos que buscam o próximo nível em vendas digitais.
+                            A VELORA Prod é a infraestrutura definitiva para criadores moçambicanos que buscam o próximo nível em vendas digitais.
                         </motion.p>
                     </div>
 

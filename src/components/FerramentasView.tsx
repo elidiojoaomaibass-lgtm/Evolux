@@ -13,19 +13,19 @@ import { toast } from 'sonner';
 
 export const FerramentasView = () => {
     // Utmify state
-    const [utmifyToken, setUtmifyToken] = useState(() => localStorage.getItem('evolux_prod_utmify_token') || '');
+    const [utmifyToken, setUtmifyToken] = useState(() => localStorage.getItem('velora_prod_utmify_token') || '');
 
     // LowTrack state
-    const [lowTrackToken, setLowTrackToken] = useState(() => localStorage.getItem('evolux_prod_lowtrack_token') || '');
+    const [lowTrackToken, setLowTrackToken] = useState(() => localStorage.getItem('velora_prod_lowtrack_token') || '');
 
     // Meta Ads Pixel state (loaded from Supabase, local state as fallback)
     const [pixelId, setPixelId] = useState('');
     const [tiktokId, setTiktokId] = useState('');
 
     // Webhook state
-    const [webhookUrl, setWebhookUrl] = useState(() => localStorage.getItem('evolux_prod_webhook_url') || '');
+    const [webhookUrl, setWebhookUrl] = useState(() => localStorage.getItem('velora_prod_webhook_url') || '');
     const [webhookEvents, setWebhookEvents] = useState(() => {
-        const saved = localStorage.getItem('evolux_prod_webhook_events');
+        const saved = localStorage.getItem('velora_prod_webhook_events');
         if (saved) {
             try {
                 return JSON.parse(saved);
@@ -42,9 +42,9 @@ export const FerramentasView = () => {
     });
 
     // Novas Integrações
-    const [googleAdsId, setGoogleAdsId] = useState(() => localStorage.getItem('evolux_prod_google_ads_id') || '');
-    const [whatsappToken, setWhatsappToken] = useState(() => localStorage.getItem('evolux_prod_whatsapp_token') || '');
-    const [klaviyoToken, setKlaviyoToken] = useState(() => localStorage.getItem('evolux_prod_klaviyo_token') || '');
+    const [googleAdsId, setGoogleAdsId] = useState(() => localStorage.getItem('velora_prod_google_ads_id') || '');
+    const [whatsappToken, setWhatsappToken] = useState(() => localStorage.getItem('velora_prod_whatsapp_token') || '');
+    const [klaviyoToken, setKlaviyoToken] = useState(() => localStorage.getItem('velora_prod_klaviyo_token') || '');
     const [testPushValue, setTestPushValue] = useState('97,00');
 
     const [userEmail, setUserEmail] = useState<string>('');
@@ -67,11 +67,11 @@ export const FerramentasView = () => {
                     if (data.lowtrack_token) setLowTrackToken(data.lowtrack_token);
                     if (data.facebook_pixel_id) {
                         setPixelId(data.facebook_pixel_id);
-                        localStorage.setItem('evolux_prod_facebook_pixel_id', data.facebook_pixel_id);
+                        localStorage.setItem('velora_prod_facebook_pixel_id', data.facebook_pixel_id);
                     }
                     if (data.tiktok_pixel_id) {
                         setTiktokId(data.tiktok_pixel_id);
-                        localStorage.setItem('evolux_prod_tiktok_pixel_id', data.tiktok_pixel_id);
+                        localStorage.setItem('velora_prod_tiktok_pixel_id', data.tiktok_pixel_id);
                     }
                 }
             } else {
@@ -89,7 +89,7 @@ export const FerramentasView = () => {
                 email = sess?.session?.user?.email || '';
             }
             if (!email) {
-                const fake = localStorage.getItem('evolux_prod_fake_session');
+                const fake = localStorage.getItem('velora_prod_fake_session');
                 if (fake) {
                     try {
                         const parsed = JSON.parse(fake);
@@ -118,7 +118,7 @@ export const FerramentasView = () => {
 
     const handleSaveUtmify = (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('evolux_prod_utmify_token', utmifyToken);
+        localStorage.setItem('velora_prod_utmify_token', utmifyToken);
         toast.success('Token Utmify salvo!', {
             description: 'A integração com Utmify está agora ativa no seu checkout.'
         });
@@ -126,7 +126,7 @@ export const FerramentasView = () => {
 
     const handleSaveLowTrack = async (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('evolux_prod_lowtrack_token', lowTrackToken);
+        localStorage.setItem('velora_prod_lowtrack_token', lowTrackToken);
         await saveSettingToDB({ lowtrack_token: lowTrackToken });
         toast.success('Token LowTrack salvo!', {
             description: 'A integração com LowTrack está agora ativa no seu checkout e foi guardada na sua conta.'
@@ -170,7 +170,7 @@ export const FerramentasView = () => {
 
     const handleSavePixel = async (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('evolux_prod_facebook_pixel_id', pixelId);
+        localStorage.setItem('velora_prod_facebook_pixel_id', pixelId);
         const ok = await saveSettingToDB({ facebook_pixel_id: pixelId });
         if (!ok) return; // toast de erro já foi mostrado dentro de saveSettingToDB
 
@@ -191,7 +191,7 @@ export const FerramentasView = () => {
 
     const handleSaveTikTok = async (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('evolux_prod_tiktok_pixel_id', tiktokId);
+        localStorage.setItem('velora_prod_tiktok_pixel_id', tiktokId);
         await saveSettingToDB({ tiktok_pixel_id: tiktokId });
         toast.success('Pixel do TikTok salvo na conta!', {
             description: 'O TikTok Pixel está ativo e sincronizado em todos os dispositivos.'
@@ -204,8 +204,8 @@ export const FerramentasView = () => {
             toast.error('URL do Webhook inválida');
             return;
         }
-        localStorage.setItem('evolux_prod_webhook_url', webhookUrl);
-        localStorage.setItem('evolux_prod_webhook_events', JSON.stringify(webhookEvents));
+        localStorage.setItem('velora_prod_webhook_url', webhookUrl);
+        localStorage.setItem('velora_prod_webhook_events', JSON.stringify(webhookEvents));
         await saveSettingToDB({ webhook_url: webhookUrl, webhook_events: webhookEvents });
         toast.success('Webhook configurado!', {
             description: 'Os eventos selecionados serão enviados para a URL informada e as configurações foram guardadas na sua conta.'
@@ -222,7 +222,7 @@ export const FerramentasView = () => {
             event: 'test_webhook',
             timestamp: new Date().toISOString(),
             data: {
-                message: 'Webhook de teste enviado pela Evolux Prod'
+                message: 'Webhook de teste enviado pela VELORA Prod'
             }
         };
 
@@ -249,19 +249,19 @@ export const FerramentasView = () => {
 
     const handleSaveGoogleAds = (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('evolux_prod_google_ads_id', googleAdsId);
+        localStorage.setItem('velora_prod_google_ads_id', googleAdsId);
         toast.success('Google Ads salvo!', { description: 'O rastreamento de conversões via API está ativo.' });
     };
 
     const handleSaveWhatsapp = (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('evolux_prod_whatsapp_token', whatsappToken);
+        localStorage.setItem('velora_prod_whatsapp_token', whatsappToken);
         toast.success('WhatsApp configurado!', { description: 'A recuperação automática de vendas foi ativada.' });
     };
 
     const handleSaveKlaviyo = (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('evolux_prod_klaviyo_token', klaviyoToken);
+        localStorage.setItem('velora_prod_klaviyo_token', klaviyoToken);
         toast.success('Klaviyo configurado!', { description: 'A integração de email marketing está ativa.' });
     };
 
@@ -342,7 +342,7 @@ export const FerramentasView = () => {
                         <span>Ferramentas e Integrações</span>
                     </h2>
                     <p className="text-[10px] md:text-xs text-slate-400 dark:text-brand-400 font-medium tracking-tight pl-[3.5rem] md:pl-0 leading-snug">
-                        Conecte a Evolux Prod com serviços externos para automatizar o seu negócio.
+                        Conecte a VELORA Prod com serviços externos para automatizar o seu negócio.
                     </p>
                 </div>
             </div>
